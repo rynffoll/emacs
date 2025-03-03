@@ -1870,23 +1870,6 @@
      :fallback 'same-as-icon))
   (treemacs-load-theme "nerd-icons"))
 
-(use-package em-smart
-  :ensure nil
-  :after eshell
-  :config
-  (eshell-smart-initialize))
-
-(use-package eshell-fringe-status
-  :hook
-  (eshell-mode-hook . eshell-fringe-status-mode))
-
-(use-package eshell-prompt-extras
-  :after eshell
-  :commands epe-theme-lambda
-  :init
-  (setq eshell-highlight-prompt nil)
-  (setq eshell-prompt-function 'epe-theme-lambda))
-
 (use-package vterm
   :preface
   (defun +vterm ()

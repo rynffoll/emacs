@@ -113,7 +113,6 @@
   - [[#avy][Avy]]
 - [[#obsolete-treemacs][OBSOLETE Treemacs]]
 - [[#terminal][Terminal]]
-  - [[#eshell][eshell]]
   - [[#vterm][vterm]]
   - [[#obsolete-quick-access-to-shell][OBSOLETE Quick access to shell]]
 - [[#git][Git]]
@@ -2623,30 +2622,6 @@ CLOSED: [2025-01-03 Fri 11:15]
 #+end_src
 
 * Terminal
-** eshell
-#+begin_src emacs-lisp
-(use-package em-smart
-  :ensure nil
-  :after eshell
-  :config
-  (eshell-smart-initialize))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package eshell-fringe-status
-  :hook
-  (eshell-mode-hook . eshell-fringe-status-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package eshell-prompt-extras
-  :after eshell
-  :commands epe-theme-lambda
-  :init
-  (setq eshell-highlight-prompt nil)
-  (setq eshell-prompt-function 'epe-theme-lambda))
-#+end_src
-
 ** vterm
 #+begin_src emacs-lisp
 (use-package vterm
