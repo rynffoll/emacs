@@ -153,7 +153,6 @@
   - [[#justfile][Justfile]]
   - [[#plantuml-1][PlantUML]]
   - [[#sql][SQL]]
-  - [[#groovy][Groovy]]
   - [[#markdown][Markdown]]
   - [[#json][JSON]]
   - [[#yaml][YAML]]
@@ -3486,11 +3485,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
                                 (sql-user "postgres")
                                 (sql-password "postgres")
                                 (sql-database "postgres")))))
-#+end_src
-
-** Groovy
-#+begin_src emacs-lisp
-(use-package groovy-mode)
 #+end_src
 
 ** Markdown

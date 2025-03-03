@@ -2525,8 +2525,6 @@
                                 (sql-password "postgres")
                                 (sql-database "postgres")))))
 
-(use-package groovy-mode)
-
 (use-package markdown-mode
   :custom-face
   (markdown-code-face ((t (:inherit default))))
