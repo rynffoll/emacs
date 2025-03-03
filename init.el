@@ -2491,14 +2491,6 @@
     "e." 'justl
     "ee" 'justl-exec-recipe-in-dir))
 
-(use-package web-mode
-  :mode "\\.html?\\'"
-  :init
-  (setq web-mode-enable-block-face t)
-  (setq web-mode-enable-part-face t)
-  (setq web-mode-enable-comment-interpolation t)
-  (setq web-mode-enable-current-element-highlight t))
-
 (use-package plantuml-mode
   :general
   (+local-leader-def :keymaps 'plantuml-mode-map
