@@ -114,7 +114,6 @@
 - [[#obsolete-treemacs][OBSOLETE Treemacs]]
 - [[#terminal][Terminal]]
   - [[#vterm][vterm]]
-  - [[#obsolete-quick-access-to-shell][OBSOLETE Quick access to shell]]
 - [[#git][Git]]
   - [[#magit][magit]]
   - [[#magit-todos][magit-todos]]
@@ -2646,25 +2645,6 @@ CLOSED: [2025-01-03 Fri 11:15]
   (vterm-mode-hook . +disable-global-hl-line-mode)
   ;; (vterm-mode-hook . hide-mode-line-mode)
   )
-#+end_src
-
-** OBSOLETE Quick access to shell
-CLOSED: [2025-01-20 Mon 22:26]
-#+begin_src emacs-lisp
-(use-package eshell-toggle
-  :disabled
-  :preface
-  (defun +eshell-toggle-init-vterm (dir)
-    (let ((default-directory dir))
-      (vterm)))
-  :general
-  ("§" 'eshell-toggle)
-  (+leader-def
-    "`" 'eshell-toggle)
-  :init
-  (setq eshell-toggle-init-function '+eshell-toggle-init-vterm)
-  (setq eshell-toggle-find-project-root-package 'project)
-  (setq eshell-toggle-run-command nil))
 #+end_src
 
 * Git

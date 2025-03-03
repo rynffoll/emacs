@@ -1893,21 +1893,6 @@
   ;; (vterm-mode-hook . hide-mode-line-mode)
   )
 
-(use-package eshell-toggle
-  :disabled
-  :preface
-  (defun +eshell-toggle-init-vterm (dir)
-    (let ((default-directory dir))
-      (vterm)))
-  :general
-  ("§" 'eshell-toggle)
-  (+leader-def
-    "`" 'eshell-toggle)
-  :init
-  (setq eshell-toggle-init-function '+eshell-toggle-init-vterm)
-  (setq eshell-toggle-find-project-root-package 'project)
-  (setq eshell-toggle-run-command nil))
-
 (use-package magit
   :commands magit-blame
   :preface
