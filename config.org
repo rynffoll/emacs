@@ -17,10 +17,10 @@
   - [[#use-package][use-package]]
   - [[#gnu-elpa-keyring-update][gnu-elpa-keyring-update]]
 - [[#defaults-1][Defaults]]
-  - [[#utf-8][UTF-8]]
-  - [[#compile][Compile]]
-  - [[#time][Time]]
-  - [[#calendar][Calendar]]
+  - [[#utf-8][utf-8]]
+  - [[#compile][compile]]
+  - [[#time][time]]
+  - [[#calendar][calendar]]
 - [[#gc][GC]]
 - [[#async][Async]]
 - [[#general][General]]
@@ -109,8 +109,8 @@
   - [[#flycheck][flycheck]]
   - [[#flymake][flymake]]
 - [[#goto][Goto]]
-  - [[#imenu][Imenu]]
-  - [[#avy][Avy]]
+  - [[#imenu][imenu]]
+  - [[#avy][avy]]
 - [[#obsolete-treemacs][OBSOLETE Treemacs]]
 - [[#terminal][Terminal]]
   - [[#vterm][vterm]]
@@ -122,55 +122,56 @@
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
 - [[#org][Org]]
-  - [[#common-1][Common]]
+  - [[#common-1][common]]
   - [[#org-archive][org-archive]]
-  - [[#refile][Refile]]
-  - [[#link][Link]]
-  - [[#code-blocks][Code Blocks]]
-  - [[#lists][Lists]]
-  - [[#agenda][Agenda]]
-  - [[#faces][Faces]]
-  - [[#table-of-contents][Table of Contents]]
-  - [[#babel][Babel]]
-    - [[#core][Core]]
-    - [[#plantuml][PlantUML]]
-    - [[#verb][Verb]]
-    - [[#chatgpt-shell][chatgpt-shell]]
+  - [[#org-refile][org-refile]]
+  - [[#org-link][org-link]]
+  - [[#org-src][org-src]]
+  - [[#org-list][org-list]]
+  - [[#org-agenda][org-agenda]]
+  - [[#org-faces][org-faces]]
+  - [[#toc-org][toc-org]]
+  - [[#ob][ob]]
+    - [[#ob-core][ob-core]]
+    - [[#ob-plantuml][ob-plantuml]]
+    - [[#verb][verb]]
+    - [[#ob-chatgpt-shell][ob-chatgpt-shell]]
     - [[#tests][tests]]
   - [[#org-crypt][org-crypt]]
   - [[#org-appear][org-appear]]
 - [[#notes][Notes]]
+  - [[#deft][deft]]
 - [[#languages][Languages]]
-  - [[#tree-sitter][Tree-sitter]]
-  - [[#lsp][LSP]]
-  - [[#dap][DAP]]
-  - [[#emacs-lisp][Emacs Lisp]]
-  - [[#clojure][Clojure]]
-  - [[#go][Go]]
-  - [[#makefile][Makefile]]
-  - [[#justfile][Justfile]]
-  - [[#plantuml-1][PlantUML]]
-  - [[#sql][SQL]]
-  - [[#markdown][Markdown]]
-  - [[#json][JSON]]
-  - [[#yaml][YAML]]
-  - [[#lua][Lua]]
-  - [[#shell][Shell]]
-  - [[#vimrc][Vimrc]]
-  - [[#ssh][SSH]]
-  - [[#protobuf][Protobuf]]
+  - [[#treesit][treesit]]
+  - [[#eglot][eglot]]
+  - [[#dape][dape]]
+  - [[#elisp][elisp]]
+  - [[#clojure][clojure]]
+  - [[#golang][golang]]
+  - [[#makefile][makefile]]
+  - [[#justfile][justfile]]
+  - [[#plantuml][plantuml]]
+  - [[#sql][sql]]
+  - [[#markdown][markdown]]
+  - [[#json][json]]
+  - [[#yaml][yaml]]
+  - [[#lua][lua]]
+  - [[#shell][shell]]
+  - [[#vimrc][vimrc]]
+  - [[#ssh][ssh]]
+  - [[#protobuf][protobuf]]
 - [[#xwidget][Xwidget]]
 - [[#tools][Tools]]
-  - [[#editorconfig][EditorConfig]]
-  - [[#docker][Docker]]
-  - [[#ansible][Ansible]]
+  - [[#editorconfig][editorconfig]]
+  - [[#docker][docker]]
+  - [[#ansible][ansible]]
   - [[#envrc][.env(rc)]]
-  - [[#proced][Proced]]
+  - [[#proced][proced]]
   - [[#recall][recall]]
 - [[#ai-assistants][AI assistants]]
   - [[#chats][Chats]]
     - [[#gptel][gptel]]
-    - [[#chatgpt-shell-1][chatgpt-shell]]
+    - [[#chatgpt-shell][chatgpt-shell]]
   - [[#github-copilot][GitHub Copilot]]
 - [[#utils][Utils]]
 - [[#private-configuration][Private Configuration]]
@@ -347,7 +348,7 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * Defaults
-** UTF-8
+** utf-8
 #+begin_src emacs-lisp
 (use-package mule
   :ensure nil
@@ -370,7 +371,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 #+end_src
 
-** Compile
+** compile
 #+begin_src emacs-lisp
 (use-package compile
   :ensure nil
@@ -385,7 +386,7 @@ If you'd like to test a different font, evaluate the following block:
   (compilation-filter-hook . ansi-color-compilation-filter))
 #+end_src
 
-** Time
+** time
 [[https://emacsredux.com/blog/2024/03/11/tracking-world-time-with-emacs/][Tracking World Time with Emacs]]
 #+begin_src emacs-lisp
 (use-package time
@@ -403,7 +404,7 @@ If you'd like to test a different font, evaluate the following block:
           ("Asia/Almaty" "Kazakhstan/Almaty"))))
 #+end_src
 
-** Calendar
+** calendar
 #+begin_src emacs-lisp
 (use-package calendar
   :ensure nil
@@ -2034,7 +2035,9 @@ CLOSED: [2025-01-03 Fri 11:15]
     "h" '(:keymap help-map :package help :wk "help"))
   (help-map
    "F" 'describe-face))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package helpful
   :general
   ([remap describe-command]             'helpful-command)
@@ -2044,7 +2047,9 @@ CLOSED: [2025-01-03 Fri 11:15]
   ([remap Info-goto-emacs-command-node] 'helpful-function)
   (+leader-def
     "h." 'helpful-at-point))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package find-func
   :ensure nil
   :general
@@ -2509,7 +2514,7 @@ CLOSED: [2025-01-19 Sun 19:24]
 #+end_src
 
 * Goto
-** Imenu
+** imenu
 #+begin_src emacs-lisp
 (use-package imenu
   :ensure nil
@@ -2518,7 +2523,7 @@ CLOSED: [2025-01-19 Sun 19:24]
     "ji" 'imenu))
 #+end_src
 
-** Avy
+** avy
 #+begin_src emacs-lisp
 (use-package avy
   :general
@@ -2767,7 +2772,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 #+end_src
 
 * Org
-** Common
+** common
 #+begin_src emacs-lisp
 (use-package org
   :ensure nil
@@ -2841,7 +2846,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-archive-file-header-format nil))
 #+end_src
 
-** Refile
+** org-refile
 #+begin_src emacs-lisp
 (use-package org-refile
   :ensure org
@@ -2865,7 +2870,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-refile-use-cache t))
 #+end_src
 
-** Link
+** org-link
 #+begin_src emacs-lisp
 (use-package org-link
   :ensure org
@@ -2883,7 +2888,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-link-make-description-function #'+org-link-get-title))
 #+end_src
 
-** Code Blocks
+** org-src
 #+begin_src emacs-lisp
 (use-package org-src
   :ensure org
@@ -2892,7 +2897,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-edit-src-content-indentation 0))
 #+end_src
 
-** Lists
+** org-list
 #+begin_src emacs-lisp
 (use-package org-list
   :ensure org
@@ -2901,7 +2906,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))))
 #+end_src
 
-** Agenda
+** org-agenda
 #+begin_src emacs-lisp
 (use-package org-agenda
   :ensure org
@@ -2913,7 +2918,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-agenda-tags-column 0))
 #+end_src
 
-** Faces
+** org-faces
 #+begin_src emacs-lisp
 (use-package org-faces
   :ensure org
@@ -2981,7 +2986,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (org-agenda-finalize-hook . org-modern-agenda))
 #+end_src
 
-** Table of Contents
+** toc-org
 #+begin_src emacs-lisp
 (use-package toc-org
   :init
@@ -2990,8 +2995,8 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (org-mode-hook . toc-org-enable))
 #+end_src
 
-** Babel
-*** Core
+** ob
+*** ob-core
 #+begin_src emacs-lisp
 (use-package ob-core
   :ensure org
@@ -3004,7 +3009,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (org-babel-after-execute-hook . org-redisplay-inline-images))
 #+end_src
 
-*** PlantUML
+*** ob-plantuml
 #+begin_src emacs-lisp
 (use-package ob-plantuml
   :ensure nil
@@ -3012,7 +3017,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-plantuml-exec-mode 'plantuml))
 #+end_src
 
-*** Verb
+*** verb
 #+begin_src emacs-lisp
 (use-package verb
   :general
@@ -3027,7 +3032,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
    '((verb . t))))
 #+end_src
 
-*** chatgpt-shell
+*** ob-chatgpt-shell
 #+begin_src emacs-lisp
 (use-package ob-chatgpt-shell
   :commands (org-babel-execute:chatgpt-shell)
@@ -3078,6 +3083,7 @@ Hello World!
 #+end_src
 
 * Notes
+** deft
 #+begin_src emacs-lisp
 (use-package deft
   :general
@@ -3097,7 +3103,7 @@ Hello World!
 #+end_src
 
 * Languages
-** Tree-sitter
+** treesit
 #+begin_src emacs-lisp
 (use-package treesit
   :ensure nil
@@ -3121,7 +3127,7 @@ Install grammars
 (treesit-auto-install-all)
 #+end_src
 
-** LSP
+** eglot
 #+begin_src emacs-lisp
 (use-package eglot
   :ensure nil
@@ -3199,8 +3205,7 @@ cargo install +-path .
   (global-flycheck-eglot-mode))
 #+end_src
 
-** DAP
-[[https://github.com/svaante/dape][dape]]
+** dape
 #+begin_src emacs-lisp
 (use-package dape
   :custom-face
@@ -3215,7 +3220,9 @@ cargo install +-path .
   :hook
   (kill-emacs-hook . dape-breakpoint-save)
   (after-init-hook . dape-breakpoint-load))
+#+end_src
 
+#+begin_src emacs-lisp
 ;; TODO: move to different section
 (use-package repeat
   :ensure nil
@@ -3223,7 +3230,7 @@ cargo install +-path .
   (after-init-hook . repeat-mode))
 #+end_src
 
-** Emacs Lisp
+** elisp
 #+begin_src emacs-lisp
 (use-package highlight-defined
   :init
@@ -3257,7 +3264,7 @@ cargo install +-path .
   (flycheck-package-setup))
 #+end_src
 
-** Clojure
+** clojure
 Common
 #+begin_src emacs-lisp
 (use-package clojure-ts-mode)
@@ -3315,7 +3322,7 @@ CIDER
   (clojure-ts-mode-hook . clj-refactor-mode))
 #+end_src
 
-** Go
+** golang
 Install [[https://github.com/golang/tools/tree/master/gopls#installation][gopls]]
 #+begin_src sh :tangle no :results silent
 go install golang.org/x/tools/gopls@latest
@@ -3374,7 +3381,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 (use-package go-playground)
 #+end_src
 
-** Makefile
+** makefile
 #+begin_src emacs-lisp
 (use-package makefile-executor
   :general
@@ -3384,10 +3391,12 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (makefile-mode-hook . makefile-executor-mode))
 #+end_src
 
-** Justfile
+** justfile
 #+begin_src emacs-lisp
-(use-package just-mode)
+(use-package just-mode) ;; TODO: just-ts-mode
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package justl
   :general
   ( :keymaps 'justl-mode-map :states 'normal
@@ -3402,7 +3411,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
     "ee" 'justl-exec-recipe-in-dir))
 #+end_src
 
-** PlantUML
+** plantuml
 #+begin_src emacs-lisp
 (use-package plantuml-mode
   :general
@@ -3413,7 +3422,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (setq plantuml-default-exec-mode 'executable))
 #+end_src
 
-** SQL
+** sql
 #+begin_src emacs-lisp
 (use-package sql
   :ensure nil
@@ -3442,7 +3451,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
                                 (sql-database "postgres")))))
 #+end_src
 
-** Markdown
+** markdown
 #+begin_src emacs-lisp
 (use-package markdown-mode
   :custom-face
@@ -3455,7 +3464,9 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (setq markdown-fontify-code-blocks-natively t)
   :config
   (add-to-list 'markdown-code-lang-modes '("clj" . clojure-mode)))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package grip-mode
   :general
   (+local-leader-def :keymaps 'markdown-mode-map
@@ -3463,13 +3474,17 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :init
   (setq grip-update-after-change nil)
   (setq grip-preview-use-webkit t))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package markdown-toc)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package edit-indirect)
 #+end_src
 
-** JSON
+** json
 #+begin_src emacs-lisp
 (use-package json-ts-mode
   :ensure nil
@@ -3478,7 +3493,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
     "=" '(json-pretty-print-buffer :wk "format")))
 #+end_src
 
-** YAML
+** yaml
 #+begin_src emacs-lisp
 (use-package yaml-ts-mode
   :ensure nil
@@ -3494,7 +3509,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (yaml-ts-mode-hook . yaml-pro-ts-mode))
 #+end_src
 
-** Lua
+** lua
 #+begin_src emacs-lisp
 (use-package lua-ts-mode
   :ensure nil
@@ -3502,7 +3517,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (lua-ts-mode-hook . eglot-ensure))
 #+end_src
 
-** Shell
+** shell
 #+begin_src emacs-lisp
 (use-package executable
   :ensure nil
@@ -3520,19 +3535,19 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 (use-package fish-mode)
 #+end_src
 
-** Vimrc
+** vimrc
 #+begin_src emacs-lisp
 (use-package vimrc-mode)
 #+end_src
 
-** SSH
+** ssh
 #+begin_src emacs-lisp
 (use-package ssh-config-mode
   :init
   (autoload 'ssh-config-mode "ssh-config-mode" t))
 #+end_src
 
-** Protobuf
+** protobuf
 #+begin_src emacs-lisp
 (use-package protobuf-ts-mode
   :mode "\\.proto\\'")
@@ -3558,7 +3573,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+end_src
 
 * Tools
-** EditorConfig
+** editorconfig
 #+begin_src emacs-lisp
 (use-package editorconfig
   :ensure nil
@@ -3566,30 +3581,36 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (after-init-hook . editorconfig-mode))
 #+end_src
 
-** Docker
+** docker
 #+begin_src emacs-lisp
 (use-package docker
   :general
   (+leader-def
     "od" 'docker))
+#+end_src
 
-(use-package dockerfile-mode
+#+begin_src emacs-lisp
+(use-package dockerfile-mode ;; TODO: dockerfile-ts-mode
   :general
   (+local-leader-def :keymaps 'dockerfile-mode-map
     "b" 'dockerfile-build-buffer
     "B" 'dockerfile-build-no-cache-buffer))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package docker-compose-mode
   :general
   (+local-leader-def :keymaps 'docker-compose-mode-map
     "." 'docker-compose))
 #+end_src
 
-** Ansible
+** ansible
 #+begin_src emacs-lisp
 (use-package jinja2-mode
   :mode "\\.j2\\'")
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package ansible-vault-with-editor
   :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
   :general
@@ -3629,7 +3650,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (after-init-hook . envrc-global-mode))
 #+end_src
 
-** Proced
+** proced
 #+begin_src emacs-lisp
 (use-package proced
   :ensure nil

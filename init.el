@@ -2444,7 +2444,7 @@
   :hook
   (makefile-mode-hook . makefile-executor-mode))
 
-(use-package just-mode)
+(use-package just-mode) ;; TODO: just-ts-mode
 
 (use-package justl
   :general
@@ -2583,7 +2583,7 @@
   (+leader-def
     "od" 'docker))
 
-(use-package dockerfile-mode
+(use-package dockerfile-mode ;; TODO: dockerfile-ts-mode
   :general
   (+local-leader-def :keymaps 'dockerfile-mode-map
     "b" 'dockerfile-build-buffer
