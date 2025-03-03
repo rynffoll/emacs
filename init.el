@@ -2568,11 +2568,10 @@
   :hook
   (yaml-ts-mode-hook . yaml-pro-ts-mode))
 
-(use-package lua-mode
-  :init
-  (setq lua-indent-level 2)
+(use-package lua-ts-mode
+  :ensure nil
   :hook
-  (lua-mode-hook . eglot-ensure))
+  (lua-ts-mode-hook . eglot-ensure))
 
 (use-package executable
   :ensure nil
