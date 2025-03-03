@@ -3154,6 +3154,7 @@ Hello World!
 
 #+begin_src emacs-lisp
 (use-package treesit-auto
+  :disabled
   :init
   (setq treesit-auto-install 'prompt)
   :config

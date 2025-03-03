@@ -2276,6 +2276,7 @@
   (setq treesit-font-lock-level 4))
 
 (use-package treesit-auto
+  :disabled
   :init
   (setq treesit-auto-install 'prompt)
   :config
