@@ -1874,7 +1874,7 @@
   :preface
   (defun +vterm ()
     (interactive)
-    (let ((default-directory "~"))
+    (let ((default-directory "~/"))
       (if (get-buffer "vterm")
           (switch-to-buffer "vterm")
         (vterm))))

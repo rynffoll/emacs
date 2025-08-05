@@ -2632,7 +2632,7 @@ CLOSED: [2025-01-03 Fri 11:15]
   :preface
   (defun +vterm ()
     (interactive)
-    (let ((default-directory "~"))
+    (let ((default-directory "~/"))
       (if (get-buffer "vterm")
           (switch-to-buffer "vterm")
         (vterm))))
