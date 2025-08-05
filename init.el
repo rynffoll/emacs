@@ -2276,6 +2276,7 @@
   (setq eglot-autoshutdown t))
 
 (use-package eglot-booster
+  :disabled
   :if (executable-find "emacs-lsp-booster")
   :vc (:url "https://github.com/jdtsmith/eglot-booster" :rev :newest)
   ;; :after eglot
