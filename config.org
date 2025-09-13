@@ -99,7 +99,6 @@
   - [[#highlight-indent-guides][highlight-indent-guides]]
   - [[#hl-todo][hl-todo]]
   - [[#hl-lock][hl-lock]]
-  - [[#obsolete-prism][OBSOLETE prism]]
 - [[#line-numbers][Line Numbers]]
 - [[#search][Search]]
 - [[#folding][Folding]]
@@ -2292,16 +2291,6 @@ CLOSED: [2025-02-16 Sun 17:05]
     "/hr" 'highlight-regexp
     "/hl" 'highlight-lines-matching-regexp
     "/hu" 'unhighlight-regexp))
-#+end_src
-
-** OBSOLETE prism
-CLOSED: [2025-02-16 Sun 15:48]
-#+begin_src emacs-lisp
-(use-package prism
-  :disabled
-  :general
-  (+leader-def
-    "tp" 'prism-mode))
 #+end_src
 
 * Line Numbers

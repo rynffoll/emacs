@@ -1586,12 +1586,6 @@
     "/hl" 'highlight-lines-matching-regexp
     "/hu" 'unhighlight-regexp))
 
-(use-package prism
-  :disabled
-  :general
-  (+leader-def
-    "tp" 'prism-mode))
-
 (use-package display-line-numbers
   :ensure nil
   :general
