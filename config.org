@@ -83,7 +83,6 @@
 - [[#editor][Editor]]
 - [[#ediff][Ediff]]
 - [[#undoredo][Undo/Redo]]
-  - [[#obsolete-undo-fu][OBSOLETE undo-fu]]
   - [[#undo-fu-session][undo-fu-session]]
   - [[#vundo][vundo]]
 - [[#highlighting][Highlighting]]
@@ -2131,13 +2130,6 @@ CLOSED: [2025-01-03 Fri 11:15]
 #+end_src
 
 * Undo/Redo
-** OBSOLETE undo-fu
-CLOSED: [2025-09-13 Sat 17:56]
-#+begin_src emacs-lisp
-(use-package undo-fu
-  :disabled)
-#+end_src
-
 ** undo-fu-session
 #+begin_src emacs-lisp
 (use-package undo-fu-session

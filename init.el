@@ -1477,9 +1477,6 @@
   (ediff-prepare-buffer-hook . show-all)
   (ediff-quit-hook . winner-undo))
 
-(use-package undo-fu
-  :disabled)
-
 (use-package undo-fu-session
   :hook
   (org-mode-hook . undo-fu-session-mode))
