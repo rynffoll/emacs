@@ -2053,16 +2053,6 @@
   :init
   (setq eglot-autoshutdown t))
 
-(use-package eglot-booster
-  :disabled
-  :if (executable-find "emacs-lsp-booster")
-  :vc (:url "https://github.com/jdtsmith/eglot-booster" :rev :newest)
-  ;; :after eglot
-  :init
-  (setq eglot-booster-no-remote-boost t)
-  :hook
-  (after-init-hook . eglot-booster-mode))
-
 (use-package eglot-hierarchy
   :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
   :general
