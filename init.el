@@ -1098,16 +1098,6 @@
           (magit-project-status "Magit")))
   (setq project-vc-extra-root-markers '(".project")))
 
-(use-package project-vterm
-  :ensure nil
-  :load-path "site-lisp/project-vterm"
-  :general
-  ( :keymaps 'project-prefix-map
-    "t" 'project-vterm)
-  :config
-  (add-to-list 'project-switch-commands '(project-vterm "Vterm") t)
-  (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
-
 (use-package disproject
   :general
   ( :keymaps 'project-prefix-map
@@ -1892,6 +1882,40 @@
   (vterm-mode-hook . +disable-global-hl-line-mode)
   ;; (vterm-mode-hook . hide-mode-line-mode)
   )
+
+(use-package project-vterm
+  :ensure nil
+  :load-path "site-lisp/project-vterm"
+  :general
+  ( :keymaps 'project-prefix-map
+    "t" 'project-vterm)
+  :config
+  (add-to-list 'project-switch-commands '(project-vterm "Vterm") t)
+  (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
+
+(use-package eat
+  :preface
+  (defun +eat ()
+    (interactive)
+    (let ((default-directory "~/"))
+      (if (get-buffer "eat")
+          (switch-to-buffer "eat")
+        (eat))))
+  :general
+  (+leader-def
+    "oe" '+eat)
+  :hook
+  (eat-mode-hook . +disable-global-hl-line-mode))
+
+(use-package project-eat
+  :ensure nil
+  :load-path "site-lisp/project-eat"
+  :general
+  ( :keymaps 'project-prefix-map
+    "E" 'project-eat)
+  :config
+  (add-to-list 'project-switch-commands '(project-eat "Eat") t)
+  (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
 
 (use-package magit
   :commands magit-blame

@@ -114,6 +114,7 @@
 - [[#obsolete-treemacs][OBSOLETE Treemacs]]
 - [[#terminal][Terminal]]
   - [[#vterm][vterm]]
+  - [[#eat][eat]]
 - [[#git][Git]]
   - [[#magit][magit]]
   - [[#magit-todos][magit-todos]]
@@ -1671,18 +1672,6 @@ Install fonts
   (setq project-vc-extra-root-markers '(".project")))
 #+end_src
 
-#+begin_src emacs-lisp
-(use-package project-vterm
-  :ensure nil
-  :load-path "site-lisp/project-vterm"
-  :general
-  ( :keymaps 'project-prefix-map
-    "t" 'project-vterm)
-  :config
-  (add-to-list 'project-switch-commands '(project-vterm "Vterm") t)
-  (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
-#+end_src
-
 [[https://github.com/aurtzy/disproject][disproject]]
 #+begin_src emacs-lisp
 (use-package disproject
@@ -2650,6 +2639,47 @@ CLOSED: [2025-01-03 Fri 11:15]
   (vterm-mode-hook . +disable-global-hl-line-mode)
   ;; (vterm-mode-hook . hide-mode-line-mode)
   )
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package project-vterm
+  :ensure nil
+  :load-path "site-lisp/project-vterm"
+  :general
+  ( :keymaps 'project-prefix-map
+    "t" 'project-vterm)
+  :config
+  (add-to-list 'project-switch-commands '(project-vterm "Vterm") t)
+  (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
+#+end_src
+
+** eat
+#+begin_src emacs-lisp
+(use-package eat
+  :preface
+  (defun +eat ()
+    (interactive)
+    (let ((default-directory "~/"))
+      (if (get-buffer "eat")
+          (switch-to-buffer "eat")
+        (eat))))
+  :general
+  (+leader-def
+    "oe" '+eat)
+  :hook
+  (eat-mode-hook . +disable-global-hl-line-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package project-eat
+  :ensure nil
+  :load-path "site-lisp/project-eat"
+  :general
+  ( :keymaps 'project-prefix-map
+    "E" 'project-eat)
+  :config
+  (add-to-list 'project-switch-commands '(project-eat "Eat") t)
+  (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
 #+end_src
 
 * Git
