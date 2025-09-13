@@ -4,17 +4,20 @@
       user-login-name "rynffoll"
       user-mail-address "rynffoll@gmail.com")
 
-(package-initialize)
-
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-
 (setq use-package-always-defer t)
 (setq use-package-always-ensure t)
 (setq use-package-hook-name-suffix nil)
 (setq use-package-enable-imenu-support t)
 (setq use-package-compute-statistics t)
 (setq use-package-expand-minimally t)
+
+(use-package package
+  :demand
+  :config
+  ;; https://github.com/melpa/melpa
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  ;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  (package-initialize))
 
 (use-package gnu-elpa-keyring-update)
 

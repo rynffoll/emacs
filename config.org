@@ -14,9 +14,8 @@
 - [[#initialization][Initialization]]
 - [[#personal-info][Personal Info]]
 - [[#package-manager][Package Manager]]
-  - [[#init][init]]
-  - [[#melpa][melpa]]
   - [[#use-package][use-package]]
+  - [[#package][package]]
   - [[#gnu-elpa-keyring-update][gnu-elpa-keyring-update]]
 - [[#defaults-1][Defaults]]
   - [[#utf-8][utf-8]]
@@ -320,18 +319,6 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * Package Manager
-** init
-#+begin_src emacs-lisp
-(package-initialize)
-#+end_src
-
-** melpa
-[[https://github.com/melpa/melpa][GitHub - melpa/melpa: Recipes and build machinery for the biggest Emacs package repo]]
-#+begin_src emacs-lisp
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-#+end_src
-
 ** use-package
 #+begin_src emacs-lisp
 (setq use-package-always-defer t)
@@ -340,6 +327,17 @@ If you'd like to test a different font, evaluate the following block:
 (setq use-package-enable-imenu-support t)
 (setq use-package-compute-statistics t)
 (setq use-package-expand-minimally t)
+#+end_src
+
+** package
+#+begin_src emacs-lisp
+(use-package package
+  :demand
+  :config
+  ;; https://github.com/melpa/melpa
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  ;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  (package-initialize))
 #+end_src
 
 ** gnu-elpa-keyring-update
