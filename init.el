@@ -2488,12 +2488,6 @@
   (+leader-def
     "od" 'docker))
 
-(use-package dockerfile-mode ;; TODO: dockerfile-ts-mode
-  :general
-  (+local-leader-def :keymaps 'dockerfile-mode-map
-    "b" 'dockerfile-build-buffer
-    "B" 'dockerfile-build-no-cache-buffer))
-
 (use-package docker-compose-mode
   :general
   (+local-leader-def :keymaps 'docker-compose-mode-map
