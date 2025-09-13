@@ -3325,20 +3325,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :ensure go-ts-mode)
 #+end_src
 
-[[https://github.com/nlamirault/gotest.el][gotest.el]]
-#+begin_src emacs-lisp
-(use-package gotest
-  :disabled
-  :general
-  (+local-leader-def :keymaps 'go-ts-mode-map
-    "tf" 'go-test-current-file
-    "tT" 'go-test-current-test
-    "tp" 'go-test-current-project
-    "tb" 'go-test-current-benchmark
-    "tc" 'go-test-current-coverage
-    "tx" 'go-run))
-#+end_src
-
 - [[https://github.com/chmouel/gotest-ts.el][GitHub - chmouel/gotest-ts.el: Run subtests and test with treesitter and gotest.el]]
 #+begin_src emacs-lisp
 (use-package gotest-ts

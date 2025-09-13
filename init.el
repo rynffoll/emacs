@@ -2396,17 +2396,6 @@
 (use-package go-mod-ts-mode
   :ensure go-ts-mode)
 
-(use-package gotest
-  :disabled
-  :general
-  (+local-leader-def :keymaps 'go-ts-mode-map
-    "tf" 'go-test-current-file
-    "tT" 'go-test-current-test
-    "tp" 'go-test-current-project
-    "tb" 'go-test-current-benchmark
-    "tc" 'go-test-current-coverage
-    "tx" 'go-run))
-
 (use-package gotest-ts
   :general
   (+local-leader-def :keymaps 'go-ts-mode-map
