@@ -1728,6 +1728,7 @@ Install fonts
 [[https://codeberg.org/jabbo/project-butler][project-butler]]
 #+begin_src emacs-lisp
 (use-package project-butler
+  :disabled
   :after project
   :demand
   :general

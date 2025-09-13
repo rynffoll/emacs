@@ -1147,6 +1147,7 @@
   (projection-multi-embark-setup-command-map))
 
 (use-package project-butler
+  :disabled
   :after project
   :demand
   :general
