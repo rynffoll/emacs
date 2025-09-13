@@ -2689,8 +2689,6 @@
 
 (use-package disk-usage)
 
-(use-package memory-usage)
-
 (use-package list-environment)
 
 (use-package daemons)
