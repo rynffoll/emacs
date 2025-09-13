@@ -83,7 +83,6 @@
 - [[#editor][Editor]]
 - [[#ediff][Ediff]]
 - [[#undoredo][Undo/Redo]]
-  - [[#obsolete-undo-tree][OBSOLETE undo-tree]]
   - [[#obsolete-undo-fu][OBSOLETE undo-fu]]
   - [[#undo-fu-session][undo-fu-session]]
   - [[#vundo][vundo]]
@@ -2132,18 +2131,6 @@ CLOSED: [2025-01-03 Fri 11:15]
 #+end_src
 
 * Undo/Redo
-** OBSOLETE undo-tree
-CLOSED: [2025-09-13 Sat 17:56]
-#+begin_src emacs-lisp
-(use-package undo-tree
-  :disabled
-  :init
-  (setq undo-tree-auto-save-history t)
-  (setq undo-tree-history-directory-alist `(("." . ,temporary-file-directory)))
-  :hook
-  (after-init-hook . global-undo-tree-mode))
-#+end_src
-
 ** OBSOLETE undo-fu
 CLOSED: [2025-09-13 Sat 17:56]
 #+begin_src emacs-lisp

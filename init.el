@@ -1477,14 +1477,6 @@
   (ediff-prepare-buffer-hook . show-all)
   (ediff-quit-hook . winner-undo))
 
-(use-package undo-tree
-  :disabled
-  :init
-  (setq undo-tree-auto-save-history t)
-  (setq undo-tree-history-directory-alist `(("." . ,temporary-file-directory)))
-  :hook
-  (after-init-hook . global-undo-tree-mode))
-
 (use-package undo-fu
   :disabled)
 
