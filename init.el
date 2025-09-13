@@ -2025,6 +2025,10 @@
     "Oi" '+open-org-inbox-file
     "Ot" '+open-org-todo-file
     "On" '+open-org-notes-file)
+  (org-mode-map
+   "C-," nil ;; disable org-cycle-agenda-files
+   "C-'" nil ;; disable org-cycle-agenda-files
+   )
   :init
   (setq org-directory "~/Org")
   (setq +org-inbox-file (concat org-directory "/inbox.org"))
