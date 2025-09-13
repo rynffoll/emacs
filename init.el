@@ -2119,27 +2119,6 @@
           ("OBSOLETE"  . (:inherit (bold shadow org-todo)))
           ("CANCELLED" . (:inherit (bold shadow org-todo))))))
 
-(use-package org-bullets
-  :disabled
-  :init
-  (setq org-bullets-bullet-list '("•"))
-  (setq org-bullets--keywords
-        `(("^\\*+ "
-           (0 (let* ((level (- (match-end 0) (match-beginning 0) 1)))
-                (compose-region (- (match-end 0) 2)
-                                (- (match-end 0) 1)
-                                (org-bullets-level-char level))
-                (dolist (n (number-sequence
-                            (match-beginning 0)
-                            (- (match-end 0) 3)))
-                  (compose-region n (+ n 1) " "))
-                (put-text-property (match-beginning 0)
-                                   (- (match-end 0) 2)
-                                   'face (list :inherit 'org-hide))
-                nil)))))
-  :hook
-  (org-mode-hook . org-bullets-mode))
-
 (use-package org-modern
   :disabled
   :init
