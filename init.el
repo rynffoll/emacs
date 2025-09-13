@@ -4,11 +4,10 @@
       user-login-name "rynffoll"
       user-mail-address "rynffoll@gmail.com")
 
-(setq package-archives '(("gnu"    . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-                         ("melpa"  . "https://melpa.org/packages/")))
-
 (package-initialize)
+
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 
 (setq use-package-always-defer t)
 (setq use-package-always-ensure t)
@@ -206,6 +205,11 @@
   (setq which-key-dont-use-unicode nil)
   :hook
   (after-init-hook . which-key-mode))
+
+(use-package repeat
+  :ensure nil
+  :hook
+  (after-init-hook . repeat-mode))
 
 (use-package char-fold
   :ensure nil
@@ -1441,9 +1445,6 @@
   (+leader-def
     ":" 'execute-extended-command
     "tT" 'toggle-truncate-lines)
-  ;; :init ;; TODO: back to defaults
-  ;; (setq backward-delete-char-untabify-method 'hungry)
-  ;; (setq async-shell-command-buffer 'new-buffer)
   :hook
   (after-init-hook . column-number-mode))
 
@@ -1463,8 +1464,6 @@
 
 (use-package elec-pair
   :ensure nil
-  ;; :init ;; TODO: back to defaults
-  ;; (setq electric-pair-inhibit-predicate #'electric-pair-conservative-inhibit)
   :hook
   (after-init-hook . electric-pair-mode))
 
@@ -1618,10 +1617,7 @@
   :after evil anzu)
 
 (use-package outline
-  :ensure nil
-  ;; :init ;; TODO: back to defaults
-  ;; (setq outline-blank-line t)
-  )
+  :ensure nil)
 
 (use-package hideshow
   :ensure nil
@@ -2351,12 +2347,6 @@
   :hook
   (kill-emacs-hook . dape-breakpoint-save)
   (after-init-hook . dape-breakpoint-load))
-
-;; TODO: move to different section
-(use-package repeat
-  :ensure nil
-  :hook
-  (after-init-hook . repeat-mode))
 
 (use-package highlight-defined
   :init

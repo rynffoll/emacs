@@ -14,7 +14,8 @@
 - [[#initialization][Initialization]]
 - [[#personal-info][Personal Info]]
 - [[#package-manager][Package Manager]]
-  - [[#initialize][Initialize]]
+  - [[#init][init]]
+  - [[#melpa][melpa]]
   - [[#use-package][use-package]]
   - [[#gnu-elpa-keyring-update][gnu-elpa-keyring-update]]
 - [[#defaults-1][Defaults]]
@@ -27,6 +28,7 @@
 - [[#general][General]]
 - [[#evil][Evil]]
 - [[#which-key][Which-key]]
+- [[#repeat][Repeat]]
 - [[#keyboard-layout][Keyboard Layout]]
 - [[#tty][TTY]]
   - [[#mouse-support][Mouse support]]
@@ -327,13 +329,16 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * Package Manager
-** Initialize
+** init
 #+begin_src emacs-lisp
-(setq package-archives '(("gnu"    . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-                         ("melpa"  . "https://melpa.org/packages/")))
-
 (package-initialize)
+#+end_src
+
+** melpa
+[[https://github.com/melpa/melpa][GitHub - melpa/melpa: Recipes and build machinery for the biggest Emacs package repo]]
+#+begin_src emacs-lisp
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 #+end_src
 
 ** use-package
@@ -363,12 +368,16 @@ If you'd like to test a different font, evaluate the following block:
   (set-default-coding-systems 'utf-8)
   (set-terminal-coding-system 'utf-8)
   (set-keyboard-coding-system 'utf-8))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package emacs
   :ensure nil
   :init
   (setq buffer-file-coding-system 'utf-8))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package select
   :ensure nil
   :init
@@ -581,6 +590,14 @@ If you'd like to test a different font, evaluate the following block:
   (setq which-key-dont-use-unicode nil)
   :hook
   (after-init-hook . which-key-mode))
+#+end_src
+
+* Repeat
+#+begin_src emacs-lisp
+(use-package repeat
+  :ensure nil
+  :hook
+  (after-init-hook . repeat-mode))
 #+end_src
 
 * Keyboard Layout
@@ -2074,9 +2091,6 @@ CLOSED: [2025-01-03 Fri 11:15]
   (+leader-def
     ":" 'execute-extended-command
     "tT" 'toggle-truncate-lines)
-  ;; :init ;; TODO: back to defaults
-  ;; (setq backward-delete-char-untabify-method 'hungry)
-  ;; (setq async-shell-command-buffer 'new-buffer)
   :hook
   (after-init-hook . column-number-mode))
 #+end_src
@@ -2104,8 +2118,6 @@ CLOSED: [2025-01-03 Fri 11:15]
 #+begin_src emacs-lisp
 (use-package elec-pair
   :ensure nil
-  ;; :init ;; TODO: back to defaults
-  ;; (setq electric-pair-inhibit-predicate #'electric-pair-conservative-inhibit)
   :hook
   (after-init-hook . electric-pair-mode))
 #+end_src
@@ -2332,10 +2344,7 @@ CLOSED: [2025-02-16 Sun 15:48]
 * Folding
 #+begin_src emacs-lisp
 (use-package outline
-  :ensure nil
-  ;; :init ;; TODO: back to defaults
-  ;; (setq outline-blank-line t)
-  )
+  :ensure nil)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2484,7 +2493,9 @@ CLOSED: [2025-01-19 Sun 19:24]
   ;;     :fringe-bitmap '+flycheck-fringe-indicator
   ;;     :fringe-face 'flycheck-fringe-info))
   (flycheck-redefine-standard-error-levels "!" 'exclamation-mark))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package consult-flycheck
   :requires flycheck
   :general
@@ -2501,7 +2512,9 @@ CLOSED: [2025-01-19 Sun 19:24]
   (setq flymake-fringe-indicator-position 'right-fringe)
   :hook
   (prog-mode-hook . flymake-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package flymake-collection
   :hook
   (after-init-hook . flymake-collection-hook-setup))
@@ -3260,14 +3273,6 @@ cargo install +-path .
   :hook
   (kill-emacs-hook . dape-breakpoint-save)
   (after-init-hook . dape-breakpoint-load))
-#+end_src
-
-#+begin_src emacs-lisp
-;; TODO: move to different section
-(use-package repeat
-  :ensure nil
-  :hook
-  (after-init-hook . repeat-mode))
 #+end_src
 
 ** elisp
