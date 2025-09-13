@@ -1525,13 +1525,6 @@
   :hook
   (after-init-hook . show-paren-mode))
 
-(use-package highlight-parentheses
-  :disabled
-  :hook
-  (prog-mode-hook . highlight-parentheses-mode)
-  (cider-repl-mode-hook . highlight-parentheses-mode)
-  (minibuffer-setup-hook . highlight-parentheses-minibuffer-setup))
-
 (use-package paren-face
   :hook
   (after-init-hook . global-paren-face-mode))

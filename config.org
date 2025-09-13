@@ -90,7 +90,6 @@
 - [[#highlighting][Highlighting]]
   - [[#hl-line][hl-line]]
   - [[#paren][paren]]
-  - [[#obsolete-highlight-parentheses][OBSOLETE highlight-parentheses]]
   - [[#paren-face][paren-face]]
   - [[#colorful-mode][colorful-mode]]
   - [[#whitespace][whitespace]]
@@ -2200,17 +2199,6 @@ CLOSED: [2025-09-13 Sat 17:56]
   (setq show-paren-when-point-in-periphery t)
   :hook
   (after-init-hook . show-paren-mode))
-#+end_src
-
-** OBSOLETE highlight-parentheses
-CLOSED: [2025-02-16 Sun 17:05]
-#+begin_src emacs-lisp
-(use-package highlight-parentheses
-  :disabled
-  :hook
-  (prog-mode-hook . highlight-parentheses-mode)
-  (cider-repl-mode-hook . highlight-parentheses-mode)
-  (minibuffer-setup-hook . highlight-parentheses-minibuffer-setup))
 #+end_src
 
 ** paren-face
