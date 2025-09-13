@@ -2192,15 +2192,6 @@
   :init
   (setq treesit-font-lock-level 4))
 
-(use-package treesit-auto
-  :disabled
-  :init
-  (setq treesit-auto-install 'prompt)
-  :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  :hook
-  (after-init-hook . global-treesit-auto-mode))
-
 (use-package eglot
   :ensure nil
   :general
