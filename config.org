@@ -92,7 +92,6 @@
   - [[#paren][paren]]
   - [[#obsolete-highlight-parentheses][OBSOLETE highlight-parentheses]]
   - [[#paren-face][paren-face]]
-  - [[#obsolete-rainbow-mode][OBSOLETE rainbow-mode]]
   - [[#colorful-mode][colorful-mode]]
   - [[#whitespace][whitespace]]
   - [[#page-break-lines][page-break-lines]]
@@ -2219,18 +2218,6 @@ CLOSED: [2025-02-16 Sun 17:05]
 (use-package paren-face
   :hook
   (after-init-hook . global-paren-face-mode))
-#+end_src
-
-** OBSOLETE rainbow-mode
-CLOSED: [2025-02-16 Sun 17:05]
-#+begin_src emacs-lisp
-(use-package rainbow-mode
-  :disabled
-  :general
-  (+leader-def
-    "tr" 'rainbow-mode)
-  :hook
-  (css-mode-hook . rainbow-mode))
 #+end_src
 
 ** colorful-mode

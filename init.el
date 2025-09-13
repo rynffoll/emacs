@@ -1536,14 +1536,6 @@
   :hook
   (after-init-hook . global-paren-face-mode))
 
-(use-package rainbow-mode
-  :disabled
-  :general
-  (+leader-def
-    "tr" 'rainbow-mode)
-  :hook
-  (css-mode-hook . rainbow-mode))
-
 (use-package colorful-mode
   :general
   (+leader-def
