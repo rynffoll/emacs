@@ -81,8 +81,8 @@
 - [[#editor][Editor]]
 - [[#ediff][Ediff]]
 - [[#undoredo][Undo/Redo]]
-  - [[#undo-tree][undo-tree]]
   - [[#undo-fu][undo-fu]]
+  - [[#obsolete-undo-tree][OBSOLETE undo-tree]]
   - [[#undo-fu-session][undo-fu-session]]
   - [[#vundo][vundo]]
 - [[#highlighting][Highlighting]]
@@ -2124,7 +2124,8 @@ CLOSED: [2025-01-03 Fri 11:15]
 #+end_src
 
 * Undo/Redo
-** undo-tree
+** OBSOLETE undo-tree
+CLOSED: [2025-09-13 Sat 17:56]
 #+begin_src emacs-lisp
 (use-package undo-tree
   :disabled
