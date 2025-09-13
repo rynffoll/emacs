@@ -81,8 +81,8 @@
 - [[#editor][Editor]]
 - [[#ediff][Ediff]]
 - [[#undoredo][Undo/Redo]]
-  - [[#undo-fu][undo-fu]]
   - [[#obsolete-undo-tree][OBSOLETE undo-tree]]
+  - [[#obsolete-undo-fu][OBSOLETE undo-fu]]
   - [[#undo-fu-session][undo-fu-session]]
   - [[#vundo][vundo]]
 - [[#highlighting][Highlighting]]
@@ -2136,7 +2136,8 @@ CLOSED: [2025-09-13 Sat 17:56]
   (after-init-hook . global-undo-tree-mode))
 #+end_src
 
-** undo-fu
+** OBSOLETE undo-fu
+CLOSED: [2025-09-13 Sat 17:56]
 #+begin_src emacs-lisp
 (use-package undo-fu
   :disabled)
@@ -3861,7 +3862,6 @@ Install server
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 #+end_src
-
 
 * Utils
 #+begin_src emacs-lisp
