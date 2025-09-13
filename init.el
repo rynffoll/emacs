@@ -2355,8 +2355,6 @@
   (+local-leader-def :keymaps 'go-ts-mode-map
     "tt" 'gotest-ts-run-dwim))
 
-(use-package go-playground)
-
 (use-package makefile-executor
   :general
   (+local-leader-def :keymaps 'makefile-mode-map

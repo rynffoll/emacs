@@ -3273,10 +3273,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
     "tt" 'gotest-ts-run-dwim))
 #+end_src
 
-#+begin_src emacs-lisp
-(use-package go-playground)
-#+end_src
-
 ** makefile
 #+begin_src emacs-lisp
 (use-package makefile-executor
