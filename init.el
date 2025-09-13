@@ -2441,11 +2441,13 @@
   :ensure go-ts-mode)
 
 (use-package go-gen-test
+  :disabled
   :general
   (+local-leader-def :keymaps 'go-ts-mode-map
     "tg" 'go-gen-test-dwim))
 
 (use-package gotest
+  :disabled
   :general
   (+local-leader-def :keymaps 'go-ts-mode-map
     "tf" 'go-test-current-file

@@ -1,5 +1,6 @@
 #+title: Emacs config
 #+property: header-args:emacs-lisp :tangle init.el
+#+property: header-args :results silent
 * Table of Contents :TOC:
 - [[#early-initialization][Early Initialization]]
   - [[#defaults][Defaults]]
@@ -132,7 +133,7 @@
   - [[#org-agenda][org-agenda]]
   - [[#org-faces][org-faces]]
   - [[#toc-org][toc-org]]
-  - [[#ob][ob]]
+  - [[#org-babel][org-babel]]
     - [[#ob-core][ob-core]]
     - [[#ob-plantuml][ob-plantuml]]
     - [[#verb][verb]]
@@ -150,7 +151,7 @@
   - [[#clojure][clojure]]
   - [[#golang][golang]]
   - [[#makefile][makefile]]
-  - [[#justfile][justfile]]
+  - [[#cancelled-justfile][CANCELLED justfile]]
   - [[#plantuml][plantuml]]
   - [[#sql][sql]]
   - [[#markdown][markdown]]
@@ -3027,7 +3028,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (org-mode-hook . toc-org-enable))
 #+end_src
 
-** ob
+** org-babel
 *** ob-core
 #+begin_src emacs-lisp
 (use-package ob-core
@@ -3384,6 +3385,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 [[https://github.com/s-kostyaev/go-gen-test][go-gen-test]]
 #+begin_src emacs-lisp
 (use-package go-gen-test
+  :disabled
   :general
   (+local-leader-def :keymaps 'go-ts-mode-map
     "tg" 'go-gen-test-dwim))
@@ -3392,6 +3394,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 [[https://github.com/nlamirault/gotest.el][gotest.el]]
 #+begin_src emacs-lisp
 (use-package gotest
+  :disabled
   :general
   (+local-leader-def :keymaps 'go-ts-mode-map
     "tf" 'go-test-current-file
@@ -3424,7 +3427,8 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (makefile-mode-hook . makefile-executor-mode))
 #+end_src
 
-** justfile
+** CANCELLED justfile
+CLOSED: [2025-09-11 Thu 22:30]
 #+begin_src emacs-lisp
 (use-package just-mode) ;; TODO: just-ts-mode
 #+end_src
