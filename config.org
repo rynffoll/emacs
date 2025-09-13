@@ -147,7 +147,6 @@
   - [[#clojure][clojure]]
   - [[#golang][golang]]
   - [[#makefile][makefile]]
-  - [[#cancelled-justfile][CANCELLED justfile]]
   - [[#plantuml][plantuml]]
   - [[#sql][sql]]
   - [[#markdown][markdown]]
@@ -3286,27 +3285,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
     "e" 'makefile-executor-execute-target)
   :hook
   (makefile-mode-hook . makefile-executor-mode))
-#+end_src
-
-** CANCELLED justfile
-CLOSED: [2025-09-11 Thu 22:30]
-#+begin_src emacs-lisp
-(use-package just-mode) ;; TODO: just-ts-mode
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package justl
-  :general
-  ( :keymaps 'justl-mode-map :states 'normal
-    "?" 'justl-help-popup
-    "e" 'justl-exec-recipe
-    "E" 'justl-exec-eshell
-    "w" 'justl--exec-recipe-with-args
-    "W" 'justl-no-exec-eshell)
-  (+local-leader-def :keymaps 'just-mode-map
-    "e" '(:ignore t :wk "eval")
-    "e." 'justl
-    "ee" 'justl-exec-recipe-in-dir))
 #+end_src
 
 ** plantuml
