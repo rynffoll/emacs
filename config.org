@@ -3325,15 +3325,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :ensure go-ts-mode)
 #+end_src
 
-[[https://github.com/s-kostyaev/go-gen-test][go-gen-test]]
-#+begin_src emacs-lisp
-(use-package go-gen-test
-  :disabled
-  :general
-  (+local-leader-def :keymaps 'go-ts-mode-map
-    "tg" 'go-gen-test-dwim))
-#+end_src
-
 [[https://github.com/nlamirault/gotest.el][gotest.el]]
 #+begin_src emacs-lisp
 (use-package gotest

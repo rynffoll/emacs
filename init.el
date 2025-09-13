@@ -2396,12 +2396,6 @@
 (use-package go-mod-ts-mode
   :ensure go-ts-mode)
 
-(use-package go-gen-test
-  :disabled
-  :general
-  (+local-leader-def :keymaps 'go-ts-mode-map
-    "tg" 'go-gen-test-dwim))
-
 (use-package gotest
   :disabled
   :general
