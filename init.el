@@ -2119,22 +2119,6 @@
           ("OBSOLETE"  . (:inherit (bold shadow org-todo)))
           ("CANCELLED" . (:inherit (bold shadow org-todo))))))
 
-(use-package org-modern
-  :disabled
-  :init
-  (setq org-modern-progress nil)
-  (setq org-modern-tag nil)
-  (setq org-modern-checkbox nil)
-  (setq org-modern-keyword nil)
-  (setq org-modern-todo nil)
-  (setq org-modern-priority nil)
-  (setq org-modern-list nil)
-  (setq org-modern-table-horizontal 0.1)
-  (setq org-modern-table-vertical 2)
-  :hook
-  (org-mode-hook . org-modern-mode)
-  (org-agenda-finalize-hook . org-modern-agenda))
-
 (use-package toc-org
   :init
   (setq toc-org-max-depth 4)

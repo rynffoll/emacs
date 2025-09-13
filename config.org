@@ -2927,25 +2927,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
           ("CANCELLED" . (:inherit (bold shadow org-todo))))))
 #+end_src
 
-[[https://github.com/minad/org-modern][GitHub - minad/org-modern: :unicorn: Modern Org Style]]
-#+begin_src emacs-lisp
-(use-package org-modern
-  :disabled
-  :init
-  (setq org-modern-progress nil)
-  (setq org-modern-tag nil)
-  (setq org-modern-checkbox nil)
-  (setq org-modern-keyword nil)
-  (setq org-modern-todo nil)
-  (setq org-modern-priority nil)
-  (setq org-modern-list nil)
-  (setq org-modern-table-horizontal 0.1)
-  (setq org-modern-table-vertical 2)
-  :hook
-  (org-mode-hook . org-modern-mode)
-  (org-agenda-finalize-hook . org-modern-agenda))
-#+end_src
-
 ** toc-org
 #+begin_src emacs-lisp
 (use-package toc-org
