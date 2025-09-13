@@ -1586,12 +1586,6 @@
     "/hl" 'highlight-lines-matching-regexp
     "/hu" 'unhighlight-regexp))
 
-(use-package color-identifiers-mode
-  :disabled
-  :general
-  (+leader-def
-    "tc" 'color-identifiers-mode))
-
 (use-package prism
   :disabled
   :general
