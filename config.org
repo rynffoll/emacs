@@ -239,12 +239,6 @@
 
 (setq use-dialog-box nil)
 
-(setq scroll-step 1)
-(setq scroll-preserve-screen-position t)
-(setq scroll-margin 0)
-(setq scroll-conservatively 101)
-(setq fast-but-imprecise-scrolling t)
-
 (setq bidi-inhibit-bpa t)
 (setq bidi-display-reordering 'left-to-right)
 (setq bidi-paragraph-direction 'left-to-right)
@@ -640,8 +634,19 @@ If you'd like to test a different font, evaluate the following block:
 * UI
 ** Scroll
 #+begin_src emacs-lisp
+(use-package emacs
+  :ensure nil
+  :init
+  (setq scroll-step 1)
+  (setq scroll-preserve-screen-position t)
+  (setq scroll-margin 0)
+  (setq scroll-conservatively 101)
+  (setq fast-but-imprecise-scrolling t)
+  (setq redisplay-skip-fontification-on-input t))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package pixel-scroll
-  :disabled
   :ensure nil
   :hook
   (after-init-hook . pixel-scroll-precision-mode))
@@ -651,10 +656,6 @@ If you'd like to test a different font, evaluate the following block:
 #+begin_src emacs-lisp
 (use-package ultra-scroll
   :if (display-graphic-p)
-  :vc (:url "https://github.com/jdtsmith/ultra-scroll" :rev :newest)
-  :init
-  (setq scroll-conservatively 101) ;; important!
-  (setq scroll-margin 0)
   :hook
   (after-init-hook . ultra-scroll-mode))
 #+end_src

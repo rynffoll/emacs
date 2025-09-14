@@ -43,12 +43,6 @@
 
 (setq use-dialog-box nil)
 
-(setq scroll-step 1)
-(setq scroll-preserve-screen-position t)
-(setq scroll-margin 0)
-(setq scroll-conservatively 101)
-(setq fast-but-imprecise-scrolling t)
-
 (setq bidi-inhibit-bpa t)
 (setq bidi-display-reordering 'left-to-right)
 (setq bidi-paragraph-direction 'left-to-right)

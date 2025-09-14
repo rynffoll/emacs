@@ -250,18 +250,23 @@
         (set-display-table-slot display-table 'vertical-border divider)))
     (add-hook 'window-configuration-change-hook #'+update-window-divider)))
 
+(use-package emacs
+  :ensure nil
+  :init
+  (setq scroll-step 1)
+  (setq scroll-preserve-screen-position t)
+  (setq scroll-margin 0)
+  (setq scroll-conservatively 101)
+  (setq fast-but-imprecise-scrolling t)
+  (setq redisplay-skip-fontification-on-input t))
+
 (use-package pixel-scroll
-  :disabled
   :ensure nil
   :hook
   (after-init-hook . pixel-scroll-precision-mode))
 
 (use-package ultra-scroll
   :if (display-graphic-p)
-  :vc (:url "https://github.com/jdtsmith/ultra-scroll" :rev :newest)
-  :init
-  (setq scroll-conservatively 101) ;; important!
-  (setq scroll-margin 0)
   :hook
   (after-init-hook . ultra-scroll-mode))
 
