@@ -781,30 +781,6 @@
   :hook
   (after-init-hook . desktop-save-mode))
 
-(use-package easysession
-  :disabled
-  :preface
-  (defun +easysession-load-ask ()
-    (interactive)
-    (when (y-or-n-p "Restore previous session?")
-      (easysession-load)))
-  ;; FIXME: hack to restore tab-bar
-  (defun +easysession-restore-tab-bar ()
-    (when (cdr (funcall tab-bar-tabs-function))
-      (let ((tab-bar-show t))
-        (tab-bar-mode +1))))
-  :general
-  (+leader-def
-    "Ss" 'easysession-save
-    "Sr" 'easysession-load)
-  :init
-  (setq easysession-save-interval (* 10 60))
-  ;; (add-hook 'emacs-startup-hook #'easysession-load 102)
-  (add-hook 'emacs-startup-hook #'+easysession-load-ask 102)
-  (add-hook 'emacs-startup-hook #'easysession-save-mode 102)
-  :hook
-  (easysession-after-load-hook . +easysession-restore-tab-bar))
-
 (use-package emacs
   :ensure nil
   :init
