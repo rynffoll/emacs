@@ -2033,7 +2033,29 @@
 (use-package treesit
   :ensure nil
   :init
-  (setq treesit-font-lock-level 4))
+  (setq treesit-font-lock-level 4)
+  (setq treesit-language-source-alist
+        '((go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (gomod . ("https://github.com/camdencheek/tree-sitter-go-mod"))
+          (gosum . ("https://github.com/tree-sitter-grammars/tree-sitter-go-sum"))
+          (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
+          (lua . ("https://github.com/tree-sitter-grammars/tree-sitter-lua"))
+          (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
+          (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
+  (setq major-mode-remap-alist
+        '((go-mode . go-ts-mode)
+          (go-mod-mode . go-mod-ts-mode)
+          (clojure-mode . clojure-ts-mode)
+          (lua-mode . lua-ts-mode)
+          (json-mode . json-ts-mode)
+          (yaml-mode . yaml-ts-mode)
+          (dockerfile-mode . dockerfile-ts-mode)))
+  :config
+  (dolist (source treesit-language-source-alist)
+    (unless (treesit-ready-p (car source) t) ;; `t' to quietly check
+      (treesit-install-language-grammar (car source)))))
 
 (use-package eglot
   :ensure nil
@@ -2172,6 +2194,9 @@
 
 (use-package go-ts-mode
   :ensure nil
+  :mode
+  ("\\.go\\'" . go-ts-mode)
+  ("go\\.mod\\'" . go-mod-ts-mode)
   :general
   (+local-leader-def :keymaps 'go-ts-mode-map
     "t"  '(:ignore t :wk "test"))
@@ -2179,9 +2204,6 @@
   (setq go-ts-mode-indent-offset 4)
   :hook
   (go-ts-mode-hook . eglot-ensure))
-
-(use-package go-mod-ts-mode
-  :ensure go-ts-mode)
 
 (use-package gotest-ts
   :general
@@ -2255,12 +2277,14 @@
 
 (use-package json-ts-mode
   :ensure nil
+  :mode ("\\.json\\'" . json-ts-mode)
   :general
   (+local-leader-def :keymaps 'json-ts-mode-map
     "=" '(json-pretty-print-buffer :wk "format")))
 
 (use-package yaml-ts-mode
   :ensure nil
+  :mode ("\\.ya?ml\\'" . yaml-ts-mode)
   :hook
   (yaml-ts-mode-hook . flycheck-mode)
   ;; (yaml-ts-mode-hook . highlight-indent-guides-mode) ;; brakes scrolling
@@ -2272,6 +2296,8 @@
 
 (use-package lua-ts-mode
   :ensure nil
+  :mode ("\\.lua\\'" . lua-ts-mode)
+  :interpreter ("\\<lua\\(?:jit\\)?" . lua-ts-mode)
   :hook
   (lua-ts-mode-hook . eglot-ensure))
 
@@ -2294,6 +2320,10 @@
 
 (use-package protobuf-ts-mode
   :mode "\\.proto\\'")
+
+(use-package dockerfile-ts-mode
+  :ensure nil
+  :mode ("\\(?:Dockerfile\\(?:\\..*\\)?\\|\\.[Dd]ockerfile\\)\\'" . dockerfile-ts-mode))
 
 (use-package xwidget
   :if (display-graphic-p)
