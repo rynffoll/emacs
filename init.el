@@ -12,7 +12,7 @@
 (setq use-package-expand-minimally t)
 
 (use-package package
-  :demand
+  :ensure nil
   :config
   ;; https://github.com/melpa/melpa
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -1904,7 +1904,7 @@
   (setq org-refile-allow-creating-parent-nodes 'confirm)
   (setq org-refile-use-cache t))
 
-(use-package org-link
+(use-package ol
   :ensure org
   :preface
   ;; source: https://gist.github.com/kim366/8abe978cc295b027df636b218862758e
@@ -2044,6 +2044,7 @@
           (json . ("https://github.com/tree-sitter/tree-sitter-json"))
           (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
           (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
+  ;; TODO: emacs 31: treesit-enabled-modes
   (setq major-mode-remap-alist
         '((go-mode . go-ts-mode)
           (go-mod-mode . go-mod-ts-mode)
@@ -2053,6 +2054,7 @@
           (yaml-mode . yaml-ts-mode)
           (dockerfile-mode . dockerfile-ts-mode)))
   :config
+  ;; TODO: emacs 31: treesit-auto-install-grammar
   (dolist (source treesit-language-source-alist)
     (unless (treesit-ready-p (car source) t) ;; `t' to quietly check
       (treesit-install-language-grammar (car source)))))
@@ -2080,6 +2082,7 @@
   :init
   (setq eglot-autoshutdown t))
 
+;; TODO: emacs 31: `eglot-show-call-hierarchy' and `eglot-show-type-hierarchy'
 (use-package eglot-hierarchy
   :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
   :general

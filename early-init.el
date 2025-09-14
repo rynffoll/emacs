@@ -39,13 +39,7 @@
 (setq frame-resize-pixelwise t)
 (setq window-resize-pixelwise t)
 
-(setq inhibit-compacting-font-caches t)
-
 (setq use-dialog-box nil)
-
-(setq bidi-inhibit-bpa t)
-(setq bidi-display-reordering 'left-to-right)
-(setq bidi-paragraph-direction 'left-to-right)
 
 (tooltip-mode -1)
 (menu-bar-mode -1)
@@ -57,15 +51,7 @@
 (add-to-list 'default-frame-alist '(width  . 0.75))
 (add-to-list 'default-frame-alist '(height . 0.9))
 
-;; (add-to-list 'default-frame-alist '(menu-bar-lines . 0))
-;; (add-to-list 'default-frame-alist '(tool-bar-lines . 0))
-;; (add-to-list 'default-frame-alist '(vertical-scroll-bars))
-;; (add-to-list 'default-frame-alist '(internal-border-width . 0))
-
-;; (add-to-list 'default-frame-alist '(tabs
-;;                                     (current-tab
-;;                                      (name . "main")
-;;                                      (explicit-name . t))))
+(setq inhibit-compacting-font-caches t)
 
 ;; (setq +font "JetBrains Mono:weight=medium:size=14")
 ;; (setq +font "Iosevka Term:weight=medium:size=14")

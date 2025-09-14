@@ -236,13 +236,7 @@
 (setq frame-resize-pixelwise t)
 (setq window-resize-pixelwise t)
 
-(setq inhibit-compacting-font-caches t)
-
 (setq use-dialog-box nil)
-
-(setq bidi-inhibit-bpa t)
-(setq bidi-display-reordering 'left-to-right)
-(setq bidi-paragraph-direction 'left-to-right)
 
 (tooltip-mode -1)
 (menu-bar-mode -1)
@@ -253,19 +247,13 @@
 (add-to-list 'default-frame-alist '(top  . 0.5))
 (add-to-list 'default-frame-alist '(width  . 0.75))
 (add-to-list 'default-frame-alist '(height . 0.9))
-
-;; (add-to-list 'default-frame-alist '(menu-bar-lines . 0))
-;; (add-to-list 'default-frame-alist '(tool-bar-lines . 0))
-;; (add-to-list 'default-frame-alist '(vertical-scroll-bars))
-;; (add-to-list 'default-frame-alist '(internal-border-width . 0))
-
-;; (add-to-list 'default-frame-alist '(tabs
-;;                                     (current-tab
-;;                                      (name . "main")
-;;                                      (explicit-name . t))))
 #+end_src
 
 *** Font
+#+begin_src emacs-lisp
+(setq inhibit-compacting-font-caches t)
+#+end_src
+
 #+begin_src emacs-lisp
 ;; (setq +font "JetBrains Mono:weight=medium:size=14")
 ;; (setq +font "Iosevka Term:weight=medium:size=14")
@@ -327,7 +315,7 @@ If you'd like to test a different font, evaluate the following block:
 ** package
 #+begin_src emacs-lisp
 (use-package package
-  :demand
+  :ensure nil
   :config
   ;; https://github.com/melpa/melpa
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -790,9 +778,13 @@ Install fonts
   :custom-face
   (mode-line ((t (:inherit mode-line :box nil :underline nil :overline nil))))
   (mode-line-inactive ((t (:inherit mode-line-inactive :box nil :underline nil :overline nil)))))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package hide-mode-line)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package minions
   :hook
   (after-init-hook . minions-mode))
@@ -2064,7 +2056,6 @@ Install fonts
   :hook
   (after-init-hook . global-hl-line-mode))
 #+end_src
-
 ** paren
 #+begin_src emacs-lisp
 (use-package paren
@@ -2671,7 +2662,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 
 ** org-link
 #+begin_src emacs-lisp
-(use-package org-link
+(use-package ol
   :ensure org
   :preface
   ;; source: https://gist.github.com/kim366/8abe978cc295b027df636b218862758e
@@ -2875,6 +2866,7 @@ Hello World!
           (json . ("https://github.com/tree-sitter/tree-sitter-json"))
           (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
           (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
+  ;; TODO: emacs 31: treesit-enabled-modes
   (setq major-mode-remap-alist
         '((go-mode . go-ts-mode)
           (go-mod-mode . go-mod-ts-mode)
@@ -2884,6 +2876,7 @@ Hello World!
           (yaml-mode . yaml-ts-mode)
           (dockerfile-mode . dockerfile-ts-mode)))
   :config
+  ;; TODO: emacs 31: treesit-auto-install-grammar
   (dolist (source treesit-language-source-alist)
     (unless (treesit-ready-p (car source) t) ;; `t' to quietly check
       (treesit-install-language-grammar (car source)))))
@@ -2916,6 +2909,7 @@ Hello World!
 #+end_src
 
 #+begin_src emacs-lisp
+;; TODO: emacs 31: `eglot-show-call-hierarchy' and `eglot-show-type-hierarchy'
 (use-package eglot-hierarchy
   :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
   :general
