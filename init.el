@@ -1209,16 +1209,6 @@
 (use-package nerd-icons-dired
   ;; :disabled  ;; replaced by nerd-icons-multimodal
   :if +with-icons
-  :config
-  ;; WORKAROUND: display transparent background of icons
-  ;; https://github.com/rainstormstudio/nerd-icons-dired/issues/1#issuecomment-2628680359
-  (defun +nerd-icons-dired--add-overlay (pos string)
-    "Add overlay to display STRING at POS."
-    (let ((ov (make-overlay (1- pos) pos)))
-      (overlay-put ov 'nerd-icons-dired-overlay t)
-      (overlay-put ov 'after-string
-                   (propertize "_" 'display string))))
-  (advice-add #'nerd-icons-dired--add-overlay :override #'+nerd-icons-dired--add-overlay)
   :hook
   (dired-mode-hook . nerd-icons-dired-mode))
 
