@@ -598,7 +598,6 @@
    "z" 'zoom-mode))
 
 (use-package shackle
-  ;; :disabled
   :init
   (setq shackle-default-size 0.4)
   (setq shackle-rules
@@ -767,7 +766,6 @@
   (after-init-hook . recentf-mode))
 
 (use-package desktop
-  ;; :disabled
   :ensure nil
   :general
   (+leader-def
@@ -1207,7 +1205,6 @@
   (dired-mode-hook . diredfl-mode))
 
 (use-package nerd-icons-dired
-  ;; :disabled  ;; replaced by nerd-icons-multimodal
   :if +with-icons
   :hook
   (dired-mode-hook . nerd-icons-dired-mode))
@@ -1471,7 +1468,7 @@
   (yaml-ts-mode-hook . outline-indent-minor-mode))
 
 (use-package ispell
-  :disabled
+  :disabled ;; switch to jinx
   :if (executable-find "hunspell")
   :ensure nil
   :after flyspell
@@ -1488,7 +1485,7 @@
   (ispell-hunspell-add-multi-dic "ru_RU,en_US"))
 
 (use-package flyspell
-  :disabled
+  :disabled ;; switch to jinx
   :general
   (+leader-def
     "ts" 'flyspell-mode)
@@ -1529,7 +1526,6 @@
   (git-commit-mode-hook . jinx-mode))
 
 (use-package flycheck
-  ;; :disabled
   :preface
   ;; https://www.flycheck.org/en/latest/user/error-reports.html#fringe-and-margin-icons
   (defun +flycheck-set-indication-mode ()
@@ -1735,7 +1731,6 @@
   (magit-post-refresh-hook . diff-hl-magit-post-refresh))
 
 (use-package diff-hl-dired
-  ;; :disabled
   :ensure diff-hl
   :init
   (setq diff-hl-dired-extra-indicators nil)
@@ -1761,7 +1756,6 @@
   (dired-mode-hook . diff-hl-dired-mode))
 
 (use-package diff-hl-margin
-  ;; :disabled
   :ensure diff-hl
   :unless (display-graphic-p)
   :init

@@ -96,8 +96,8 @@
 - [[#search][Search]]
 - [[#folding][Folding]]
 - [[#spell-checking][Spell Checking]]
-  - [[#obsolete-ispell][OBSOLETE ispell]]
-  - [[#obsolete-flyspell][OBSOLETE flyspell]]
+  - [[#ispell][ispell]]
+  - [[#flyspell][flyspell]]
   - [[#jinx][jinx]]
 - [[#syntax-checking][Syntax Checking]]
   - [[#flycheck][flycheck]]
@@ -1058,7 +1058,6 @@ Install fonts
 [[https://depp.brause.cc/shackle/][shackle]]
 #+begin_src emacs-lisp
 (use-package shackle
-  ;; :disabled
   :init
   (setq shackle-default-size 0.4)
   (setq shackle-rules
@@ -1265,7 +1264,6 @@ Install fonts
 ** desktop
 #+begin_src emacs-lisp
 (use-package desktop
-  ;; :disabled
   :ensure nil
   :general
   (+leader-def
@@ -1788,11 +1786,12 @@ Install fonts
 
 #+begin_src emacs-lisp
 (use-package nerd-icons-dired
-  ;; :disabled  ;; replaced by nerd-icons-multimodal
   :if +with-icons
   :hook
   (dired-mode-hook . nerd-icons-dired-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
   :if +with-icons
@@ -2142,11 +2141,10 @@ Install fonts
 #+end_src
 
 * Spell Checking
-** OBSOLETE ispell
-CLOSED: [2025-01-19 Sun 19:24]
+** ispell
 #+begin_src emacs-lisp
 (use-package ispell
-  :disabled
+  :disabled ;; switch to jinx
   :if (executable-find "hunspell")
   :ensure nil
   :after flyspell
@@ -2163,11 +2161,10 @@ CLOSED: [2025-01-19 Sun 19:24]
   (ispell-hunspell-add-multi-dic "ru_RU,en_US"))
 #+end_src
 
-** OBSOLETE flyspell
-CLOSED: [2025-01-19 Sun 19:24]
+** flyspell
 #+begin_src emacs-lisp
 (use-package flyspell
-  :disabled
+  :disabled ;; switch to jinx
   :general
   (+leader-def
     "ts" 'flyspell-mode)
@@ -2217,7 +2214,6 @@ CLOSED: [2025-01-19 Sun 19:24]
 ** flycheck
 #+begin_src emacs-lisp
 (use-package flycheck
-  ;; :disabled
   :preface
   ;; https://www.flycheck.org/en/latest/user/error-reports.html#fringe-and-margin-icons
   (defun +flycheck-set-indication-mode ()
@@ -2471,7 +2467,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 
 #+begin_src emacs-lisp
 (use-package diff-hl-dired
-  ;; :disabled
   :ensure diff-hl
   :init
   (setq diff-hl-dired-extra-indicators nil)
@@ -2499,7 +2494,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 
 #+begin_src emacs-lisp
 (use-package diff-hl-margin
-  ;; :disabled
   :ensure diff-hl
   :unless (display-graphic-p)
   :init
