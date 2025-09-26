@@ -169,6 +169,8 @@
   - [[#github-copilot][GitHub Copilot]]
 - [[#ai-agents][AI agents]]
   - [[#claude-code-ide][claude-code-ide]]
+  - [[#acp][acp]]
+  - [[#agent-shell][agent-shell]]
 - [[#utils][Utils]]
 - [[#private-configuration][Private Configuration]]
 - [[#the-end][The end]]
@@ -432,6 +434,8 @@ If you'd like to test a different font, evaluate the following block:
   (+leader-def
     ""    '(nil :wk "leader")
     "a"   '(:ignore t :wk "assistant")
+    "l"   '(:ignore t :wk "llm")
+    "la"   '(:ignore t :wk "agents")
     "o"   '(:ignore t :wk "open")
     "O"   '(:ignore t :wk "org")
     "p"   '(:ignore t :wk "project")
@@ -3459,6 +3463,25 @@ Install server
   :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
+#+end_src
+** acp
+#+begin_src emacs-lisp
+(use-package acp
+  :vc (:url "https://github.com/xenodium/acp.el"))
+#+end_src
+
+** agent-shell
+#+begin_src emacs-lisp
+(use-package agent-shell
+  :vc (:url "https://github.com/xenodium/agent-shell")
+  :general
+  (+leader-def
+    "lac" 'agent-shell-anthropic-start-claude-code
+    "lag" 'agent-shell-google-start-gemini))
+#+end_src
+
+#+begin_src sh :tangle no :results silent
+npm install -g @zed-industries/claude-code-acp
 #+end_src
 
 * Utils

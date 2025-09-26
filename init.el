@@ -98,6 +98,8 @@
   (+leader-def
     ""    '(nil :wk "leader")
     "a"   '(:ignore t :wk "assistant")
+    "l"   '(:ignore t :wk "llm")
+    "la"   '(:ignore t :wk "agents")
     "o"   '(:ignore t :wk "open")
     "O"   '(:ignore t :wk "org")
     "p"   '(:ignore t :wk "project")
@@ -2481,6 +2483,16 @@
   :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
+
+(use-package acp
+  :vc (:url "https://github.com/xenodium/acp.el"))
+
+(use-package agent-shell
+  :vc (:url "https://github.com/xenodium/agent-shell")
+  :general
+  (+leader-def
+    "lac" 'agent-shell-anthropic-start-claude-code
+    "lag" 'agent-shell-google-start-gemini))
 
 (use-package focus
   :general
