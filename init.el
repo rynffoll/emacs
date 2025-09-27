@@ -554,9 +554,6 @@
 (use-package per-tab-group-theme
   :ensure nil
   :load-path "site-lisp/per-tab-group-theme"
-  :general
-  (tab-prefix-map
-   "T" 'per-tab-group-theme-set)
   :hook
   (after-init-hook . per-tab-group-theme-mode))
 
