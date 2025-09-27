@@ -648,17 +648,17 @@
           ;; "\\*Warnings\\*"
           "\\*Compile-Log\\*"
           "\\*vc-git : .*"
-          
+
           help-mode
           helpful-mode
-          
+
           compilation-mode
           comint-mode
-          
+
           flymake-diagnostics-buffer-mode
           flycheck-error-list-mode
           flycheck-verify-mode
-          
+
           cider-repl-mode
           ansible-doc-module-mode))
   :hook
