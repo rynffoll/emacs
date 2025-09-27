@@ -2999,16 +2999,6 @@ CIDER
   :hook
   (clojure-ts-mode-hook . cider-mode))
 
-(use-package cider-hydra
-  :general
-  (+local-leader-def :keymaps 'clojure-ts-mode-map
-    "d" '(cider-hydra-doc/body  :wk "doc")
-    "e" '(cider-hydra-eval/body :wk "eval")
-    "t" '(cider-hydra-test/body :wk "test")
-    "r" '(cider-hydra-repl/body :wk "repl"))
-  :hook
-  (clojure-ts-mode-hook . cider-hydra-mode))
-
 (use-package clj-refactor
   :general
   (+local-leader-def :keymaps 'clojure-ts-mode-map
