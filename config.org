@@ -1,3 +1,4 @@
+# -*- after-save-hook: org-babel-tangle; -*-
 #+title: Emacs config
 #+property: header-args:emacs-lisp :tangle init.el
 #+property: header-args :results silent
@@ -127,6 +128,7 @@
   - [[#toc-org][toc-org]]
   - [[#org-babel][org-babel]]
     - [[#ob-core][ob-core]]
+    - [[#ob-tangle][ob-tangle]]
     - [[#ob-plantuml][ob-plantuml]]
     - [[#verb][verb]]
     - [[#ob-chatgpt-shell][ob-chatgpt-shell]]
@@ -173,8 +175,7 @@
     - [[#claude-code-ide][claude-code-ide]]
     - [[#agent-shell][agent-shell]]
 - [[#utils][Utils]]
-- [[#private-configuration][Private Configuration]]
-- [[#the-end][The end]]
+- [[#private][Private]]
 
 * Early Initialization
 :PROPERTIES:
@@ -1577,9 +1578,7 @@ Install fonts
   :init
   (setq require-final-newline t)
   (setq make-backup-files nil)
-  (setq auto-save-default nil)
-  (setq enable-local-variables :all)
-  (setq enable-local-eval t))
+  (setq auto-save-default nil))
 #+end_src
 
 ** autorevert
@@ -2448,6 +2447,7 @@ Install fonts
 (use-package magit-todos
   :init
   (setq magit-todos-keyword-suffix (rx (optional "(" (1+ (not (any ")"))) ")" ":")))
+  (put 'magit-todos-exclude-globs 'safe-local-variable #'listp)
   :hook
   (magit-mode-hook . magit-todos-mode))
 #+end_src
@@ -2723,6 +2723,14 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
           (plantuml   . t)))
   :hook
   (org-babel-after-execute-hook . org-redisplay-inline-images))
+#+end_src
+
+*** ob-tangle
+#+begin_src emacs-lisp
+(use-package ob-tangle
+  :ensure org
+  :init
+  (add-to-list 'safe-local-variable-values '(after-save-hook . org-babel-tangle)))
 #+end_src
 
 *** ob-plantuml
@@ -3481,17 +3489,10 @@ npm install -g @zed-industries/claude-code-acp
 (use-package daemons)
 #+end_src
 
-* Private Configuration
+* Private
 Loading private configuration from ~~/.emacs.d/site-lisp/default.el~
 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html][50.4 The Emacs Initialization File]]
 #+begin_src emacs-lisp
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
-#+end_src
-
-* The end
-#+begin_src emacs-lisp :tangle no
-;; Local Variables:
-;; eval: (add-hook 'after-save-hook (lambda () (org-babel-tangle)) nil t)
-;; End:
 #+end_src
 

@@ -1030,9 +1030,7 @@
   :init
   (setq require-final-newline t)
   (setq make-backup-files nil)
-  (setq auto-save-default nil)
-  (setq enable-local-variables :all)
-  (setq enable-local-eval t))
+  (setq auto-save-default nil))
 
 (use-package autorevert
   :ensure nil
@@ -1719,6 +1717,7 @@
 (use-package magit-todos
   :init
   (setq magit-todos-keyword-suffix (rx (optional "(" (1+ (not (any ")"))) ")" ":")))
+  (put 'magit-todos-exclude-globs 'safe-local-variable #'listp)
   :hook
   (magit-mode-hook . magit-todos-mode))
 
@@ -1945,6 +1944,11 @@
           (plantuml   . t)))
   :hook
   (org-babel-after-execute-hook . org-redisplay-inline-images))
+
+(use-package ob-tangle
+  :ensure org
+  :init
+  (add-to-list 'safe-local-variable-values '(after-save-hook . org-babel-tangle)))
 
 (use-package ob-plantuml
   :ensure nil
