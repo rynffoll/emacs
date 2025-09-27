@@ -97,9 +97,9 @@
    "," (general-simulate-key "SPC m" :which-key "local leader"))
   (+leader-def
     ""    '(nil :wk "leader")
-    "a"   '(:ignore t :wk "assistant")
     "l"   '(:ignore t :wk "llm")
-    "la"   '(:ignore t :wk "agents")
+    "lc"  '(:ignore t :wk "chats")
+    "la"  '(:ignore t :wk "agents")
     "o"   '(:ignore t :wk "open")
     "O"   '(:ignore t :wk "org")
     "p"   '(:ignore t :wk "project")
@@ -1220,7 +1220,7 @@
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
   :if +with-icons
-  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal" :rev :newest)
+  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal")
   :hook
   (dired-mode-hook   . nerd-icons-multimodal-mode)
   (archive-mode-hook . nerd-icons-multimodal-mode)
@@ -2052,7 +2052,7 @@
 
 ;; TODO: emacs 31: `eglot-show-call-hierarchy' and `eglot-show-type-hierarchy'
 (use-package eglot-hierarchy
-  :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
+  :vc (:url "https://github.com/dolmens/eglot-hierarchy")
   :general
   (+local-leader-def :keymaps 'eglot-mode-map
     "H" '(:ignore t :wk "hierarchy")
@@ -2319,7 +2319,7 @@
   :mode "\\.j2\\'")
 
 (use-package ansible-vault-with-editor
-  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
+  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor")
   :general
   (+local-leader-def :keymaps 'yaml-ts-mode-map
     "e" '(ansible-vault-with-editor-edit :wk "edit")
@@ -2375,6 +2375,22 @@
   :hook
   (after-init-hook . recall-mode))
 
+(use-package copilot
+  :vc (:url "https://github.com/copilot-emacs/copilot.el")
+  :general
+  (copilot-completion-map
+   "TAB"   'copilot-accept-completion
+   "C-TAB" 'copilot-accept-completion-by-word
+   "C-j"   'copilot-next-completion
+   "C-k"   'copilot-previous-completion)
+  :init
+  (setq copilot-indent-offset-warning-disable t)
+  (setq copilot-max-char 1000000)
+  (setq copilot-max-char-warning-disable t)
+  :hook
+  (prog-mode-hook . copilot-mode)
+  (git-commit-mode-hook . copilot-mode))
+
 (use-package gptel
   :preface
   (defun +gptel-send-back-evil-normal-state (&optional _result)
@@ -2382,9 +2398,7 @@
     (evil-normal-state))
   :general
   (+leader-def
-    "ag" '(:ignore t :wk "gptel")
-    "ag." 'gptel-menu
-    "agc" 'gptel)
+    "lcg" 'gptel)
   :init
   (setq gptel-default-mode 'org-mode)
   (setq gptel-prompt-prefix-alist
@@ -2400,11 +2414,10 @@
   (gptel-mode-hook . toggle-word-wrap))
 
 (use-package gptel-quick
-  :vc ( :url "https://github.com/karthink/gptel-quick"
-        :rev :newest)
+  :vc (:url "https://github.com/karthink/gptel-quick")
   :general
-  (+leader-def
-    "ag?" 'gptel-quick))
+  (embark-general-map
+   "?" #'gptel-quick))
 
 (use-package chatgpt-shell
   :preface
@@ -2412,46 +2425,21 @@
     (auth-source-pick-first-password :host "api.openai.com"))
   :general
   (+leader-def
-    "as" '(:ignore t :wk "chatgpt-shell")
-    "as." 'chatgpt-shell-prompt-compose
-    "asc" 'chatgpt-shell
-    "asq" 'chatgpt-shell-quick-insert)
+    "lcs" 'chatgpt-shell)
   :init
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
-
-(use-package copilot
-  :vc ( :url "https://github.com/copilot-emacs/copilot.el"
-        :rev :newest
-        :branch "main")
-  :general
-  (+leader-def
-    "ac" '(:ignore t :wk "copilot")
-    "acm" 'copilot-mode
-    "acD" 'copilot-diagnose)
-  (copilot-completion-map
-   "TAB" 'copilot-accept-completion
-   "C-TAB" 'copilot-accept-completion-by-word
-   "C-j" 'copilot-next-completion
-   "C-k" 'copilot-previous-completion)
-  :init
-  (setq copilot-indent-offset-warning-disable t)
-  (setq copilot-max-char 1000000)
-  (setq copilot-max-char-warning-disable t)
-  :hook
-  (prog-mode-hook . copilot-mode)
-  (git-commit-mode-hook . copilot-mode))
 
 (use-package copilot-chat
   :general
   (+leader-def
-    "acc" 'copilot-chat-display)
+    "lcc" 'copilot-chat)
   (+local-leader-def :keymaps 'git-commit-mode-map
     "i" 'copilot-chat-insert-commit-message)
   :init
   (setq copilot-chat-frontend 'shell-maker))
 
 (use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el")
   :preface
   (defun +disable-nobreak-char-display ()
     "Disable display of non-breaking space character in vterm."
@@ -2459,7 +2447,7 @@
   :bind ("C-c C-'" . claude-code-ide-menu)
   :general
   (+leader-def
-    "aC" 'claude-code-ide-menu)
+    "laC" 'claude-code-ide-menu)
   :hook
   (vterm-mode-hook . +disable-nobreak-char-display)
   (eat-mode-hook . +disable-nobreak-char-display)
@@ -2467,7 +2455,7 @@
   (claude-code-ide-emacs-tools-setup))
 
 (use-package vterm-anti-flicker-filter
-  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
+  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter")
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 

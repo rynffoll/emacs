@@ -162,15 +162,16 @@
   - [[#envrc][.env(rc)]]
   - [[#proced][proced]]
   - [[#recall][recall]]
-- [[#ai-assistants][AI assistants]]
-  - [[#chats][Chats]]
+- [[#llm][LLM]]
+  - [[#completion-1][completion]]
+    - [[#copilot][copilot]]
+  - [[#chats][chats]]
     - [[#gptel][gptel]]
     - [[#chatgpt-shell][chatgpt-shell]]
-  - [[#github-copilot][GitHub Copilot]]
-- [[#ai-agents][AI agents]]
-  - [[#claude-code-ide][claude-code-ide]]
-  - [[#acp][acp]]
-  - [[#agent-shell][agent-shell]]
+    - [[#copilot-chat][copilot-chat]]
+  - [[#agents][agents]]
+    - [[#claude-code-ide][claude-code-ide]]
+    - [[#agent-shell][agent-shell]]
 - [[#utils][Utils]]
 - [[#private-configuration][Private Configuration]]
 - [[#the-end][The end]]
@@ -433,9 +434,9 @@ If you'd like to test a different font, evaluate the following block:
    "," (general-simulate-key "SPC m" :which-key "local leader"))
   (+leader-def
     ""    '(nil :wk "leader")
-    "a"   '(:ignore t :wk "assistant")
     "l"   '(:ignore t :wk "llm")
-    "la"   '(:ignore t :wk "agents")
+    "lc"  '(:ignore t :wk "chats")
+    "la"  '(:ignore t :wk "agents")
     "o"   '(:ignore t :wk "open")
     "O"   '(:ignore t :wk "org")
     "p"   '(:ignore t :wk "project")
@@ -1807,7 +1808,7 @@ Install fonts
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
   :if +with-icons
-  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal" :rev :newest)
+  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal")
   :hook
   (dired-mode-hook   . nerd-icons-multimodal-mode)
   (archive-mode-hook . nerd-icons-multimodal-mode)
@@ -2879,7 +2880,7 @@ Hello World!
 #+begin_src emacs-lisp
 ;; TODO: emacs 31: `eglot-show-call-hierarchy' and `eglot-show-type-hierarchy'
 (use-package eglot-hierarchy
-  :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
+  :vc (:url "https://github.com/dolmens/eglot-hierarchy")
   :general
   (+local-leader-def :keymaps 'eglot-mode-map
     "H" '(:ignore t :wk "hierarchy")
@@ -3255,7 +3256,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 #+begin_src emacs-lisp
 (use-package ansible-vault-with-editor
-  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
+  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor")
   :general
   (+local-leader-def :keymaps 'yaml-ts-mode-map
     "e" '(ansible-vault-with-editor-edit :wk "edit")
@@ -3325,8 +3326,33 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (after-init-hook . recall-mode))
 #+end_src
 
-* AI assistants
-** Chats
+* LLM
+** completion
+*** copilot
+#+begin_src emacs-lisp
+(use-package copilot
+  :vc (:url "https://github.com/copilot-emacs/copilot.el")
+  :general
+  (copilot-completion-map
+   "TAB"   'copilot-accept-completion
+   "C-TAB" 'copilot-accept-completion-by-word
+   "C-j"   'copilot-next-completion
+   "C-k"   'copilot-previous-completion)
+  :init
+  (setq copilot-indent-offset-warning-disable t)
+  (setq copilot-max-char 1000000)
+  (setq copilot-max-char-warning-disable t)
+  :hook
+  (prog-mode-hook . copilot-mode)
+  (git-commit-mode-hook . copilot-mode))
+#+end_src
+
+Install server
+#+begin_src emacs-lisp :tangle no :results silent
+(copilot-install-server)
+#+end_src
+
+** chats
 Storing in =~/.authinfo= or ==~/.authinfo.gpg=.
 By default, =api.openai.com= is used as =HOST= and =apikey= as =USER=.
 #+begin_src authinfo :tangle no :results silent
@@ -3343,9 +3369,7 @@ machine api.openai.com login apikey password TOKEN
     (evil-normal-state))
   :general
   (+leader-def
-    "ag" '(:ignore t :wk "gptel")
-    "ag." 'gptel-menu
-    "agc" 'gptel)
+    "lcg" 'gptel)
   :init
   (setq gptel-default-mode 'org-mode)
   (setq gptel-prompt-prefix-alist
@@ -3363,11 +3387,10 @@ machine api.openai.com login apikey password TOKEN
 
 #+begin_src emacs-lisp
 (use-package gptel-quick
-  :vc ( :url "https://github.com/karthink/gptel-quick"
-        :rev :newest)
+  :vc (:url "https://github.com/karthink/gptel-quick")
   :general
-  (+leader-def
-    "ag?" 'gptel-quick))
+  (embark-general-map
+   "?" #'gptel-quick))
 #+end_src
 
 *** chatgpt-shell
@@ -3378,60 +3401,28 @@ machine api.openai.com login apikey password TOKEN
     (auth-source-pick-first-password :host "api.openai.com"))
   :general
   (+leader-def
-    "as" '(:ignore t :wk "chatgpt-shell")
-    "as." 'chatgpt-shell-prompt-compose
-    "asc" 'chatgpt-shell
-    "asq" 'chatgpt-shell-quick-insert)
+    "lcs" 'chatgpt-shell)
   :init
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
 #+end_src
 
-** GitHub Copilot
-#+begin_src emacs-lisp
-(use-package copilot
-  :vc ( :url "https://github.com/copilot-emacs/copilot.el"
-        :rev :newest
-        :branch "main")
-  :general
-  (+leader-def
-    "ac" '(:ignore t :wk "copilot")
-    "acm" 'copilot-mode
-    "acD" 'copilot-diagnose)
-  (copilot-completion-map
-   "TAB" 'copilot-accept-completion
-   "C-TAB" 'copilot-accept-completion-by-word
-   "C-j" 'copilot-next-completion
-   "C-k" 'copilot-previous-completion)
-  :init
-  (setq copilot-indent-offset-warning-disable t)
-  (setq copilot-max-char 1000000)
-  (setq copilot-max-char-warning-disable t)
-  :hook
-  (prog-mode-hook . copilot-mode)
-  (git-commit-mode-hook . copilot-mode))
-#+end_src
-
-Install server
-#+begin_src emacs-lisp :tangle no :results silent
-(copilot-install-server)
-#+end_src
-
+*** copilot-chat
 #+begin_src emacs-lisp
 (use-package copilot-chat
   :general
   (+leader-def
-    "acc" 'copilot-chat-display)
+    "lcc" 'copilot-chat)
   (+local-leader-def :keymaps 'git-commit-mode-map
     "i" 'copilot-chat-insert-commit-message)
   :init
   (setq copilot-chat-frontend 'shell-maker))
 #+end_src
 
-* AI agents
-** claude-code-ide
+** agents
+*** claude-code-ide
 #+begin_src emacs-lisp
 (use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el")
   :preface
   (defun +disable-nobreak-char-display ()
     "Disable display of non-breaking space character in vterm."
@@ -3439,7 +3430,7 @@ Install server
   :bind ("C-c C-'" . claude-code-ide-menu)
   :general
   (+leader-def
-    "aC" 'claude-code-ide-menu)
+    "laC" 'claude-code-ide-menu)
   :hook
   (vterm-mode-hook . +disable-nobreak-char-display)
   (eat-mode-hook . +disable-nobreak-char-display)
@@ -3449,17 +3440,17 @@ Install server
 
 #+begin_src emacs-lisp
 (use-package vterm-anti-flicker-filter
-  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
+  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter")
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 #+end_src
-** acp
+
+*** agent-shell
 #+begin_src emacs-lisp
 (use-package acp
   :vc (:url "https://github.com/xenodium/acp.el"))
 #+end_src
 
-** agent-shell
 #+begin_src emacs-lisp
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell")
