@@ -1994,8 +1994,10 @@ Install fonts
 ** undo-fu-session
 #+begin_src emacs-lisp
 (use-package undo-fu-session
+  :init
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
   :hook
-  (org-mode-hook . undo-fu-session-mode))
+  (after-init-hook . undo-fu-session-global-mode))
 #+end_src
 
 ** vundo
@@ -2029,6 +2031,7 @@ Install fonts
   :hook
   (after-init-hook . global-hl-line-mode))
 #+end_src
+
 ** paren
 #+begin_src emacs-lisp
 (use-package paren
@@ -2134,11 +2137,6 @@ Install fonts
 #+end_src
 
 * Folding
-#+begin_src emacs-lisp
-(use-package outline
-  :ensure nil)
-#+end_src
-
 #+begin_src emacs-lisp
 (use-package hideshow
   :ensure nil

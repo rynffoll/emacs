@@ -1361,8 +1361,10 @@
   (ediff-quit-hook . winner-undo))
 
 (use-package undo-fu-session
+  :init
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
   :hook
-  (org-mode-hook . undo-fu-session-mode))
+  (after-init-hook . undo-fu-session-global-mode))
 
 (use-package vundo
   :general
@@ -1460,9 +1462,6 @@
 (use-package evil-anzu
   :demand
   :after evil anzu)
-
-(use-package outline
-  :ensure nil)
 
 (use-package hideshow
   :ensure nil
