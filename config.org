@@ -159,7 +159,7 @@
   - [[#editorconfig][editorconfig]]
   - [[#docker][docker]]
   - [[#ansible][ansible]]
-  - [[#envrc][.env(rc)]]
+  - [[#mise][mise]]
   - [[#proced][proced]]
   - [[#recall][recall]]
 - [[#llm][LLM]]
@@ -3264,34 +3264,11 @@ go install github.com/go-delve/delve/cmd/dlv@latest
     "D" '(ansible-vault-with-editor-decrypt :wk "decrypt")))
 #+end_src
 
-** .env(rc)
+** mise
 #+begin_src emacs-lisp
-(use-package direnv
-  :if (executable-find "direnv")
-  :preface
-  (defun +direnv-hook ()
-    (add-hook
-     'after-save-hook
-     (lambda ()
-       (call-interactively 'direnv-update-environment))
-     nil t))
-  :general
-  (+local-leader-def :keymaps 'direnv-envrc-mode-map
-    "a" 'direnv-allow
-    "u" 'direnv-update-environment)
-  :init
-  (setq direnv-always-show-summary nil)
+(use-package mise
   :hook
-  (after-init-hook . direnv-mode)
-  (direnv-envrc-mode-hook . +direnv-hook))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package envrc
-  :disabled
-  :if (executable-find "direnv")
-  :hook
-  (after-init-hook . envrc-global-mode))
+  (after-init-hook . global-mise-mode))
 #+end_src
 
 ** proced

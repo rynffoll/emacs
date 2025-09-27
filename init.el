@@ -2326,30 +2326,9 @@
     "E" '(ansible-vault-with-editor-encrypt :wk "encrypt")
     "D" '(ansible-vault-with-editor-decrypt :wk "decrypt")))
 
-(use-package direnv
-  :if (executable-find "direnv")
-  :preface
-  (defun +direnv-hook ()
-    (add-hook
-     'after-save-hook
-     (lambda ()
-       (call-interactively 'direnv-update-environment))
-     nil t))
-  :general
-  (+local-leader-def :keymaps 'direnv-envrc-mode-map
-    "a" 'direnv-allow
-    "u" 'direnv-update-environment)
-  :init
-  (setq direnv-always-show-summary nil)
+(use-package mise
   :hook
-  (after-init-hook . direnv-mode)
-  (direnv-envrc-mode-hook . +direnv-hook))
-
-(use-package envrc
-  :disabled
-  :if (executable-find "direnv")
-  :hook
-  (after-init-hook . envrc-global-mode))
+  (after-init-hook . global-mise-mode))
 
 (use-package proced
   :ensure nil
