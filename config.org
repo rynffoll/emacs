@@ -3334,14 +3334,6 @@ machine api.openai.com login apikey password TOKEN
   (gptel-mode-hook . toggle-word-wrap))
 #+end_src
 
-#+begin_src emacs-lisp
-(use-package gptel-quick
-  :vc (:url "https://github.com/karthink/gptel-quick")
-  :general
-  (embark-general-map
-   "?" #'gptel-quick))
-#+end_src
-
 *** chatgpt-shell
 #+begin_src emacs-lisp
 (use-package chatgpt-shell
