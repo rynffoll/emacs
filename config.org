@@ -132,7 +132,6 @@
     - [[#ob-plantuml][ob-plantuml]]
     - [[#verb][verb]]
     - [[#ob-chatgpt-shell][ob-chatgpt-shell]]
-    - [[#tests][tests]]
   - [[#org-crypt][org-crypt]]
   - [[#org-appear][org-appear]]
 - [[#notes][Notes]]
@@ -2730,7 +2729,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (ob-chatgpt-shell-setup))
 #+end_src
 
-*** tests
+*** COMMENT tests
 #+begin_src emacs-lisp :tangle no :results silent
 (message "Hello World!")
 #+end_src
