@@ -1620,16 +1620,9 @@
   (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
 
 (use-package eat
-  :preface
-  (defun +eat ()
-    (interactive)
-    (let ((default-directory "~/"))
-      (if (get-buffer "eat")
-          (switch-to-buffer "eat")
-        (eat))))
   :general
   (+leader-def
-    "oe" '+eat)
+    "oe" 'eat)
   :hook
   (eat-mode-hook . +disable-global-hl-line-mode))
 
