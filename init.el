@@ -1225,7 +1225,7 @@
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
   :if +with-icons
-  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal")
+  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal" :rev :newest)
   :hook
   (dired-mode-hook   . nerd-icons-multimodal-mode)
   (archive-mode-hook . nerd-icons-multimodal-mode)
@@ -2023,7 +2023,7 @@
 
 ;; TODO: emacs 31: `eglot-show-call-hierarchy' and `eglot-show-type-hierarchy'
 (use-package eglot-hierarchy
-  :vc (:url "https://github.com/dolmens/eglot-hierarchy")
+  :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
   :general
   (+local-leader-def :keymaps 'eglot-mode-map
     "H" '(:ignore t :wk "hierarchy")
@@ -2290,7 +2290,7 @@
   :mode "\\.j2\\'")
 
 (use-package ansible-vault-with-editor
-  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor")
+  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
   :general
   (+local-leader-def :keymaps 'yaml-ts-mode-map
     "e" '(ansible-vault-with-editor-edit :wk "edit")
@@ -2326,7 +2326,7 @@
   (after-init-hook . recall-mode))
 
 (use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el")
+  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
   :general
   (copilot-completion-map
    "TAB"   'copilot-accept-completion
@@ -2383,7 +2383,7 @@
   (setq copilot-chat-frontend 'shell-maker))
 
 (use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el")
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
   :preface
   (defun +disable-nobreak-char-display ()
     "Disable display of non-breaking space character in vterm."
@@ -2399,15 +2399,15 @@
   (claude-code-ide-emacs-tools-setup))
 
 (use-package vterm-anti-flicker-filter
-  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter")
+  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 
 (use-package acp
-  :vc (:url "https://github.com/xenodium/acp.el"))
+  :vc (:url "https://github.com/xenodium/acp.el" :rev :newest))
 
 (use-package agent-shell
-  :vc (:url "https://github.com/xenodium/agent-shell")
+  :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
   :general
   (+leader-def
     "lac" 'agent-shell-anthropic-start-claude-code
