@@ -1374,9 +1374,6 @@
 (use-package vundo
   :general
   ("C-x u" 'vundo)
-  :hook
-  (vundo-mode-hook . +disable-global-hl-line-mode)
-  (vundo-mode-hook . +disable-evil-cursor)
   :custom-face
   (vundo-highlight  ((t (:inherit success :foreground unspecified))))
   (vundo-last-saved ((t (:inherit error   :foreground unspecified))))
