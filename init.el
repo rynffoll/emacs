@@ -1729,6 +1729,14 @@
   (+leader-def
     "gL" 'git-link-dispatch))
 
+(use-package gptel-commit
+  :general
+  (+local-leader-def :keymaps 'git-commit-mode-map
+    "g" 'gptel-commit
+    "G" 'gptel-commit-rationale)
+  :init
+  (setq gptel-commit-use-claude-code t))
+
 (use-package org
   :ensure nil
   :preface
@@ -2362,8 +2370,6 @@
   :general
   (+leader-def
     "lcc" 'copilot-chat)
-  (+local-leader-def :keymaps 'git-commit-mode-map
-    "i" 'copilot-chat-insert-commit-message)
   :init
   (setq copilot-chat-frontend 'shell-maker))
 
