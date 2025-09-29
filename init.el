@@ -1893,6 +1893,7 @@
         '((emacs-lisp . t)
           (shell      . t)
           (plantuml   . t)))
+  (setq org-babel-results-keyword "results")
   :hook
   (org-babel-after-execute-hook . org-redisplay-inline-images))
 
