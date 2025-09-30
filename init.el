@@ -2349,6 +2349,8 @@
   :general
   (+leader-def
     "lcg" 'gptel)
+  (+local-leader-def :keymaps 'gptel-mode-map
+    "." 'gptel-menu)
   :init
   (setq gptel-default-mode 'org-mode)
   (setq gptel-prompt-prefix-alist
@@ -2357,6 +2359,8 @@
           (org-mode . "* ")
           (text-mode . "### ")))
   (setq gptel-org-branching-context t)
+  (setq gptel-model 'gpt-5)
+  (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
   :config
   (advice-add 'gptel-send :after #'+gptel-send-back-evil-normal-state)
   :hook
@@ -2372,13 +2376,6 @@
     "lcs" 'chatgpt-shell)
   :init
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
-
-(use-package copilot-chat
-  :general
-  (+leader-def
-    "lcc" 'copilot-chat)
-  :init
-  (setq copilot-chat-frontend 'shell-maker))
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)

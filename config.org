@@ -1,7 +1,6 @@
 # -*- after-save-hook: org-babel-tangle; -*-
 #+title: Emacs config
-#+property: header-args:emacs-lisp :tangle init.el
-#+property: header-args:emacs-lisp :results silent
+#+property: header-args:emacs-lisp :tangle init.el :results silent
 * Table of Contents :TOC:
 - [[#early-initialization][Early Initialization]]
   - [[#defaults][Defaults]]
@@ -170,7 +169,6 @@
   - [[#chats][chats]]
     - [[#gptel][gptel]]
     - [[#chatgpt-shell][chatgpt-shell]]
-    - [[#copilot-chat][copilot-chat]]
   - [[#agents][agents]]
     - [[#claude-code-ide][claude-code-ide]]
     - [[#agent-shell][agent-shell]]
@@ -179,7 +177,7 @@
 
 * Early Initialization
 :PROPERTIES:
-:header-args:emacs-lisp: :tangle early-init.el
+:header-args:emacs-lisp: :tangle early-init.el :results silent
 :END:
 
 #+begin_src emacs-lisp
@@ -3332,6 +3330,8 @@ machine api.openai.com login apikey password TOKEN
   :general
   (+leader-def
     "lcg" 'gptel)
+  (+local-leader-def :keymaps 'gptel-mode-map
+    "." 'gptel-menu)
   :init
   (setq gptel-default-mode 'org-mode)
   (setq gptel-prompt-prefix-alist
@@ -3340,6 +3340,8 @@ machine api.openai.com login apikey password TOKEN
           (org-mode . "* ")
           (text-mode . "### ")))
   (setq gptel-org-branching-context t)
+  (setq gptel-model 'gpt-5)
+  (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
   :config
   (advice-add 'gptel-send :after #'+gptel-send-back-evil-normal-state)
   :hook
@@ -3358,16 +3360,6 @@ machine api.openai.com login apikey password TOKEN
     "lcs" 'chatgpt-shell)
   :init
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
-#+end_src
-
-*** copilot-chat
-#+begin_src emacs-lisp
-(use-package copilot-chat
-  :general
-  (+leader-def
-    "lcc" 'copilot-chat)
-  :init
-  (setq copilot-chat-frontend 'shell-maker))
 #+end_src
 
 ** agents
