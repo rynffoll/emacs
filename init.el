@@ -2361,10 +2361,23 @@
 
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
+  :preface
+  (defun +agent-shell-quick-diff-evil-setup ()
+    "Rebind q to close buffer instead of burying it in quick-diff buffers.
+This overrides evil-collection's diff-mode binding of q to `quit-window'."
+    (when (string-match-p "\\*quick-diff\\*" (buffer-name))
+      ;; n - next conflict hunk
+      ;; p - previous conflict hunk
+      ;; q - kill buffer and exit
+      (evil-local-set-key 'normal "n" #'diff-hunk-next)
+      (evil-local-set-key 'normal "p" #'diff-hunk-prev)
+      (evil-local-set-key 'normal "q" #'kill-current-buffer)))
   :general
   (+leader-def
     "lac" 'agent-shell-anthropic-start-claude-code
-    "lag" 'agent-shell-google-start-gemini))
+    "lag" 'agent-shell-google-start-gemini)
+  :hook
+  (diff-mode-hook . +agent-shell-quick-diff-evil-setup))
 
 (use-package copilot
   :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
