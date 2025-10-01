@@ -1672,11 +1672,6 @@
   :hook
   (magit-mode-hook . magit-todos-mode))
 
-(use-package git-timemachine
-  :general
-  (+leader-def
-    "gt" 'git-timemachine))
-
 (use-package git-modes)
 
 (use-package diff-hl

@@ -111,7 +111,6 @@
 - [[#git][Git]]
   - [[#magit][magit]]
   - [[#magit-todos][magit-todos]]
-  - [[#git-timemachine][git-timemachine]]
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
@@ -2399,14 +2398,6 @@ Install fonts
   (put 'magit-todos-exclude-globs 'safe-local-variable #'listp)
   :hook
   (magit-mode-hook . magit-todos-mode))
-#+end_src
-
-** git-timemachine
-#+begin_src emacs-lisp
-(use-package git-timemachine
-  :general
-  (+leader-def
-    "gt" 'git-timemachine))
 #+end_src
 
 ** git-modes
