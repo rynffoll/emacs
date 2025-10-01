@@ -1676,49 +1676,26 @@
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
 (use-package diff-hl
+  :preface
+  (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   :init
-  (setq diff-hl-draw-borders nil)
   (setq diff-hl-update-async t)
+  (setq diff-hl-draw-borders nil)
+  (setq diff-hl-margin-symbols-alist
+        '((insert . " ") (delete . " ") (change . " ")
+          (unknown . " ") (ignored . " ") (reference . " ")))
+  (setq diff-hl-dired-extra-indicators nil)
+  ;; FIXME: https://github.com/dgutov/diff-hl/pull/251
+  ;; (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
+  :config
+  ;; diff-hl-dired: hack to disable icons inside fringe
+  (advice-add #'diff-hl-fringe-bmp-from-type :override #'+diff-hl-fringe-bmp-empty)
   :hook
   (after-init-hook         . global-diff-hl-mode)
+  (after-init-hook         . global-diff-hl-show-hunk-mouse-mode)
   ;; (diff-hl-mode-hook       . diff-hl-flydiff-mode) ;; disabled by perf issues
-  (magit-post-refresh-hook . diff-hl-magit-post-refresh))
-
-(use-package diff-hl-dired
-  :ensure diff-hl
-  :init
-  (setq diff-hl-dired-extra-indicators nil)
-  :config
-  ;; FIXME: dirty hack to override bitmap functions (w/o icons inside)
-  (defun diff-hl-dired-highlight-items (alist)
-    "Highlight ALIST containing (FILE . TYPE) elements."
-    (dolist (pair alist)
-      (let ((file (car pair))
-            (type (cdr pair)))
-        (save-excursion
-          (goto-char (point-min))
-          (when (and type (dired-goto-file-1
-                           file (expand-file-name file) nil))
-            (let* (;; (diff-hl-fringe-bmp-function 'diff-hl-fringe-bmp-from-type)
-                   ;; (diff-hl-fringe-face-function 'diff-hl-dired-face-from-type)
-                   (diff-hl-fringe-bmp-function '(lambda (_type pos) 'diff-hl-bmp-empty))
-                   (o (diff-hl-add-highlighting type 'single)))
-              (overlay-put o 'modification-hooks '(diff-hl-overlay-modified))
-              (overlay-put o 'diff-hl-dired-type type)
-              ))))))
-  :hook
+  (magit-post-refresh-hook . diff-hl-magit-post-refresh)
   (dired-mode-hook . diff-hl-dired-mode))
-
-(use-package diff-hl-margin
-  :ensure diff-hl
-  :unless (display-graphic-p)
-  :init
-  (setq diff-hl-margin-symbols-alist '((insert . " ")
-                                       (delete . " ")
-                                       (change . " ")
-                                       (unknown . " ")))
-  :hook
-  (after-init-hook . diff-hl-margin-mode))
 
 (use-package git-link
   :general
