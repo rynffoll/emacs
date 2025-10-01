@@ -1702,13 +1702,6 @@
   (+leader-def
     "gL" 'git-link-dispatch))
 
-(use-package gptel-magit
-  :init
-  (setq gptel-magit-model 'gpt-5-mini)
-  (setq gptel-magit-backend (gptel-make-gh-copilot "Copilot"))
-  :hook
-  (magit-mode-hook . gptel-magit-install))
-
 (use-package org
   :ensure nil
   :preface
@@ -2290,22 +2283,6 @@
   :hook
   (after-init-hook . recall-mode))
 
-(use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
-  :general
-  (copilot-completion-map
-   "TAB"   'copilot-accept-completion
-   "C-TAB" 'copilot-accept-completion-by-word
-   "C-j"   'copilot-next-completion
-   "C-k"   'copilot-previous-completion)
-  :init
-  (setq copilot-indent-offset-warning-disable t)
-  (setq copilot-max-char 1000000)
-  (setq copilot-max-char-warning-disable t)
-  :hook
-  (prog-mode-hook . copilot-mode)
-  (git-commit-mode-hook . copilot-mode))
-
 (use-package gptel
   :general
   (+leader-def
@@ -2333,6 +2310,13 @@
   :general
   (embark-general-map
    "?" #'gptel-quick))
+
+(use-package gptel-magit
+  :init
+  (setq gptel-magit-model 'gpt-5-mini)
+  (setq gptel-magit-backend (gptel-make-gh-copilot "Copilot"))
+  :hook
+  (magit-mode-hook . gptel-magit-install))
 
 (use-package chatgpt-shell
   :preface
@@ -2374,6 +2358,22 @@
   (+leader-def
     "lac" 'agent-shell-anthropic-start-claude-code
     "lag" 'agent-shell-google-start-gemini))
+
+(use-package copilot
+  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
+  :general
+  (copilot-completion-map
+   "TAB"   'copilot-accept-completion
+   "C-TAB" 'copilot-accept-completion-by-word
+   "C-j"   'copilot-next-completion
+   "C-k"   'copilot-previous-completion)
+  :init
+  (setq copilot-indent-offset-warning-disable t)
+  (setq copilot-max-char 1000000)
+  (setq copilot-max-char-warning-disable t)
+  :hook
+  (prog-mode-hook . copilot-mode)
+  (git-commit-mode-hook . copilot-mode))
 
 (use-package focus
   :general

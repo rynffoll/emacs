@@ -114,7 +114,6 @@
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
-  - [[#gptel-magit][gptel-magit]]
 - [[#org][Org]]
   - [[#common-1][common]]
   - [[#org-archive][org-archive]]
@@ -163,14 +162,14 @@
   - [[#proced][proced]]
   - [[#recall][recall]]
 - [[#llm][LLM]]
-  - [[#completion-1][completion]]
-    - [[#copilot][copilot]]
-  - [[#chats][chats]]
-    - [[#gptel][gptel]]
-    - [[#chatgpt-shell][chatgpt-shell]]
-  - [[#agents][agents]]
-    - [[#claude-code-ide][claude-code-ide]]
-    - [[#agent-shell][agent-shell]]
+  - [[#gptel][gptel]]
+  - [[#gptel-quick][gptel-quick]]
+  - [[#gptel-magit][gptel-magit]]
+  - [[#chatgpt-shell][chatgpt-shell]]
+  - [[#claude-code-ide][claude-code-ide]]
+  - [[#acp][acp]]
+  - [[#agent-shell][agent-shell]]
+  - [[#copilot][copilot]]
 - [[#utils][Utils]]
 - [[#private][Private]]
 
@@ -2439,16 +2438,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
     "gL" 'git-link-dispatch))
 #+end_src
 
-** gptel-magit
-#+begin_src emacs-lisp
-(use-package gptel-magit
-  :init
-  (setq gptel-magit-model 'gpt-5-mini)
-  (setq gptel-magit-backend (gptel-make-gh-copilot "Copilot"))
-  :hook
-  (magit-mode-hook . gptel-magit-install))
-#+end_src
-
 * Org
 ** common
 #+begin_src emacs-lisp
@@ -3236,32 +3225,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+end_src
 
 * LLM
-** completion
-*** copilot
-#+begin_src emacs-lisp
-(use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
-  :general
-  (copilot-completion-map
-   "TAB"   'copilot-accept-completion
-   "C-TAB" 'copilot-accept-completion-by-word
-   "C-j"   'copilot-next-completion
-   "C-k"   'copilot-previous-completion)
-  :init
-  (setq copilot-indent-offset-warning-disable t)
-  (setq copilot-max-char 1000000)
-  (setq copilot-max-char-warning-disable t)
-  :hook
-  (prog-mode-hook . copilot-mode)
-  (git-commit-mode-hook . copilot-mode))
-#+end_src
-
-Install server
-#+begin_src emacs-lisp :tangle no :results silent
-(copilot-install-server)
-#+end_src
-
-** chats
+** COMMENT authinfo
 Storing in =~/.authinfo= or ==~/.authinfo.gpg=.
 By default, =api.openai.com= is used as =HOST= and =apikey= as =USER=.
 #+begin_src authinfo :tangle no :results silent
@@ -3269,7 +3233,7 @@ By default, =api.openai.com= is used as =HOST= and =apikey= as =USER=.
 machine api.openai.com login apikey password TOKEN
 #+end_src
 
-*** gptel
+** gptel
 #+begin_src emacs-lisp
 (use-package gptel
   :general
@@ -3294,6 +3258,7 @@ machine api.openai.com login apikey password TOKEN
   (gptel-post-response-functions . gptel-end-of-response))
 #+end_src
 
+** gptel-quick
 #+begin_src emacs-lisp
 (use-package gptel-quick
   :vc (:url "https://github.com/karthink/gptel-quick")
@@ -3302,7 +3267,17 @@ machine api.openai.com login apikey password TOKEN
    "?" #'gptel-quick))
 #+end_src
 
-*** chatgpt-shell
+** gptel-magit
+#+begin_src emacs-lisp
+(use-package gptel-magit
+  :init
+  (setq gptel-magit-model 'gpt-5-mini)
+  (setq gptel-magit-backend (gptel-make-gh-copilot "Copilot"))
+  :hook
+  (magit-mode-hook . gptel-magit-install))
+#+end_src
+
+** chatgpt-shell
 #+begin_src emacs-lisp
 (use-package chatgpt-shell
   :preface
@@ -3315,8 +3290,7 @@ machine api.openai.com login apikey password TOKEN
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
 #+end_src
 
-** agents
-*** claude-code-ide
+** claude-code-ide
 #+begin_src emacs-lisp
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
@@ -3342,12 +3316,13 @@ machine api.openai.com login apikey password TOKEN
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 #+end_src
 
-*** agent-shell
+** acp
 #+begin_src emacs-lisp
 (use-package acp
   :vc (:url "https://github.com/xenodium/acp.el" :rev :newest))
 #+end_src
 
+** agent-shell
 #+begin_src emacs-lisp
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
@@ -3359,6 +3334,30 @@ machine api.openai.com login apikey password TOKEN
 
 #+begin_src sh :tangle no :results silent
 npm install -g @zed-industries/claude-code-acp
+#+end_src
+
+** copilot
+#+begin_src emacs-lisp
+(use-package copilot
+  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
+  :general
+  (copilot-completion-map
+   "TAB"   'copilot-accept-completion
+   "C-TAB" 'copilot-accept-completion-by-word
+   "C-j"   'copilot-next-completion
+   "C-k"   'copilot-previous-completion)
+  :init
+  (setq copilot-indent-offset-warning-disable t)
+  (setq copilot-max-char 1000000)
+  (setq copilot-max-char-warning-disable t)
+  :hook
+  (prog-mode-hook . copilot-mode)
+  (git-commit-mode-hook . copilot-mode))
+#+end_src
+
+Install server
+#+begin_src emacs-lisp :tangle no :results silent
+(copilot-install-server)
 #+end_src
 
 * Utils
