@@ -2307,15 +2307,13 @@
   (git-commit-mode-hook . copilot-mode))
 
 (use-package gptel
-  :preface
-  (defun +gptel-send-back-evil-normal-state (&optional _result)
-    "Switch to normal state after calling `gptel-send`."
-    (evil-normal-state))
   :general
   (+leader-def
     "lcg" 'gptel)
   (+local-leader-def :keymaps 'gptel-mode-map
     "." 'gptel-menu)
+  (embark-general-map
+   "." #'gptel-menu)
   :init
   (setq gptel-default-mode 'org-mode)
   (setq gptel-prompt-prefix-alist
@@ -2326,11 +2324,9 @@
   (setq gptel-org-branching-context t)
   (setq gptel-model 'gpt-5)
   (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
-  :config
-  (advice-add 'gptel-send :after #'+gptel-send-back-evil-normal-state)
   :hook
-  (gptel-mode-hook . toggle-truncate-lines)
-  (gptel-mode-hook . toggle-word-wrap))
+  (gptel-post-stream-hook . gptel-auto-scroll)
+  (gptel-post-response-functions . gptel-end-of-response))
 
 (use-package chatgpt-shell
   :preface
