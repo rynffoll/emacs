@@ -1672,7 +1672,8 @@
   :hook
   (magit-mode-hook . magit-todos-mode))
 
-(use-package git-modes)
+(use-package git-modes
+  :mode ("/.dockerignore\\'" . gitignore-mode))
 
 (use-package diff-hl
   :init

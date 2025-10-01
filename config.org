@@ -2403,7 +2403,8 @@ Install fonts
 ** git-modes
 Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= files.
 #+begin_src emacs-lisp
-(use-package git-modes)
+(use-package git-modes
+  :mode ("/.dockerignore\\'" . gitignore-mode))
 #+end_src
 
 ** diff-hl
