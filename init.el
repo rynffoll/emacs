@@ -2328,6 +2328,12 @@
   (gptel-post-stream-hook . gptel-auto-scroll)
   (gptel-post-response-functions . gptel-end-of-response))
 
+(use-package gptel-quick
+  :vc (:url "https://github.com/karthink/gptel-quick")
+  :general
+  (embark-general-map
+   "?" #'gptel-quick))
+
 (use-package chatgpt-shell
   :preface
   (defun +chatgpt-shell-openai-key ()
