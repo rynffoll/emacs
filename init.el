@@ -1744,6 +1744,10 @@
   (setq gptel-commit-use-claude-code t)
   (setq gptel-commit-prompt (+gptel-commit-read-prompt)))
 
+(use-package gptel-magit
+  :hook
+  (magit-mode-hook . gptel-magit-install))
+
 (use-package org
   :ensure nil
   :preface

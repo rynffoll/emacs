@@ -116,6 +116,7 @@
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
   - [[#gptel-commit][gptel-commit]]
+  - [[#gptel-magit][gptel-magit]]
 - [[#org][Org]]
   - [[#common-1][common]]
   - [[#org-archive][org-archive]]
@@ -2498,6 +2499,13 @@ curl -fsSL 'https://github.com/zed-industries/zed/blob/main/crates/git_ui/src/co
   :init
   (setq gptel-commit-use-claude-code t)
   (setq gptel-commit-prompt (+gptel-commit-read-prompt)))
+#+end_src
+
+** gptel-magit
+#+begin_src emacs-lisp
+(use-package gptel-magit
+  :hook
+  (magit-mode-hook . gptel-magit-install))
 #+end_src
 
 * Org
