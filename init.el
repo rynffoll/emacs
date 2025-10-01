@@ -1702,6 +1702,13 @@
   (+leader-def
     "gL" 'git-link-dispatch))
 
+(use-package consult-git-log-grep
+  :general
+  (+leader-def
+    "gj" 'consult-git-log-grep)
+  :init
+  (setq consult-git-log-grep-open-function #'magit-show-commit))
+
 (use-package org
   :ensure nil
   :preface
