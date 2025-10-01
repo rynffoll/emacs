@@ -114,7 +114,6 @@
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
-  - [[#gptel-commit][gptel-commit]]
   - [[#gptel-magit][gptel-magit]]
 - [[#org][Org]]
   - [[#common-1][common]]
@@ -2465,32 +2464,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   :general
   (+leader-def
     "gL" 'git-link-dispatch))
-#+end_src
-
-** gptel-commit
-Fetch Zed editor's [[https://github.com/zed-industries/zed/blob/main/crates/git_ui/src/commit_message_prompt.txt][commit message prompt]] style
-#+begin_src sh :tangle no :results file :output-dir prompts/ :file commit_message_prompt.txt
-curl -fsSL 'https://github.com/zed-industries/zed/blob/main/crates/git_ui/src/commit_message_prompt.txt?raw=1'
-#+end_src
-
-#+results:
-[[file:prompts/commit_message_prompt.txt]]
-
-#+begin_src emacs-lisp
-(use-package gptel-commit
-  :preface
-  (defun +gptel-commit-read-prompt ()
-    (with-temp-buffer
-      (insert-file-contents
-       (locate-user-emacs-file "prompts/commit_message_prompt.txt"))
-      (buffer-string)))
-  :general
-  (+local-leader-def :keymaps 'git-commit-mode-map
-    "g" 'gptel-commit
-    "G" 'gptel-commit-rationale)
-  :init
-  (setq gptel-commit-use-claude-code t)
-  (setq gptel-commit-prompt (+gptel-commit-read-prompt)))
 #+end_src
 
 ** gptel-magit

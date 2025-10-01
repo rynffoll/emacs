@@ -1725,21 +1725,6 @@
   (+leader-def
     "gL" 'git-link-dispatch))
 
-(use-package gptel-commit
-  :preface
-  (defun +gptel-commit-read-prompt ()
-    (with-temp-buffer
-      (insert-file-contents
-       (locate-user-emacs-file "prompts/commit_message_prompt.txt"))
-      (buffer-string)))
-  :general
-  (+local-leader-def :keymaps 'git-commit-mode-map
-    "g" 'gptel-commit
-    "G" 'gptel-commit-rationale)
-  :init
-  (setq gptel-commit-use-claude-code t)
-  (setq gptel-commit-prompt (+gptel-commit-read-prompt)))
-
 (use-package gptel-magit
   :hook
   (magit-mode-hook . gptel-magit-install))
