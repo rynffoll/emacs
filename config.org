@@ -2442,6 +2442,9 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** gptel-magit
 #+begin_src emacs-lisp
 (use-package gptel-magit
+  :init
+  (setq gptel-magit-model 'gpt-5-mini)
+  (setq gptel-magit-backend (gptel-make-gh-copilot "Copilot"))
   :hook
   (magit-mode-hook . gptel-magit-install))
 #+end_src

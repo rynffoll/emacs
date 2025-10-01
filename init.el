@@ -1703,6 +1703,9 @@
     "gL" 'git-link-dispatch))
 
 (use-package gptel-magit
+  :init
+  (setq gptel-magit-model 'gpt-5-mini)
+  (setq gptel-magit-backend (gptel-make-gh-copilot "Copilot"))
   :hook
   (magit-mode-hook . gptel-magit-install))
 
