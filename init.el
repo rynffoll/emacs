@@ -1685,11 +1685,7 @@
         '((insert . " ") (delete . " ") (change . " ")
           (unknown . " ") (ignored . " ") (reference . " ")))
   (setq diff-hl-dired-extra-indicators nil)
-  ;; FIXME: https://github.com/dgutov/diff-hl/pull/251
-  ;; (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
-  :config
-  ;; diff-hl-dired: hack to disable icons inside fringe
-  (advice-add #'diff-hl-fringe-bmp-from-type :override #'+diff-hl-fringe-bmp-empty)
+  (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
   :hook
   (after-init-hook         . global-diff-hl-mode)
   (after-init-hook         . global-diff-hl-show-hunk-mouse-mode)
