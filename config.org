@@ -1361,10 +1361,19 @@ Install fonts
   :init
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package consult-dir
   :general
   ([remap list-directory] 'consult-dir))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package consult-todo
+  :general
+  (+leader-def
+    "jt" 'consult-todo))
 #+end_src
 
 ** marginalia

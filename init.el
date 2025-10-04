@@ -856,6 +856,11 @@
   :general
   ([remap list-directory] 'consult-dir))
 
+(use-package consult-todo
+  :general
+  (+leader-def
+    "jt" 'consult-todo))
+
 (use-package marginalia
   :general
   ( :keymaps 'minibuffer-local-map
