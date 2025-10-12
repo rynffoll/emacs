@@ -2380,6 +2380,15 @@ This overrides evil-collection's diff-mode binding of q to `quit-window'."
   :hook
   (diff-mode-hook . +agent-shell-quick-diff-evil-setup))
 
+(use-package agent-shell-sidebar
+  :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
+  :general
+  ( :keymaps 'project-prefix-map
+    "a" 'agent-shell-sidebar-toggle)
+  :init
+  (setq agent-shell-sidebar-locked nil)
+  (setq agent-shell-sidebar-minimum-width "20%"))
+
 (use-package copilot
   :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
   :general

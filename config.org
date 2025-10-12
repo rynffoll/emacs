@@ -170,6 +170,7 @@
   - [[#claude-code-ide][claude-code-ide]]
   - [[#acp][acp]]
   - [[#agent-shell][agent-shell]]
+  - [[#agent-shell-sidebar][agent-shell-sidebar]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
 - [[#private][Private]]
@@ -3362,6 +3363,18 @@ This overrides evil-collection's diff-mode binding of q to `quit-window'."
 
 #+begin_src sh :tangle no :results silent
 npm install -g @zed-industries/claude-code-acp
+#+end_src
+
+** agent-shell-sidebar
+#+begin_src emacs-lisp
+(use-package agent-shell-sidebar
+  :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
+  :general
+  ( :keymaps 'project-prefix-map
+    "a" 'agent-shell-sidebar-toggle)
+  :init
+  (setq agent-shell-sidebar-locked nil)
+  (setq agent-shell-sidebar-minimum-width "20%"))
 #+end_src
 
 ** copilot
