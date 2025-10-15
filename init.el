@@ -163,8 +163,6 @@
   (evil-mode t))
 
 (use-package evil-collection
-  ;; FIXME: https://github.com/emacs-evil/evil-collection/pull/877
-  :vc (:url "https://github.com/rynffoll/evil-collection" :branch "fix-yaml-ts-mode-indent" :rev :newest)
   :demand
   :after evil
   :init
