@@ -3363,6 +3363,10 @@ This overrides evil-collection's diff-mode binding of q to `quit-window'."
 npm install -g @zed-industries/claude-code-acp
 #+end_src
 
+#+begin_src sh :tangle no :results silent
+cargo install --git https://github.com/zed-industries/codex-acp
+#+end_src
+
 ** agent-shell-sidebar
 #+begin_src emacs-lisp
 (use-package agent-shell-sidebar
