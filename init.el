@@ -2355,6 +2355,8 @@
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 
+(use-package mcp)
+
 (use-package acp
   :vc (:url "https://github.com/xenodium/acp.el" :rev :newest))
 

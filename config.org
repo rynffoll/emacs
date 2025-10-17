@@ -168,6 +168,7 @@
   - [[#gptel-magit][gptel-magit]]
   - [[#chatgpt-shell][chatgpt-shell]]
   - [[#claude-code-ide][claude-code-ide]]
+  - [[#mcp][mcp]]
   - [[#acp][acp]]
   - [[#agent-shell][agent-shell]]
   - [[#agent-shell-sidebar][agent-shell-sidebar]]
@@ -3328,6 +3329,11 @@ machine api.openai.com login apikey password TOKEN
   :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
   :hook
   (vterm-mode-hook . vterm-anti-flicker-filter-enable))
+#+end_src
+
+** mcp
+#+begin_src emacs-lisp
+(use-package mcp)
 #+end_src
 
 ** acp
