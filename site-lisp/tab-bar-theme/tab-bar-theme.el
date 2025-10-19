@@ -34,6 +34,11 @@
   :type 'integer
   :group 'tab-bar-theme)
 
+(defcustom tab-bar-theme-font-height 0.9
+  "Font height of tab bar."
+  :type 'float
+  :group 'tab-bar-theme)
+
 
 ;;;###autoload
 (defun tab-bar-theme--apply (&optional _theme)
@@ -42,36 +47,40 @@
          (fg-inactive (face-attribute 'mode-line-inactive :foreground))
          (bg-active   (face-attribute 'default :background))
          (fg-active   (face-attribute 'default :foreground))
-         (height      tab-bar-theme-height))
+         (height      tab-bar-theme-height)
+         (font-height tab-bar-theme-font-height))
     (custom-set-faces
      `(tab-bar
        ((t ( :inherit unspecified
              :background ,bg-inactive
              :foreground ,fg-inactive
+             :height ,font-height
              :box ,(tab-bar-theme--box-style height bg-inactive)))))
      `(tab-bar-tab
-       ((t ( :inherit unspecified
+       ((t ( :inherit tab-bar
              :background ,bg-active
              :foreground ,fg-active
              :box ,(tab-bar-theme--box-style height bg-active)))))
      `(tab-bar-tab-inactive
-       ((t ( :inherit unspecified
+       ((t ( :inherit tab-bar-tab
              :background ,bg-inactive
              :foreground ,fg-inactive
              :box ,(tab-bar-theme--box-style height bg-inactive)))))
      `(tab-bar-tab-ungrouped
-       ((t ( :inherit unspecified
+       ((t ( :inherit tab-bar-tab-inactive
              :background ,bg-inactive
              :foreground ,fg-inactive
-             :box ,(tab-bar-theme--box-style height bg-inactive)))))
+             ;; :box ,(tab-bar-theme--box-style height bg-inactive)
+             ))))
      `(tab-bar-tab-group-inactive
-       ((t ( :inherit unspecified
+       ((t ( :inherit tab-bar-tab-inactive
              :background ,bg-inactive
              :foreground ,fg-inactive
              :weight bold
-             :box ,(tab-bar-theme--box-style height bg-inactive)))))
+             ;; :box ,(tab-bar-theme--box-style height bg-inactive)
+             ))))
      `(tab-bar-tab-group-current
-       ((t ( :inherit unspecified
+       ((t ( :inherit tab-bar-tab
              :background ,bg-inactive
              :foreground ,fg-active
              :weight bold
