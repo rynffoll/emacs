@@ -16,7 +16,7 @@
   :config
   ;; https://github.com/melpa/melpa
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  ;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
   (package-initialize))
 
 (use-package gnu-elpa-keyring-update)
@@ -412,6 +412,7 @@
 
 (use-package modus-themes
   ;; :ensure nil
+  :pin melpa-stable
   :init
   (setq modus-themes-common-palette-overrides
         '(;; (bg-region bg-cyan-intense)
