@@ -2179,10 +2179,12 @@
 (use-package yaml-ts-mode
   :ensure nil
   :mode ("\\.ya?ml\\'" . yaml-ts-mode)
+  :preface
+  (defun +yaml-ts-mode-set-evil-shift-width ()
+    (setq-local evil-shift-width 2))
   :hook
   (yaml-ts-mode-hook . flycheck-mode)
-  ;; (yaml-ts-mode-hook . highlight-indent-guides-mode) ;; brakes scrolling
-  )
+  (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 
 (use-package yaml-pro
   :hook
