@@ -1988,18 +1988,12 @@
     "Fd" 'eglot-find-declaration
     "Ft" 'eglot-find-typeDefinition
     "Fr" 'eglot-find-references
-    "Fi" 'eglot-find-implementation)
+    "Fi" 'eglot-find-implementation
+    "H" '(:ignore t :wk "hierarchy")
+    "Hc" 'eglot-show-call-hierarchy
+    "Ht" 'eglot-show-type-hierarchy)
   :init
   (setq eglot-autoshutdown t))
-
-;; TODO: emacs 31: `eglot-show-call-hierarchy' and `eglot-show-type-hierarchy'
-(use-package eglot-hierarchy
-  :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
-  :general
-  (+local-leader-def :keymaps 'eglot-mode-map
-    "H" '(:ignore t :wk "hierarchy")
-    "Hc" 'eglot-hierarchy-call-hierarchy
-    "Ht" 'eglot-hierarchy-type-hierarchy))
 
 (use-package consult-eglot
   :general

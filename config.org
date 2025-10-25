@@ -2817,20 +2817,16 @@ Hello World!
     "Fd" 'eglot-find-declaration
     "Ft" 'eglot-find-typeDefinition
     "Fr" 'eglot-find-references
-    "Fi" 'eglot-find-implementation)
+    "Fi" 'eglot-find-implementation
+    "H" '(:ignore t :wk "hierarchy")
+    "Hc" 'eglot-show-call-hierarchy
+    "Ht" 'eglot-show-type-hierarchy)
   :init
   (setq eglot-autoshutdown t))
 #+end_src
 
-#+begin_src emacs-lisp
-;; TODO: emacs 31: `eglot-show-call-hierarchy' and `eglot-show-type-hierarchy'
-(use-package eglot-hierarchy
-  :vc (:url "https://github.com/dolmens/eglot-hierarchy" :rev :newest)
-  :general
-  (+local-leader-def :keymaps 'eglot-mode-map
-    "H" '(:ignore t :wk "hierarchy")
-    "Hc" 'eglot-hierarchy-call-hierarchy
-    "Ht" 'eglot-hierarchy-type-hierarchy))
+#+begin_src emacs-lisp :tangle no
+(eglot-upgrade-eglot)
 #+end_src
 
 #+begin_src emacs-lisp
