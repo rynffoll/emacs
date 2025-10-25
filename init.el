@@ -2343,10 +2343,8 @@
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
   :preface
-  (defun +agent-shell-quick-diff-evil-setup ()
-    "Rebind q to close buffer instead of burying it in quick-diff buffers.
-This overrides evil-collection's diff-mode binding of q to `quit-window'."
-    (when (string-match-p "\\*quick-diff\\*" (buffer-name))
+  (defun +agent-shell-diff-evil-setup ()
+    (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
       ;; n - next conflict hunk
       ;; p - previous conflict hunk
       ;; q - kill buffer and exit
@@ -2357,7 +2355,7 @@ This overrides evil-collection's diff-mode binding of q to `quit-window'."
   (+leader-def
     "las" 'agent-shell)
   :hook
-  (diff-mode-hook . +agent-shell-quick-diff-evil-setup))
+  (diff-mode-hook . +agent-shell-diff-evil-setup))
 
 (use-package agent-shell-sidebar
   ;; :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
