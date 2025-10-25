@@ -171,6 +171,7 @@
   - [[#acp][acp]]
   - [[#agent-shell][agent-shell]]
   - [[#agent-shell-sidebar][agent-shell-sidebar]]
+  - [[#agent-shell-manager][agent-shell-manager]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
 - [[#private][Private]]
@@ -3357,6 +3358,12 @@ cargo install --git https://github.com/zed-industries/codex-acp
   :init
   (setq agent-shell-sidebar-locked nil)
   (setq agent-shell-sidebar-minimum-width "20%"))
+#+end_src
+
+** agent-shell-manager
+#+begin_src emacs-lisp
+(use-package agent-shell-manager
+  :vc (:url "https://github.com/jethrokuan/agent-shell-manager" :rev :newest))
 #+end_src
 
 ** copilot
