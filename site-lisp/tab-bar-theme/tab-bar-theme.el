@@ -29,7 +29,7 @@
   "Tab Bar Theme."
   :group 'tab-bar)
 
-(defcustom tab-bar-theme-height 3
+(defcustom tab-bar-theme-height 5
   "Height of tab bar."
   :type 'integer
   :group 'tab-bar-theme)
