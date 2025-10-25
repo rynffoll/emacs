@@ -381,6 +381,11 @@
   (mode-line ((t (:inherit mode-line :box nil :underline nil :overline nil))))
   (mode-line-inactive ((t (:inherit mode-line-inactive :box nil :underline nil :overline nil)))))
 
+(use-package bindings
+  :ensure nil
+  :init
+  (setq mode-line-right-align-edge 'right-fringe))
+
 (use-package hide-mode-line)
 
 (use-package minions

@@ -785,6 +785,13 @@ Install fonts
 #+end_src
 
 #+begin_src emacs-lisp
+(use-package bindings
+  :ensure nil
+  :init
+  (setq mode-line-right-align-edge 'right-fringe))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package hide-mode-line)
 #+end_src
 
