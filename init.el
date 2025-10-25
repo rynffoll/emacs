@@ -2355,8 +2355,7 @@ This overrides evil-collection's diff-mode binding of q to `quit-window'."
       (evil-local-set-key 'normal "q" #'kill-current-buffer)))
   :general
   (+leader-def
-    "lac" 'agent-shell-anthropic-start-claude-code
-    "lag" 'agent-shell-google-start-gemini)
+    "las" 'agent-shell)
   :hook
   (diff-mode-hook . +agent-shell-quick-diff-evil-setup))
 
