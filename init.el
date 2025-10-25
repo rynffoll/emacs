@@ -2361,7 +2361,9 @@ This overrides evil-collection's diff-mode binding of q to `quit-window'."
   (diff-mode-hook . +agent-shell-quick-diff-evil-setup))
 
 (use-package agent-shell-sidebar
-  :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
+  ;; :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
+  ;; FIXME: https://github.com/cmacrae/agent-shell-sidebar/pull/2
+  :vc (:url "https://github.com/rynffoll/agent-shell-sidebar" :branch "fix-passing-args" :rev :newest)
   :general
   ( :keymaps 'project-prefix-map
     "a" 'agent-shell-sidebar-toggle)

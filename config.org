@@ -3351,7 +3351,9 @@ cargo install --git https://github.com/zed-industries/codex-acp
 ** agent-shell-sidebar
 #+begin_src emacs-lisp
 (use-package agent-shell-sidebar
-  :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
+  ;; :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
+  ;; FIXME: https://github.com/cmacrae/agent-shell-sidebar/pull/2
+  :vc (:url "https://github.com/rynffoll/agent-shell-sidebar" :branch "fix-passing-args" :rev :newest)
   :general
   ( :keymaps 'project-prefix-map
     "a" 'agent-shell-sidebar-toggle)
