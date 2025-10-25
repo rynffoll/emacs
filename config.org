@@ -3340,6 +3340,8 @@ machine api.openai.com login apikey password TOKEN
   :general
   (+leader-def
     "las" 'agent-shell)
+  :init
+  (setq agent-shell-header-style nil)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
 #+end_src

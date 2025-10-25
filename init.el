@@ -2359,6 +2359,8 @@
   :general
   (+leader-def
     "las" 'agent-shell)
+  :init
+  (setq agent-shell-header-style nil)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
 
