@@ -2368,7 +2368,7 @@ This overrides evil-collection's diff-mode binding of q to `quit-window'."
     "a" 'agent-shell-sidebar-toggle)
   :init
   (setq agent-shell-sidebar-locked nil)
-  (setq agent-shell-sidebar-minimum-width "20%"))
+  (setq agent-shell-sidebar-minimum-width 60))
 
 (use-package agent-shell-manager
   :vc (:url "https://github.com/jethrokuan/agent-shell-manager" :rev :newest))

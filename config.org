@@ -3358,7 +3358,7 @@ cargo install --git https://github.com/zed-industries/codex-acp
     "a" 'agent-shell-sidebar-toggle)
   :init
   (setq agent-shell-sidebar-locked nil)
-  (setq agent-shell-sidebar-minimum-width "20%"))
+  (setq agent-shell-sidebar-minimum-width 60))
 #+end_src
 
 ** agent-shell-manager
