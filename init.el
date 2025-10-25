@@ -13,8 +13,9 @@
 
 (use-package package
   :ensure nil
-  :init
-  (setq package-install-upgrade-built-in t)
+  ;; :init
+  ;; https://www.reddit.com/r/emacs/comments/1f8ok7c/comment/llhcdgy/
+  ;; (setq package-install-upgrade-built-in t)
   :config
   ;; https://github.com/melpa/melpa
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
