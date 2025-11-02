@@ -2840,6 +2840,7 @@ Hello World!
   (setq eglot-autoshutdown t))
 #+end_src
 
+Upgrade eglot to the latest version
 #+begin_src emacs-lisp :tangle no
 (eglot-upgrade-eglot)
 #+end_src
