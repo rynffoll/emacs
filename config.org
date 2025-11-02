@@ -853,6 +853,11 @@ Install fonts
 (use-package ef-themes)
 #+end_src
 
+[[https://protesilaos.com/emacs/standard-themes][standard-themes]]
+#+begin_src emacs-lisp
+(use-package standard-themes)
+#+end_src
+
 [[https://github.com/bbatsov/solarized-emacs][solarized-theme]]
 #+begin_src emacs-lisp
 (use-package solarized-theme
