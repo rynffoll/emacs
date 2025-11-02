@@ -422,13 +422,18 @@
   ;; :ensure nil
   :pin melpa-stable
   :init
+  (setq modus-themes-bold-constructs t)
+  (setq modus-themes-italic-constructs t)
   (setq modus-themes-common-palette-overrides
         '(;; (bg-region bg-cyan-intense)
           (fg-region unspecified)
           (bg-prose-block-delimiter bg-inactive)
           (fg-prose-block-delimiter fg-dim)
           (bg-prose-block-contents bg-dim)
-          (fringe unspecified))))
+          (fringe unspecified)
+          (border-mode-line-active unspecified)
+          (border-mode-line-inactive unspecified)
+          )))
 
 (use-package ef-themes)
 

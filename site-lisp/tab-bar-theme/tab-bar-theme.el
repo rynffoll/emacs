@@ -70,15 +70,13 @@
        ((t ( :inherit tab-bar-tab-inactive
              :background ,bg-inactive
              :foreground ,fg-inactive
-             ;; :box ,(tab-bar-theme--box-style height bg-inactive)
-             ))))
+             :box ,(tab-bar-theme--box-style height bg-inactive)))))
      `(tab-bar-tab-group-inactive
        ((t ( :inherit tab-bar-tab-inactive
              :background ,bg-inactive
              :foreground ,fg-inactive
              :weight bold
-             ;; :box ,(tab-bar-theme--box-style height bg-inactive)
-             ))))
+             :box ,(tab-bar-theme--box-style height bg-inactive)))))
      `(tab-bar-tab-group-current
        ((t ( :inherit tab-bar-tab
              :background ,bg-inactive
