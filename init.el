@@ -432,6 +432,8 @@
 
 (use-package ef-themes)
 
+(use-package doric-themes)
+
 (use-package standard-themes)
 
 (use-package solarized-theme
