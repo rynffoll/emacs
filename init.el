@@ -2365,8 +2365,10 @@
   :general
   (+leader-def
     "las" 'agent-shell)
-  :init
-  (setq agent-shell-header-style nil)
+  (+local-leader-def :keymaps 'agent-shell-mode-map
+    "." 'agent-shell-help-menu)
+  ( :keymaps 'project-prefix-map
+    "a" 'agent-shell)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
 
@@ -2376,7 +2378,7 @@
   :vc (:url "https://github.com/rynffoll/agent-shell-sidebar" :branch "main" :rev :newest)
   :general
   ( :keymaps 'project-prefix-map
-    "a" 'agent-shell-sidebar-toggle)
+    "A" 'agent-shell-sidebar-toggle)
   :init
   (setq agent-shell-sidebar-locked nil)
   (setq agent-shell-sidebar-minimum-width 60)
