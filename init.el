@@ -830,6 +830,12 @@
   :hook
   (minibuffer-setup-hook . cursor-intangible-mode))
 
+(use-package mouse
+  :ensure nil
+  :if (display-graphic-p)
+  :hook
+  (after-init-hook . context-menu-mode))
+
 (use-package nerd-icons-completion
   :if +with-icons
   :hook
@@ -990,13 +996,14 @@
 (use-package cape
   :general
   ("C-c p" 'cape-prefix-map)
-  :init
-  ;; Add `completion-at-point-functions', used by `completion-at-point'.
-  ;; NOTE: The order matters!
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev) ;; Complete word from current buffers.
-  (add-to-list 'completion-at-point-functions #'cape-file) ;; Complete file name.
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block) ;; Complete Elisp in Org or Markdown code block.
-  )
+  :hook
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (completion-at-point-functions . cape-dabbrev)
+  (completion-at-point-functions . cape-file)
+  (completion-at-point-functions . cape-elisp-block))
 
 (use-package embark
   :general
@@ -1018,16 +1025,11 @@
 (use-package tempel
   :preface
   (defun tempel-setup-capf ()
-    ;; Add the Tempel Capf to `completion-at-point-functions'.
-    ;; `tempel-expand' only triggers on exact matches. Alternatively use
-    ;; `tempel-complete' if you want to see all matches, but then you
-    ;; should also configure `tempel-trigger-prefix', such that Tempel
-    ;; does not trigger too often when you don't expect it. NOTE: We add
-    ;; `tempel-expand' *before* the main programming mode Capf, such
-    ;; that it will be tried first.
+    ;; Add the Tempel Capf to `completion-at-point-functions'.  `tempel-expand'
+    ;; only triggers on exact matches. We add `tempel-expand' *before* the main
+    ;; programming mode Capf, such that it will be tried first.
     (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
+                (cons #'tempel-expand completion-at-point-functions)))
   :general
   (+leader-def
     "it" 'tempel-insert)
@@ -1036,7 +1038,10 @@
   :hook
   (conf-mode-hook . tempel-setup-capf)
   (prog-mode-hook . tempel-setup-capf)
-  (text-mode-hook . tempel-setup-capf))
+  (text-mode-hook . tempel-setup-capf)
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  (after-init-hook . global-tempel-abbrev-mode))
 
 (use-package tempel-collection)
 

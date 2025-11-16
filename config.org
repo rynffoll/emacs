@@ -8,8 +8,9 @@
   - [[#gc-tweaks][GC tweaks]]
   - [[#file-handler-tweaks][File handler tweaks]]
   - [[#ui][UI]]
-    - [[#font][Font]]
-    - [[#macos][macOS]]
+    - [[#common][common]]
+    - [[#font][font]]
+    - [[#macos][macos]]
   - [[#disable-writing-customization-to-initel][Disable writing customization to ~init.el~]]
 - [[#initialization][Initialization]]
 - [[#personal-info][Personal Info]]
@@ -30,14 +31,12 @@
 - [[#repeat][Repeat]]
 - [[#keyboard-layout][Keyboard Layout]]
 - [[#tty][TTY]]
-  - [[#mouse-support][Mouse support]]
-  - [[#misc][Misc]]
 - [[#ui-1][UI]]
-  - [[#scroll][Scroll]]
-  - [[#ligatures][Ligatures]]
-  - [[#icons][Icons]]
-  - [[#mode-line][Mode Line]]
-  - [[#theme][Theme]]
+  - [[#scroll][scroll]]
+  - [[#ligatures][ligatures]]
+  - [[#icons][icons]]
+  - [[#mode-line][mode-line]]
+  - [[#themes][themes]]
 - [[#frames][Frames]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
@@ -47,9 +46,10 @@
   - [[#winner][winner]]
   - [[#winum][winum]]
   - [[#zoom][zoom]]
-  - [[#pop-ups][Pop-ups]]
+  - [[#shackle][shackle]]
+  - [[#popper][popper]]
 - [[#buffers][Buffers]]
-  - [[#common][Common]]
+  - [[#common-1][common]]
   - [[#ibuffer][ibuffer]]
   - [[#persistent-scratch][persistent-scratch]]
 - [[#history][History]]
@@ -66,16 +66,10 @@
   - [[#embark][embark]]
   - [[#templ][templ]]
 - [[#files][Files]]
-  - [[#autorevert][autorevert]]
-  - [[#iqa][iqa]]
-  - [[#cus-edit][cus-edit]]
-  - [[#epg-config][epg-config]]
 - [[#projects][Projects]]
 - [[#dired][Dired]]
 - [[#tramp][Tramp]]
 - [[#environment-variables][Environment Variables]]
-  - [[#path-from-users-shell][~$PATH~ from user's shell]]
-  - [[#use-the-emacsclient-as-the-editor-of-child-processes][Use the Emacsclient as the ~$EDITOR~ of child processes]]
 - [[#help][Help]]
 - [[#editor][Editor]]
 - [[#ediff][Ediff]]
@@ -116,7 +110,7 @@
   - [[#git-link][git-link]]
   - [[#consult-git-log-grep][consult-git-log-grep]]
 - [[#org][Org]]
-  - [[#common-1][common]]
+  - [[#common-2][common]]
   - [[#org-archive][org-archive]]
   - [[#org-refile][org-refile]]
   - [[#org-link][org-link]]
@@ -228,6 +222,7 @@
 #+end_src
 
 ** UI
+*** common
 #+begin_src emacs-lisp
 (setq inhibit-startup-screen t)
 (setq inhibit-startup-message t)
@@ -251,7 +246,7 @@
 (add-to-list 'default-frame-alist '(height . 0.9))
 #+end_src
 
-*** Font
+*** font
 #+begin_src emacs-lisp
 (setq inhibit-compacting-font-caches t)
 #+end_src
@@ -274,7 +269,7 @@ If you'd like to test a different font, evaluate the following block:
 (set-frame-font +font)
 #+end_src
 
-*** macOS
+*** macos
 #+begin_src emacs-lisp
 (when (featurep 'ns)
   (setq ns-use-proxy-icon nil)
@@ -604,7 +599,6 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * TTY
-** Mouse support
 #+begin_src emacs-lisp
 (use-package xt-mouse
   :unless (display-graphic-p)
@@ -613,7 +607,6 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . xterm-mouse-mode))
 #+end_src
 
-** Misc
 #+begin_src emacs-lisp
 ;; Better window divider in terminal: | -> │
 ;; https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/
@@ -628,7 +621,7 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * UI
-** Scroll
+** scroll
 #+begin_src emacs-lisp
 (use-package emacs
   :ensure nil
@@ -656,7 +649,7 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . ultra-scroll-mode))
 #+end_src
 
-** Ligatures
+** ligatures
 [[https://github.com/mickeynp/ligature.el][ligature.el]]
 #+begin_src emacs-lisp
 (use-package ligature
@@ -752,7 +745,7 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . global-ligature-mode))
 #+end_src
 
-** Icons
+** icons
 Disabled due to the following issues:
 - too many conflicts with integration in various packages (dired, magit, etc.).
 - redraw issues over mosh
@@ -778,7 +771,7 @@ Install fonts
 (nerd-icons-install-fonts)
 #+end_src
 
-** Mode Line
+** mode-line
 #+begin_src emacs-lisp
 (use-package faces
   :ensure nil
@@ -824,7 +817,7 @@ Install fonts
   (after-init-hook . doom-modeline-mode))
 #+end_src
 
-** Theme
+** themes
 #+begin_src emacs-lisp
 (use-package custom
   :ensure nil
@@ -1096,7 +1089,7 @@ Install fonts
   (setq zoom-ignored-buffer-name-regexps '("^magit.*" "^\\*dape.*")))
 #+end_src
 
-** Pop-ups
+** shackle
 [[https://depp.brause.cc/shackle/][shackle]]
 #+begin_src emacs-lisp
 (use-package shackle
@@ -1122,6 +1115,7 @@ Install fonts
   (after-init-hook . shackle-mode))
 #+end_src
 
+** popper
 [[https://github.com/karthink/popper][popper]]
 #+begin_src emacs-lisp
 (use-package popper
@@ -1174,7 +1168,7 @@ Install fonts
 #+end_src
 
 * Buffers
-** Common
+** common
 #+begin_src emacs-lisp
 (use-package emacs
   :ensure nil
@@ -1347,6 +1341,14 @@ Install fonts
 #+end_src
 
 #+begin_src emacs-lisp
+(use-package mouse
+  :ensure nil
+  :if (display-graphic-p)
+  :hook
+  (after-init-hook . context-menu-mode))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package nerd-icons-completion
   :if +with-icons
   :hook
@@ -1379,7 +1381,9 @@ Install fonts
   (advice-add #'register-preview :override #'consult-register-window)
   :hook
   (completion-list-mode-hook . consult-preview-at-point-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package consult-xref
   :ensure consult
   :init
@@ -1469,12 +1473,16 @@ Install fonts
   (setq corfu-min-width 40)
   :hook
   (after-init-hook . global-corfu-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package corfu-echo
   :ensure corfu
   :hook
   (corfu-mode-hook . corfu-echo-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package corfu-info
   :ensure corfu
   :unless (display-graphic-p)
@@ -1482,7 +1490,9 @@ Install fonts
   :general
   (corfu-map
    "C-h" 'corfu-info-documentation))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package corfu-popupinfo
   :ensure corfu
   :if (display-graphic-p)
@@ -1493,12 +1503,16 @@ Install fonts
   (setq corfu-popupinfo-delay nil)
   :hook
   (corfu-mode-hook . corfu-popupinfo-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package corfu-history
   :ensure corfu
   :hook
   (corfu-mode-hook . corfu-history-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package corfu-terminal
   :if (< emacs-major-version 31)
   :unless (featurep 'tty-child-frames)
@@ -1523,7 +1537,9 @@ Install fonts
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
   (advice-add #'disable-theme :before #'+kind-icon-reset-cache))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package nerd-icons-corfu
   :if +with-icons
   :after corfu
@@ -1536,13 +1552,14 @@ Install fonts
 (use-package cape
   :general
   ("C-c p" 'cape-prefix-map)
-  :init
-  ;; Add `completion-at-point-functions', used by `completion-at-point'.
-  ;; NOTE: The order matters!
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev) ;; Complete word from current buffers.
-  (add-to-list 'completion-at-point-functions #'cape-file) ;; Complete file name.
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block) ;; Complete Elisp in Org or Markdown code block.
-  )
+  :hook
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (completion-at-point-functions . cape-dabbrev)
+  (completion-at-point-functions . cape-file)
+  (completion-at-point-functions . cape-elisp-block))
 #+end_src
 
 ** embark
@@ -1561,7 +1578,9 @@ Install fonts
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
                  (window-parameters (mode-line-format . none)))))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package embark-consult
   :hook
   (embark-collect-mode-hook . consult-preview-at-point-mode))
@@ -1569,21 +1588,17 @@ Install fonts
 
 ** templ
 - [[https://github.com/minad/tempel]]
+- https://github.com/Crandel/tempel-collection
 
 #+begin_src emacs-lisp
 (use-package tempel
   :preface
   (defun tempel-setup-capf ()
-    ;; Add the Tempel Capf to `completion-at-point-functions'.
-    ;; `tempel-expand' only triggers on exact matches. Alternatively use
-    ;; `tempel-complete' if you want to see all matches, but then you
-    ;; should also configure `tempel-trigger-prefix', such that Tempel
-    ;; does not trigger too often when you don't expect it. NOTE: We add
-    ;; `tempel-expand' *before* the main programming mode Capf, such
-    ;; that it will be tried first.
+    ;; Add the Tempel Capf to `completion-at-point-functions'.  `tempel-expand'
+    ;; only triggers on exact matches. We add `tempel-expand' *before* the main
+    ;; programming mode Capf, such that it will be tried first.
     (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
+                (cons #'tempel-expand completion-at-point-functions)))
   :general
   (+leader-def
     "it" 'tempel-insert)
@@ -1592,8 +1607,13 @@ Install fonts
   :hook
   (conf-mode-hook . tempel-setup-capf)
   (prog-mode-hook . tempel-setup-capf)
-  (text-mode-hook . tempel-setup-capf))
+  (text-mode-hook . tempel-setup-capf)
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  (after-init-hook . global-tempel-abbrev-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package tempel-collection)
 #+end_src
 
@@ -1618,7 +1638,6 @@ Install fonts
   (setq auto-save-default nil))
 #+end_src
 
-** autorevert
 #+begin_src emacs-lisp
 (use-package autorevert
   :ensure nil
@@ -1630,7 +1649,6 @@ Install fonts
   (after-init-hook . global-auto-revert-mode))
 #+end_src
 
-** iqa
 #+begin_src emacs-lisp
 (use-package iqa
   :preface
@@ -1651,7 +1669,6 @@ Install fonts
   (setq iqa-user-init-file (locate-user-emacs-file "config.org")))
 #+end_src
 
-** cus-edit
 #+begin_src emacs-lisp
 (use-package cus-edit
   :ensure nil
@@ -1660,7 +1677,6 @@ Install fonts
     "oc" 'customize-group))
 #+end_src
 
-** epg-config
 #+begin_src emacs-lisp
 (use-package epg-config
   :ensure nil
@@ -1904,7 +1920,7 @@ Install fonts
 #+end_src
 
 * Environment Variables
-** ~$PATH~ from user's shell
+~$PATH~ from user's shell
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
   :if (or (memq window-system '(mac ns x)) (daemonp))
@@ -1915,7 +1931,7 @@ Install fonts
   (exec-path-from-shell-initialize))
 #+end_src
 
-** Use the Emacsclient as the ~$EDITOR~ of child processes
+Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package with-editor
   :general
@@ -3423,7 +3439,9 @@ Install server
   :general
   (+leader-def
     "tf" 'focus-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package olivetti
   ;; :custom-face
   ;; (olivetti-fringe ((t (:background "unspecified-bg"))))
@@ -3432,18 +3450,24 @@ Install server
     "tz" 'olivetti-mode)
   :init
   (setq olivetti-body-width 0.6))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package crux
   :general
   (+leader-def
     "fR" 'crux-rename-file-and-buffer
     "fD" 'crux-delete-file-and-buffer))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package deadgrep
   :general
   (+leader-def
     "/D" 'deadgrep))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package try)
 
 (use-package string-inflection)
