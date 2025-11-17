@@ -1626,7 +1626,7 @@
   :init
   (setq vterm-shell "/opt/homebrew/bin/fish")
   (setq vterm-max-scrollback 10000)
-  (setq vterm-set-bold-hightbright t)
+  (setq vterm-set-bold-highbright t)
   :config
   ;; https://github.com/akermu/emacs-libvterm/issues/313#issuecomment-1183650463
   (advice-add #'vterm--redraw :around (lambda (fun &rest args) (let ((cursor-type cursor-type)) (apply fun args))))
