@@ -468,6 +468,15 @@
 
 (use-package frame
   :ensure nil
+  :preface
+  (defun +reset-frame-parameters ()
+    "Reset frame parameters to default values."
+    (interactive)
+    (modify-frame-parameters
+     nil
+     (seq-filter (lambda (param)
+                   (memq (car param) '(left top width height)))
+                 default-frame-alist)))
   :general
   (+leader-def
     "Ff" 'select-frame-by-name
