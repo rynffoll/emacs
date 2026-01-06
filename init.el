@@ -2247,20 +2247,6 @@
   :ensure nil
   :mode ("\\(?:Dockerfile\\(?:\\..*\\)?\\|\\.[Dd]ockerfile\\)\\'" . dockerfile-ts-mode))
 
-(use-package xwidget
-  :if (display-graphic-p)
-  :ensure nil
-  :general
-  (+leader-def
-    "ow" 'xwidget-webkit-browse-url))
-
-(use-package xwwp
-  :if (display-graphic-p)
-  :after xwidget
-  :general
-  ( :keymaps 'xwidget-webkit-mode-map :states 'normal
-    "f" 'xwwp-follow-link))
-
 (use-package editorconfig
   :ensure nil
   :hook

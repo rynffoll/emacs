@@ -148,7 +148,6 @@
   - [[#ssh][ssh]]
   - [[#protobuf][protobuf]]
   - [[#dockerfile][dockerfile]]
-- [[#xwidget][Xwidget]]
 - [[#tools][Tools]]
   - [[#editorconfig][editorconfig]]
   - [[#docker][docker]]
@@ -3187,25 +3186,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 (use-package dockerfile-ts-mode
   :ensure nil
   :mode ("\\(?:Dockerfile\\(?:\\..*\\)?\\|\\.[Dd]ockerfile\\)\\'" . dockerfile-ts-mode))
-#+end_src
-
-* Xwidget
-#+begin_src emacs-lisp
-(use-package xwidget
-  :if (display-graphic-p)
-  :ensure nil
-  :general
-  (+leader-def
-    "ow" 'xwidget-webkit-browse-url))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package xwwp
-  :if (display-graphic-p)
-  :after xwidget
-  :general
-  ( :keymaps 'xwidget-webkit-mode-map :states 'normal
-    "f" 'xwwp-follow-link))
 #+end_src
 
 * Tools
