@@ -813,9 +813,7 @@
   (setq desktop-path `(,user-emacs-directory))
   :config
   (dolist (mode '(git-commit-mode))
-    (add-to-list 'desktop-modes-not-to-save mode))
-  :hook
-  (after-init-hook . desktop-save-mode))
+    (add-to-list 'desktop-modes-not-to-save mode)))
 
 (use-package emacs
   :ensure nil
