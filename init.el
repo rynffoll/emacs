@@ -409,6 +409,7 @@
   (setq doom-modeline-check-simple-format t)
   (setq doom-modeline-always-show-macro-register t)
   (setq doom-modeline-support-imenu t)
+  (setq doom-modeline-unicode-number nil)
   :hook
   (after-init-hook . doom-modeline-mode))
 
