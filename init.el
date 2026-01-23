@@ -2322,7 +2322,7 @@
   (gptel-post-response-functions . gptel-end-of-response))
 
 (use-package gptel-quick
-  :vc (:url "https://github.com/karthink/gptel-quick")
+  :vc (:url "https://github.com/karthink/gptel-quick" :rev :newest)
   :general
   (embark-general-map
    "?" #'gptel-quick))

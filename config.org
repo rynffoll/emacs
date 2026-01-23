@@ -3302,7 +3302,7 @@ machine api.openai.com login apikey password TOKEN
 ** gptel-quick
 #+begin_src emacs-lisp
 (use-package gptel-quick
-  :vc (:url "https://github.com/karthink/gptel-quick")
+  :vc (:url "https://github.com/karthink/gptel-quick" :rev :newest)
   :general
   (embark-general-map
    "?" #'gptel-quick))
