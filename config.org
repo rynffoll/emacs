@@ -3478,13 +3478,6 @@ Install server
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package deadgrep
-  :general
-  (+leader-def
-    "/D" 'deadgrep))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package try)
 
 (use-package string-inflection)

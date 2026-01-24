@@ -2433,11 +2433,6 @@
     "fR" 'crux-rename-file-and-buffer
     "fD" 'crux-delete-file-and-buffer))
 
-(use-package deadgrep
-  :general
-  (+leader-def
-    "/D" 'deadgrep))
-
 (use-package try)
 
 (use-package string-inflection)
