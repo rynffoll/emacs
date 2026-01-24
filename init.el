@@ -1567,6 +1567,7 @@
   (git-commit-mode-hook . jinx-mode))
 
 (use-package flycheck
+  :disabled ;; switch to flymake
   :preface
   ;; https://www.flycheck.org/en/latest/user/error-reports.html#fringe-and-margin-icons
   (defun +flycheck-set-indication-mode ()
@@ -1588,22 +1589,36 @@
   (flycheck-redefine-standard-error-levels "!" 'exclamation-mark))
 
 (use-package consult-flycheck
+  :disabled ;; switch to flymake
   :requires flycheck
   :general
   (+leader-def
     "je" 'consult-flycheck))
 
 (use-package flymake
-  :disabled ;; too slowly
   :ensure nil
+  :general
+  ( :keymaps 'project-prefix-map
+    "D" 'flymake-show-project-diagnostics)
   :init
   (setq flymake-fringe-indicator-position 'right-fringe)
+  (setq flymake-margin-indicator-position 'right-margin)
   :hook
   (prog-mode-hook . flymake-mode))
 
-(use-package flymake-collection
+(use-package flyover
+  :custom
+  (flyover-checkers '(flymake))
+  (flyover-display-mode 'show-only-on-same-line)
+  (flyover-show-at-eol t)
+  (flyover-virtual-line-type nil)
+  (flyover-error-icon   (car (alist-get 'error   flymake-margin-indicators-string)))
+  (flyover-warning-icon (car (alist-get 'warning flymake-margin-indicators-string)))
+  (flyover-info-icon    (car (alist-get 'note    flymake-margin-indicators-string)))
+  (flyover-icon-left-padding 0.5)
+  (flyover-icon-right-padding 0.5)
   :hook
-  (after-init-hook . flymake-collection-hook-setup))
+  (flymake-mode-hook . flyover-mode))
 
 (use-package imenu
   :ensure nil
@@ -2026,14 +2041,6 @@
   :config
   (consult-eglot-embark-mode))
 
-(use-package flycheck-eglot
-  :demand
-  :after flycheck eglot
-  :init
-  (setq flycheck-eglot-exclusive nil)
-  :config
-  (global-flycheck-eglot-mode))
-
 (use-package dape
   :custom-face
   (dape-breakpoint-face ((t (:inherit error))))
@@ -2074,13 +2081,6 @@
   (flycheck-package-setup))
 
 (use-package clojure-ts-mode)
-
-(use-package flycheck-clj-kondo
-  :preface
-  (defun +setup-flycheck-clj-kondo ()
-    (require 'flycheck-clj-kondo))
-  :hook
-  (clojure-ts-mode-hook . +setup-flycheck-clj-kondo))
 
 (use-package cider
   :custom-face
@@ -2208,7 +2208,8 @@
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  (yaml-ts-mode-hook . flycheck-mode)
+  ;; (yaml-ts-mode-hook . flycheck-mode) ;; switch to flymake
+  (yaml-ts-mode-hook . flymake-mode) 
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 
 (use-package yaml-pro
