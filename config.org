@@ -163,7 +163,6 @@
   - [[#mcp][mcp]]
   - [[#acp][acp]]
   - [[#agent-shell][agent-shell]]
-  - [[#agent-shell-sidebar][agent-shell-sidebar]]
   - [[#agent-shell-manager][agent-shell-manager]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
@@ -3402,22 +3401,6 @@ cargo install --git https://github.com/zed-industries/codex-acp
     "a" 'agent-shell)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
-#+end_src
-
-** agent-shell-sidebar
-#+begin_src emacs-lisp
-(use-package agent-shell-sidebar
-  ;; :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
-  ;; FIXME: https://github.com/cmacrae/agent-shell-sidebar/pulls/rynffoll
-  :vc (:url "https://github.com/rynffoll/agent-shell-sidebar" :branch "main" :rev :newest)
-  :general
-  ( :keymaps 'project-prefix-map
-    "A" 'agent-shell-sidebar-toggle)
-  :init
-  (setq agent-shell-sidebar-locked nil)
-  (setq agent-shell-sidebar-minimum-width 60)
-  (setq agent-shell-sidebar-use-custom-font t)
-  (setq agent-shell-sidebar-face '(:height 0.9)))
 #+end_src
 
 ** agent-shell-manager

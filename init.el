@@ -2381,19 +2381,6 @@
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
 
-(use-package agent-shell-sidebar
-  ;; :vc (:url "https://github.com/cmacrae/agent-shell-sidebar" :rev :newest)
-  ;; FIXME: https://github.com/cmacrae/agent-shell-sidebar/pulls/rynffoll
-  :vc (:url "https://github.com/rynffoll/agent-shell-sidebar" :branch "main" :rev :newest)
-  :general
-  ( :keymaps 'project-prefix-map
-    "A" 'agent-shell-sidebar-toggle)
-  :init
-  (setq agent-shell-sidebar-locked nil)
-  (setq agent-shell-sidebar-minimum-width 60)
-  (setq agent-shell-sidebar-use-custom-font t)
-  (setq agent-shell-sidebar-face '(:height 0.9)))
-
 (use-package agent-shell-manager
   :vc (:url "https://github.com/jethrokuan/agent-shell-manager" :rev :newest))
 
