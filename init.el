@@ -1715,7 +1715,8 @@
   (setq magit-clone-default-directory "~/Projects/src/")
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
   (setq magit-repository-directories `((,user-emacs-directory . 0)
-                                       ("~/Projects/" . 2)))
+                                       ("~/Projects/"         . 2)
+                                       ("~/Developer/"        . 2)))
   (setq magit-diff-refine-hunk t)
   (setq magit-process-apply-ansi-colors t))
 
