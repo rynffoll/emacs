@@ -2328,6 +2328,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 
 #+begin_src emacs-lisp
 (use-package flyover
+  :disabled ;; switch to sideline-flymake
   :custom
   (flyover-checkers '(flymake))
   (flyover-display-mode 'show-only-on-same-line)
@@ -2340,6 +2341,19 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (flyover-icon-right-padding 0.5)
   :hook
   (flymake-mode-hook . flyover-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package sideline
+  :init
+  (setq sideline-backends-right '(sideline-flymake))
+  (setq sideline-display-backend-name t))
+
+(use-package sideline-flymake
+  :init
+  (setq sideline-flymake-display-mode 'point)
+  :hook
+  (flymake-mode-hook . sideline-mode))
 #+end_src
 
 * Goto

@@ -1607,6 +1607,7 @@
   (prog-mode-hook . flymake-mode))
 
 (use-package flyover
+  :disabled ;; switch to sideline-flymake
   :custom
   (flyover-checkers '(flymake))
   (flyover-display-mode 'show-only-on-same-line)
@@ -1619,6 +1620,17 @@
   (flyover-icon-right-padding 0.5)
   :hook
   (flymake-mode-hook . flyover-mode))
+
+(use-package sideline
+  :init
+  (setq sideline-backends-right '(sideline-flymake))
+  (setq sideline-display-backend-name t))
+
+(use-package sideline-flymake
+  :init
+  (setq sideline-flymake-display-mode 'point)
+  :hook
+  (flymake-mode-hook . sideline-mode))
 
 (use-package imenu
   :ensure nil
