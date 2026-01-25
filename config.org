@@ -852,21 +852,6 @@ Install fonts
 (use-package standard-themes)
 #+end_src
 
-[[https://github.com/bbatsov/solarized-emacs][solarized-theme]]
-#+begin_src emacs-lisp
-(use-package solarized-theme
-  :init
-  (setq solarized-distinct-doc-face t)
-  (setq solarized-use-variable-pitch nil)
-  (setq solarized-scale-org-headlines nil)
-  (setq solarized-scale-outline-headlines nil)
-  (setq solarized-height-minus-1 1.0)
-  (setq solarized-height-plus-1 1.0)
-  (setq solarized-height-plus-2 1.0)
-  (setq solarized-height-plus-3 1.0)
-  (setq solarized-height-plus-4 1.0))
-#+end_src
-
 [[https://github.com/doomemacs/themes][doom-themes]]
 #+begin_src emacs-lisp
 (use-package doom-themes
@@ -879,7 +864,6 @@ Install fonts
 #+begin_src emacs-lisp
 (setq +theme 'modus-operandi)
 ;; (setq +theme 'ef-melissa-light)
-;; (setq +theme 'solarized-gruvbox-dark)
 ;; (setq +theme 'doom-earl-grey)
 
 (load-theme +theme :no-confirm)
