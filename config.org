@@ -3222,10 +3222,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 ** docker
 #+begin_src emacs-lisp
-(use-package docker
-  :general
-  (+leader-def
-    "od" 'docker))
+(use-package docker)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3262,9 +3259,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+begin_src emacs-lisp
 (use-package proced
   :ensure nil
-  :general
-  (+leader-def
-    "op" 'proced)
   :init
   (setq proced-enable-color-flag t)
   ;; (setq proced-auto-update-flag t)
@@ -3281,9 +3275,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 ** recall
 #+begin_src emacs-lisp
 (use-package recall
-  :general
-  (+leader-def
-    "or" 'recall-list)
   :init
   (setq recall-completing-read-fn #'recall-consult-completing-read)
   :hook

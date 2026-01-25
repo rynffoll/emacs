@@ -2259,10 +2259,7 @@
   :hook
   (after-init-hook . editorconfig-mode))
 
-(use-package docker
-  :general
-  (+leader-def
-    "od" 'docker))
+(use-package docker)
 
 (use-package docker-compose-mode
   :general
@@ -2286,9 +2283,6 @@
 
 (use-package proced
   :ensure nil
-  :general
-  (+leader-def
-    "op" 'proced)
   :init
   (setq proced-enable-color-flag t)
   ;; (setq proced-auto-update-flag t)
@@ -2300,9 +2294,6 @@
    "M-n" 'proced-narrow))
 
 (use-package recall
-  :general
-  (+leader-def
-    "or" 'recall-list)
   :init
   (setq recall-completing-read-fn #'recall-consult-completing-read)
   :hook
