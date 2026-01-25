@@ -24,6 +24,10 @@
 
 (use-package gnu-elpa-keyring-update)
 
+(defvar +with-evil t)
+
+(defvar +with-icons nil)
+
 (use-package mule
   :ensure nil
   :init
@@ -89,12 +93,14 @@
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC"
-    :global-prefix "M-S-SPC")
+    ;; :global-prefix "M-S-SPC")
+    :non-normal-prefix "C-.")
   (general-create-definer +local-leader-def
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC m"
-    :global-prefix "M-,")
+    ;; :global-prefix "M-,")
+    :non-normal-prefix "C-,")
   (general-define-key
    :states '(normal visual)
    "," (general-simulate-key "SPC m" :which-key "local leader"))
@@ -124,6 +130,7 @@
     ""    '(nil :wk "local leader")))
 
 (use-package evil
+  :if +with-evil
   :demand
   :preface
   (defun +save-and-kill-buffer ()
@@ -166,6 +173,7 @@
   (evil-mode t))
 
 (use-package evil-collection
+  :if +with-evil
   :demand
   :after evil
   :init
@@ -174,20 +182,24 @@
   (evil-collection-init))
 
 (use-package evil-commentary
+  :if +with-evil
   :hook
   (after-init-hook . evil-commentary-mode))
 
 (use-package evil-surround
+  :if +with-evil
   :hook
   (after-init-hook . global-evil-surround-mode))
 
 (use-package evil-org
+  :if +with-evil
   :init
   (setq evil-org-key-theme '(todo textobjects insert navigation heading))
   :hook
   (org-mode-hook . evil-org-mode))
 
 (use-package evil-org-agenda
+  :if +with-evil
   :demand
   :ensure evil-org
   :after org-agenda
@@ -195,10 +207,12 @@
   (evil-org-agenda-set-keys))
 
 (use-package evil-mc
+  :if +with-evil
   :hook
   (after-init-hook . global-evil-mc-mode))
 
 (use-package evil-terminal-cursor-changer
+  :if +with-evil
   :unless (display-graphic-p)
   :init
   (setq etcc-use-color t)
@@ -366,8 +380,6 @@
    (t (message "No ligatures for %s" +font)))
   :hook
   (after-init-hook . global-ligature-mode))
-
-(defvar +with-icons nil)
 
 (use-package nerd-icons
   :if +with-icons
@@ -724,6 +736,7 @@
   (setq uniquify-buffer-name-style 'forward))
 
 (use-package evil-commands
+  :if +with-evil
   :ensure evil
   :after evil
   :general
@@ -1477,6 +1490,7 @@
   (after-init-hook . global-anzu-mode))
 
 (use-package evil-anzu
+  :if +with-evil
   :demand
   :after evil anzu)
 

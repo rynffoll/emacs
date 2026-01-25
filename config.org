@@ -18,6 +18,9 @@
   - [[#use-package][use-package]]
   - [[#package][package]]
   - [[#gnu-elpa-keyring-update][gnu-elpa-keyring-update]]
+- [[#feature-flags][Feature Flags]]
+  - [[#with-evil][=+with-evil=]]
+  - [[#with-icons][=+with-icons=]]
 - [[#defaults-1][Defaults]]
   - [[#utf-8][utf-8]]
   - [[#compile][compile]]
@@ -326,6 +329,21 @@ If you'd like to test a different font, evaluate the following block:
 (use-package gnu-elpa-keyring-update)
 #+end_src
 
+* Feature Flags
+** =+with-evil=
+#+begin_src emacs-lisp
+(defvar +with-evil t)
+#+end_src
+
+** =+with-icons=
+Disabled by default due to:
+- conflicts with integration in various packages (dired, magit, etc.)
+- redraw issues over mosh
+
+#+begin_src emacs-lisp
+(defvar +with-icons nil)
+#+end_src
+
 * Defaults
 ** utf-8
 #+begin_src emacs-lisp
@@ -419,12 +437,14 @@ If you'd like to test a different font, evaluate the following block:
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC"
-    :global-prefix "M-S-SPC")
+    ;; :global-prefix "M-S-SPC")
+    :non-normal-prefix "C-.")
   (general-create-definer +local-leader-def
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC m"
-    :global-prefix "M-,")
+    ;; :global-prefix "M-,")
+    :non-normal-prefix "C-,")
   (general-define-key
    :states '(normal visual)
    "," (general-simulate-key "SPC m" :which-key "local leader"))
@@ -457,6 +477,7 @@ If you'd like to test a different font, evaluate the following block:
 * Evil
 #+begin_src emacs-lisp
 (use-package evil
+  :if +with-evil
   :demand
   :preface
   (defun +save-and-kill-buffer ()
@@ -501,6 +522,7 @@ If you'd like to test a different font, evaluate the following block:
 
 #+begin_src emacs-lisp
 (use-package evil-collection
+  :if +with-evil
   :demand
   :after evil
   :init
@@ -511,24 +533,28 @@ If you'd like to test a different font, evaluate the following block:
 
 #+begin_src emacs-lisp
 (use-package evil-commentary
+  :if +with-evil
   :hook
   (after-init-hook . evil-commentary-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package evil-surround
+  :if +with-evil
   :hook
   (after-init-hook . global-evil-surround-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package evil-org
+  :if +with-evil
   :init
   (setq evil-org-key-theme '(todo textobjects insert navigation heading))
   :hook
   (org-mode-hook . evil-org-mode))
 
 (use-package evil-org-agenda
+  :if +with-evil
   :demand
   :ensure evil-org
   :after org-agenda
@@ -538,6 +564,7 @@ If you'd like to test a different font, evaluate the following block:
 
 #+begin_src emacs-lisp
 (use-package evil-mc
+  :if +with-evil
   :hook
   (after-init-hook . global-evil-mc-mode))
 #+end_src
@@ -545,6 +572,7 @@ If you'd like to test a different font, evaluate the following block:
 [[https://github.com/7696122/evil-terminal-cursor-changer][evil-terminal-cursor-changer]]
 #+begin_src emacs-lisp
 (use-package evil-terminal-cursor-changer
+  :if +with-evil
   :unless (display-graphic-p)
   :init
   (setq etcc-use-color t)
@@ -744,14 +772,6 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 ** icons
-Disabled due to the following issues:
-- too many conflicts with integration in various packages (dired, magit, etc.).
-- redraw issues over mosh
-
-#+begin_src emacs-lisp
-(defvar +with-icons nil)
-#+end_src
-
 [[https://github.com/rainstormstudio/nerd-icons.el][nerd-icons]]
 #+begin_src emacs-lisp
 (use-package nerd-icons
@@ -1201,6 +1221,7 @@ Install fonts
 
 #+begin_src emacs-lisp
 (use-package evil-commands
+  :if +with-evil
   :ensure evil
   :after evil
   :general
@@ -2164,6 +2185,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 
 #+begin_src emacs-lisp
 (use-package evil-anzu
+  :if +with-evil
   :demand
   :after evil anzu)
 #+end_src
