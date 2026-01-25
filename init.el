@@ -378,12 +378,6 @@
              (not (member "Symbols Nerd Font Mono" (font-family-list))))
     (nerd-icons-install-fonts)))
 
-(use-package faces
-  :ensure nil
-  :custom-face
-  (mode-line ((t (:inherit mode-line :box nil :underline nil :overline nil))))
-  (mode-line-inactive ((t (:inherit mode-line-inactive :box nil :underline nil :overline nil)))))
-
 (use-package bindings
   :ensure nil
   :init

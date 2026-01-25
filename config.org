@@ -771,14 +771,6 @@ Install fonts
 
 ** mode-line
 #+begin_src emacs-lisp
-(use-package faces
-  :ensure nil
-  :custom-face
-  (mode-line ((t (:inherit mode-line :box nil :underline nil :overline nil))))
-  (mode-line-inactive ((t (:inherit mode-line-inactive :box nil :underline nil :overline nil)))))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package bindings
   :ensure nil
   :init
