@@ -676,12 +676,6 @@
   :bind
   ("<leader>bk" . kill-current-buffer))
 
-(use-package menu-bar
-  :ensure nil
-  :bind
-  ("<leader>tde" . toggle-debug-on-error)
-  ("<leader>tdq" . toggle-debug-on-quit))
-
 (use-package window
   :ensure nil
   :bind
