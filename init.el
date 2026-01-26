@@ -110,8 +110,9 @@
   :bind
   (:map evil-insert-state-map
         ("C-k" . nil))
-  ("<leader>j[" . evil-jump-backward)
-  ("<leader>j]" . evil-jump-forward)
+  (:map mode-specific-map
+        ("j [" . evil-jump-backward)
+        ("j ]" . evil-jump-forward))
   :custom-face
   (evil-ex-substitute-matches
    ((t (:inherit diff-removed :foreground unspecified :background unspecified :strike-through t))))
@@ -130,8 +131,8 @@
   (setq evil-undo-system 'undo-redo)
   (setq evil-want-C-i-jump nil)
   :config
-  (evil-set-leader 'normal (kbd "SPC"))
-  (evil-set-leader 'normal (kbd ",") t)
+  ;; (evil-set-leader 'normal (kbd "SPC"))
+  ;; (evil-set-leader 'normal (kbd ",") t)
   (evil-ex-define-cmd "q"  'kill-current-buffer)
   (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
   (evil-mode t))
@@ -191,6 +192,12 @@
   (setq which-key-dont-use-unicode nil)
   :hook
   (after-init-hook . which-key-mode))
+
+(use-package evil-keypad
+  :demand
+  :after evil
+  :config
+  (evil-keypad-global-mode 1))
 
 (use-package repeat
   :ensure nil
@@ -389,7 +396,8 @@
 (use-package custom
   :ensure nil
   :bind
-  ("<leader>tt" . load-theme))
+  (:map mode-specific-map
+        ("t t" . load-theme)))
 
 (use-package modus-themes
   ;; :ensure nil
@@ -438,14 +446,10 @@
                    (memq (car param) '(left top width height)))
                  default-frame-alist)))
   :bind
-  ("<leader>Ff" . select-frame-by-name)
-  ("<leader>Fn" . make-frame-command)
-  ("<leader>Fc" . delete-frame)
-  ("<leader>FC" . delete-other-frames)
-  ("<leader>Fo" . other-frame)
-  ("<leader>Fb" . switch-to-buffer-other-frame)
-  ("<leader>FM" . toggle-frame-maximized)
-  ("<leader>FF" . toggle-frame-fullscreen)
+  (:map ctl-x-5-map
+        ("." . select-frame-by-name)
+        ("M" . toggle-frame-maximized)
+        ("F" . toggle-frame-fullscreen))
   :config
   (blink-cursor-mode -1))
 
@@ -453,8 +457,9 @@
   :if (eq window-system 'ns)
   :ensure nil
   :bind
-  ("<leader>F[" . ns-prev-frame)
-  ("<leader>F]" . ns-next-frame))
+  (:map ctl-x-5-map
+        ("[" . ns-prev-frame)
+        ("]" . ns-next-frame)))
 
 (use-package fringe
   :if (display-graphic-p)
@@ -483,8 +488,9 @@
   (defun +tab-bar-select-tab-7 () (interactive) (tab-bar-select-tab 7))
   (defun +tab-bar-select-tab-8 () (interactive) (tab-bar-select-tab 8))
   (defun +tab-bar-select-tab-9 () (interactive) (tab-bar-switch-to-last-tab))
+  :bind-keymap
+  ("C-c TAB" . tab-prefix-map)
   :bind
-  ("<leader>TAB" . tab-prefix-map)
   (:map tab-prefix-map
         ("TAB" . tab-bar-switch-to-recent-tab)
         ("0" . nil)
@@ -565,16 +571,23 @@
 
 (use-package winum
   :bind
-  ("<leader>0" . winum-select-window-0-or-10)
-  ("<leader>1" . winum-select-window-1)
-  ("<leader>2" . winum-select-window-2)
-  ("<leader>3" . winum-select-window-3)
-  ("<leader>4" . winum-select-window-4)
-  ("<leader>5" . winum-select-window-5)
-  ("<leader>6" . winum-select-window-6)
-  ("<leader>7" . winum-select-window-7)
-  ("<leader>8" . winum-select-window-8)
-  ("<leader>9" . winum-select-window-9)
+  (:map mode-specific-map
+        ;; C-u <N> winum-select-window-by-number  - select window <N>
+        ;; C-u -<N> winum-select-window-by-number - delete window <N>
+        ;; C-u - winum-select-window-by-number    - delete window 0
+        ;; C-u winum-select-window-by-number      - delete current window
+        ("w" . winum-select-window-by-number)
+        ;; ("0" . winum-select-window-0-or-10)
+        ;; ("1" . winum-select-window-1)
+        ;; ("2" . winum-select-window-2)
+        ;; ("3" . winum-select-window-3)
+        ;; ("4" . winum-select-window-4)
+        ;; ("5" . winum-select-window-5)
+        ;; ("6" . winum-select-window-6)
+        ;; ("7" . winum-select-window-7)
+        ;; ("8" . winum-select-window-8)
+        ;; ("9" . winum-select-window-9)
+        )
   :init
   (setq winum-auto-setup-mode-line nil)
   (setq winum-scope 'frame-local)
@@ -667,20 +680,22 @@
   (defun +switch-to-scratch  () (interactive) (switch-to-buffer "*scratch*"))
   (defun +switch-to-messages () (interactive) (switch-to-buffer "*Messages*"))
   :bind
-  ("<leader>bs" . +switch-to-scratch)
-  ("<leader>bm" . +switch-to-messages)
-  ("<leader>bR" . rename-buffer))
+  (:map mode-specific-map
+        ("b s" . +switch-to-scratch)
+        ("b m" . +switch-to-messages)
+        ("b R" . rename-buffer)))
 
 (use-package simple
   :ensure nil
   :bind
-  ("<leader>bk" . kill-current-buffer))
+  (:map ctl-x-map
+        ("k" . kill-current-buffer)))
 
 (use-package window
   :ensure nil
   :bind
-  ("<leader>bb" . switch-to-buffer)
-  ("<leader>bK" . kill-buffer-and-window))
+  (:map ctl-x-map
+        ("K" . kill-buffer-and-window)))
 
 (use-package uniquify
   :ensure nil
@@ -691,17 +706,17 @@
   :if +with-evil
   :ensure evil
   :after evil
-  :bind
-  ("<leader>bn" . evil-buffer-new)
-  ("<leader>b]" . evil-next-buffer)
-  ("<leader>b[" . evil-prev-buffer))
+  ;; :bind
+  ;; (:map ctl-x-map
+  ;;       ("b n" . evil-buffer-new)
+  ;;       ("b ]" . evil-next-buffer)
+  ;;       ("b [" . evil-prev-buffer))
+  )
 
 (use-package ibuffer
   :ensure nil
   :bind
   ([remap list-buffers] . ibuffer)
-  ("<leader>bl" . list-buffers)
-  ("<leader>bi" . ibuffer)
   :init
   (setq ibuffer-human-readable-size t) ;; emacs 31
   )
@@ -741,7 +756,8 @@
 (use-package recentf
   :ensure nil
   :bind
-  ("<leader>fr" . recentf-open-files)
+  (:map mode-specific-map
+        ("f r" . recentf-open-files))
   :init
   (setq recentf-max-saved-items 300)
   :hook
@@ -750,8 +766,9 @@
 (use-package desktop
   :ensure nil
   :bind
-  ("<leader>Ss" . desktop-save-in-desktop-dir)
-  ("<leader>Sr" . desktop-read)
+  (:map mode-specific-map
+        ("S s" . desktop-save-in-desktop-dir)
+        ("S r" . desktop-read))
   :init
   (setq desktop-path `(,user-emacs-directory))
   :config
@@ -806,8 +823,10 @@
   ([remap switch-to-buffer-other-window] . consult-buffer-other-window)
   ([remap switch-to-buffer-other-frame] . consult-buffer-other-frame)
   ([remap yank-pop] . consult-yank-pop)
-  ("<leader>/." . consult-ripgrep)
-  ("<leader>/b" . consult-line)
+  (:map mode-specific-map
+        ("s /" . consult-ripgrep)
+        ("s ." . consult-ripgrep)
+        ("s b" . consult-line))
   :init
   (setq register-preview-delay 0)
   (setq register-preview-function #'consult-register-format)
@@ -827,7 +846,8 @@
 
 (use-package consult-todo
   :bind
-  ("<leader>jt" . consult-todo))
+  (:map mode-specific-map
+        ("j t" . consult-todo)))
 
 (use-package marginalia
   :bind
@@ -942,8 +962,8 @@
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (use-package cape
-  :bind
-  ("C-c p" . cape-prefix-map)
+  ;; :bind
+  ;; ("C-c p" . cape-prefix-map)
   :hook
   ;; Add to the global default value of `completion-at-point-functions' which is
   ;; used by `completion-at-point'.  The order of the functions matters, the
@@ -979,7 +999,8 @@
     (setq-local completion-at-point-functions
                 (cons #'tempel-expand completion-at-point-functions)))
   :bind
-  ("<leader>it" . tempel-insert)
+  (:map mode-specific-map
+        ("i t" . tempel-insert))
   (:map tempel-map
         ("TAB" . tempel-next))
   :hook
@@ -1001,9 +1022,8 @@
     (let ((default-directory (file-name-as-directory dir)))
       (call-interactively #'find-file)))
   :bind
-  ("<leader>." . find-file)
-  ("<leader>br" . revert-buffer)
-  ("<leader>eR" . restart-emacs)
+  (:map mode-specific-map
+        ("e R" . restart-emacs))
   :init
   (setq require-final-newline t)
   (setq make-backup-files nil)
@@ -1027,10 +1047,11 @@
       (project-current t)
       (find-file file)))
   :bind
-  ("<leader>ed" . iqa-find-user-init-directory)
-  ("<leader>ee" . iqa-find-user-init-file)
-  ("<leader>ec" . iqa-find-user-custom-file)
-  ("<leader>er" . iqa-reload-user-init-file)
+  (:map mode-specific-map
+        ("e d" . iqa-find-user-init-directory)
+        ("e e" . iqa-find-user-init-file)
+        ("e c" . iqa-find-user-custom-file)
+        ("e r" . iqa-reload-user-init-file))
   :init
   (setq iqa-find-file-function #'+iqa-find-file-project)
   (setq iqa-user-init-file (locate-user-emacs-file "config.org")))
@@ -1038,7 +1059,8 @@
 (use-package cus-edit
   :ensure nil
   :bind
-  ("<leader>oc" . customize-group))
+  (:map mode-specific-map
+        ("o c" . customize-group)))
 
 (use-package epg-config
   :ensure nil
@@ -1047,8 +1069,9 @@
 
 (use-package project
   :ensure nil
+  :bind-keymap
+  ("C-c p" . project-prefix-map)
   :bind
-  ("<leader>p" . project-prefix-map)
   (:map project-prefix-map
         ("m" . magit-project-status)
         ("b" . consult-project-buffer))
@@ -1214,9 +1237,9 @@
         (dired-sidebar-follow-file)
       (dired-sidebar-jump-to-sidebar)))
   :bind
-  ("<leader>0" . dired-sidebar-jump-to-sidebar)
-  ("<leader>ft" . dired-sidebar-toggle-sidebar)
-  ("<leader>ff" . +dired-sidebar-follow-file)
+  (:map mode-specific-map
+        ("f t" . dired-sidebar-toggle-sidebar)
+        ("f f" . +dired-sidebar-follow-file))
   :init
   (setq dired-sidebar-theme (if +with-icons 'nerd-icons 'none))
   ;; (setq dired-sidebar-use-custom-modeline nil)
@@ -1261,7 +1284,6 @@
 (use-package help
   :ensure nil
   :bind
-  ("<leader>h" . help-map)
   (:map help-map
         ("." . helpful-at-point)
         ("F" . describe-face)))
@@ -1277,7 +1299,8 @@
 (use-package find-func
   :ensure nil
   :bind
-  ("<leader>fl" . find-library))
+  (:map mode-specific-map
+        ("f l" . find-library)))
 
 (use-package emacs
   :ensure nil
@@ -1295,8 +1318,8 @@
 (use-package simple
   :ensure nil
   :bind
-  ("<leader>:" . execute-extended-command)
-  ("<leader>tT" . toggle-truncate-lines)
+  (:map mode-specific-map
+        ("t T" . toggle-truncate-lines))
   :hook
   (after-init-hook . column-number-mode))
 
@@ -1352,7 +1375,8 @@
   (defun +disable-global-hl-line-mode ()
     (setq-local global-hl-line-mode nil))
   :bind
-  ("<leader>tl" . global-hl-line-mode)
+  (:map mode-specific-map
+        ("t l" . global-hl-line-mode))
   :hook
   (after-init-hook . global-hl-line-mode))
 
@@ -1370,12 +1394,14 @@
 
 (use-package colorful-mode
   :bind
-  ("<leader>tc" . colorful-mode))
+  (:map mode-specific-map
+        ("t c" . colorful-mode)))
 
 (use-package whitespace
   :ensure nil
   :bind
-  ("<leader>tw" . whitespace-mode))
+  (:map mode-specific-map
+        ("t w" . whitespace-mode)))
 
 (use-package page-break-lines
   :hook
@@ -1383,7 +1409,8 @@
 
 (use-package highlight-indent-guides
   :bind
-  ("<leader>ti" . highlight-indent-guides-mode)
+  (:map mode-specific-map
+        ("t i" . highlight-indent-guides-mode))
   :init
   (setq highlight-indent-guides-method 'character)
   (setq highlight-indent-guides-responsive 'top))
@@ -1399,16 +1426,18 @@
 (use-package hi-lock
   :ensure nil
   :bind
-  ("<leader>/h." . highlight-symbol-at-point)
-  ("<leader>/hp" . highlight-phrase)
-  ("<leader>/hr" . highlight-regexp)
-  ("<leader>/hl" . highlight-lines-matching-regexp)
-  ("<leader>/hu" . unhighlight-regexp))
+  (:map mode-specific-map
+        ("s h ." . highlight-symbol-at-point)
+        ("s h p" . highlight-phrase)
+        ("s h r" . highlight-regexp)
+        ("s h l" . highlight-lines-matching-regexp)
+        ("s h u" . unhighlight-regexp)))
 
 (use-package display-line-numbers
   :ensure nil
   :bind
-  ("<leader>tn" . display-line-numbers-mode)
+  (:map mode-specific-map
+        ("t n" . display-line-numbers-mode))
   :init
   (setq display-line-numbers-width-start t))
 
@@ -1452,7 +1481,8 @@
 (use-package flyspell
   :disabled ;; switch to jinx
   :bind
-  ("<leader>ts" . flyspell-mode)
+  (:map mode-specific-map
+        ("t s" . flyspell-mode))
   (:map flyspell-mode-map
         ("C-," . nil)
         ("C-." . nil)
@@ -1478,7 +1508,8 @@
 
 (use-package jinx
   :bind
-  ("<leader>ts" . jinx-mode)
+  (:map mode-specific-map
+        ("t s" . jinx-mode))
   ([remap ispell-word] . jinx-correct) ; M-$
   :init
   (setq jinx-languages "ru en es")
@@ -1514,7 +1545,8 @@
   :disabled ;; switch to flymake
   :requires flycheck
   :bind
-  ("<leader>je" . consult-flycheck))
+  (:map mode-specific-map
+        ("j e" . consult-flycheck)))
 
 (use-package flymake
   :ensure nil
@@ -1556,25 +1588,29 @@
 (use-package imenu
   :ensure nil
   :bind
-  ("<leader>ji" . imenu))
+  (:map mode-specific-map
+        ("j i" . imenu)))
 
 (use-package avy
   :bind
-  ("<leader>jc" . avy-goto-char)
-  ("<leader>jw" . avy-goto-word-0)
-  ("<leader>jW" . avy-goto-word-1)
-  ("<leader>jl" . avy-goto-line)
-  ("<leader>jL" . avy-goto-end-of-line)
+  (:map mode-specific-map
+        ("j c" . avy-goto-char)
+        ("j w" . avy-goto-word-0)
+        ("j W" . avy-goto-word-1)
+        ("j l" . avy-goto-line)
+        ("j L" . avy-goto-end-of-line))
   :init
   (setq avy-background t))
 
 (use-package link-hint
   :bind
-  ("<leader>ol" . link-hint-open-link))
+  (:map mode-specific-map
+        ("o l" . link-hint-open-link)))
 
 (use-package vterm
   :bind
-  ("<leader>ot" . vterm)
+  (:map mode-specific-map
+        ("o t" . vterm))
   :init
   (setq vterm-shell "/opt/homebrew/bin/fish")
   (setq vterm-max-scrollback 10000)
@@ -1597,7 +1633,8 @@
 
 (use-package eat
   :bind
-  ("<leader>oe" . eat)
+  (:map mode-specific-map
+        ("o e" . eat))
   :hook
   (eat-mode-hook . +disable-global-hl-line-mode))
 
@@ -1612,6 +1649,7 @@
   (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
 
 (use-package magit
+  :demand
   :commands magit-blame
   :preface
   (defun +magit-status ()
@@ -1619,13 +1657,17 @@
     (let ((current-prefix-arg '(4)))
       (call-interactively #'magit-status)))
   :bind
-  ("<leader>g." . magit-dispatch)
-  ("<leader>gI" . magit-init)
-  ("<leader>gb" . magit-blame)
-  ("<leader>gc" . magit-clone)
-  ("<leader>gg" . magit-status)
-  ("<leader>gl" . +magit-status)
-  ("<leader>gL" . magit-log-buffer-file)
+  (:map mode-specific-map
+        ("v ." . magit-dispatch)
+        ("v I" . magit-init)
+        ("v b" . magit-blame)
+        ("v c" . magit-clone)
+        ("v v" . magit-status)
+        ("v l" . +magit-status)
+        ("v L" . magit-log-buffer-file))
+  (:map magit-section-mode-map
+        ("C-c <tab>" . nil)
+        ("C-c TAB" . nil))
   :init
   (setq magit-clone-default-directory "~/Projects/src/")
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
@@ -1670,11 +1712,13 @@
 
 (use-package git-link
   :bind
-  ("<leader>gL" . git-link-dispatch))
+  (:map mode-specific-map
+        ("v y" . git-link-dispatch)))
 
 (use-package consult-git-log-grep
   :bind
-  ("<leader>gj" . consult-git-log-grep)
+  (:map mode-specific-map
+        ("v j" . consult-git-log-grep))
   :init
   (setq consult-git-log-grep-open-function #'magit-show-commit))
 
@@ -1688,11 +1732,14 @@
   (defun +open-org-todo-file  () (interactive) (find-file +org-todo-file))
   (defun +open-org-notes-file () (interactive) (find-file +org-notes-file))
   :bind
-  ("<leader>O." . +find-file-in-org-directory)
-  ("<leader>Oi" . +open-org-inbox-file)
-  ("<leader>Ot" . +open-org-todo-file)
-  ("<leader>On" . +open-org-notes-file)
+  (:map mode-specific-map
+        ("O ." . +find-file-in-org-directory)
+        ("O i" . +open-org-inbox-file)
+        ("O t" . +open-org-todo-file)
+        ("O n" . +open-org-notes-file))
   (:map org-mode-map
+        ("C-c TAB" . nil)
+        ("C-c <tab>" . nil)
         ("C-," . nil)
         ("C-'" . nil))
   :init
@@ -1799,7 +1846,8 @@
 (use-package org-agenda
   :ensure org
   :bind
-  ("<leader>Oa" . org-agenda)
+  (:map mode-specific-map
+        ("O a" . org-agenda))
   :init
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-tags-column 0))
@@ -1886,7 +1934,8 @@
 
 (use-package deft
   :bind
-  ("<leader>Od" . deft)
+  (:map mode-specific-map
+        ("O d" . deft))
   (:map deft-mode-map
         ("gr" . deft-refresh))
   :init
@@ -2202,7 +2251,8 @@
 
 (use-package gptel
   :bind
-  ("<leader>lcg" . gptel)
+  (:map mode-specific-map
+        ("l c g" . gptel))
   (:map gptel-mode-map
         ("<localleader>." . gptel-menu))
   (:package embark
@@ -2238,7 +2288,8 @@
   (defun +chatgpt-shell-openai-key ()
     (auth-source-pick-first-password :host "api.openai.com"))
   :bind
-  ("<leader>lcs" . chatgpt-shell)
+  (:map mode-specific-map
+        ("l c s" . chatgpt-shell))
   :init
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
 
@@ -2259,7 +2310,8 @@
       (evil-local-set-key 'normal "p" #'diff-hunk-prev)
       (evil-local-set-key 'normal "q" #'kill-current-buffer)))
   :bind
-  ("<leader>las" . agent-shell)
+  (:map mode-specific-map
+        ("l a s" . agent-shell))
   (:map agent-shell-mode-map
         ("<localleader>." . agent-shell-help-menu))
   (:map project-prefix-map
@@ -2288,20 +2340,23 @@
 
 (use-package focus
   :bind
-  ("<leader>tf" . focus-mode))
+  (:map mode-specific-map
+        ("t f" . focus-mode)))
 
 (use-package olivetti
   ;; :custom-face
   ;; (olivetti-fringe ((t (:background "unspecified-bg"))))
   :bind
-  ("<leader>tz" . olivetti-mode)
+  (:map mode-specific-map
+        ("t z" . olivetti-mode))
   :init
   (setq olivetti-body-width 0.6))
 
 (use-package crux
   :bind
-  ("<leader>fR" . crux-rename-file-and-buffer)
-  ("<leader>fD" . crux-delete-file-and-buffer))
+  (:map mode-specific-map
+        ("f R" . crux-rename-file-and-buffer)
+        ("f D" . crux-delete-file-and-buffer)))
 
 (use-package try)
 
