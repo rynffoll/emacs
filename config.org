@@ -22,6 +22,7 @@
   - [[#with-evil][=+with-evil=]]
   - [[#with-icons][=+with-icons=]]
 - [[#defaults-1][Defaults]]
+  - [[#emacs][emacs]]
   - [[#utf-8][utf-8]]
   - [[#compile][compile]]
   - [[#time][time]]
@@ -58,7 +59,7 @@
 - [[#session-manager][Session Manager]]
   - [[#desktop][desktop]]
 - [[#completion][Completion]]
-  - [[#emacs][emacs]]
+  - [[#emacs-1][emacs]]
   - [[#consult][consult]]
   - [[#marginalia][marginalia]]
   - [[#vertico][vertico]]
@@ -344,6 +345,14 @@ Disabled by default due to:
 #+end_src
 
 * Defaults
+** emacs
+#+begin_src emacs-lisp
+(use-package emacs
+  :ensure nil
+  :init
+  (setq confirm-kill-emacs 'y-or-n-p))
+#+end_src
+
 ** utf-8
 #+begin_src emacs-lisp
 (use-package mule

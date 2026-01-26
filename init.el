@@ -28,6 +28,11 @@
 
 (defvar +with-icons nil)
 
+(use-package emacs
+  :ensure nil
+  :init
+  (setq confirm-kill-emacs 'y-or-n-p))
+
 (use-package mule
   :ensure nil
   :init
