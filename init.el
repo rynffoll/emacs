@@ -559,7 +559,6 @@
   (setq tab-bar-tab-hints t)
   (setq tab-bar-separator " ") ;; the same behavior in GUI and TUI
   ;; (setq tab-bar-separator (propertize "│" 'face '(vertical-border)))
-  (setq tab-bar-select-tab-modifiers '(super))
   :hook
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
