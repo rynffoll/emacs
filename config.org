@@ -3471,6 +3471,8 @@ Install server
 (use-package list-environment)
 
 (use-package daemons)
+
+(use-package free-keys)
 #+end_src
 
 * Private

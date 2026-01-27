@@ -2424,4 +2424,6 @@
 
 (use-package daemons)
 
+(use-package free-keys)
+
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
