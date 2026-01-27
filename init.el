@@ -720,13 +720,6 @@
   (+leader-def
     "bk" 'kill-current-buffer))
 
-(use-package menu-bar
-  :ensure nil
-  :general
-  (+leader-def
-    "tde" 'toggle-debug-on-error
-    "tdq" 'toggle-debug-on-quit))
-
 (use-package window
   :ensure nil
   :general

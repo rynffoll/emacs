@@ -1203,15 +1203,6 @@ Install fonts
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package menu-bar
-  :ensure nil
-  :general
-  (+leader-def
-    "tde" 'toggle-debug-on-error
-    "tdq" 'toggle-debug-on-quit))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package window
   :ensure nil
   :general
