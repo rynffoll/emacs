@@ -98,14 +98,12 @@
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC"
-    ;; :global-prefix "M-S-SPC")
-    :non-normal-prefix "C-.")
+    :global-prefix "S-SPC")
   (general-create-definer +local-leader-def
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC m"
-    ;; :global-prefix "M-,")
-    :non-normal-prefix "C-,")
+    :global-prefix "S-SPC m")
   (general-define-key
    :states '(normal visual)
    "," (general-simulate-key "SPC m" :which-key "local leader"))
@@ -561,6 +559,7 @@
   (setq tab-bar-tab-hints t)
   (setq tab-bar-separator " ") ;; the same behavior in GUI and TUI
   ;; (setq tab-bar-separator (propertize "│" 'face '(vertical-border)))
+  (setq tab-bar-select-tab-modifiers '(super))
   :hook
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
@@ -1473,7 +1472,7 @@
   :ensure nil
   :general
   (+leader-def
-    "/h" '(:ignore t :wh "highlight")
+    "/h" '(:ignore t :wk "highlight")
     "/h." 'highlight-symbol-at-point
     "/hp" 'highlight-phrase
     "/hr" 'highlight-regexp
