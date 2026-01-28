@@ -164,6 +164,7 @@
   - [[#gptel-quick][gptel-quick]]
   - [[#gptel-magit][gptel-magit]]
   - [[#chatgpt-shell][chatgpt-shell]]
+  - [[#claude-code-ide][claude-code-ide]]
   - [[#mcp][mcp]]
   - [[#acp][acp]]
   - [[#agent-shell][agent-shell]]
@@ -3346,6 +3347,32 @@ machine api.openai.com login apikey password TOKEN
     "lcs" 'chatgpt-shell)
   :init
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
+#+end_src
+
+** claude-code-ide
+#+begin_src emacs-lisp
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :preface
+  (defun +disable-nobreak-char-display ()
+    "Disable display of non-breaking space character in vterm."
+    (setq-local nobreak-char-display nil))
+  :bind ("C-c C-'" . claude-code-ide-menu)
+  :general
+  (+leader-def
+    "laC" 'claude-code-ide-menu)
+  :hook
+  (vterm-mode-hook . +disable-nobreak-char-display)
+  (eat-mode-hook . +disable-nobreak-char-display)
+  :config
+  (claude-code-ide-emacs-tools-setup))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package vterm-anti-flicker-filter
+  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
+  :hook
+  (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 #+end_src
 
 ** mcp

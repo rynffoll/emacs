@@ -2338,6 +2338,27 @@
   :init
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
 
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :preface
+  (defun +disable-nobreak-char-display ()
+    "Disable display of non-breaking space character in vterm."
+    (setq-local nobreak-char-display nil))
+  :bind ("C-c C-'" . claude-code-ide-menu)
+  :general
+  (+leader-def
+    "laC" 'claude-code-ide-menu)
+  :hook
+  (vterm-mode-hook . +disable-nobreak-char-display)
+  (eat-mode-hook . +disable-nobreak-char-display)
+  :config
+  (claude-code-ide-emacs-tools-setup))
+
+(use-package vterm-anti-flicker-filter
+  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
+  :hook
+  (vterm-mode-hook . vterm-anti-flicker-filter-enable))
+
 (use-package mcp)
 
 (use-package acp
