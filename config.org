@@ -3356,7 +3356,8 @@ machine api.openai.com login apikey password TOKEN
   :preface
   (defun +disable-nobreak-char-display ()
     "Disable display of non-breaking space character in vterm."
-    (setq-local nobreak-char-display nil))
+    ;; https://github.com/manzaltu/claude-code-ide.el/pull/150
+    (face-remap-add-relative 'nobreak-space :inherit 'default))
   :bind ("C-c C-'" . claude-code-ide-menu)
   :general
   (+leader-def
@@ -3366,13 +3367,6 @@ machine api.openai.com login apikey password TOKEN
   (eat-mode-hook . +disable-nobreak-char-display)
   :config
   (claude-code-ide-emacs-tools-setup))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package vterm-anti-flicker-filter
-  :vc (:url "https://github.com/martinbaillie/vterm-anti-flicker-filter" :rev :newest)
-  :hook
-  (vterm-mode-hook . vterm-anti-flicker-filter-enable))
 #+end_src
 
 ** mcp
