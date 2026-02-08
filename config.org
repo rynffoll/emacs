@@ -814,6 +814,10 @@ Install fonts
 [[https://github.com/seagle0128/doom-modeline][doom-modeline]]
 #+begin_src emacs-lisp
 (use-package doom-modeline
+  :custom-face
+  (mode-line ((t (:height 0.9))))
+  (mode-line-active ((t (:height 0.9))))
+  (mode-line-inactive ((t (:height 0.9))))
   :init
   ;; (setq doom-modeline-bar-width 2)
   (setq doom-modeline-buffer-file-name-style 'buffer-name)

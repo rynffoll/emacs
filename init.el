@@ -404,6 +404,10 @@
   (after-init-hook . minions-mode))
 
 (use-package doom-modeline
+  :custom-face
+  (mode-line ((t (:height 0.9))))
+  (mode-line-active ((t (:height 0.9))))
+  (mode-line-inactive ((t (:height 0.9))))
   :init
   ;; (setq doom-modeline-bar-width 2)
   (setq doom-modeline-buffer-file-name-style 'buffer-name)
