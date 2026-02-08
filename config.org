@@ -3380,10 +3380,6 @@ machine api.openai.com login apikey password TOKEN
 npm install -g @zed-industries/claude-code-acp
 #+end_src
 
-#+begin_src sh :tangle no :results silent
-cargo install --git https://github.com/zed-industries/codex-acp
-#+end_src
-
 ** agent-shell
 #+begin_src emacs-lisp
 (use-package agent-shell
