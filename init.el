@@ -1727,6 +1727,7 @@
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
 (use-package diff-hl
+  :vc (:url "https://github.com/rynffoll/diff-hl" :branch "rynffoll:dired-nested-paths" :rev :newest)
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   :init

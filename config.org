@@ -2492,6 +2492,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** diff-hl
 #+begin_src emacs-lisp
 (use-package diff-hl
+  :vc (:url "https://github.com/rynffoll/diff-hl" :branch "rynffoll:dired-nested-paths" :rev :newest)
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   :init
