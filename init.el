@@ -114,18 +114,17 @@
     "la"  '(:ignore t :wk "agents")
     "o"   '(:ignore t :wk "open")
     "O"   '(:ignore t :wk "org")
-    "p"   '(:ignore t :wk "project")
-    "P"   '(:ignore t :wk "package")
+    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
     "F"   '(:ignore t :wk "frame")
-    "TAB" '(:ignore t :wk "tab")
+    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
     "b"   '(:ignore t :wk "buffer")
 	"S"   '(:ignore t :wk "session")
     "f"   '(:ignore t :wk "file")
     "e"   '(:ignore t :wk "emacs")
     "g"   '(:ignore t :wk "git")
-    "/"   '(:ignore t :wk "search")
-    "j"   '(:ignore t :wk "jump")
-    "h"   '(:ignore t :wk "help")
+    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
+    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
     "t"   '(:ignore t :wk "toggle")
     "i"   '(:ignore t :wk "insert")
     "q"   '(:ignore t :wk "quit"))
@@ -1487,51 +1486,6 @@
   :hook
   (yaml-ts-mode-hook . outline-indent-minor-mode))
 
-(use-package ispell
-  :disabled ;; switch to jinx
-  :if (executable-find "hunspell")
-  :ensure nil
-  :after flyspell
-  :init
-  (setenv "LANG" "en_US.UTF-8")
-  (setq ispell-really-aspell nil)
-  (setq ispell-really-hunspell t)
-  (setq ispell-dictionary "ru_RU,en_US")
-  :config
-  (setq ispell-program-name "hunspell")
-  ;; ispell-set-spellchecker-params has to be called
-  ;; before ispell-hunspell-add-multi-dic will work
-  (ispell-set-spellchecker-params)
-  (ispell-hunspell-add-multi-dic "ru_RU,en_US"))
-
-(use-package flyspell
-  :disabled ;; switch to jinx
-  :general
-  (+leader-def
-    "ts" 'flyspell-mode)
-  (flyspell-mode-map
-   "C-," nil
-   "C-." nil
-   "C-c $" nil)
-  :init
-  (setq flyspell-delay 1)
-  (setq flyspell-use-meta-tab nil)
-  (setq flyspell-issue-message-flag nil)
-  (setq flyspell-prog-text-faces '(;; font-lock-string-face
-                                   font-lock-comment-face
-                                   font-lock-doc-face))
-  :hook
-  ;; (text-mode-hook . flyspell-mode)
-  ;; (org-mode-hook . flyspell-mode)
-  ;; (prog-mode-hook . flyspell-prog-mode)
-  (git-commit-mode-hook . flyspell-mode))
-
-(use-package flyspell-correct
-  :disabled
-  :general
-  (flyspell-mode-map
-   "C-;" 'flyspell-correct-wrapper))
-
 (use-package jinx
   :general
   (+leader-def
@@ -1544,35 +1498,6 @@
   (org-mode-hook        . jinx-mode)
   ;; (prog-mode-hook       . jinx-mode)
   (git-commit-mode-hook . jinx-mode))
-
-(use-package flycheck
-  :disabled ;; switch to flymake
-  :preface
-  ;; https://www.flycheck.org/en/latest/user/error-reports.html#fringe-and-margin-icons
-  (defun +flycheck-set-indication-mode ()
-    (pcase flycheck-indication-mode
-      (`left-margin
-       (setq left-margin-width (max 1 left-margin-width)))
-      (`right-margin
-       (setq right-margin-width (max 1 right-margin-width))))
-    (flycheck-refresh-fringes-and-margins))
-  :init
-  (setq flycheck-indication-mode (if (display-graphic-p)
-                                     'right-fringe
-                                   'right-margin))
-  (setq flycheck-temp-prefix ".flycheck")
-  :hook
-  (after-init-hook . global-flycheck-mode)
-  (flycheck-mode-hook . +flycheck-set-indication-mode)
-  :config
-  (flycheck-redefine-standard-error-levels "!" 'exclamation-mark))
-
-(use-package consult-flycheck
-  :disabled ;; switch to flymake
-  :requires flycheck
-  :general
-  (+leader-def
-    "je" 'consult-flycheck))
 
 (use-package flymake
   :ensure nil
@@ -2407,8 +2332,6 @@
     "tf" 'focus-mode))
 
 (use-package olivetti
-  ;; :custom-face
-  ;; (olivetti-fringe ((t (:background "unspecified-bg"))))
   :general
   (+leader-def
     "tz" 'olivetti-mode)
