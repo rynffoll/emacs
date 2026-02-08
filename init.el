@@ -1064,9 +1064,10 @@
 (use-package autorevert
   :ensure nil
   :init
-  (setq auto-revert-verbose nil)
+  (setq auto-revert-verbose t)
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-check-vc-info t)
+  (setq auto-revert-stop-on-user-input nil)
   :hook
   (after-init-hook . global-auto-revert-mode))
 
@@ -1284,6 +1285,8 @@
   (setq dired-sidebar-use-custom-font t) ;; to custom `dired-sidebar-face'
   (setq dired-sidebar-face '(:height 0.9))
   (setq dired-sidebar-refresh-on-project-switch nil)
+  (setq dired-sidebar-delay-auto-revert-updates nil)
+  (setq dired-sidebar-display-autorevert-messages t)
   :config
   (with-eval-after-load 'winum
     (defun winum-assign-0-to-dired-sidebar ()
