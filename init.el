@@ -1457,15 +1457,7 @@
   (after-init-hook . global-hl-todo-mode))
 
 (use-package hi-lock
-  :ensure nil
-  :general
-  (+leader-def
-    "/h" '(:ignore t :wk "highlight")
-    "/h." 'highlight-symbol-at-point
-    "/hp" 'highlight-phrase
-    "/hr" 'highlight-regexp
-    "/hl" 'highlight-lines-matching-regexp
-    "/hu" 'unhighlight-regexp))
+  :ensure nil)
 
 (use-package display-line-numbers
   :ensure nil
