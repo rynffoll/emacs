@@ -1730,6 +1730,9 @@
   :vc (:url "https://github.com/rynffoll/diff-hl" :branch "rynffoll:dired-nested-paths" :rev :newest)
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
+  (defun +diff-hl-dired-update ()
+    (when (bound-and-true-p diff-hl-dired-mode)
+      (diff-hl-dired-update)))
   :init
   (setq diff-hl-update-async t)
   (setq diff-hl-draw-borders nil)
@@ -1739,11 +1742,12 @@
   (setq diff-hl-dired-extra-indicators nil)
   (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
   :hook
-  (after-init-hook         . global-diff-hl-mode)
-  (after-init-hook         . global-diff-hl-show-hunk-mouse-mode)
-  ;; (diff-hl-mode-hook       . diff-hl-flydiff-mode) ;; disabled by perf issues
+  (after-init-hook . global-diff-hl-mode)
+  (after-init-hook . global-diff-hl-show-hunk-mouse-mode)
+  ;; (diff-hl-mode-hook . diff-hl-flydiff-mode) ;; disabled by perf issues
   (magit-post-refresh-hook . diff-hl-magit-post-refresh)
-  (dired-mode-hook . diff-hl-dired-mode))
+  (dired-mode-hook . diff-hl-dired-mode)
+  (dired-subtree-after-insert-hook . +diff-hl-dired-update))
 
 (use-package git-link
   :general
