@@ -72,7 +72,6 @@
 - [[#files][Files]]
 - [[#projects][Projects]]
 - [[#dired][Dired]]
-- [[#tramp][Tramp]]
 - [[#environment-variables][Environment Variables]]
 - [[#help][Help]]
 - [[#editor][Editor]]
@@ -1913,14 +1912,6 @@ Install fonts
                  (eq (selected-window) (frame-first-window)))
         0))
     (add-to-list 'winum-assign-functions #'winum-assign-0-to-dired-sidebar)))
-#+end_src
-
-* Tramp
-#+begin_src emacs-lisp
-(use-package tramp
-  :ensure nil
-  :init
-  (setq tramp-default-method "ssh"))
 #+end_src
 
 * Environment Variables

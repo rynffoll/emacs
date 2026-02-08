@@ -1293,11 +1293,6 @@
         0))
     (add-to-list 'winum-assign-functions #'winum-assign-0-to-dired-sidebar)))
 
-(use-package tramp
-  :ensure nil
-  :init
-  (setq tramp-default-method "ssh"))
-
 (use-package exec-path-from-shell
   :if (or (memq window-system '(mac ns x)) (daemonp))
   :demand
