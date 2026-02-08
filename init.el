@@ -26,7 +26,7 @@
 
 (defvar +with-evil t)
 
-(defvar +with-icons nil)
+(defvar +with-icons t)
 
 (use-package emacs
   :ensure nil
@@ -1241,8 +1241,13 @@
 
 (use-package nerd-icons-dired
   :if +with-icons
+  :preface
+  (defun +nerd-icons-dired-refresh ()
+    (when (bound-and-true-p nerd-icons-dired-mode)
+      (nerd-icons-dired--refresh)))
   :hook
-  (dired-mode-hook . nerd-icons-dired-mode))
+  (dired-mode-hook . nerd-icons-dired-mode)
+  (dired-subtree-after-insert-hook . +nerd-icons-dired-refresh))
 
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
@@ -1274,7 +1279,8 @@
     "ft" 'dired-sidebar-toggle-sidebar
     "ff" '+dired-sidebar-follow-file)
   :init
-  (setq dired-sidebar-theme (if +with-icons 'nerd-icons 'none))
+  ;; (setq dired-sidebar-theme (if +with-icons 'nerd-icons 'none))
+  (setq dired-sidebar-theme 'none) ;; don't need dired-sidebar's customizations for nerd-icons, it's flickery and buggy, just use nerd-icons-dired
   ;; (setq dired-sidebar-use-custom-modeline nil)
   (setq dired-sidebar-use-custom-modeline t)
   (setq dired-sidebar-mode-line-format nil) ;; hide mode-line
