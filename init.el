@@ -2348,18 +2348,10 @@
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :preface
-  (defun +disable-nobreak-char-display ()
-    "Disable display of non-breaking space character in vterm."
-    ;; https://github.com/manzaltu/claude-code-ide.el/pull/150
-    (face-remap-add-relative 'nobreak-space :inherit 'default))
   :bind ("C-c C-'" . claude-code-ide-menu)
   :general
   (+leader-def
     "laC" 'claude-code-ide-menu)
-  :hook
-  (vterm-mode-hook . +disable-nobreak-char-display)
-  (eat-mode-hook . +disable-nobreak-char-display)
   :config
   (claude-code-ide-emacs-tools-setup))
 
