@@ -1909,35 +1909,6 @@
           (nospace . "-")
           (case-fn . downcase))))
 
-(use-package treesit
-  :ensure nil
-  :init
-  (setq treesit-font-lock-level 4)
-  (setq treesit-language-source-alist
-        '((go . ("https://github.com/tree-sitter/tree-sitter-go"))
-          (gomod . ("https://github.com/camdencheek/tree-sitter-go-mod"))
-          (gosum . ("https://github.com/tree-sitter-grammars/tree-sitter-go-sum"))
-          (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
-          (lua . ("https://github.com/tree-sitter-grammars/tree-sitter-lua"))
-          (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-          (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
-          (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
-  ;; TODO: emacs 31: treesit-enabled-modes
-  (setq major-mode-remap-alist
-        '((go-mode . go-ts-mode)
-          (go-mod-mode . go-mod-ts-mode)
-          (clojure-mode . clojure-ts-mode)
-          (lua-mode . lua-ts-mode)
-          (json-mode . json-ts-mode)
-          (yaml-mode . yaml-ts-mode)
-          (dockerfile-mode . dockerfile-ts-mode)))
-  :config
-  ;; TODO: emacs 31: treesit-auto-install-grammar
-  (dolist (source treesit-language-source-alist)
-    (unless (treesit-ready-p (car source) t) ;; `t' to quietly check
-      (treesit-install-language-grammar (car source)))))
-
 (use-package eglot
   :ensure nil
   :general
@@ -1986,6 +1957,35 @@
   :hook
   (kill-emacs-hook . dape-breakpoint-save)
   (after-init-hook . dape-breakpoint-load))
+
+(use-package treesit
+  :ensure nil
+  :init
+  (setq treesit-font-lock-level 4)
+  (setq treesit-language-source-alist
+        '((go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (gomod . ("https://github.com/camdencheek/tree-sitter-go-mod"))
+          (gosum . ("https://github.com/tree-sitter-grammars/tree-sitter-go-sum"))
+          (clojure . ("https://github.com/sogaiu/tree-sitter-clojure"))
+          (lua . ("https://github.com/tree-sitter-grammars/tree-sitter-lua"))
+          (bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (yaml . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
+          (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile"))))
+  ;; TODO: emacs 31: treesit-enabled-modes
+  (setq major-mode-remap-alist
+        '((go-mode . go-ts-mode)
+          (go-mod-mode . go-mod-ts-mode)
+          (clojure-mode . clojure-ts-mode)
+          (lua-mode . lua-ts-mode)
+          (json-mode . json-ts-mode)
+          (yaml-mode . yaml-ts-mode)
+          (dockerfile-mode . dockerfile-ts-mode)))
+  :config
+  ;; TODO: emacs 31: treesit-auto-install-grammar
+  (dolist (source treesit-language-source-alist)
+    (unless (treesit-ready-p (car source) t) ;; `t' to quietly check
+      (treesit-install-language-grammar (car source)))))
 
 (use-package highlight-defined
   :init
