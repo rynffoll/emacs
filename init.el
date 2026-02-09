@@ -1958,6 +1958,13 @@
   (kill-emacs-hook . dape-breakpoint-save)
   (after-init-hook . dape-breakpoint-load))
 
+(use-package mason
+  :preface
+  (defun +mason-setup ()
+    (mason-setup))
+  :hook
+  (after-init-hook . +mason-setup))
+
 (use-package treesit
   :ensure nil
   :init

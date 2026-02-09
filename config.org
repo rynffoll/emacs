@@ -132,6 +132,7 @@
 - [[#lsp][LSP]]
   - [[#eglot][eglot]]
   - [[#dape][dape]]
+  - [[#mason][mason]]
 - [[#languages][Languages]]
   - [[#treesit][treesit]]
   - [[#elisp][elisp]]
@@ -2890,6 +2891,16 @@ Upgrade eglot to the latest version
   :hook
   (kill-emacs-hook . dape-breakpoint-save)
   (after-init-hook . dape-breakpoint-load))
+#+end_src
+
+** mason
+#+begin_src emacs-lisp
+(use-package mason
+  :preface
+  (defun +mason-setup ()
+    (mason-setup))
+  :hook
+  (after-init-hook . +mason-setup))
 #+end_src
 
 * Languages
