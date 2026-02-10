@@ -409,19 +409,12 @@
   (mode-line-active ((t (:height 0.9))))
   (mode-line-inactive ((t (:height 0.9))))
   :init
-  ;; (setq doom-modeline-bar-width 2)
-  (setq doom-modeline-buffer-file-name-style 'buffer-name)
   (setq doom-modeline-icon +with-icons)
-  ;; (setq doom-modeline-modal-icon t)
-  (setq doom-modeline-buffer-encoding nil)
-  ;; (setq doom-modeline-major-mode-icon t)
-  ;; (setq doom-modeline-buffer-modification-icon t)
-  (setq doom-modeline-workspace-name nil)
-  (setq doom-modeline-check-icon nil)
-  (setq doom-modeline-check-simple-format t)
-  (setq doom-modeline-always-show-macro-register t)
-  (setq doom-modeline-support-imenu t)
+  (setq doom-modeline-buffer-encoding 'nondefault)
+  (setq doom-modeline-buffer-file-name-style 'buffer-name)
+  (setq doom-modeline-check 'simple)
   (setq doom-modeline-unicode-number nil)
+  (setq doom-modeline-workspace-name nil)
   :hook
   (after-init-hook . doom-modeline-mode))
 
