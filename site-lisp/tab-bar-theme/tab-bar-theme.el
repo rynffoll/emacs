@@ -30,7 +30,7 @@
   :group 'tab-bar)
 
 (defcustom tab-bar-theme-line-width 3
-  "Height of tab bar."
+  "Line width of tab bar box."
   :type 'integer
   :group 'tab-bar-theme)
 
@@ -42,8 +42,7 @@
          (fg-inactive (face-attribute 'mode-line-inactive :foreground))
          (bg-active   (face-attribute 'default :background))
          (fg-active   (face-attribute 'default :foreground))
-         (line-width  tab-bar-theme-line-width)
-)
+         (line-width  tab-bar-theme-line-width))
     (custom-set-faces
      `(tab-bar
        ((t ( :inherit unspecified
