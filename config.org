@@ -246,6 +246,8 @@
 (add-to-list 'default-frame-alist '(top  . 0.5))
 (add-to-list 'default-frame-alist '(width  . 0.75))
 (add-to-list 'default-frame-alist '(height . 0.9))
+
+(add-to-list 'default-frame-alist '(internal-border-width . 0))
 #+end_src
 
 *** font
@@ -956,6 +958,14 @@ Install fonts
   (defun +tab-bar-select-tab-7 () (interactive) (tab-bar-select-tab 7))
   (defun +tab-bar-select-tab-8 () (interactive) (tab-bar-select-tab 8))
   (defun +tab-bar-select-tab-9 () (interactive) (tab-bar-switch-to-last-tab))
+  (defun +tab-bar-bar-wrap (name &optional _tab _i) (concat " " name " "))
+  (defun +tab-bar-tab-group-format-default (tab i &optional current-p)
+    (propertize
+     (+tab-bar-bar-wrap ;; patch start: wrap with spaces
+      (concat (if (and tab-bar-tab-hints (not current-p)) (format "%d " i) "")
+              (funcall tab-bar-tab-group-function tab))
+      ) ;; patch end
+     'face (if current-p 'tab-bar-tab-group-current 'tab-bar-tab-group-inactive)))
   :custom-face
   (tab-bar ((t (:height 0.9))))
   :general
@@ -982,19 +992,19 @@ Install fonts
    "c" 'tab-close
    "C" 'tab-close-other)
   :init
-  ;; (setq tab-bar-show 1)
   (setq tab-bar-show t)
   (setq tab-bar-format '(tab-bar-format-tabs-groups
                          tab-bar-separator))
-  ;; (setq tab-bar-format '(tab-bar-format-menu-bar
-  ;;                        tab-bar-format-tabs-groups
-  ;;                        tab-bar-separator
-  ;;                        tab-bar-format-add-tab))
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
   (setq tab-bar-tab-hints t)
-  (setq tab-bar-separator " ") ;; the same behavior in GUI and TUI
-  ;; (setq tab-bar-separator (propertize "│" 'face '(vertical-border)))
+  ;; (setq tab-bar-separator " ") ;; the same behavior in GUI and TUI
+  (setq tab-bar-separator (if (display-graphic-p) "\u200B" " "))
+  (setq tab-bar-tab-name-format-functions '(tab-bar-tab-name-format-hints
+                                            ;; tab-bar-tab-name-format-close-button
+                                            +tab-bar-bar-wrap
+                                            tab-bar-tab-name-format-face))
+  (setq tab-bar-tab-group-format-function #'+tab-bar-tab-group-format-default)
   :hook
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))

@@ -51,6 +51,8 @@
 (add-to-list 'default-frame-alist '(width  . 0.75))
 (add-to-list 'default-frame-alist '(height . 0.9))
 
+(add-to-list 'default-frame-alist '(internal-border-width . 0))
+
 (setq inhibit-compacting-font-caches t)
 
 ;; (setq +font "JetBrains Mono:weight=medium:size=14")
