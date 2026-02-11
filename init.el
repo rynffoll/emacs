@@ -518,6 +518,8 @@
   (defun +tab-bar-select-tab-7 () (interactive) (tab-bar-select-tab 7))
   (defun +tab-bar-select-tab-8 () (interactive) (tab-bar-select-tab 8))
   (defun +tab-bar-select-tab-9 () (interactive) (tab-bar-switch-to-last-tab))
+  :custom-face
+  (tab-bar ((t (:height 0.9))))
   :general
   (+leader-def
     "TAB" '(:keymap tab-prefix-map :wk "tab-bar"))

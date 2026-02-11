@@ -34,11 +34,6 @@
   :type 'integer
   :group 'tab-bar-theme)
 
-(defcustom tab-bar-theme-font-height 0.9
-  "Font height of tab bar."
-  :type 'float
-  :group 'tab-bar-theme)
-
 
 ;;;###autoload
 (defun tab-bar-theme--apply (&optional _theme)
@@ -48,13 +43,12 @@
          (bg-active   (face-attribute 'default :background))
          (fg-active   (face-attribute 'default :foreground))
          (line-width  tab-bar-theme-line-width)
-         (font-height tab-bar-theme-font-height))
+)
     (custom-set-faces
      `(tab-bar
        ((t ( :inherit unspecified
              :background ,bg-inactive
              :foreground ,fg-inactive
-             :height ,font-height
              :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
      `(tab-bar-tab
        ((t ( :inherit tab-bar
