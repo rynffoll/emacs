@@ -949,15 +949,6 @@ Install fonts
 (use-package tab-bar
   :ensure nil
   :preface
-  (defun +tab-bar-select-tab-1 () (interactive) (tab-bar-select-tab 1))
-  (defun +tab-bar-select-tab-2 () (interactive) (tab-bar-select-tab 2))
-  (defun +tab-bar-select-tab-3 () (interactive) (tab-bar-select-tab 3))
-  (defun +tab-bar-select-tab-4 () (interactive) (tab-bar-select-tab 4))
-  (defun +tab-bar-select-tab-5 () (interactive) (tab-bar-select-tab 5))
-  (defun +tab-bar-select-tab-6 () (interactive) (tab-bar-select-tab 6))
-  (defun +tab-bar-select-tab-7 () (interactive) (tab-bar-select-tab 7))
-  (defun +tab-bar-select-tab-8 () (interactive) (tab-bar-select-tab 8))
-  (defun +tab-bar-select-tab-9 () (interactive) (tab-bar-switch-to-last-tab))
   (defun +tab-bar-bar-wrap (name &optional _tab _i) (concat " " name " "))
   (defun +tab-bar-tab-group-format-default (tab i &optional current-p)
     (propertize
@@ -972,29 +963,31 @@ Install fonts
   (+leader-def
     "TAB" '(:keymap tab-prefix-map :wk "tab-bar"))
   (tab-prefix-map
-   "TAB" 'tab-bar-switch-to-recent-tab
-   "0" nil
-   "1" '+tab-bar-select-tab-1
-   "2" '+tab-bar-select-tab-2
-   "3" '+tab-bar-select-tab-3
-   "4" '+tab-bar-select-tab-4
-   "5" '+tab-bar-select-tab-5
-   "6" '+tab-bar-select-tab-6
-   "7" '+tab-bar-select-tab-7
-   "8" '+tab-bar-select-tab-8
-   "9" '+tab-bar-select-tab-9
-   "." 'tab-bar-select-tab-by-name
+   "TAB" 'tab-recent
+   "0" 'tab-recent
+   "1" 'tab-bar-select-tab
+   "2" 'tab-bar-select-tab
+   "3" 'tab-bar-select-tab
+   "4" 'tab-bar-select-tab
+   "5" 'tab-bar-select-tab
+   "6" 'tab-bar-select-tab
+   "7" 'tab-bar-select-tab
+   "8" 'tab-bar-select-tab
+   "9" 'tab-last
+   "." 'tab-switch
    "n" 'tab-new
    "[" 'tab-previous
    "]" 'tab-next
-   ">" 'tab-bar-move-tab
+   ">" 'tab-move
    "<" 'tab-bar-move-tab-backward
    "c" 'tab-close
    "C" 'tab-close-other)
   :init
   (setq tab-bar-show t)
   (setq tab-bar-format '(tab-bar-format-tabs-groups
-                         tab-bar-separator))
+                         tab-bar-separator
+                         tab-bar-format-align-right
+                         tab-bar-format-global))
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
   (setq tab-bar-tab-hints t)
