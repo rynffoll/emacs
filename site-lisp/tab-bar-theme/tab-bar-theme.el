@@ -29,7 +29,7 @@
   "Tab Bar Theme."
   :group 'tab-bar)
 
-(defcustom tab-bar-theme-height 5
+(defcustom tab-bar-theme-line-width 3
   "Height of tab bar."
   :type 'integer
   :group 'tab-bar-theme)
@@ -47,7 +47,7 @@
          (fg-inactive (face-attribute 'mode-line-inactive :foreground))
          (bg-active   (face-attribute 'default :background))
          (fg-active   (face-attribute 'default :foreground))
-         (height      tab-bar-theme-height)
+         (line-width  tab-bar-theme-line-width)
          (font-height tab-bar-theme-font-height))
     (custom-set-faces
      `(tab-bar
@@ -55,39 +55,40 @@
              :background ,bg-inactive
              :foreground ,fg-inactive
              :height ,font-height
-             :box ,(tab-bar-theme--box-style height bg-inactive)))))
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
      `(tab-bar-tab
        ((t ( :inherit tab-bar
              :background ,bg-active
              :foreground ,fg-active
-             :box ,(tab-bar-theme--box-style height bg-active)))))
+             :box ,(tab-bar-theme--box-style line-width bg-active)))))
      `(tab-bar-tab-inactive
        ((t ( :inherit tab-bar-tab
              :background ,bg-inactive
              :foreground ,fg-inactive
-             :box ,(tab-bar-theme--box-style height bg-inactive)))))
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
      `(tab-bar-tab-ungrouped
        ((t ( :inherit tab-bar-tab-inactive
              :background ,bg-inactive
              :foreground ,fg-inactive
-             :box ,(tab-bar-theme--box-style height bg-inactive)))))
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
      `(tab-bar-tab-group-inactive
        ((t ( :inherit tab-bar-tab-inactive
              :background ,bg-inactive
              :foreground ,fg-inactive
              :weight bold
-             :box ,(tab-bar-theme--box-style height bg-inactive)))))
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
      `(tab-bar-tab-group-current
        ((t ( :inherit tab-bar-tab
              :background ,bg-inactive
              :foreground ,fg-active
              :weight bold
-             :box ,(tab-bar-theme--box-style height bg-inactive))))))))
+             :box ,(tab-bar-theme--box-style line-width bg-inactive))))))))
 
-(defun tab-bar-theme--box-style (height color)
+(defun tab-bar-theme--box-style (line-width color)
   "Return box style for tab bar."
-  (when (> height 0)
-    `(:line-width ,height :style nil :color ,color)))
+  (when (and (display-graphic-p)
+             (> line-width 0))
+    `(:line-width ,line-width :style nil :color ,color)))
 
 ;;;###autoload
 (define-minor-mode tab-bar-theme-mode
