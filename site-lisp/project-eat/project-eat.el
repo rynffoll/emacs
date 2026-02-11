@@ -34,15 +34,17 @@
 
 ;;;###autoload
 (defun project-eat ()
-  "Open eat in project root."
+  "Open Eat in the current project's root directory.
+If a buffer already exists for running Eat in the project's root,
+switch to it.  Otherwise, create a new Eat buffer.
+With \\[universal-argument] prefix arg, create a new Eat buffer even
+if one already exists.
+With numeric prefix arg, switch to the session with that number, or
+create it if it doesn't already exist."
   (interactive)
   (let* ((default-directory (project-root (project-current t)))
-         (eat-buffer-name (project-prefixed-buffer-name "eat"))
-         (eat-buffer      (get-buffer eat-buffer-name)))
-    (if (and eat-buffer (not current-prefix-arg))
-        (pop-to-buffer eat-buffer
-                       (bound-and-true-p display-comint-buffer-action))
-      (eat))))
+         (eat-buffer-name (project-prefixed-buffer-name "eat")))
+    (eat nil current-prefix-arg)))
 
 (provide 'project-eat)
 ;;; project-eat.el ends here
