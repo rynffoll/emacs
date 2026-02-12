@@ -41,6 +41,8 @@
 
 (setq use-dialog-box nil)
 
+(setq-default fringes-outside-margins t)
+
 (tooltip-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
