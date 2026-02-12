@@ -1644,7 +1644,7 @@
     (when (bound-and-true-p diff-hl-dired-mode)
       (diff-hl-dired-update)))
   :init
-  (setq diff-hl-update-async t)
+  (setq diff-hl-update-async 'thread)
   (setq diff-hl-draw-borders nil)
   (setq diff-hl-margin-symbols-alist
         '((insert . " ") (delete . " ") (change . " ")
