@@ -1413,6 +1413,13 @@ Install fonts
 #+end_src
 
 #+begin_src emacs-lisp
+(use-package nerd-icons-xref
+  :if +with-icons
+  :hook
+  (after-init-hook . nerd-icons-xref-mode))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package consult-dir
   :general
   ([remap list-directory] 'consult-dir))

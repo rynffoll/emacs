@@ -888,6 +888,11 @@
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref))
 
+(use-package nerd-icons-xref
+  :if +with-icons
+  :hook
+  (after-init-hook . nerd-icons-xref-mode))
+
 (use-package consult-dir
   :general
   ([remap list-directory] 'consult-dir))
