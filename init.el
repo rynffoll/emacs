@@ -1999,6 +1999,10 @@
 
 (use-package package-lint)
 
+(use-package package-lint-flymake
+  :hook
+  (emacs-lisp-mode-hook . package-lint-flymake-setup))
+
 (use-package flycheck-package
   :disabled ;; broken after flycheck update
   :after flycheck
