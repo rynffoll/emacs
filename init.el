@@ -698,19 +698,15 @@
 
 (use-package emacs
   :ensure nil
-  :preface
-  (defun +switch-to-scratch  () (interactive) (switch-to-buffer "*scratch*"))
-  (defun +switch-to-messages () (interactive) (switch-to-buffer "*Messages*"))
   :general
   (+leader-def
-    "bs" '+switch-to-scratch
-    "bm" '+switch-to-messages
     "bR" 'rename-buffer))
 
 (use-package simple
   :ensure nil
   :general
   (+leader-def
+    "bs" 'scratch-buffer
     "bk" 'kill-current-buffer))
 
 (use-package window

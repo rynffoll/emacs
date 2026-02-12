@@ -1177,13 +1177,8 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package emacs
   :ensure nil
-  :preface
-  (defun +switch-to-scratch  () (interactive) (switch-to-buffer "*scratch*"))
-  (defun +switch-to-messages () (interactive) (switch-to-buffer "*Messages*"))
   :general
   (+leader-def
-    "bs" '+switch-to-scratch
-    "bm" '+switch-to-messages
     "bR" 'rename-buffer))
 #+end_src
 
@@ -1192,6 +1187,7 @@ Install fonts
   :ensure nil
   :general
   (+leader-def
+    "bs" 'scratch-buffer
     "bk" 'kill-current-buffer))
 #+end_src
 
