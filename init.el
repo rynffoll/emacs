@@ -2255,6 +2255,16 @@
   :hook
   (after-init-hook . recall-mode))
 
+(use-package dothttp
+  :ensure nil
+  :load-path "site-lisp/dothttp"
+  :mode ("\\.http\\'" . dothttp-mode))
+
+(use-package dothttp-grpc
+  :ensure nil
+  :demand t
+  :after dothttp)
+
 (use-package gptel
   :general
   (+leader-def

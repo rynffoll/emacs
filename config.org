@@ -157,6 +157,7 @@
   - [[#mise][mise]]
   - [[#proced][proced]]
   - [[#recall][recall]]
+  - [[#dothttp][dothttp]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-quick][gptel-quick]]
@@ -3315,6 +3316,21 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (setq recall-completing-read-fn #'recall-consult-completing-read)
   :hook
   (after-init-hook . recall-mode))
+#+end_src
+
+** dothttp
+#+begin_src emacs-lisp
+(use-package dothttp
+  :ensure nil
+  :load-path "site-lisp/dothttp"
+  :mode ("\\.http\\'" . dothttp-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package dothttp-grpc
+  :ensure nil
+  :demand t
+  :after dothttp)
 #+end_src
 
 * LLM

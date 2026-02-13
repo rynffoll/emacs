@@ -1,0 +1,268 @@
+#+title: dothttp.el
+#+author: Ruslan Kamashev
+
+JetBrains-style HTTP/gRPC client for Emacs.
+
+Edit =.http= files with syntax highlighting, send requests via =curl=, call gRPC services via =grpcurl=, process responses with =jq=.
+
+* Specification
+
+Based on JetBrains HTTP Client format:
+
+- [[https://github.com/JetBrains/http-request-in-editor-spec/blob/master/spec.md][HTTP Request in Editor Specification]]
+- [[https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html][HTTP Client Documentation]]
+- [[https://www.jetbrains.com/help/idea/exploring-http-syntax.html][Exploring HTTP Syntax]]
+- [[https://www.jetbrains.com/help/idea/http-client-variables.html][HTTP Client Variables]]
+- [[https://www.jetbrains.com/help/idea/http-client-cli.html][HTTP Client CLI]]
+
+* Comparison
+
+| Feature             | JetBrains IDE        | httpyac              | dothttp.el             |
+|---------------------+----------------------+----------------------+------------------------|
+| Runtime             | Java (built-in)      | Node.js              | Emacs Lisp + =curl=      |
+| gRPC                | Built-in             | Built-in             | =grpcurl= / =grpcui=       |
+| WebSocket           | Supported            | Supported            | ---                    |
+| GraphQL             | Supported            | Supported            | ---                    |
+| Response handler    | JavaScript (=>=)       | JavaScript (=>=)       | =jq= (=> jq EXPR=)         |
+| Variable assignment | =client.global.set()=  | =client.global.set()=  | => jq-set VAR EXPR=      |
+| Pre-request scripts | JavaScript           | JavaScript           | ---                    |
+| Environment files   | =http-client.env.json= | =http-client.env.json= | =http-client.env.json=   |
+| =.env= / =dotenv=       | ---                  | Supported            | ---                    |
+| Cookies             | Supported            | Supported            | ---                    |
+| =@proto= directive    | ---                  | ---                  | =.proto= for grpcurl     |
+| =@action= directive   | ---                  | ---                  | =list= / =describe= (gRPC) |
+| Multiple handlers   | Supported            | Supported            | Single per request     |
+| Editor              | IntelliJ IDEA        | VS Code / CLI        | Emacs                  |
+
+* Prerequisites
+
+- Emacs 30+ (=project.el=, =json-ts-mode=)
+- =curl= --- HTTP requests
+- =jq= --- response filtering
+- =grpcurl= --- gRPC requests
+- =grpcui= --- gRPC web UI
+
+Only =curl= is required. The rest are optional.
+
+* Installation
+
+Clone or copy =dothttp.el= to your load path, then:
+
+#+begin_src emacs-lisp
+(use-package dothttp
+  :load-path "site-lisp/dothttp"
+  :mode "\\.http\\'")
+#+end_src
+
+The =:mode= keyword registers =.http= files and sets up autoloading.
+
+For gRPC support, also load the extension:
+
+#+begin_src emacs-lisp
+(use-package dothttp-grpc
+  :after dothttp)
+#+end_src
+
+* Keybindings
+
+All bindings are active in =dothttp-mode= buffers:
+
+| Key         | Command                    | Description                                  |
+|-------------+----------------------------+----------------------------------------------|
+| =C-c C-c=     | =dothttp-send-request=       | Send request at point                        |
+| =C-u C-c C-c= | =dothttp-send-request=       | Send and show interpolated request in output |
+| =C-c C-k=     | =dothttp-kill-request=       | Cancel running request                       |
+| =C-c C-e=     | =dothttp-select-environment= | Select or clear environment                  |
+| =C-c C-r=     | =dothttp-show-response=      | Show response buffer                         |
+| =C-c C-n=     | =dothttp-next-request=       | Jump to next request (repeatable: =n=)         |
+| =C-c C-p=     | =dothttp-prev-request=       | Jump to previous request (repeatable: =p=)     |
+
+With =dothttp-grpc= loaded:
+
+| Key     | Command             | Description                             |
+|---------+---------------------+-----------------------------------------|
+| =C-c C-o= | =dothttp-open-grpcui= | Launch grpcui for gRPC service at point |
+
+Additional commands (not bound by default):
+
+| Command                    | Description                         |
+|----------------------------+-------------------------------------|
+| =dothttp-clear-variables=    | Clear all global variables (jq-set) |
+
+* Environments
+
+Environment variables are loaded from JSON files next to the =.http= file or in the project root:
+
+- =http-client.env.json= --- shared variables (commit to VCS)
+- =http-client.private.env.json= --- secrets (add to =.gitignore=)
+
+#+begin_src json
+{
+  "dev": {
+    "host": "http://localhost:8080",
+    "token": "dev-token-123"
+  },
+  "staging": {
+    "host": "https://staging.example.com",
+    "token": "staging-token-456"
+  }
+}
+#+end_src
+
+Select environment with =C-c C-e=. The current environment is shown in the mode-line: =HTTP[dev]=.
+
+Variables are referenced as ={{variable}}= in URLs, headers, and body.
+
+** Dynamic Variables
+
+| Variable                         | Value                        |
+|----------------------------------+------------------------------|
+| ={{$uuid}}= / ={{$random.uuid}}=     | Random UUID v4               |
+| ={{$timestamp}}=                   | Unix timestamp               |
+| ={{$isoTimestamp}}=                | ISO 8601 timestamp           |
+| ={{$randomInt}}=                   | Random integer (0--999)      |
+| ={{$random.email}}=                | Random email address         |
+| ={{$random.integer(from, to)}}=    | Random integer in =[from, to)= |
+| ={{$random.float(from, to)}}=      | Random float in =[from, to)=   |
+| ={{$random.alphabetic(length)}}=   | Random alphabetic string     |
+| ={{$random.alphanumeric(length)}}= | Random alphanumeric string   |
+| ={{$random.hexadecimal(length)}}=  | Random hexadecimal string    |
+
+** Global Variables
+
+Set via => jq-set= handler, available across requests within a session:
+
+#+begin_src dothttp
+### Login
+POST https://{{host}}/auth
+Content-Type: application/json
+
+{"username": "admin", "password": "secret"}
+
+> jq-set token .access_token
+
+###
+
+### Use saved token
+GET https://{{host}}/data
+Authorization: Bearer {{token}}
+#+end_src
+
+Use =M-x dothttp-clear-variables= to reset all global variables.
+
+* Editor Features
+
+- *Syntax highlighting* --- methods, URLs, headers, variables, separators, tags, jq handlers
+- *Tree-sitter JSON* --- JSON bodies get full =json-ts-mode= highlighting and indentation
+- *Imenu* --- navigate requests by =###= title or =@name= tag
+- *Inline comments* --- headers support trailing comments: =Header: value # comment=
+- *URL continuation* --- multi-line URLs via indented continuation lines
+- *Repeat navigation* --- after =C-c C-n= / =C-c C-p=, press =n= / =p= to keep jumping
+
+* Examples
+
+** Simple GET
+
+#+begin_src dothttp
+GET https://httpbin.org/get
+Accept: application/json
+#+end_src
+
+** POST with JSON body
+
+#+begin_src dothttp
+POST https://httpbin.org/post
+Content-Type: application/json
+
+{
+  "name": "test",
+  "value": 42
+}
+
+> jq .headers
+#+end_src
+
+** POST with variables
+
+#+begin_src dothttp
+### Auth request
+# @name auth
+POST https://httpbin.org/post
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "timestamp": "{{$isoTimestamp}}",
+  "id": "{{$uuid}}"
+}
+
+> jq-set sessionId .json.id
+#+end_src
+
+** gRPC call
+
+#+begin_src dothttp
+### Call a gRPC method
+# @proto path/to/service.proto
+# @plaintext
+GRPC localhost:50051/package.Service/Method
+
+{
+  "name": "test"
+}
+
+> jq .result
+#+end_src
+
+** gRPC with metadata headers
+
+#+begin_src dothttp
+# @plaintext
+GRPC localhost:50051/package.Service/List
+Authorization: Bearer {{token}}
+
+{}
+#+end_src
+
+** gRPC introspection
+
+#+begin_src dothttp
+### List all services
+# @action list
+GRPC example.com:443/
+
+### Describe a service
+# @action describe
+GRPC example.com:443/package.ServiceName
+#+end_src
+
+** Meta directives
+
+| Directive      | Effect                                |
+|----------------+---------------------------------------|
+| =# @name NAME=   | Name the request (shown in messages)  |
+| =# @no-redirect= | Disable following redirects           |
+| =# @proto FILE=  | Set =.proto= file for gRPC              |
+| =# @action ACT=  | =list= or =describe= (gRPC introspection) |
+| =# @plaintext=   | Connect without TLS (gRPC)            |
+
+* Alternatives
+
+| Project               | Runtime       | Format                           |
+|-----------------------+---------------+----------------------------------|
+| [[https://www.jetbrains.com/help/idea/http-client-cli.html][ijhttp]]                | Java (JB CLI) | JetBrains =.http=                  |
+| [[https://httpyac.github.io/][httpyac]]               | Node.js       | JetBrains =.http= + own extensions |
+| [[https://github.com/pashutk/restclient.el][restclient.el]]         | Emacs Lisp    | Own format                       |
+| [[https://github.com/federicotdn/verb][verb]]                  | Emacs Lisp    | Org-mode based                   |
+| [[https://marketplace.visualstudio.com/items?itemName=humao.rest-client][REST Client (VS Code)]] | VS Code       | Own =.http= format                 |
+
+* Customization
+
+| Variable                       | Default                  | Description                |
+|--------------------------------+--------------------------+----------------------------|
+| =dothttp-curl-executable=        | ="curl"=                   | Path to curl               |
+| =dothttp-grpcurl-executable=     | ="grpcurl"=                | Path to grpcurl            |
+| =dothttp-grpcui-executable=      | ="grpcui"=                 | Path to grpcui             |
+| =dothttp-jq-executable=          | ="jq"=                     | Path to jq                 |
+| =dothttp-timeout=                | =30=                       | Request timeout in seconds |
+| =dothttp-response-display-alist= | side window, bottom, 40% | Response buffer display    |
