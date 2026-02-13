@@ -660,7 +660,6 @@
   (setq shackle-rules
         '((help-mode :align below :select t)
           (helpful-mode :align below)
-          (flycheck-error-list-mode :align below)
           (cider-repl-mode :align below)
           (ansible-doc-module-mode :align below)
           ("\\*Async Shell Command\\*.*" :regexp t :ignore t)
@@ -705,8 +704,6 @@
           comint-mode
 
           flymake-diagnostics-buffer-mode
-          flycheck-error-list-mode
-          flycheck-verify-mode
 
           cider-repl-mode
           ansible-doc-module-mode))
@@ -2036,13 +2033,6 @@
   :hook
   (emacs-lisp-mode-hook . package-lint-flymake-setup))
 
-(use-package flycheck-package
-  :disabled ;; broken after flycheck update
-  :after flycheck
-  :demand
-  :config
-  (flycheck-package-setup))
-
 (use-package clojure-ts-mode)
 
 (use-package cider
@@ -2171,7 +2161,6 @@
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  ;; (yaml-ts-mode-hook . flycheck-mode) ;; switch to flymake
   (yaml-ts-mode-hook . flymake-mode) 
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 

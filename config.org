@@ -1134,7 +1134,6 @@ Install fonts
   (setq shackle-rules
         '((help-mode :align below :select t)
           (helpful-mode :align below)
-          (flycheck-error-list-mode :align below)
           (cider-repl-mode :align below)
           (ansible-doc-module-mode :align below)
           ("\\*Async Shell Command\\*.*" :regexp t :ignore t)
@@ -1183,8 +1182,6 @@ Install fonts
           comint-mode
 
           flymake-diagnostics-buffer-mode
-          flycheck-error-list-mode
-          flycheck-verify-mode
 
           cider-repl-mode
           ansible-doc-module-mode))
@@ -2289,38 +2286,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Syntax Checking
-** COMMENT flycheck
-#+begin_src emacs-lisp
-(use-package flycheck
-  :preface
-  ;; https://www.flycheck.org/en/latest/user/error-reports.html#fringe-and-margin-icons
-  (defun +flycheck-set-indication-mode ()
-    (pcase flycheck-indication-mode
-      (`left-margin
-       (setq left-margin-width (max 1 left-margin-width)))
-      (`right-margin
-       (setq right-margin-width (max 1 right-margin-width))))
-    (flycheck-refresh-fringes-and-margins))
-  :init
-  (setq flycheck-indication-mode (if (display-graphic-p)
-                                     'right-fringe
-                                   'right-margin))
-  (setq flycheck-temp-prefix ".flycheck")
-  :hook
-  (after-init-hook . global-flycheck-mode)
-  (flycheck-mode-hook . +flycheck-set-indication-mode)
-  :config
-  (flycheck-redefine-standard-error-levels "!" 'exclamation-mark))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package consult-flycheck
-  :requires flycheck
-  :general
-  (+leader-def
-    "je" 'consult-flycheck))
-#+end_src
-
 ** flymake
 #+begin_src emacs-lisp
 (use-package flymake
@@ -2891,16 +2856,6 @@ Upgrade eglot to the latest version
   (consult-eglot-embark-mode))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no
-(use-package flycheck-eglot
-  :disabled ;; switch to flymake
-  :demand
-  :after flycheck eglot
-  :init
-  (setq flycheck-eglot-exclusive nil)
-  :config
-  (global-flycheck-eglot-mode))
-#+end_src
 ** dape
 #+begin_src emacs-lisp
 (use-package dape
@@ -2986,34 +2941,18 @@ Upgrade eglot to the latest version
 
 #+begin_src emacs-lisp
 (use-package package-lint)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package package-lint-flymake
   :hook
   (emacs-lisp-mode-hook . package-lint-flymake-setup))
-
-(use-package flycheck-package
-  :disabled ;; broken after flycheck update
-  :after flycheck
-  :demand
-  :config
-  (flycheck-package-setup))
 #+end_src
 
 ** clojure
 Common
 #+begin_src emacs-lisp
 (use-package clojure-ts-mode)
-#+end_src
-
-clj-kondo
-#+begin_src emacs-lisp :tangle no
-(use-package flycheck-clj-kondo
-  :disabled ;; switch to flymake
-  :preface
-  (defun +setup-flycheck-clj-kondo ()
-    (require 'flycheck-clj-kondo))
-  :hook
-  (clojure-ts-mode-hook . +setup-flycheck-clj-kondo))
 #+end_src
 
 CIDER
@@ -3184,7 +3123,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  ;; (yaml-ts-mode-hook . flycheck-mode) ;; switch to flymake
   (yaml-ts-mode-hook . flymake-mode) 
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 #+end_src
