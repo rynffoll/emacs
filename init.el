@@ -148,12 +148,6 @@
     (setq-local evil-normal-state-cursor nil)
     (setq-local evil-insert-state-cursor nil)
     (setq-local evil-emacs-state-cursor  nil))
-  :general
-  (evil-insert-state-map
-   "C-k" nil)
-  (+leader-def
-    "j[" 'evil-jump-backward
-    "j]" 'evil-jump-forward)
   :custom-face
   (evil-ex-substitute-matches
    ((t (:inherit diff-removed :foreground unspecified :background unspecified :strike-through t))))
@@ -170,7 +164,6 @@
   ;; (setq evil-move-beyond-eol nil)
   ;; (setq evil-move-cursor-back t)
   (setq evil-undo-system 'undo-redo)
-  (setq evil-want-C-i-jump nil)
   :config
   (evil-ex-define-cmd "q"  'kill-current-buffer)
   (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
@@ -757,9 +750,7 @@
   :after evil
   :general
   (+leader-def
-    "bn" 'evil-buffer-new
-    "b]" 'evil-next-buffer
-    "b[" 'evil-prev-buffer))
+    "bn" 'evil-buffer-new))
 
 (use-package ibuffer
   :ensure nil
