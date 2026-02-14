@@ -2460,9 +2460,23 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   :vc (:url "https://github.com/rynffoll/diff-hl" :branch "dired-nested-paths" :rev :newest)
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
+  ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
+  (let* ((width 2)
+         (bitmap (vector (1- (expt 2 width)))))
+    (define-fringe-bitmap '+diff-hl-bmp-thin bitmap 1 width '(top t)))
+  (defun +diff-hl-fringe-bmp-thin (_type _pos) '+diff-hl-bmp-thin)
   (defun +diff-hl-dired-update ()
     (when (bound-and-true-p diff-hl-dired-mode)
       (diff-hl-dired-update)))
+  (defun +diff-hl-update-faces (&optional _theme)
+    (when (display-graphic-p)
+      (dolist (face '(diff-hl-insert
+                      diff-hl-delete
+                      diff-hl-change))
+        (when-let ((bg (face-background face)))
+          (set-face-foreground face bg) ;; fg -> bg
+          (set-face-background face nil) ;; bg -> nil (transparent)
+          ))))
   :init
   (setq diff-hl-update-async 'thread)
   (setq diff-hl-draw-borders nil)
@@ -2470,14 +2484,19 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
         '((insert . " ") (delete . " ") (change . " ")
           (unknown . " ") (ignored . " ") (reference . " ")))
   (setq diff-hl-dired-extra-indicators nil)
-  (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
+  ;; (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
+  ;; (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
+  (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
+  (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
   :hook
   (after-init-hook . global-diff-hl-mode)
   (after-init-hook . global-diff-hl-show-hunk-mouse-mode)
-  ;; (diff-hl-mode-hook . diff-hl-flydiff-mode) ;; disabled by perf issues
+  (diff-hl-mode-hook . diff-hl-flydiff-mode)
   (magit-post-refresh-hook . diff-hl-magit-post-refresh)
   (dired-mode-hook . diff-hl-dired-mode)
-  (dired-subtree-after-insert-hook . +diff-hl-dired-update))
+  (dired-subtree-after-insert-hook . +diff-hl-dired-update)
+  (diff-hl-mode-hook . +diff-hl-update-faces)
+  (enable-theme-functions . +diff-hl-update-faces))
 #+end_src
 
 ** git-link
