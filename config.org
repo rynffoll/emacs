@@ -1856,11 +1856,15 @@ Install fonts
 [[https://github.com/Fuco1/dired-hacks][dired-hacks]]
 #+begin_src emacs-lisp
 (use-package dired-subtree
+  :demand t
+  :after dired
   :general
   (dired-mode-map
    "<backtab>" 'dired-subtree-cycle)
   :init
-  (setq dired-subtree-use-backgrounds nil))
+  (setq dired-subtree-use-backgrounds nil)
+  ;; Tabs scale with `text-scale-adjust', plain spaces don't.
+  (setq dired-subtree-line-prefix "\t\t"))
 #+end_src
 
 [[https://github.com/purcell/diredfl][diredfl]]

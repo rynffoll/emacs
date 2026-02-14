@@ -1244,11 +1244,15 @@
         (concat dired-omit-files "\\|^\\..*$")))
 
 (use-package dired-subtree
+  :demand t
+  :after dired
   :general
   (dired-mode-map
    "<backtab>" 'dired-subtree-cycle)
   :init
-  (setq dired-subtree-use-backgrounds nil))
+  (setq dired-subtree-use-backgrounds nil)
+  ;; Tabs scale with `text-scale-adjust', plain spaces don't.
+  (setq dired-subtree-line-prefix "\t\t"))
 
 (use-package diredfl
   :custom-face
