@@ -2480,6 +2480,14 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (enable-theme-functions . +diff-hl-update-faces))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package diff-hl-dired-hacks
+  :ensure nil
+  :load-path "site-lisp/diff-hl-dired-hacks"
+  :demand t
+  :after diff-hl)
+#+end_src
+
 ** git-link
 #+begin_src emacs-lisp
 (use-package git-link

@@ -1679,6 +1679,12 @@
   (diff-hl-mode-hook . +diff-hl-update-faces)
   (enable-theme-functions . +diff-hl-update-faces))
 
+(use-package diff-hl-dired-hacks
+  :ensure nil
+  :load-path "site-lisp/diff-hl-dired-hacks"
+  :demand t
+  :after diff-hl)
+
 (use-package git-link
   :general
   (+leader-def
