@@ -2396,23 +2396,13 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 ** magit
 #+begin_src emacs-lisp
 (use-package magit
-  :commands magit-blame
-  :preface
-  (defun +magit-status ()
-    (interactive)
-    (let ((current-prefix-arg '(4)))
-      (call-interactively #'magit-status)))
   :general
   (+leader-def
     "g." 'magit-dispatch
-    "gI" 'magit-init
-    "gb" 'magit-blame
-    "gc" 'magit-clone
-    "gg" 'magit-status
-    "gl" '+magit-status
-    "gL" 'magit-log-buffer-file)
+    "gf" 'magit-file-dispatch
+    "gg" 'magit-status)
   :init
-  (setq magit-clone-default-directory "~/Projects/src/")
+  (setq magit-define-global-key-bindings 'recommended)
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
   (setq magit-repository-directories `((,user-emacs-directory . 0)
                                        ("~/Projects/"         . 2)
