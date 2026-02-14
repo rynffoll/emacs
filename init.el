@@ -17,6 +17,8 @@
   ;; https://www.reddit.com/r/emacs/comments/1f8ok7c/comment/llhcdgy/
   ;; (setq package-install-upgrade-built-in t)
   :config
+  ;; https://elpa.gnu.org/devel/
+  (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
   ;; https://github.com/melpa/melpa
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
@@ -440,7 +442,10 @@
 
 (use-package doric-themes)
 
-(use-package standard-themes)
+(use-package standard-themes
+  ;; https://github.com/protesilaos/standard-themes/issues/9
+  :pin elpa-devel ;; TODO: back to stable after the fix is released
+  )
 
 (use-package doom-themes
   :init
