@@ -1537,21 +1537,6 @@
   :hook
   (prog-mode-hook . flymake-mode))
 
-(use-package flyover
-  :disabled ;; switch to sideline-flymake
-  :custom
-  (flyover-checkers '(flymake))
-  (flyover-display-mode 'show-only-on-same-line)
-  (flyover-show-at-eol t)
-  (flyover-virtual-line-type nil)
-  (flyover-error-icon   (car (alist-get 'error   flymake-margin-indicators-string)))
-  (flyover-warning-icon (car (alist-get 'warning flymake-margin-indicators-string)))
-  (flyover-info-icon    (car (alist-get 'note    flymake-margin-indicators-string)))
-  (flyover-icon-left-padding 0.5)
-  (flyover-icon-right-padding 0.5)
-  :hook
-  (flymake-mode-hook . flyover-mode))
-
 (use-package sideline
   :init
   (setq sideline-backends-right '(sideline-flymake))
