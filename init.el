@@ -1254,8 +1254,8 @@
 
 (use-package dired-subtree
   :general
-  ( :keymaps 'dired-mode-map :states 'normal
-    "TAB" 'dired-subtree-toggle)
+  (dired-mode-map
+   "<backtab>" 'dired-subtree-cycle)
   :init
   (setq dired-subtree-use-backgrounds nil))
 
