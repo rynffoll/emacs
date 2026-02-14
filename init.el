@@ -1677,6 +1677,7 @@
   (dired-mode-hook . diff-hl-dired-mode)
   (dired-subtree-after-insert-hook . +diff-hl-dired-update)
   (diff-hl-mode-hook . +diff-hl-update-faces)
+  (diff-hl-dired-mode-hook . +diff-hl-update-faces)
   (enable-theme-functions . +diff-hl-update-faces))
 
 (use-package diff-hl-dired-hacks
