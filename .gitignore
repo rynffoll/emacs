@@ -18,6 +18,7 @@ tree-sitter/
 /projects
 /site-lisp/default.el
 /.persistent-scratch
+/persistent-scratch/
 /reverse-im-cache.el
 /custom.el
 undo-fu-session/

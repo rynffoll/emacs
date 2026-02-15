@@ -761,6 +761,10 @@
   (ibuffer-mode-hook . nerd-icons-ibuffer-mode))
 
 (use-package persistent-scratch
+  :init
+  (setq persistent-scratch-backup-file-name-format "%Y-%m-%d")
+  (setq persistent-scratch-backup-directory
+        (expand-file-name "persistent-scratch" user-emacs-directory))
   :hook
   (after-init-hook . persistent-scratch-setup-default))
 
