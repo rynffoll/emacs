@@ -1686,12 +1686,9 @@
                                        ("~/Projects/"         . 2)
                                        ("~/Developer/"        . 2)))
   (setq magit-diff-refine-hunk t)
-  (setq magit-process-apply-ansi-colors t))
-
-(use-package magit
-  :if +with-icons
-  :init
-  (setq magit-format-file-function #'magit-format-file-nerd-icons))
+  (setq magit-process-apply-ansi-colors t)
+  (when +with-icons
+    (setq magit-format-file-function #'magit-format-file-nerd-icons)))
 
 (use-package magit-todos
   :init
