@@ -112,6 +112,7 @@
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
   - [[#consult-git-log-grep][consult-git-log-grep]]
+  - [[#difftastic][difftastic]]
 - [[#org][Org]]
   - [[#common-2][common]]
   - [[#org-archive][org-archive]]
@@ -2583,6 +2584,14 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   :init
   (setq consult-git-log-grep-open-function #'magit-show-commit))
 #+end_src
+
+** difftastic
+#+begin_src emacs-lisp
+(use-package difftastic
+  :hook
+  (after-init-hook . difftastic-bindings-mode))
+#+end_src
+
 * Org
 ** common
 #+begin_src emacs-lisp

@@ -1760,6 +1760,10 @@
   :init
   (setq consult-git-log-grep-open-function #'magit-show-commit))
 
+(use-package difftastic
+  :hook
+  (after-init-hook . difftastic-bindings-mode))
+
 (use-package org
   :ensure nil
   :preface
