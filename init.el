@@ -880,7 +880,7 @@
 
 (use-package marginalia
   :general
-  ( :keymaps 'minibuffer-local-map
+  (minibuffer-local-map
     "M-A" 'marginalia-cycle)
   :hook
   (after-init-hook . marginalia-mode))
@@ -1030,7 +1030,7 @@
   :general
   (+leader-def
     "it" 'tempel-insert)
-  ( :keymaps 'tempel-map
+  (tempel-map
     "TAB" 'tempel-next)
   :hook
   (conf-mode-hook . tempel-setup-capf)
@@ -1104,7 +1104,7 @@
   :general
   (+leader-def
     "p" '(:keymap project-prefix-map :package project :wk "project"))
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "m" 'magit-project-status
     "b" 'consult-project-buffer)
   :init
@@ -1119,12 +1119,12 @@
 
 (use-package disproject
   :general
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "." 'disproject-dispatch))
 
 (use-package projection
   :general
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "P" '(:keymap projection-map :package projection-map :wk "projection"))
   :config
   (put 'projection-commands-configure-project 'safe-local-variable #'stringp)
@@ -1150,7 +1150,7 @@
 
 (use-package projection-multi
   :general
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "RET" 'projection-multi-compile))
 
 (use-package projection-multi-embark
@@ -1165,7 +1165,7 @@
   :after project
   :demand
   :general
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "K" 'project-butler-cleanup)
   :config
   (add-to-list
@@ -1591,7 +1591,7 @@
 (use-package flymake
   :ensure nil
   :general
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "D" 'flymake-show-project-diagnostics)
   :init
   (setq flymake-fringe-indicator-position 'right-fringe)
@@ -1650,7 +1650,7 @@
   :ensure nil
   :load-path "site-lisp/project-vterm"
   :general
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "t" 'project-vterm)
   :config
   (add-to-list 'project-switch-commands '(project-vterm "Vterm") t)
@@ -1667,7 +1667,7 @@
   :ensure nil
   :load-path "site-lisp/project-eat"
   :general
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "E" 'project-eat)
   :config
   (add-to-list 'project-switch-commands '(project-eat "Eat") t)
@@ -2421,7 +2421,7 @@
     "las" 'agent-shell)
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
-  ( :keymaps 'project-prefix-map
+  (project-prefix-map
     "a" 'agent-shell)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
