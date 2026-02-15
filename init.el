@@ -408,6 +408,11 @@
   :hook
   (after-init-hook . doom-modeline-mode))
 
+(use-package faces
+  :ensure nil
+  :custom-face
+  (header-line ((t (:height 0.9)))))
+
 (use-package custom
   :ensure nil
   :general

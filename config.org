@@ -40,6 +40,7 @@
   - [[#ligatures][ligatures]]
   - [[#icons][icons]]
   - [[#mode-line][mode-line]]
+  - [[#header-line][header-line]]
   - [[#themes][themes]]
 - [[#frames][Frames]]
 - [[#tabs][Tabs]]
@@ -822,6 +823,14 @@ Install fonts
   (setq doom-modeline-workspace-name nil)
   :hook
   (after-init-hook . doom-modeline-mode))
+#+end_src
+
+** header-line
+#+begin_src emacs-lisp
+(use-package faces
+  :ensure nil
+  :custom-face
+  (header-line ((t (:height 0.9)))))
 #+end_src
 
 ** themes
