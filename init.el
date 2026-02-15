@@ -501,37 +501,8 @@
 
 (use-package tab-bar
   :ensure nil
-  :preface
-  (defun +tab-bar-tab-name-format-spaces (name &optional _tab _i) (concat " " name " "))
-  (defun +tab-bar-tab-group-format-color (tab i &optional current-p)
-    (let* (;; name
-           (hint (if (and tab-bar-tab-hints (not current-p)) (format "%d " i) "● "))
-           (name (funcall tab-bar-tab-group-function tab))
-           (name (+tab-bar-tab-name-format-spaces (concat hint name)))
-           ;; face
-           (color-i (mod i 9))
-           (active-face (intern (format "tab-group-active-%d" color-i)))
-           (inactive-face (intern (format "tab-group-inactive-%d" color-i)))
-           (face (if current-p active-face inactive-face)))
-      (propertize name 'face face)))
   :custom-face
   (tab-bar ((t (:height 0.9))))
-  (tab-group-active-1 ((t (:inherit (outline-1 tab-bar-tab-group-current)))))
-  (tab-group-active-2 ((t (:inherit (outline-2 tab-bar-tab-group-current)))))
-  (tab-group-active-3 ((t (:inherit (outline-3 tab-bar-tab-group-current)))))
-  (tab-group-active-4 ((t (:inherit (outline-4 tab-bar-tab-group-current)))))
-  (tab-group-active-5 ((t (:inherit (outline-5 tab-bar-tab-group-current)))))
-  (tab-group-active-6 ((t (:inherit (outline-6 tab-bar-tab-group-current)))))
-  (tab-group-active-7 ((t (:inherit (outline-7 tab-bar-tab-group-current)))))
-  (tab-group-active-8 ((t (:inherit (outline-8 tab-bar-tab-group-current)))))
-  (tab-group-inactive-1 ((t (:inherit (outline-1 tab-bar-tab-group-inactive)))))
-  (tab-group-inactive-2 ((t (:inherit (outline-2 tab-bar-tab-group-inactive)))))
-  (tab-group-inactive-3 ((t (:inherit (outline-3 tab-bar-tab-group-inactive)))))
-  (tab-group-inactive-4 ((t (:inherit (outline-4 tab-bar-tab-group-inactive)))))
-  (tab-group-inactive-5 ((t (:inherit (outline-5 tab-bar-tab-group-inactive)))))
-  (tab-group-inactive-6 ((t (:inherit (outline-6 tab-bar-tab-group-inactive)))))
-  (tab-group-inactive-7 ((t (:inherit (outline-7 tab-bar-tab-group-inactive)))))
-  (tab-group-inactive-8 ((t (:inherit (outline-8 tab-bar-tab-group-inactive)))))
   :general
   (+leader-def
     "TAB" '(:keymap tab-prefix-map :wk "tab-bar"))
@@ -556,7 +527,6 @@
    "c" 'tab-close
    "C" 'tab-close-other)
   :init
-  (setq tab-bar-show t)
   (setq tab-bar-format '(tab-bar-format-tabs-groups
                          tab-bar-separator
                          tab-bar-format-align-right
@@ -568,17 +538,6 @@
   (setq tab-bar-separator "")
   (setq tab-bar-auto-width nil)
   (setq tab-bar-tab-name-function #'tab-bar-tab-name-truncated)
-  (setq tab-bar-tab-name-format-functions '(tab-bar-tab-name-format-hints
-                                            tab-bar-tab-name-format-close-button
-                                            +tab-bar-tab-name-format-spaces
-                                            tab-bar-tab-name-format-face))
-  (setq tab-bar-tab-group-format-function #'+tab-bar-tab-group-format-color)
-  :config
-  (when tab-bar-auto-width
-    ;; tab-groups: inactive only
-    (dolist (face '( tab-group-inactive-1 tab-group-inactive-2 tab-group-inactive-3 tab-group-inactive-4
-                     tab-group-inactive-5 tab-group-inactive-6 tab-group-inactive-7 tab-group-inactive-8))
-      (add-to-list 'tab-bar-auto-width-faces face)))
   :hook
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
