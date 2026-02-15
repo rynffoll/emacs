@@ -130,7 +130,6 @@
     "lc"  '(:ignore t :wk "chats")
     "la"  '(:ignore t :wk "agents")
     "o"   '(:ignore t :wk "open")
-    "O"   '(:ignore t :wk "org")
     "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
     "F"   '(:ignore t :wk "frame")
     "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
@@ -1783,35 +1782,15 @@
 
 (use-package org
   :ensure nil
-  :preface
-  (defun +find-file-in-org-directory ()
-    (interactive)
-    (+find-file-in-dir org-directory))
-  (defun +open-org-inbox-file () (interactive) (find-file +org-inbox-file))
-  (defun +open-org-todo-file  () (interactive) (find-file +org-todo-file))
-  (defun +open-org-notes-file () (interactive) (find-file +org-notes-file))
-  :general
-  (+leader-def
-    "O." '+find-file-in-org-directory
-    "Oi" '+open-org-inbox-file
-    "Ot" '+open-org-todo-file
-    "On" '+open-org-notes-file)
-  (org-mode-map
-   "C-," nil ;; disable org-cycle-agenda-files
-   "C-'" nil ;; disable org-cycle-agenda-files
-   )
   :init
   (setq org-directory "~/Org")
-  (setq +org-inbox-file (concat org-directory "/inbox.org"))
-  (setq +org-todo-file  (concat org-directory "/todo.org"))
-  (setq +org-notes-file (concat org-directory "/notes.org"))
 
   (setq org-startup-folded t)
   (setq org-startup-indented t)
   (setq org-insert-heading-respect-content t)
   (setq org-hide-leading-stars t)
 
-  (setq org-agenda-files `(,+org-todo-file))
+  (setq org-agenda-files '("todo.org"))
   (setq org-agenda-inhibit-startup t)
   (setq org-agenda-skip-unavailable-files t)
 
@@ -1845,7 +1824,7 @@
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
 
-  (setq org-imenu-depth 4))
+  (setq org-imenu-depth 6))
 
 (use-package org-archive
   :ensure org
@@ -1867,8 +1846,8 @@
                         file-name)))
                   (org-buffer-list 'files t))))
   :init
-  (setq org-refile-targets `((org-agenda-files  :maxlevel . 3)
-                             (+org-files-list :maxlevel . 3)))
+  (setq org-refile-targets `((org-agenda-files :maxlevel . 3)
+                             (+org-files-list  :maxlevel . 3)))
   (setq org-refile-use-outline-path 'file)
   (setq org-outline-path-complete-in-steps nil)
   (setq org-refile-allow-creating-parent-nodes 'confirm)
@@ -1903,9 +1882,6 @@
 
 (use-package org-agenda
   :ensure org
-  :general
-  (+leader-def
-    "Oa" '(org-agenda :wk "agenda"))
   :init
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-tags-column 0))
@@ -1934,7 +1910,7 @@
 
 (use-package toc-org
   :init
-  (setq toc-org-max-depth 4)
+  (setq toc-org-max-depth 6)
   :hook
   (org-mode-hook . toc-org-enable))
 
@@ -1992,8 +1968,6 @@
 
 (use-package deft
   :general
-  (+leader-def
-    "Od" 'deft)
   ( :keymaps 'deft-mode-map :states 'normal
     "gr" 'deft-refresh)
   :init
