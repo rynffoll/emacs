@@ -108,6 +108,7 @@
 - [[#git][Git]]
   - [[#magit][magit]]
   - [[#magit-prime][magit-prime]]
+  - [[#magit-pre-commit][magit-pre-commit]]
   - [[#magit-todos][magit-todos]]
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
@@ -1133,7 +1134,8 @@ Install fonts
           ("\\*vc-git :.*" :regexp t :align below :ignore t :select t)
           ("\\*docker-compose .*\\*" :regexp t :align below)
           (comint-mode :align below)
-          (go-test-mode :align below)))
+          (go-test-mode :align below)
+          (magit-pre-commit-mode :align below)))
   :hook
   (after-init-hook . shackle-mode))
 #+end_src
@@ -2032,7 +2034,6 @@ Install fonts
   :demand
   :init
   (setq exec-path-from-shell-arguments '("-l"))
-  :config
   (exec-path-from-shell-initialize))
 #+end_src
 
@@ -2502,6 +2503,16 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 (use-package magit-prime
   :hook
   (after-init-hook . magit-prime-mode))
+#+end_src
+
+** magit-pre-commit
+#+begin_src emacs-lisp
+(use-package magit-pre-commit
+  :init
+  (when (executable-find "prek")
+    (setq magit-pre-commit-executable "prek"))
+  :hook
+  (magit-mode-hook . magit-pre-commit-mode))
 #+end_src
 
 ** magit-todos
@@ -3222,7 +3233,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  (yaml-ts-mode-hook . flymake-mode) 
+  (yaml-ts-mode-hook . flymake-mode)
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 #+end_src
 
