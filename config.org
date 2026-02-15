@@ -107,6 +107,7 @@
   - [[#eat][eat]]
 - [[#git][Git]]
   - [[#magit][magit]]
+  - [[#magit-prime][magit-prime]]
   - [[#magit-todos][magit-todos]]
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
@@ -2494,6 +2495,13 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq magit-process-apply-ansi-colors t)
   (when +with-icons
     (setq magit-format-file-function #'magit-format-file-nerd-icons)))
+#+end_src
+
+** magit-prime
+#+begin_src emacs-lisp
+(use-package magit-prime
+  :hook
+  (after-init-hook . magit-prime-mode))
 #+end_src
 
 ** magit-todos

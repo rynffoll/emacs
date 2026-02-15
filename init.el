@@ -1690,6 +1690,10 @@
   (when +with-icons
     (setq magit-format-file-function #'magit-format-file-nerd-icons)))
 
+(use-package magit-prime
+  :hook
+  (after-init-hook . magit-prime-mode))
+
 (use-package magit-todos
   :init
   (setq magit-todos-keyword-suffix (rx (optional "(" (1+ (not (any ")"))) ")" ":")))
