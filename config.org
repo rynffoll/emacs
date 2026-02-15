@@ -341,23 +341,34 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * Feature Flags
+#+begin_src emacs-lisp
+(defgroup +feature-flags nil
+  "Feature flags for this configuration."
+  :group 'convenience)
+#+end_src
+
 ** =+with-evil=
 #+begin_src emacs-lisp
-(defvar +with-evil t)
+(defcustom +with-evil t
+  "Enable Evil integration."
+  :type 'boolean
+  :group '+feature-flags)
 #+end_src
 
 ** =+with-icons=
-Disabled by default due to:
-- conflicts with integration in various packages (dired, magit, etc.)
-- redraw issues over mosh
-
 #+begin_src emacs-lisp
-(defvar +with-icons t)
+(defcustom +with-icons t
+  "Enable icon integrations."
+  :type 'boolean
+  :group '+feature-flags)
 #+end_src
 
 ** =+with-dirvish=
 #+begin_src emacs-lisp
-(defvar +with-dirvish t)
+(defcustom +with-dirvish t
+  "Enable Dirvish integrations."
+  :type 'boolean
+  :group '+feature-flags)
 #+end_src
 
 * Defaults

@@ -26,11 +26,24 @@
 
 (use-package gnu-elpa-keyring-update)
 
-(defvar +with-evil t)
+(defgroup +feature-flags nil
+  "Feature flags for this configuration."
+  :group 'convenience)
 
-(defvar +with-icons t)
+(defcustom +with-evil t
+  "Enable Evil integration."
+  :type 'boolean
+  :group '+feature-flags)
 
-(defvar +with-dirvish t)
+(defcustom +with-icons t
+  "Enable icon integrations."
+  :type 'boolean
+  :group '+feature-flags)
+
+(defcustom +with-dirvish t
+  "Enable Dirvish integrations."
+  :type 'boolean
+  :group '+feature-flags)
 
 (use-package emacs
   :ensure nil
