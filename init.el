@@ -2303,6 +2303,12 @@
   :hook
   (after-init-hook . recall-mode))
 
+(use-package keycast
+  :init
+  (setq keycast-tab-bar-location 'tab-bar-format-global)
+  (setq keycast-tab-bar-format "%K")
+  (setq keycast-tab-bar-minimal-width 2))
+
 (use-package dothttp
   :ensure nil
   :load-path "site-lisp/dothttp"

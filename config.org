@@ -160,6 +160,7 @@
   - [[#mise][mise]]
   - [[#proced][proced]]
   - [[#recall][recall]]
+  - [[#keycast][keycast]]
   - [[#dothttp][dothttp]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
@@ -3327,6 +3328,15 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (setq recall-completing-read-fn #'recall-consult-completing-read)
   :hook
   (after-init-hook . recall-mode))
+#+end_src
+
+** keycast
+#+begin_src emacs-lisp
+(use-package keycast
+  :init
+  (setq keycast-tab-bar-location 'tab-bar-format-global)
+  (setq keycast-tab-bar-format "%K")
+  (setq keycast-tab-bar-minimal-width 2))
 #+end_src
 
 ** dothttp
