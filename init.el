@@ -1764,6 +1764,11 @@
   :hook
   (after-init-hook . difftastic-bindings-mode))
 
+(use-package git-timemachine
+  :general
+  (+leader-def
+    "gt" 'git-timemachine))
+
 (use-package org
   :ensure nil
   :preface

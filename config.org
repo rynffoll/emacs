@@ -113,6 +113,7 @@
   - [[#git-link][git-link]]
   - [[#consult-git-log-grep][consult-git-log-grep]]
   - [[#difftastic][difftastic]]
+  - [[#git-timemachine][git-timemachine]]
 - [[#org][Org]]
   - [[#common-2][common]]
   - [[#org-archive][org-archive]]
@@ -2590,6 +2591,14 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 (use-package difftastic
   :hook
   (after-init-hook . difftastic-bindings-mode))
+#+end_src
+
+** git-timemachine
+#+begin_src emacs-lisp
+(use-package git-timemachine
+  :general
+  (+leader-def
+    "gt" 'git-timemachine))
 #+end_src
 
 * Org
