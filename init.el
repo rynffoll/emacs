@@ -567,8 +567,8 @@
   ;; (setq tab-bar-separator " ") ;; the same behavior in GUI and TUI
   (setq tab-bar-separator "")
   (setq tab-bar-auto-width nil)
-  (setq tab-bar-tab-name-format-functions '(tab-bar-tab-name-format-truncated ;; tab-bar-tab-name-truncated-max
-                                            tab-bar-tab-name-format-hints
+  (setq tab-bar-tab-name-function #'tab-bar-tab-name-truncated)
+  (setq tab-bar-tab-name-format-functions '(tab-bar-tab-name-format-hints
                                             tab-bar-tab-name-format-close-button
                                             +tab-bar-tab-name-format-spaces
                                             tab-bar-tab-name-format-face))
