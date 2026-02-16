@@ -15,9 +15,8 @@
 - [[#initialization][Initialization]]
 - [[#personal-info][Personal Info]]
 - [[#package-manager][Package Manager]]
+  - [[#elpaca][elpaca]]
   - [[#use-package][use-package]]
-  - [[#package][package]]
-  - [[#gnu-elpa-keyring-update][gnu-elpa-keyring-update]]
 - [[#feature-flags][Feature Flags]]
   - [[#with-evil][=+with-evil=]]
   - [[#with-icons][=+with-icons=]]
@@ -30,8 +29,8 @@
   - [[#calendar][calendar]]
 - [[#gc][GC]]
 - [[#async][Async]]
-- [[#general][General]]
 - [[#evil][Evil]]
+- [[#general][General]]
 - [[#which-key][Which-key]]
 - [[#repeat][Repeat]]
 - [[#keyboard-layout][Keyboard Layout]]
@@ -215,11 +214,10 @@
 (add-hook 'emacs-startup-hook
           #'(lambda ()
               (let ((init-time (float-time (time-subtract after-init-time before-init-time)))
-                    (packages  (length package-activated-list))
                     (gc-time   (float-time gc-elapsed))
                     (gc-count  gcs-done))
-                (message "Emacs ready (init time = %.2fs, packages = %d, gc time = %.2fs, gc count = %d)."
-                         init-time packages gc-time gc-count))))
+                (message "Emacs ready (init time = %.2fs, gc time = %.2fs, gc count = %d)."
+                         init-time gc-time gc-count))))
 #+end_src
 
 ** File handler tweaks
@@ -314,6 +312,21 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * Package Manager
+** elpaca
+#+begin_src emacs-lisp
+(load (locate-user-emacs-file "elpaca-installer"))
+
+(setq elpaca-lock-file (locate-user-emacs-file "elpaca-lock.el"))
+
+(defun +elpaca-write-lock-file ()
+  "Write elpaca lock file to `elpaca-lock-file'."
+  (interactive)
+  (elpaca-write-lock-file elpaca-lock-file))
+
+(elpaca elpaca-use-package
+  (elpaca-use-package-mode))
+#+end_src
+
 ** use-package
 #+begin_src emacs-lisp
 (setq use-package-always-defer t)
@@ -322,27 +335,6 @@ If you'd like to test a different font, evaluate the following block:
 (setq use-package-enable-imenu-support t)
 (setq use-package-compute-statistics t)
 (setq use-package-expand-minimally t)
-#+end_src
-
-** package
-#+begin_src emacs-lisp
-(use-package package
-  :ensure nil
-  ;; :init
-  ;; https://www.reddit.com/r/emacs/comments/1f8ok7c/comment/llhcdgy/
-  ;; (setq package-install-upgrade-built-in t)
-  :config
-  ;; https://elpa.gnu.org/devel/
-  (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
-  ;; https://github.com/melpa/melpa
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  (package-initialize))
-#+end_src
-
-** gnu-elpa-keyring-update
-#+begin_src emacs-lisp
-(use-package gnu-elpa-keyring-update)
 #+end_src
 
 * Feature Flags
@@ -465,55 +457,14 @@ If you'd like to test a different font, evaluate the following block:
 #+begin_src emacs-lisp
 (use-package async
   :hook
-  (after-init-hook . async-bytecomp-package-mode)
   (dired-mode-hook . dired-async-mode))
-#+end_src
-
-* General
-#+begin_src emacs-lisp
-(use-package general
-  :config
-  (general-create-definer +leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC"
-    :global-prefix "S-SPC")
-  (general-create-definer +local-leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC m"
-    :global-prefix "S-SPC m")
-  (general-define-key
-   :states '(normal visual)
-   "," (general-simulate-key "SPC m" :which-key "local leader"))
-  (+leader-def
-    ""    '(nil :wk "leader")
-    "l"   '(:ignore t :wk "llm")
-    "lc"  '(:ignore t :wk "chats")
-    "la"  '(:ignore t :wk "agents")
-    "o"   '(:ignore t :wk "open")
-    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
-    "F"   '(:ignore t :wk "frame")
-    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
-    "b"   '(:ignore t :wk "buffer")
-	"S"   '(:ignore t :wk "session")
-    "f"   '(:ignore t :wk "file")
-    "e"   '(:ignore t :wk "emacs")
-    "g"   '(:ignore t :wk "git")
-    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
-    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
-    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
-    "t"   '(:ignore t :wk "toggle")
-    "i"   '(:ignore t :wk "insert")
-    "q"   '(:ignore t :wk "quit"))
-  (+local-leader-def
-    ""    '(nil :wk "local leader")))
 #+end_src
 
 * Evil
 #+begin_src emacs-lisp
 (use-package evil
   :if +with-evil
+  :ensure (:wait t)
   :demand
   :preface
   (defun +save-and-kill-buffer ()
@@ -564,14 +515,14 @@ If you'd like to test a different font, evaluate the following block:
 (use-package evil-commentary
   :if +with-evil
   :hook
-  (after-init-hook . evil-commentary-mode))
+  (elpaca-after-init-hook . evil-commentary-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package evil-surround
   :if +with-evil
   :hook
-  (after-init-hook . global-evil-surround-mode))
+  (elpaca-after-init-hook . global-evil-surround-mode))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -585,7 +536,7 @@ If you'd like to test a different font, evaluate the following block:
 (use-package evil-org-agenda
   :if +with-evil
   :demand
-  :ensure evil-org
+  :ensure nil
   :after org-agenda
   :config
   (evil-org-agenda-set-keys))
@@ -595,7 +546,7 @@ If you'd like to test a different font, evaluate the following block:
 (use-package evil-mc
   :if +with-evil
   :hook
-  (after-init-hook . global-evil-mc-mode))
+  (elpaca-after-init-hook . global-evil-mc-mode))
 #+end_src
 
 [[https://github.com/7696122/evil-terminal-cursor-changer][evil-terminal-cursor-changer]]
@@ -607,7 +558,50 @@ If you'd like to test a different font, evaluate the following block:
   (setq etcc-use-color t)
   (setq etcc-use-blink nil)
   :hook
-  (after-init-hook . evil-terminal-cursor-changer-activate))
+  (elpaca-after-init-hook . evil-terminal-cursor-changer-activate))
+#+end_src
+
+* General
+#+begin_src emacs-lisp
+(use-package general
+  :ensure (:wait t)
+  :demand t
+  :config
+  (general-create-definer +leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC"
+    :global-prefix "S-SPC")
+  (general-create-definer +local-leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC m"
+    :global-prefix "S-SPC m")
+  (general-define-key
+   :states '(normal visual)
+   "," (general-simulate-key "SPC m" :which-key "local leader"))
+  (+leader-def
+    ""    '(nil :wk "leader")
+    "l"   '(:ignore t :wk "llm")
+    "lc"  '(:ignore t :wk "chats")
+    "la"  '(:ignore t :wk "agents")
+    "o"   '(:ignore t :wk "open")
+    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
+    "F"   '(:ignore t :wk "frame")
+    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
+    "b"   '(:ignore t :wk "buffer")
+	"S"   '(:ignore t :wk "session")
+    "f"   '(:ignore t :wk "file")
+    "e"   '(:ignore t :wk "emacs")
+    "g"   '(:ignore t :wk "git")
+    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
+    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
+    "t"   '(:ignore t :wk "toggle")
+    "i"   '(:ignore t :wk "insert")
+    "q"   '(:ignore t :wk "quit"))
+  (+local-leader-def
+    ""    '(nil :wk "local leader")))
 #+end_src
 
 * Which-key
@@ -650,7 +644,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq reverse-im-read-char-advice-function #'reverse-im-read-char-exclude)
   (setq reverse-im-input-methods '("russian-computer"))
   :hook
-  (after-init-hook . reverse-im-mode))
+  (elpaca-after-init-hook . reverse-im-mode))
 #+end_src
 
 * TTY
@@ -701,7 +695,7 @@ If you'd like to test a different font, evaluate the following block:
 (use-package ultra-scroll
   :if (display-graphic-p)
   :hook
-  (after-init-hook . ultra-scroll-mode))
+  (elpaca-after-init-hook . ultra-scroll-mode))
 #+end_src
 
 ** ligatures
@@ -797,7 +791,7 @@ If you'd like to test a different font, evaluate the following block:
        "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^=")))
    (t (message "No ligatures for %s" +font)))
   :hook
-  (after-init-hook . global-ligature-mode))
+  (elpaca-after-init-hook . global-ligature-mode))
 #+end_src
 
 ** icons
@@ -826,7 +820,7 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package minions
   :hook
-  (after-init-hook . minions-mode))
+  (elpaca-after-init-hook . minions-mode))
 #+end_src
 
 [[https://github.com/seagle0128/doom-modeline][doom-modeline]]
@@ -844,7 +838,7 @@ Install fonts
   (setq doom-modeline-unicode-number nil)
   (setq doom-modeline-workspace-name nil)
   :hook
-  (after-init-hook . doom-modeline-mode))
+  (elpaca-after-init-hook . doom-modeline-mode))
 #+end_src
 
 ** header-line
@@ -867,8 +861,6 @@ Install fonts
 [[https://protesilaos.com/emacs/modus-themes][modus-themes]]
 #+begin_src emacs-lisp
 (use-package modus-themes
-  ;; :ensure nil
-  :pin melpa-stable
   :init
   (setq modus-themes-bold-constructs t)
   (setq modus-themes-italic-constructs t)
@@ -896,10 +888,7 @@ Install fonts
 
 [[https://protesilaos.com/emacs/standard-themes][standard-themes]]
 #+begin_src emacs-lisp
-(use-package standard-themes
-  ;; https://github.com/protesilaos/standard-themes/issues/9
-  :pin elpa-devel ;; TODO: back to stable after the fix is released
-  )
+(use-package standard-themes)
 #+end_src
 
 [[https://github.com/doomemacs/themes][doom-themes]]
@@ -916,7 +905,8 @@ Install fonts
 ;; (setq +theme 'ef-melissa-light)
 ;; (setq +theme 'doom-earl-grey)
 
-(load-theme +theme :no-confirm)
+(add-hook 'elpaca-after-init-hook
+          #'(lambda () (load-theme +theme :no-confirm)))
 #+end_src
 
 * Frames
@@ -972,7 +962,7 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package default-text-scale
   :hook
-  (after-init-hook . default-text-scale-mode))
+  (elpaca-after-init-hook . default-text-scale-mode))
 #+end_src
 
 * Tabs
@@ -1033,7 +1023,7 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package project-tab-groups
   :hook
-  (after-init-hook . project-tab-groups-mode))
+  (elpaca-after-init-hook . project-tab-groups-mode))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1097,7 +1087,7 @@ Install fonts
   (setq winum-auto-setup-mode-line nil)
   (setq winum-scope 'frame-local)
   :hook
-  (after-init-hook . winum-mode))
+  (elpaca-after-init-hook . winum-mode))
 #+end_src
 
 ** zoom
@@ -1136,7 +1126,7 @@ Install fonts
           (go-test-mode :align below)
           (magit-pre-commit-mode :align below)))
   :hook
-  (after-init-hook . shackle-mode))
+  (elpaca-after-init-hook . shackle-mode))
 #+end_src
 
 ** popper
@@ -1175,7 +1165,7 @@ Install fonts
           cider-repl-mode
           ansible-doc-module-mode))
   :hook
-  (after-init-hook . popper-mode))
+  (elpaca-after-init-hook . popper-mode))
 
 (use-package popper-echo
   :disabled
@@ -1184,7 +1174,7 @@ Install fonts
   (setq popper-echo-dispatch-actions t)
   (setq popper-echo-lines 3)
   :hook
-  (after-init-hook . popper-echo-mode)
+  (elpaca-after-init-hook . popper-echo-mode)
   ;; (after-init-hook . popper-tab-line-mode)
   )
 #+end_src
@@ -1227,7 +1217,7 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package evil-commands
   :if +with-evil
-  :ensure evil
+  :ensure nil
   :after evil
   :general
   (+leader-def
@@ -1278,7 +1268,7 @@ Install fonts
   (setq persistent-scratch-backup-directory
         (expand-file-name "persistent-scratch" user-emacs-directory))
   :hook
-  (after-init-hook . persistent-scratch-setup-default))
+  (elpaca-after-init-hook . persistent-scratch-setup-default))
 #+end_src
 
 * History
@@ -1395,7 +1385,7 @@ Install fonts
 
 #+begin_src emacs-lisp
 (use-package consult-xref
-  :ensure consult
+  :ensure nil
   :init
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref))
@@ -1405,7 +1395,7 @@ Install fonts
 (use-package nerd-icons-xref
   :if +with-icons
   :hook
-  (after-init-hook . nerd-icons-xref-mode))
+  (elpaca-after-init-hook . nerd-icons-xref-mode))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1428,7 +1418,7 @@ Install fonts
   (minibuffer-local-map
     "M-A" 'marginalia-cycle)
   :hook
-  (after-init-hook . marginalia-mode))
+  (elpaca-after-init-hook . marginalia-mode))
 #+end_src
 
 ** vertico
@@ -1441,12 +1431,12 @@ Install fonts
   :init
   (setq vertico-cycle t)
   :hook
-  (after-init-hook . vertico-mode))
+  (elpaca-after-init-hook . vertico-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package vertico-directory
-  :ensure vertico
+  :ensure nil
   :general
   (vertico-map
    "DEL" 'vertico-directory-delete-char)
@@ -1489,19 +1479,19 @@ Install fonts
   (setq corfu-cycle t)
   (setq corfu-min-width 40)
   :hook
-  (after-init-hook . global-corfu-mode))
+  (elpaca-after-init-hook . global-corfu-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package corfu-echo
-  :ensure corfu
+  :ensure nil
   :hook
   (corfu-mode-hook . corfu-echo-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package corfu-info
-  :ensure corfu
+  :ensure nil
   :unless (display-graphic-p)
   :after corfu
   :general
@@ -1511,7 +1501,7 @@ Install fonts
 
 #+begin_src emacs-lisp
 (use-package corfu-popupinfo
-  :ensure corfu
+  :ensure nil
   :if (display-graphic-p)
   :general
   (corfu-map
@@ -1524,7 +1514,7 @@ Install fonts
 
 #+begin_src emacs-lisp
 (use-package corfu-history
-  :ensure corfu
+  :ensure nil
   :hook
   (corfu-mode-hook . corfu-history-mode))
 #+end_src
@@ -1627,7 +1617,7 @@ Install fonts
   (text-mode-hook . tempel-setup-capf)
   ;; Optionally make the Tempel templates available to Abbrev,
   ;; either locally or globally. `expand-abbrev' is bound to C-x '.
-  (after-init-hook . global-tempel-abbrev-mode))
+  (elpaca-after-init-hook . global-tempel-abbrev-mode))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1745,10 +1735,10 @@ Install fonts
   (put 'projection-commands-package-project   'safe-local-variable #'stringp)
   (put 'projection-commands-install-project   'safe-local-variable #'stringp)
   :hook
-  (after-init-hook . global-projection-hook-mode))
+  (elpaca-after-init-hook . global-projection-hook-mode))
 
 (use-package projection-ibuffer
-  :ensure projection
+  :ensure nil
   :after ibuffer
   :demand t
   :preface
@@ -1889,7 +1879,7 @@ Install fonts
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
   :if +with-icons
-  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal" :rev :newest)
+  :ensure (:host github :repo "abougouffa/nerd-icons-multimodal")
   :hook
   (dired-mode-hook   . nerd-icons-multimodal-mode)
   (archive-mode-hook . nerd-icons-multimodal-mode)
@@ -1971,13 +1961,13 @@ Install fonts
           '( :left  (winum sort)
              :right (omit yank))))
   :hook
-  (after-init-hook . dirvish-override-dired-mode))
+  (elpaca-after-init-hook . dirvish-override-dired-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package dirvish-subtree
   :if +with-dirvish
-  :ensure dirvish
+  :ensure nil
   :general
   ( :keymaps 'dirvish-mode-map :states 'normal
     "TAB" 'dirvish-subtree-toggle)
@@ -1988,7 +1978,7 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package dirvish-side
   :if +with-dirvish
-  :ensure dirvish
+  :ensure nil
   :autoload
   dirvish-side--session-visible-p
   dirvish-side--auto-jump
@@ -2008,7 +1998,7 @@ Install fonts
           (buffer-face-set '(:height 0.9))))))
   :general
   (+leader-def
-    "0" 'dirvish-side
+    ;; "0" 'dirvish-side
     "ft" 'dirvish-side
     "ff" '+dirvish-side-follow-file)
   :init
@@ -2125,7 +2115,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package hungry-delete
   :hook
-  (after-init-hook . global-hungry-delete-mode))
+  (elpaca-after-init-hook . global-hungry-delete-mode))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2155,7 +2145,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :init
   (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
   :hook
-  (after-init-hook . undo-fu-session-global-mode))
+  (elpaca-after-init-hook . undo-fu-session-global-mode))
 #+end_src
 
 ** vundo
@@ -2202,7 +2192,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package paren-face
   :hook
-  (after-init-hook . global-paren-face-mode))
+  (elpaca-after-init-hook . global-paren-face-mode))
 #+end_src
 
 ** colorful-mode
@@ -2226,7 +2216,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package page-break-lines
   :hook
-  (after-init-hook . global-page-break-lines-mode))
+  (elpaca-after-init-hook . global-page-break-lines-mode))
 #+end_src
 
 ** highlight-indent-guides
@@ -2248,7 +2238,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq hl-todo-keyword-faces '(("TODO"  . hl-todo)
                                 ("FIXME" . hl-todo)))
   :hook
-  (after-init-hook . global-hl-todo-mode))
+  (elpaca-after-init-hook . global-hl-todo-mode))
 #+end_src
 
 ** hl-lock
@@ -2274,7 +2264,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :init
   (setq anzu-cons-mode-line-p nil)
   :hook
-  (after-init-hook . global-anzu-mode))
+  (elpaca-after-init-hook . global-anzu-mode))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2479,6 +2469,9 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 * Git
 ** magit
 #+begin_src emacs-lisp
+;; magit requires transient >= 0.12, built-in is 0.7
+(use-package transient)
+
 (use-package magit
   :general
   (+leader-def
@@ -2501,7 +2494,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package magit-prime
   :hook
-  (after-init-hook . magit-prime-mode))
+  (elpaca-after-init-hook . magit-prime-mode))
 #+end_src
 
 ** magit-pre-commit
@@ -2534,7 +2527,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** diff-hl
 #+begin_src emacs-lisp
 (use-package diff-hl
-  :vc (:url "https://github.com/rynffoll/diff-hl" :branch "dired-nested-paths" :rev :newest)
+  :ensure (:host github :repo "rynffoll/diff-hl" :branch "dired-nested-paths")
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
@@ -2566,8 +2559,8 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
   (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
   :hook
-  (after-init-hook . global-diff-hl-mode)
-  (after-init-hook . global-diff-hl-show-hunk-mouse-mode)
+  (elpaca-after-init-hook . global-diff-hl-mode)
+  (elpaca-after-init-hook . global-diff-hl-show-hunk-mouse-mode)
   (diff-hl-mode-hook . diff-hl-flydiff-mode)
   (magit-post-refresh-hook . diff-hl-magit-post-refresh)
   (dired-mode-hook . diff-hl-dired-mode)
@@ -2607,7 +2600,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 #+begin_src emacs-lisp
 (use-package difftastic
   :hook
-  (after-init-hook . difftastic-bindings-mode))
+  (elpaca-after-init-hook . difftastic-bindings-mode))
 #+end_src
 
 ** git-timemachine
@@ -2671,7 +2664,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** org-archive
 #+begin_src emacs-lisp
 (use-package org-archive
-  :ensure org
+  :ensure nil
   :init
   (setq org-archive-location (concat org-directory "/archive.org::datetree/"))
   (setq org-archive-file-header-format nil))
@@ -2680,7 +2673,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** org-refile
 #+begin_src emacs-lisp
 (use-package org-refile
-  :ensure org
+  :ensure nil
   :preface
   ;; https://github.com/progfolio/.emacs.d#refile
   (defun +org-files-list ()
@@ -2704,7 +2697,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** org-link
 #+begin_src emacs-lisp
 (use-package ol
-  :ensure org
+  :ensure nil
   :preface
   ;; source: https://gist.github.com/kim366/8abe978cc295b027df636b218862758e
   (defun +org-link-get-title (link &optional description)
@@ -2722,7 +2715,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** org-src
 #+begin_src emacs-lisp
 (use-package org-src
-  :ensure org
+  :ensure nil
   :init
   (setq org-src-window-setup 'current-window)
   (setq org-edit-src-content-indentation 0))
@@ -2731,7 +2724,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** org-list
 #+begin_src emacs-lisp
 (use-package org-list
-  :ensure org
+  :ensure nil
   :init
   (setq org-list-allow-alphabetical t)
   (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))))
@@ -2740,7 +2733,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** org-agenda
 #+begin_src emacs-lisp
 (use-package org-agenda
-  :ensure org
+  :ensure nil
   :init
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-tags-column 0))
@@ -2749,7 +2742,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 ** org-faces
 #+begin_src emacs-lisp
 (use-package org-faces
-  :ensure org
+  :ensure nil
   :custom-face
   (org-tag              ((t (:inherit shadow :foreground unspecified :background unspecified :bold nil))))
   (org-ellipsis         ((t (:underline nil))))
@@ -2784,7 +2777,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 *** ob-core
 #+begin_src emacs-lisp
 (use-package ob-core
-  :ensure org
+  :ensure nil
   :init
   (setq org-babel-load-languages
         '((emacs-lisp . t)
@@ -2798,7 +2791,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 *** ob-tangle
 #+begin_src emacs-lisp
 (use-package ob-tangle
-  :ensure org
+  :ensure nil
   :init
   (add-to-list 'safe-local-variable-values '(after-save-hook . org-babel-tangle)))
 #+end_src
@@ -2859,7 +2852,7 @@ Hello World!
 [[https://orgmode.org/worg/org-tutorials/encrypting-files.html][Encrypting org Files.]]
 #+begin_src emacs-lisp
 (use-package org-crypt
-  :ensure org
+  :ensure nil
   :init
   (setq org-tags-exclude-from-inheritance '("crypt"))
   ;; GPG key to use for encryption
@@ -2954,7 +2947,7 @@ Upgrade eglot to the latest version
   (dape-breakpoint-global-mode)
   :hook
   (kill-emacs-hook . dape-breakpoint-save)
-  (after-init-hook . dape-breakpoint-load))
+  (elpaca-after-init-hook . dape-breakpoint-load))
 #+end_src
 
 ** mason
@@ -2964,7 +2957,7 @@ Upgrade eglot to the latest version
   (defun +mason-setup ()
     (mason-setup))
   :hook
-  (after-init-hook . +mason-setup))
+  (elpaca-after-init-hook . +mason-setup))
 #+end_src
 
 * Languages
@@ -3299,7 +3292,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 #+begin_src emacs-lisp
 (use-package ansible-vault-with-editor
-  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
+  :ensure (:host github :repo "rynffoll/ansible-vault-with-editor")
   :general
   (+local-leader-def :keymaps 'yaml-ts-mode-map
     "e" '(ansible-vault-with-editor-edit :wk "edit")
@@ -3311,7 +3304,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+begin_src emacs-lisp
 (use-package mise
   :hook
-  (after-init-hook . global-mise-mode))
+  (elpaca-after-init-hook . global-mise-mode))
 #+end_src
 
 ** proced
@@ -3337,7 +3330,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :init
   (setq recall-completing-read-fn #'recall-consult-completing-read)
   :hook
-  (after-init-hook . recall-mode))
+  (elpaca-after-init-hook . recall-mode))
 #+end_src
 
 ** keycast
@@ -3401,7 +3394,7 @@ machine api.openai.com login apikey password TOKEN
 ** gptel-quick
 #+begin_src emacs-lisp
 (use-package gptel-quick
-  :vc (:url "https://github.com/karthink/gptel-quick" :rev :newest)
+  :ensure (:host github :repo "karthink/gptel-quick")
   :general
   (embark-general-map
    "?" #'gptel-quick))
@@ -3430,7 +3423,7 @@ machine api.openai.com login apikey password TOKEN
 ** claude-code-ide
 #+begin_src emacs-lisp
 (use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :ensure (:host github :repo "manzaltu/claude-code-ide.el")
   :bind ("C-c C-'" . claude-code-ide-menu)
   :general
   (+leader-def
@@ -3442,17 +3435,17 @@ machine api.openai.com login apikey password TOKEN
 ** claude-code
 #+begin_src emacs-lisp
 (use-package inheritenv
-  :vc (:url "https://github.com/purcell/inheritenv" :rev :newest))
+  :ensure (:host github :repo "purcell/inheritenv"))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package monet
-  :vc (:url "https://github.com/stevemolitor/monet" :rev :newest))
+  :ensure (:host github :repo "stevemolitor/monet"))
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package claude-code :ensure t
-  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
+(use-package claude-code
+  :ensure (:host github :repo "stevemolitor/claude-code.el")
   :config
   (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
   (monet-mode 1)
@@ -3470,7 +3463,7 @@ machine api.openai.com login apikey password TOKEN
 ** acp
 #+begin_src emacs-lisp
 (use-package acp
-  :vc (:url "https://github.com/xenodium/acp.el" :rev :newest))
+  :ensure (:host github :repo "xenodium/acp.el"))
 #+end_src
 
 #+begin_src sh :tangle no :results silent
@@ -3480,7 +3473,7 @@ npm install -g @zed-industries/claude-code-acp
 ** agent-shell
 #+begin_src emacs-lisp
 (use-package agent-shell
-  :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
+  :ensure (:host github :repo "xenodium/agent-shell")
   :preface
   (defun +agent-shell-diff-evil-setup ()
     (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
@@ -3504,13 +3497,16 @@ npm install -g @zed-industries/claude-code-acp
 ** agent-shell-manager
 #+begin_src emacs-lisp
 (use-package agent-shell-manager
-  :vc (:url "https://github.com/jethrokuan/agent-shell-manager" :rev :newest))
+  :ensure (:host github :repo "jethrokuan/agent-shell-manager"))
 #+end_src
 
 ** copilot
 #+begin_src emacs-lisp
+;; copilot requires track-changes >= 1.4, built-in is 1.2
+(use-package track-changes)
+
 (use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
+  :ensure (:host github :repo "copilot-emacs/copilot.el")
   :general
   (copilot-completion-map
    "TAB"   'copilot-accept-completion

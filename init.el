@@ -4,27 +4,24 @@
       user-login-name "rynffoll"
       user-mail-address "rynffoll@gmail.com")
 
+(load (locate-user-emacs-file "elpaca-installer"))
+
+(setq elpaca-lock-file (locate-user-emacs-file "elpaca-lock.el"))
+
+(defun +elpaca-write-lock-file ()
+  "Write elpaca lock file to `elpaca-lock-file'."
+  (interactive)
+  (elpaca-write-lock-file elpaca-lock-file))
+
+(elpaca elpaca-use-package
+  (elpaca-use-package-mode))
+
 (setq use-package-always-defer t)
 (setq use-package-always-ensure t)
 (setq use-package-hook-name-suffix nil)
 (setq use-package-enable-imenu-support t)
 (setq use-package-compute-statistics t)
 (setq use-package-expand-minimally t)
-
-(use-package package
-  :ensure nil
-  ;; :init
-  ;; https://www.reddit.com/r/emacs/comments/1f8ok7c/comment/llhcdgy/
-  ;; (setq package-install-upgrade-built-in t)
-  :config
-  ;; https://elpa.gnu.org/devel/
-  (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
-  ;; https://github.com/melpa/melpa
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  (package-initialize))
-
-(use-package gnu-elpa-keyring-update)
 
 (defgroup +feature-flags nil
   "Feature flags for this configuration."
@@ -106,49 +103,11 @@
 
 (use-package async
   :hook
-  (after-init-hook . async-bytecomp-package-mode)
   (dired-mode-hook . dired-async-mode))
-
-(use-package general
-  :config
-  (general-create-definer +leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC"
-    :global-prefix "S-SPC")
-  (general-create-definer +local-leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC m"
-    :global-prefix "S-SPC m")
-  (general-define-key
-   :states '(normal visual)
-   "," (general-simulate-key "SPC m" :which-key "local leader"))
-  (+leader-def
-    ""    '(nil :wk "leader")
-    "l"   '(:ignore t :wk "llm")
-    "lc"  '(:ignore t :wk "chats")
-    "la"  '(:ignore t :wk "agents")
-    "o"   '(:ignore t :wk "open")
-    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
-    "F"   '(:ignore t :wk "frame")
-    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
-    "b"   '(:ignore t :wk "buffer")
-	"S"   '(:ignore t :wk "session")
-    "f"   '(:ignore t :wk "file")
-    "e"   '(:ignore t :wk "emacs")
-    "g"   '(:ignore t :wk "git")
-    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
-    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
-    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
-    "t"   '(:ignore t :wk "toggle")
-    "i"   '(:ignore t :wk "insert")
-    "q"   '(:ignore t :wk "quit"))
-  (+local-leader-def
-    ""    '(nil :wk "local leader")))
 
 (use-package evil
   :if +with-evil
+  :ensure (:wait t)
   :demand
   :preface
   (defun +save-and-kill-buffer ()
@@ -195,12 +154,12 @@
 (use-package evil-commentary
   :if +with-evil
   :hook
-  (after-init-hook . evil-commentary-mode))
+  (elpaca-after-init-hook . evil-commentary-mode))
 
 (use-package evil-surround
   :if +with-evil
   :hook
-  (after-init-hook . global-evil-surround-mode))
+  (elpaca-after-init-hook . global-evil-surround-mode))
 
 (use-package evil-org
   :if +with-evil
@@ -212,7 +171,7 @@
 (use-package evil-org-agenda
   :if +with-evil
   :demand
-  :ensure evil-org
+  :ensure nil
   :after org-agenda
   :config
   (evil-org-agenda-set-keys))
@@ -220,7 +179,7 @@
 (use-package evil-mc
   :if +with-evil
   :hook
-  (after-init-hook . global-evil-mc-mode))
+  (elpaca-after-init-hook . global-evil-mc-mode))
 
 (use-package evil-terminal-cursor-changer
   :if +with-evil
@@ -229,7 +188,47 @@
   (setq etcc-use-color t)
   (setq etcc-use-blink nil)
   :hook
-  (after-init-hook . evil-terminal-cursor-changer-activate))
+  (elpaca-after-init-hook . evil-terminal-cursor-changer-activate))
+
+(use-package general
+  :ensure (:wait t)
+  :demand t
+  :config
+  (general-create-definer +leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC"
+    :global-prefix "S-SPC")
+  (general-create-definer +local-leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC m"
+    :global-prefix "S-SPC m")
+  (general-define-key
+   :states '(normal visual)
+   "," (general-simulate-key "SPC m" :which-key "local leader"))
+  (+leader-def
+    ""    '(nil :wk "leader")
+    "l"   '(:ignore t :wk "llm")
+    "lc"  '(:ignore t :wk "chats")
+    "la"  '(:ignore t :wk "agents")
+    "o"   '(:ignore t :wk "open")
+    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
+    "F"   '(:ignore t :wk "frame")
+    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
+    "b"   '(:ignore t :wk "buffer")
+	"S"   '(:ignore t :wk "session")
+    "f"   '(:ignore t :wk "file")
+    "e"   '(:ignore t :wk "emacs")
+    "g"   '(:ignore t :wk "git")
+    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
+    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
+    "t"   '(:ignore t :wk "toggle")
+    "i"   '(:ignore t :wk "insert")
+    "q"   '(:ignore t :wk "quit"))
+  (+local-leader-def
+    ""    '(nil :wk "local leader")))
 
 (use-package which-key
   :ensure nil
@@ -261,7 +260,7 @@
   (setq reverse-im-read-char-advice-function #'reverse-im-read-char-exclude)
   (setq reverse-im-input-methods '("russian-computer"))
   :hook
-  (after-init-hook . reverse-im-mode))
+  (elpaca-after-init-hook . reverse-im-mode))
 
 (use-package xt-mouse
   :unless (display-graphic-p)
@@ -298,7 +297,7 @@
 (use-package ultra-scroll
   :if (display-graphic-p)
   :hook
-  (after-init-hook . ultra-scroll-mode))
+  (elpaca-after-init-hook . ultra-scroll-mode))
 
 (use-package ligature
   :if (display-graphic-p)
@@ -390,7 +389,7 @@
        "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^=")))
    (t (message "No ligatures for %s" +font)))
   :hook
-  (after-init-hook . global-ligature-mode))
+  (elpaca-after-init-hook . global-ligature-mode))
 
 (use-package nerd-icons
   :if +with-icons
@@ -405,7 +404,7 @@
 
 (use-package minions
   :hook
-  (after-init-hook . minions-mode))
+  (elpaca-after-init-hook . minions-mode))
 
 (use-package doom-modeline
   :custom-face
@@ -420,7 +419,7 @@
   (setq doom-modeline-unicode-number nil)
   (setq doom-modeline-workspace-name nil)
   :hook
-  (after-init-hook . doom-modeline-mode))
+  (elpaca-after-init-hook . doom-modeline-mode))
 
 (use-package faces
   :ensure nil
@@ -434,8 +433,6 @@
     "tt" 'load-theme))
 
 (use-package modus-themes
-  ;; :ensure nil
-  :pin melpa-stable
   :init
   (setq modus-themes-bold-constructs t)
   (setq modus-themes-italic-constructs t)
@@ -454,10 +451,7 @@
 
 (use-package doric-themes)
 
-(use-package standard-themes
-  ;; https://github.com/protesilaos/standard-themes/issues/9
-  :pin elpa-devel ;; TODO: back to stable after the fix is released
-  )
+(use-package standard-themes)
 
 (use-package doom-themes
   :init
@@ -469,7 +463,8 @@
 ;; (setq +theme 'ef-melissa-light)
 ;; (setq +theme 'doom-earl-grey)
 
-(load-theme +theme :no-confirm)
+(add-hook 'elpaca-after-init-hook
+          #'(lambda () (load-theme +theme :no-confirm)))
 
 (use-package frame
   :ensure nil
@@ -516,7 +511,7 @@
 
 (use-package default-text-scale
   :hook
-  (after-init-hook . default-text-scale-mode))
+  (elpaca-after-init-hook . default-text-scale-mode))
 
 (use-package tab-bar
   :ensure nil
@@ -569,7 +564,7 @@
 
 (use-package project-tab-groups
   :hook
-  (after-init-hook . project-tab-groups-mode))
+  (elpaca-after-init-hook . project-tab-groups-mode))
 
 (use-package per-tab-group-theme
   :ensure nil
@@ -618,7 +613,7 @@
   (setq winum-auto-setup-mode-line nil)
   (setq winum-scope 'frame-local)
   :hook
-  (after-init-hook . winum-mode))
+  (elpaca-after-init-hook . winum-mode))
 
 (use-package zoom
   :general
@@ -650,7 +645,7 @@
           (go-test-mode :align below)
           (magit-pre-commit-mode :align below)))
   :hook
-  (after-init-hook . shackle-mode))
+  (elpaca-after-init-hook . shackle-mode))
 
 (use-package popper
   :disabled
@@ -685,7 +680,7 @@
           cider-repl-mode
           ansible-doc-module-mode))
   :hook
-  (after-init-hook . popper-mode))
+  (elpaca-after-init-hook . popper-mode))
 
 (use-package popper-echo
   :disabled
@@ -694,7 +689,7 @@
   (setq popper-echo-dispatch-actions t)
   (setq popper-echo-lines 3)
   :hook
-  (after-init-hook . popper-echo-mode)
+  (elpaca-after-init-hook . popper-echo-mode)
   ;; (after-init-hook . popper-tab-line-mode)
   )
 
@@ -725,7 +720,7 @@
 
 (use-package evil-commands
   :if +with-evil
-  :ensure evil
+  :ensure nil
   :after evil
   :general
   (+leader-def
@@ -766,7 +761,7 @@
   (setq persistent-scratch-backup-directory
         (expand-file-name "persistent-scratch" user-emacs-directory))
   :hook
-  (after-init-hook . persistent-scratch-setup-default))
+  (elpaca-after-init-hook . persistent-scratch-setup-default))
 
 (use-package savehist
   :ensure nil
@@ -859,7 +854,7 @@
   (completion-list-mode-hook . consult-preview-at-point-mode))
 
 (use-package consult-xref
-  :ensure consult
+  :ensure nil
   :init
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref))
@@ -867,7 +862,7 @@
 (use-package nerd-icons-xref
   :if +with-icons
   :hook
-  (after-init-hook . nerd-icons-xref-mode))
+  (elpaca-after-init-hook . nerd-icons-xref-mode))
 
 (use-package consult-dir
   :general
@@ -883,7 +878,7 @@
   (minibuffer-local-map
     "M-A" 'marginalia-cycle)
   :hook
-  (after-init-hook . marginalia-mode))
+  (elpaca-after-init-hook . marginalia-mode))
 
 (use-package vertico
   :general
@@ -893,10 +888,10 @@
   :init
   (setq vertico-cycle t)
   :hook
-  (after-init-hook . vertico-mode))
+  (elpaca-after-init-hook . vertico-mode))
 
 (use-package vertico-directory
-  :ensure vertico
+  :ensure nil
   :general
   (vertico-map
    "DEL" 'vertico-directory-delete-char)
@@ -930,15 +925,15 @@
   (setq corfu-cycle t)
   (setq corfu-min-width 40)
   :hook
-  (after-init-hook . global-corfu-mode))
+  (elpaca-after-init-hook . global-corfu-mode))
 
 (use-package corfu-echo
-  :ensure corfu
+  :ensure nil
   :hook
   (corfu-mode-hook . corfu-echo-mode))
 
 (use-package corfu-info
-  :ensure corfu
+  :ensure nil
   :unless (display-graphic-p)
   :after corfu
   :general
@@ -946,7 +941,7 @@
    "C-h" 'corfu-info-documentation))
 
 (use-package corfu-popupinfo
-  :ensure corfu
+  :ensure nil
   :if (display-graphic-p)
   :general
   (corfu-map
@@ -957,7 +952,7 @@
   (corfu-mode-hook . corfu-popupinfo-mode))
 
 (use-package corfu-history
-  :ensure corfu
+  :ensure nil
   :hook
   (corfu-mode-hook . corfu-history-mode))
 
@@ -1038,7 +1033,7 @@
   (text-mode-hook . tempel-setup-capf)
   ;; Optionally make the Tempel templates available to Abbrev,
   ;; either locally or globally. `expand-abbrev' is bound to C-x '.
-  (after-init-hook . global-tempel-abbrev-mode))
+  (elpaca-after-init-hook . global-tempel-abbrev-mode))
 
 (use-package tempel-collection)
 
@@ -1134,10 +1129,10 @@
   (put 'projection-commands-package-project   'safe-local-variable #'stringp)
   (put 'projection-commands-install-project   'safe-local-variable #'stringp)
   :hook
-  (after-init-hook . global-projection-hook-mode))
+  (elpaca-after-init-hook . global-projection-hook-mode))
 
 (use-package projection-ibuffer
-  :ensure projection
+  :ensure nil
   :after ibuffer
   :demand t
   :preface
@@ -1258,7 +1253,7 @@
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
   :if +with-icons
-  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal" :rev :newest)
+  :ensure (:host github :repo "abougouffa/nerd-icons-multimodal")
   :hook
   (dired-mode-hook   . nerd-icons-multimodal-mode)
   (archive-mode-hook . nerd-icons-multimodal-mode)
@@ -1332,11 +1327,11 @@
           '( :left  (winum sort)
              :right (omit yank))))
   :hook
-  (after-init-hook . dirvish-override-dired-mode))
+  (elpaca-after-init-hook . dirvish-override-dired-mode))
 
 (use-package dirvish-subtree
   :if +with-dirvish
-  :ensure dirvish
+  :ensure nil
   :general
   ( :keymaps 'dirvish-mode-map :states 'normal
     "TAB" 'dirvish-subtree-toggle)
@@ -1345,7 +1340,7 @@
 
 (use-package dirvish-side
   :if +with-dirvish
-  :ensure dirvish
+  :ensure nil
   :autoload
   dirvish-side--session-visible-p
   dirvish-side--auto-jump
@@ -1365,7 +1360,7 @@
           (buffer-face-set '(:height 0.9))))))
   :general
   (+leader-def
-    "0" 'dirvish-side
+    ;; "0" 'dirvish-side
     "ft" 'dirvish-side
     "ff" '+dirvish-side-follow-file)
   :init
@@ -1455,7 +1450,7 @@
 
 (use-package hungry-delete
   :hook
-  (after-init-hook . global-hungry-delete-mode))
+  (elpaca-after-init-hook . global-hungry-delete-mode))
 
 (use-package elec-pair
   :ensure nil
@@ -1476,7 +1471,7 @@
   :init
   (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
   :hook
-  (after-init-hook . undo-fu-session-global-mode))
+  (elpaca-after-init-hook . undo-fu-session-global-mode))
 
 (use-package vundo
   :general
@@ -1510,7 +1505,7 @@
 
 (use-package paren-face
   :hook
-  (after-init-hook . global-paren-face-mode))
+  (elpaca-after-init-hook . global-paren-face-mode))
 
 (use-package colorful-mode
   :general
@@ -1525,7 +1520,7 @@
 
 (use-package page-break-lines
   :hook
-  (after-init-hook . global-page-break-lines-mode))
+  (elpaca-after-init-hook . global-page-break-lines-mode))
 
 (use-package highlight-indent-guides
   :general
@@ -1541,7 +1536,7 @@
   (setq hl-todo-keyword-faces '(("TODO"  . hl-todo)
                                 ("FIXME" . hl-todo)))
   :hook
-  (after-init-hook . global-hl-todo-mode))
+  (elpaca-after-init-hook . global-hl-todo-mode))
 
 (use-package hi-lock
   :ensure nil)
@@ -1558,7 +1553,7 @@
   :init
   (setq anzu-cons-mode-line-p nil)
   :hook
-  (after-init-hook . global-anzu-mode))
+  (elpaca-after-init-hook . global-anzu-mode))
 
 (use-package evil-anzu
   :if +with-evil
@@ -1672,6 +1667,9 @@
   (add-to-list 'project-switch-commands '(project-eat "Eat") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
 
+;; magit requires transient >= 0.12, built-in is 0.7
+(use-package transient)
+
 (use-package magit
   :general
   (+leader-def
@@ -1691,7 +1689,7 @@
 
 (use-package magit-prime
   :hook
-  (after-init-hook . magit-prime-mode))
+  (elpaca-after-init-hook . magit-prime-mode))
 
 (use-package magit-pre-commit
   :init
@@ -1711,7 +1709,7 @@
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
 (use-package diff-hl
-  :vc (:url "https://github.com/rynffoll/diff-hl" :branch "dired-nested-paths" :rev :newest)
+  :ensure (:host github :repo "rynffoll/diff-hl" :branch "dired-nested-paths")
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
@@ -1743,8 +1741,8 @@
   (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
   (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
   :hook
-  (after-init-hook . global-diff-hl-mode)
-  (after-init-hook . global-diff-hl-show-hunk-mouse-mode)
+  (elpaca-after-init-hook . global-diff-hl-mode)
+  (elpaca-after-init-hook . global-diff-hl-show-hunk-mouse-mode)
   (diff-hl-mode-hook . diff-hl-flydiff-mode)
   (magit-post-refresh-hook . diff-hl-magit-post-refresh)
   (dired-mode-hook . diff-hl-dired-mode)
@@ -1773,7 +1771,7 @@
 
 (use-package difftastic
   :hook
-  (after-init-hook . difftastic-bindings-mode))
+  (elpaca-after-init-hook . difftastic-bindings-mode))
 
 (use-package git-timemachine
   :general
@@ -1827,13 +1825,13 @@
   (setq org-imenu-depth 6))
 
 (use-package org-archive
-  :ensure org
+  :ensure nil
   :init
   (setq org-archive-location (concat org-directory "/archive.org::datetree/"))
   (setq org-archive-file-header-format nil))
 
 (use-package org-refile
-  :ensure org
+  :ensure nil
   :preface
   ;; https://github.com/progfolio/.emacs.d#refile
   (defun +org-files-list ()
@@ -1854,7 +1852,7 @@
   (setq org-refile-use-cache t))
 
 (use-package ol
-  :ensure org
+  :ensure nil
   :preface
   ;; source: https://gist.github.com/kim366/8abe978cc295b027df636b218862758e
   (defun +org-link-get-title (link &optional description)
@@ -1869,25 +1867,25 @@
   (setq org-link-make-description-function #'+org-link-get-title))
 
 (use-package org-src
-  :ensure org
+  :ensure nil
   :init
   (setq org-src-window-setup 'current-window)
   (setq org-edit-src-content-indentation 0))
 
 (use-package org-list
-  :ensure org
+  :ensure nil
   :init
   (setq org-list-allow-alphabetical t)
   (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))))
 
 (use-package org-agenda
-  :ensure org
+  :ensure nil
   :init
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-tags-column 0))
 
 (use-package org-faces
-  :ensure org
+  :ensure nil
   :custom-face
   (org-tag              ((t (:inherit shadow :foreground unspecified :background unspecified :bold nil))))
   (org-ellipsis         ((t (:underline nil))))
@@ -1915,7 +1913,7 @@
   (org-mode-hook . toc-org-enable))
 
 (use-package ob-core
-  :ensure org
+  :ensure nil
   :init
   (setq org-babel-load-languages
         '((emacs-lisp . t)
@@ -1926,7 +1924,7 @@
   (org-babel-after-execute-hook . org-redisplay-inline-images))
 
 (use-package ob-tangle
-  :ensure org
+  :ensure nil
   :init
   (add-to-list 'safe-local-variable-values '(after-save-hook . org-babel-tangle)))
 
@@ -1953,7 +1951,7 @@
   (ob-chatgpt-shell-setup))
 
 (use-package org-crypt
-  :ensure org
+  :ensure nil
   :init
   (setq org-tags-exclude-from-inheritance '("crypt"))
   ;; GPG key to use for encryption
@@ -2027,14 +2025,14 @@
   (dape-breakpoint-global-mode)
   :hook
   (kill-emacs-hook . dape-breakpoint-save)
-  (after-init-hook . dape-breakpoint-load))
+  (elpaca-after-init-hook . dape-breakpoint-load))
 
 (use-package mason
   :preface
   (defun +mason-setup ()
     (mason-setup))
   :hook
-  (after-init-hook . +mason-setup))
+  (elpaca-after-init-hook . +mason-setup))
 
 (use-package treesit
   :ensure nil
@@ -2269,7 +2267,7 @@
   :mode "\\.j2\\'")
 
 (use-package ansible-vault-with-editor
-  :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
+  :ensure (:host github :repo "rynffoll/ansible-vault-with-editor")
   :general
   (+local-leader-def :keymaps 'yaml-ts-mode-map
     "e" '(ansible-vault-with-editor-edit :wk "edit")
@@ -2278,7 +2276,7 @@
 
 (use-package mise
   :hook
-  (after-init-hook . global-mise-mode))
+  (elpaca-after-init-hook . global-mise-mode))
 
 (use-package proced
   :ensure nil
@@ -2296,7 +2294,7 @@
   :init
   (setq recall-completing-read-fn #'recall-consult-completing-read)
   :hook
-  (after-init-hook . recall-mode))
+  (elpaca-after-init-hook . recall-mode))
 
 (use-package keycast
   :init
@@ -2337,7 +2335,7 @@
   (gptel-post-response-functions . gptel-end-of-response))
 
 (use-package gptel-quick
-  :vc (:url "https://github.com/karthink/gptel-quick" :rev :newest)
+  :ensure (:host github :repo "karthink/gptel-quick")
   :general
   (embark-general-map
    "?" #'gptel-quick))
@@ -2357,7 +2355,7 @@
   (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
 
 (use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :ensure (:host github :repo "manzaltu/claude-code-ide.el")
   :bind ("C-c C-'" . claude-code-ide-menu)
   :general
   (+leader-def
@@ -2366,13 +2364,13 @@
   (claude-code-ide-emacs-tools-setup))
 
 (use-package inheritenv
-  :vc (:url "https://github.com/purcell/inheritenv" :rev :newest))
+  :ensure (:host github :repo "purcell/inheritenv"))
 
 (use-package monet
-  :vc (:url "https://github.com/stevemolitor/monet" :rev :newest))
+  :ensure (:host github :repo "stevemolitor/monet"))
 
-(use-package claude-code :ensure t
-  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
+(use-package claude-code
+  :ensure (:host github :repo "stevemolitor/claude-code.el")
   :config
   (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
   (monet-mode 1)
@@ -2384,10 +2382,10 @@
 (use-package mcp)
 
 (use-package acp
-  :vc (:url "https://github.com/xenodium/acp.el" :rev :newest))
+  :ensure (:host github :repo "xenodium/acp.el"))
 
 (use-package agent-shell
-  :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
+  :ensure (:host github :repo "xenodium/agent-shell")
   :preface
   (defun +agent-shell-diff-evil-setup ()
     (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
@@ -2408,10 +2406,13 @@
   (diff-mode-hook . +agent-shell-diff-evil-setup))
 
 (use-package agent-shell-manager
-  :vc (:url "https://github.com/jethrokuan/agent-shell-manager" :rev :newest))
+  :ensure (:host github :repo "jethrokuan/agent-shell-manager"))
+
+;; copilot requires track-changes >= 1.4, built-in is 1.2
+(use-package track-changes)
 
 (use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
+  :ensure (:host github :repo "copilot-emacs/copilot.el")
   :general
   (copilot-completion-map
    "TAB"   'copilot-accept-completion
