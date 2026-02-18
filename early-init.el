@@ -10,6 +10,8 @@
 (setq native-comp-async-report-warnings-errors nil)
 (setq use-short-answers t) ;; yes-or-no -> y-or-n
 
+(prefer-coding-system 'utf-8)
+
 (setq package-enable-at-startup nil)
 
 (setq gc-cons-threshold most-positive-fixnum)

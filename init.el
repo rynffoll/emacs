@@ -50,26 +50,6 @@
   :init
   (setq confirm-kill-emacs 'y-or-n-p))
 
-(use-package mule
-  :ensure nil
-  :init
-  (setq default-input-method 'russian-computer)
-  :config
-  (prefer-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8))
-
-(use-package emacs
-  :ensure nil
-  :init
-  (setq buffer-file-coding-system 'utf-8))
-
-(use-package select
-  :ensure nil
-  :init
-  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
-
 (use-package compile
   :ensure nil
   :init
@@ -243,6 +223,11 @@
   :ensure nil
   :hook
   (after-init-hook . repeat-mode))
+
+(use-package mule
+  :ensure nil
+  :init
+  (setq default-input-method 'russian-computer))
 
 (use-package char-fold
   :ensure nil

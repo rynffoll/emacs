@@ -4,6 +4,7 @@
 * Table of Contents :TOC:
 - [[#early-initialization][Early Initialization]]
   - [[#defaults][Defaults]]
+  - [[#utf-8][UTF-8]]
   - [[#disable-early-package-initialization][Disable early package initialization]]
   - [[#gc-tweaks][GC tweaks]]
   - [[#file-handler-tweaks][File handler tweaks]]
@@ -24,7 +25,6 @@
   - [[#with-dirvish][=+with-dirvish=]]
 - [[#defaults-1][Defaults]]
   - [[#emacs][emacs]]
-  - [[#utf-8][utf-8]]
   - [[#compile][compile]]
   - [[#time][time]]
   - [[#calendar][calendar]]
@@ -201,6 +201,11 @@
 (setq read-process-output-max (* 1024 1024))
 (setq native-comp-async-report-warnings-errors nil)
 (setq use-short-answers t) ;; yes-or-no -> y-or-n
+#+end_src
+
+** UTF-8
+#+begin_src emacs-lisp
+(prefer-coding-system 'utf-8)
 #+end_src
 
 ** Disable early package initialization
@@ -383,33 +388,6 @@ If you'd like to test a different font, evaluate the following block:
   :ensure nil
   :init
   (setq confirm-kill-emacs 'y-or-n-p))
-#+end_src
-
-** utf-8
-#+begin_src emacs-lisp
-(use-package mule
-  :ensure nil
-  :init
-  (setq default-input-method 'russian-computer)
-  :config
-  (prefer-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package emacs
-  :ensure nil
-  :init
-  (setq buffer-file-coding-system 'utf-8))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package select
-  :ensure nil
-  :init
-  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 #+end_src
 
 ** compile
@@ -630,6 +608,13 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * Keyboard Layout
+#+begin_src emacs-lisp
+(use-package mule
+  :ensure nil
+  :init
+  (setq default-input-method 'russian-computer))
+#+end_src
+
 #+begin_src emacs-lisp
 (use-package char-fold
   :ensure nil
