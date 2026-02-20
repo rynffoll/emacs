@@ -561,8 +561,7 @@
           ("\\*vc-git :.*" :regexp t :align below :ignore t :select t)
           ("\\*docker-compose .*\\*" :regexp t :align below)
           (comint-mode :align below)
-          (go-test-mode :align below)
-          (magit-pre-commit-mode :align below)))
+          (go-test-mode :align below)))
   :hook
   (after-init-hook . shackle-mode))
 
@@ -1300,6 +1299,7 @@
   :demand
   :init
   (setq exec-path-from-shell-arguments '("-l"))
+  :config
   (exec-path-from-shell-initialize))
 
 (use-package with-editor
@@ -1606,13 +1606,6 @@
 (use-package magit-prime
   :hook
   (after-init-hook . magit-prime-mode))
-
-(use-package magit-pre-commit
-  :init
-  (when (executable-find "prek")
-    (setq magit-pre-commit-executable "prek"))
-  :hook
-  (magit-mode-hook . magit-pre-commit-mode))
 
 (use-package magit-todos
   :init
@@ -2129,7 +2122,7 @@
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  (yaml-ts-mode-hook . flymake-mode)
+  (yaml-ts-mode-hook . flymake-mode) 
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 
 (use-package yaml-pro
