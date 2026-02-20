@@ -2327,6 +2327,7 @@
   (setq copilot-max-char-warning-disable t)
   :hook
   (prog-mode-hook . copilot-mode)
+  (conf-mode-hook . copilot-mode)
   (git-commit-mode-hook . copilot-mode))
 
 (use-package focus
