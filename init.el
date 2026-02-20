@@ -2315,7 +2315,6 @@
   (diff-mode-hook . +agent-shell-diff-evil-setup))
 
 (use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
   :general
   (copilot-completion-map
    "TAB"   'copilot-accept-completion

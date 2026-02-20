@@ -3397,7 +3397,6 @@ machine api.openai.com login apikey password TOKEN
 ** copilot
 #+begin_src emacs-lisp
 (use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)
   :general
   (copilot-completion-map
    "TAB"   'copilot-accept-completion
