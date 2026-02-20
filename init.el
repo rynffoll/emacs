@@ -40,7 +40,7 @@
   :type 'boolean
   :group '+feature-flags)
 
-(defcustom +with-dirvish t
+(defcustom +with-dirvish nil
   "Enable Dirvish integrations."
   :type 'boolean
   :group '+feature-flags)
