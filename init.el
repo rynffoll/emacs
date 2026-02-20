@@ -2295,34 +2295,24 @@
   :bind
   (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
 
-(use-package mcp)
-
-(use-package acp
-  :vc (:url "https://github.com/xenodium/acp.el" :rev :newest))
-
 (use-package agent-shell
-  :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
   :preface
   (defun +agent-shell-diff-evil-setup ()
     (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-      ;; n - next conflict hunk
-      ;; p - previous conflict hunk
-      ;; q - kill buffer and exit
-      (evil-local-set-key 'normal "n" #'diff-hunk-next)
-      (evil-local-set-key 'normal "p" #'diff-hunk-prev)
-      (evil-local-set-key 'normal "q" #'kill-current-buffer)))
+      (evil-emacs-state)))
   :general
   (+leader-def
     "las" 'agent-shell)
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
   (project-prefix-map
-    "a" 'agent-shell)
+   "a" 'agent-shell)
+  ( :keymaps 'agent-shell-mode-map :states 'insert
+    "RET" 'newline)
+  ( :keymaps 'agent-shell-mode-map :states 'normal
+    "RET" 'comint-send-input)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
-
-(use-package agent-shell-manager
-  :vc (:url "https://github.com/jethrokuan/agent-shell-manager" :rev :newest))
 
 (use-package copilot
   :vc (:url "https://github.com/copilot-emacs/copilot.el" :rev :newest)

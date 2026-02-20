@@ -173,10 +173,7 @@
   - [[#chatgpt-shell][chatgpt-shell]]
   - [[#claude-code-ide][claude-code-ide]]
   - [[#claude-code][claude-code]]
-  - [[#mcp][mcp]]
-  - [[#acp][acp]]
   - [[#agent-shell][agent-shell]]
-  - [[#agent-shell-manager][agent-shell-manager]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
 - [[#private][Private]]
@@ -3375,49 +3372,26 @@ machine api.openai.com login apikey password TOKEN
   (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
 #+end_src
 
-** mcp
-#+begin_src emacs-lisp
-(use-package mcp)
-#+end_src
-
-** acp
-#+begin_src emacs-lisp
-(use-package acp
-  :vc (:url "https://github.com/xenodium/acp.el" :rev :newest))
-#+end_src
-
-#+begin_src sh :tangle no :results silent
-npm install -g @zed-industries/claude-code-acp
-#+end_src
-
 ** agent-shell
 #+begin_src emacs-lisp
 (use-package agent-shell
-  :vc (:url "https://github.com/xenodium/agent-shell" :rev :newest)
   :preface
   (defun +agent-shell-diff-evil-setup ()
     (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-      ;; n - next conflict hunk
-      ;; p - previous conflict hunk
-      ;; q - kill buffer and exit
-      (evil-local-set-key 'normal "n" #'diff-hunk-next)
-      (evil-local-set-key 'normal "p" #'diff-hunk-prev)
-      (evil-local-set-key 'normal "q" #'kill-current-buffer)))
+      (evil-emacs-state)))
   :general
   (+leader-def
     "las" 'agent-shell)
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
   (project-prefix-map
-    "a" 'agent-shell)
+   "a" 'agent-shell)
+  ( :keymaps 'agent-shell-mode-map :states 'insert
+    "RET" 'newline)
+  ( :keymaps 'agent-shell-mode-map :states 'normal
+    "RET" 'comint-send-input)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
-#+end_src
-
-** agent-shell-manager
-#+begin_src emacs-lisp
-(use-package agent-shell-manager
-  :vc (:url "https://github.com/jethrokuan/agent-shell-manager" :rev :newest))
 #+end_src
 
 ** copilot
