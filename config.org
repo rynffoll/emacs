@@ -162,7 +162,6 @@
   - [[#ansible][ansible]]
   - [[#mise][mise]]
   - [[#proced][proced]]
-  - [[#recall][recall]]
   - [[#keycast][keycast]]
   - [[#dothttp][dothttp]]
 - [[#llm][LLM]]
@@ -3227,15 +3226,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :general
   (proced-mode-map
    "M-n" 'proced-narrow))
-#+end_src
-
-** recall
-#+begin_src emacs-lisp
-(use-package recall
-  :init
-  (setq recall-completing-read-fn #'recall-consult-completing-read)
-  :hook
-  (after-init-hook . recall-mode))
 #+end_src
 
 ** keycast
