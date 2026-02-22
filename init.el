@@ -95,12 +95,12 @@
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC"
-    :global-prefix "S-SPC")
+    :global-prefix "M-SPC")
   (general-create-definer +local-leader-def
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC m"
-    :global-prefix "S-SPC m")
+    :global-prefix "M-SPC m")
   (general-define-key
    :states '(normal visual)
    "," (general-simulate-key "SPC m" :which-key "local leader"))
