@@ -2107,9 +2107,11 @@
     "." '(:keymap markdown-mode-command-map))
   :init
   (setq markdown-command "pandoc")
+  ;; (setq markdown-hide-markup t)
+  (setq markdown-fontify-whole-heading-line t)
   (setq markdown-fontify-code-blocks-natively t)
   :config
-  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-mode)))
+  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-ts-mode)))
 
 (use-package grip-mode
   :general
