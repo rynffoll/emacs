@@ -1635,7 +1635,7 @@
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
-  (let* ((width 2)
+  (let* ((width 3)
          (bitmap (vector (1- (expt 2 width)))))
     (define-fringe-bitmap '+diff-hl-bmp-thin bitmap 1 width '(top t)))
   (defun +diff-hl-fringe-bmp-thin (_type _pos) '+diff-hl-bmp-thin)
