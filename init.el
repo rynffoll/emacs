@@ -1713,7 +1713,7 @@
   :init
   (setq org-directory "~/Org")
 
-  (setq org-startup-folded t)
+  ;; (setq org-startup-folded 'overview)
   (setq org-startup-indented t)
   (setq org-insert-heading-respect-content t)
   (setq org-hide-leading-stars t)
@@ -1728,7 +1728,7 @@
   (setq org-ellipsis "…")
   ;; (setq org-ellipsis " ⌄ ")
   (setq org-pretty-entities t)
-  (setq org-hide-emphasis-markers t)
+  ;; (setq org-hide-emphasis-markers t)
   (setq org-use-sub-superscripts '{}) ;; allow _ and ^ characters to sub/super-script strings but only when string is wrapped in braces
 
   (setq org-use-fast-todo-selection 'expert)
@@ -1746,8 +1746,6 @@
   (setq org-log-done 'time)
 
   (setq org-startup-with-inline-images t)
-
-  (setq org-fold-catch-invisible-edits 'smart)
 
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
@@ -1802,12 +1800,6 @@
   (setq org-src-window-setup 'current-window)
   (setq org-edit-src-content-indentation 0))
 
-(use-package org-list
-  :ensure org
-  :init
-  (setq org-list-allow-alphabetical t)
-  (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))))
-
 (use-package org-agenda
   :ensure org
   :init
@@ -1844,7 +1836,15 @@
 
 (use-package ob-core
   :ensure org
+  :preface
+  (defun +org-babel-add-lang (lang)
+    "Enable LANG in `org-babel-load-languages'.
+  Use instead of `org-babel-do-load-languages' to avoid
+  overwriting `org-babel-load-languages'."
+    (add-to-list 'org-babel-load-languages (cons lang t))
+    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
   :init
+  ;; built-in languages, for external use `+org-babel-add-lang'
   (setq org-babel-load-languages
         '((emacs-lisp . t)
           (shell      . t)
@@ -1871,9 +1871,7 @@
   (setq verb-auto-kill-response-buffers t)
   (setq verb-json-use-mode 'json-ts-mode)
   :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((verb . t))))
+  (+org-babel-add-lang 'verb))
 
 (use-package ob-chatgpt-shell
   :commands (org-babel-execute:chatgpt-shell)
@@ -1889,10 +1887,6 @@
   (setq org-crypt-key nil)
   :config
   (org-crypt-use-before-save-magic))
-
-(use-package org-appear
-  :hook
-  (org-mode-hook . org-appear-mode))
 
 (use-package deft
   :general

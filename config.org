@@ -1,5 +1,6 @@
 # -*- after-save-hook: org-babel-tangle; -*-
 #+title: Emacs config
+#+startup: overview
 #+property: header-args:emacs-lisp :tangle init.el :results silent
 * Table of Contents :TOC:
 - [[#early-initialization][Early Initialization]]
@@ -121,7 +122,6 @@
   - [[#org-refile][org-refile]]
   - [[#org-link][org-link]]
   - [[#org-src][org-src]]
-  - [[#org-list][org-list]]
   - [[#org-agenda][org-agenda]]
   - [[#org-faces][org-faces]]
   - [[#toc-org][toc-org]]
@@ -132,7 +132,6 @@
     - [[#verb][verb]]
     - [[#ob-chatgpt-shell][ob-chatgpt-shell]]
   - [[#org-crypt][org-crypt]]
-  - [[#org-appear][org-appear]]
 - [[#notes][Notes]]
   - [[#deft][deft]]
 - [[#lsp][LSP]]
@@ -2545,7 +2544,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   :init
   (setq org-directory "~/Org")
 
-  (setq org-startup-folded t)
+  ;; (setq org-startup-folded 'overview)
   (setq org-startup-indented t)
   (setq org-insert-heading-respect-content t)
   (setq org-hide-leading-stars t)
@@ -2560,7 +2559,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-ellipsis "…")
   ;; (setq org-ellipsis " ⌄ ")
   (setq org-pretty-entities t)
-  (setq org-hide-emphasis-markers t)
+  ;; (setq org-hide-emphasis-markers t)
   (setq org-use-sub-superscripts '{}) ;; allow _ and ^ characters to sub/super-script strings but only when string is wrapped in braces
 
   (setq org-use-fast-todo-selection 'expert)
@@ -2578,8 +2577,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-log-done 'time)
 
   (setq org-startup-with-inline-images t)
-
-  (setq org-fold-catch-invisible-edits 'smart)
 
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
@@ -2647,15 +2644,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-edit-src-content-indentation 0))
 #+end_src
 
-** org-list
-#+begin_src emacs-lisp
-(use-package org-list
-  :ensure org
-  :init
-  (setq org-list-allow-alphabetical t)
-  (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))))
-#+end_src
-
 ** org-agenda
 #+begin_src emacs-lisp
 (use-package org-agenda
@@ -2704,7 +2692,15 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 #+begin_src emacs-lisp
 (use-package ob-core
   :ensure org
+  :preface
+  (defun +org-babel-add-lang (lang)
+    "Enable LANG in `org-babel-load-languages'.
+  Use instead of `org-babel-do-load-languages' to avoid
+  overwriting `org-babel-load-languages'."
+    (add-to-list 'org-babel-load-languages (cons lang t))
+    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
   :init
+  ;; built-in languages, for external use `+org-babel-add-lang'
   (setq org-babel-load-languages
         '((emacs-lisp . t)
           (shell      . t)
@@ -2740,9 +2736,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq verb-auto-kill-response-buffers t)
   (setq verb-json-use-mode 'json-ts-mode)
   :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((verb . t))))
+  (+org-babel-add-lang 'verb))
 #+end_src
 
 *** ob-chatgpt-shell
@@ -2786,13 +2780,6 @@ Hello World!
   (setq org-crypt-key nil)
   :config
   (org-crypt-use-before-save-magic))
-#+end_src
-
-** org-appear
-#+begin_src emacs-lisp
-(use-package org-appear
-  :hook
-  (org-mode-hook . org-appear-mode))
 #+end_src
 
 * Notes
