@@ -1889,11 +1889,6 @@
   :config
   (+org-babel-add-lang 'verb))
 
-(use-package ob-chatgpt-shell
-  :commands (org-babel-execute:chatgpt-shell)
-  :config
-  (ob-chatgpt-shell-setup))
-
 (use-package org-crypt
   :ensure org
   :init
@@ -2279,16 +2274,6 @@
 (use-package gptel-magit
   :hook
   (magit-mode-hook . gptel-magit-install))
-
-(use-package chatgpt-shell
-  :preface
-  (defun +chatgpt-shell-openai-key ()
-    (auth-source-pick-first-password :host "api.openai.com"))
-  :general
-  (+leader-def
-    "lcs" 'chatgpt-shell)
-  :init
-  (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)

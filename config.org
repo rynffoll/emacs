@@ -130,7 +130,6 @@
     - [[#ob-tangle][ob-tangle]]
     - [[#ob-plantuml][ob-plantuml]]
     - [[#verb][verb]]
-    - [[#ob-chatgpt-shell][ob-chatgpt-shell]]
   - [[#org-crypt][org-crypt]]
 - [[#notes][Notes]]
   - [[#deft][deft]]
@@ -167,7 +166,6 @@
   - [[#gptel][gptel]]
   - [[#gptel-quick][gptel-quick]]
   - [[#gptel-magit][gptel-magit]]
-  - [[#chatgpt-shell][chatgpt-shell]]
   - [[#claude-code-ide][claude-code-ide]]
   - [[#claude-code][claude-code]]
   - [[#agent-shell][agent-shell]]
@@ -2752,14 +2750,6 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (+org-babel-add-lang 'verb))
 #+end_src
 
-*** ob-chatgpt-shell
-#+begin_src emacs-lisp
-(use-package ob-chatgpt-shell
-  :commands (org-babel-execute:chatgpt-shell)
-  :config
-  (ob-chatgpt-shell-setup))
-#+end_src
-
 *** COMMENT tests
 #+begin_src emacs-lisp :tangle no :results silent
 (message "Hello World!")
@@ -2775,10 +2765,6 @@ Bob -> Alice : Hello World!
 
 #+begin_src verb :tangle no :op send get-body :results silent
 get https://github.com/status
-#+end_src
-
-#+begin_src chatgpt-shell :results silent
-Hello World!
 #+end_src
 
 ** org-crypt
@@ -3324,19 +3310,6 @@ machine api.openai.com login apikey password TOKEN
 (use-package gptel-magit
   :hook
   (magit-mode-hook . gptel-magit-install))
-#+end_src
-
-** chatgpt-shell
-#+begin_src emacs-lisp
-(use-package chatgpt-shell
-  :preface
-  (defun +chatgpt-shell-openai-key ()
-    (auth-source-pick-first-password :host "api.openai.com"))
-  :general
-  (+leader-def
-    "lcs" 'chatgpt-shell)
-  :init
-  (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
 #+end_src
 
 ** claude-code-ide
