@@ -1784,12 +1784,26 @@ Install fonts
   :if +with-icons
   :unless +with-dirvish
   :preface
-  (defun +nerd-icons-dired-refresh ()
-    (when (bound-and-true-p nerd-icons-dired-mode)
-      (nerd-icons-dired--refresh)))
+  (defvar-local +nerd-icons-dired--refresh-timer nil)
+  (defun +nerd-icons-dired--refresh (orig-fn &rest _)
+    "Debounced advice for `nerd-icons-dired--refresh'."
+    (when (derived-mode-p 'dired-mode)
+      (when (timerp +nerd-icons-dired--refresh-timer)
+        (cancel-timer +nerd-icons-dired--refresh-timer))
+      (setq +nerd-icons-dired--refresh-timer
+            (run-with-timer
+             0.01 nil
+             (lambda (buf f)
+               (when (buffer-live-p buf)
+                 (with-current-buffer buf
+                   (when (bound-and-true-p nerd-icons-dired-mode)
+                     (funcall f)))))
+             (current-buffer) orig-fn))))
+  :config
+  (advice-add 'nerd-icons-dired--refresh :around #'+nerd-icons-dired--refresh)
   :hook
   (dired-mode-hook . nerd-icons-dired-mode)
-  (dired-subtree-after-insert-hook . +nerd-icons-dired-refresh))
+  (dired-subtree-after-insert-hook . nerd-icons-dired--refresh))
 #+end_src
 
 #+begin_src emacs-lisp
