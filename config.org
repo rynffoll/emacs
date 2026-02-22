@@ -266,14 +266,14 @@
 #+end_src
 
 #+begin_src emacs-lisp
-;; (setq +font "JetBrains Mono:weight=medium:size=14")
-;; (setq +font "Iosevka Term:weight=medium:size=14")
-;; (setq +font "Iosevka Term:weight=medium:width=expanded:size=14") ;; Ioesevka Term Extended
-;; (setq +font "Martian Mono Condensed 14")
-;; (setq +font "Cascadia Code:size=16")
-;; (setq +font "Cascadia Code NF:size=16")
-;; (setq +font "Iosevka:size=16")
-(setq +font "Iosevka Term:size=16")
+;; (defvar +font "JetBrains Mono:weight=medium:size=14")
+;; (defvar +font "Iosevka Term:weight=medium:size=14")
+;; (defvar +font "Iosevka Term:weight=medium:width=expanded:size=14") ;; Ioesevka Term Extended
+;; (defvar +font "Martian Mono Condensed 14")
+;; (defvar +font "Cascadia Code:size=16")
+;; (defvar +font "Cascadia Code NF:size=16")
+;; (defvar +font "Iosevka:size=16")
+(defvar +font "Iosevka Term:size=16")
 
 (add-to-list 'default-frame-alist `(font . ,+font))
 #+end_src
@@ -801,14 +801,6 @@ Install fonts
 (use-package doric-themes)
 #+end_src
 
-[[https://protesilaos.com/emacs/standard-themes][standard-themes]]
-#+begin_src emacs-lisp
-(use-package standard-themes
-  ;; https://github.com/protesilaos/standard-themes/issues/9
-  :pin elpa-devel ;; TODO: back to stable after the fix is released
-  )
-#+end_src
-
 [[https://github.com/doomemacs/themes][doom-themes]]
 #+begin_src emacs-lisp
 (use-package doom-themes
@@ -819,11 +811,28 @@ Install fonts
 #+end_src
 
 #+begin_src emacs-lisp
-(setq +theme 'modus-operandi)
-;; (setq +theme 'ef-melissa-light)
-;; (setq +theme 'doom-earl-grey)
+(setq +theme-alist '((default . modus-operandi)
+                     (light   . modus-operandi)
+                     (dark    . ef-dream)))
 
-(load-theme +theme :no-confirm)
+(defun +theme-change (appearance)
+  "Load theme, taking current system APPEARANCE into consideration."
+  (when-let ((theme (alist-get appearance +theme-alist)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme :no-confirm)))
+
+(defun +theme-toggle ()
+  "Toggle between light and dark themes."
+  (interactive)
+  (if (memq (alist-get 'dark +theme-alist) custom-enabled-themes)
+      (+theme-change 'light)
+    (+theme-change 'dark)))
+
+(if (and (display-graphic-p)
+         (eq window-system 'ns)
+         (boundp 'ns-system-appearance-change-functions))
+    (add-hook 'ns-system-appearance-change-functions #'+theme-change)
+  (load-theme (alist-get 'default +theme-alist) :no-confirm))
 #+end_src
 
 * Frames

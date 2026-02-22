@@ -368,22 +368,34 @@
 
 (use-package doric-themes)
 
-(use-package standard-themes
-  ;; https://github.com/protesilaos/standard-themes/issues/9
-  :pin elpa-devel ;; TODO: back to stable after the fix is released
-  )
-
 (use-package doom-themes
   :init
   (setq doom-themes-enable-italic t)
   :config
   (doom-themes-org-config))
 
-(setq +theme 'modus-operandi)
-;; (setq +theme 'ef-melissa-light)
-;; (setq +theme 'doom-earl-grey)
+(setq +theme-alist '((default . modus-operandi)
+                     (light   . modus-operandi)
+                     (dark    . ef-dream)))
 
-(load-theme +theme :no-confirm)
+(defun +theme-change (appearance)
+  "Load theme, taking current system APPEARANCE into consideration."
+  (when-let ((theme (alist-get appearance +theme-alist)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme :no-confirm)))
+
+(defun +theme-toggle ()
+  "Toggle between light and dark themes."
+  (interactive)
+  (if (memq (alist-get 'dark +theme-alist) custom-enabled-themes)
+      (+theme-change 'light)
+    (+theme-change 'dark)))
+
+(if (and (display-graphic-p)
+         (eq window-system 'ns)
+         (boundp 'ns-system-appearance-change-functions))
+    (add-hook 'ns-system-appearance-change-functions #'+theme-change)
+  (load-theme (alist-get 'default +theme-alist) :no-confirm))
 
 (use-package frame
   :ensure nil
