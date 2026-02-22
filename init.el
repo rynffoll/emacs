@@ -498,6 +498,7 @@
   (after-init-hook . project-tab-groups-mode))
 
 (use-package per-tab-group-theme
+  :disabled
   :ensure nil
   :load-path "site-lisp/per-tab-group-theme"
   :hook

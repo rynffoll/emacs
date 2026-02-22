@@ -954,6 +954,7 @@ Install fonts
 
 #+begin_src emacs-lisp
 (use-package per-tab-group-theme
+  :disabled
   :ensure nil
   :load-path "site-lisp/per-tab-group-theme"
   :hook
