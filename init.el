@@ -1758,7 +1758,8 @@
 
   (setq org-log-done 'time)
 
-  (setq org-startup-with-inline-images t)
+  (setq org-startup-with-inline-images t) ;; TODO: emacs 31 (org 9.8): renamed to `org-startup-with-link-previews'
+  (setq org-startup-with-link-previews t) ;; TODO: emacs 31 (org 9.8)
 
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
@@ -1811,7 +1812,9 @@
   :ensure org
   :init
   (setq org-src-window-setup 'current-window)
-  (setq org-edit-src-content-indentation 0))
+  (setq org-edit-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8): renamed to `org-src-content-indentation'
+  (setq org-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8)
+  )
 
 (use-package org-agenda
   :ensure org
