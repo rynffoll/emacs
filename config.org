@@ -2481,7 +2481,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 
 #+begin_src emacs-lisp
 (use-package diff-hl-dired
-  :ensure nil ;; diff-hl
+  :ensure diff-hl
   :preface
   (defun +diff-hl-dired-update ()
     (when (bound-and-true-p diff-hl-dired-mode)

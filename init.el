@@ -1665,7 +1665,7 @@
   (enable-theme-functions . +diff-hl-update-faces))
 
 (use-package diff-hl-dired
-  :ensure nil ;; diff-hl
+  :ensure diff-hl
   :preface
   (defun +diff-hl-dired-update ()
     (when (bound-and-true-p diff-hl-dired-mode)
