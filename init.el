@@ -89,44 +89,6 @@
   (after-init-hook . async-bytecomp-package-mode)
   (dired-mode-hook . dired-async-mode))
 
-(use-package general
-  :config
-  (general-create-definer +leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC"
-    :global-prefix "M-SPC")
-  (general-create-definer +local-leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC m"
-    :global-prefix "M-SPC m")
-  (general-define-key
-   :states '(normal visual)
-   "," (general-simulate-key "SPC m" :which-key "local leader"))
-  (+leader-def
-    ""    '(nil :wk "leader")
-    "l"   '(:ignore t :wk "llm")
-    "lc"  '(:ignore t :wk "chats")
-    "la"  '(:ignore t :wk "agents")
-    "o"   '(:ignore t :wk "open")
-    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
-    "F"   '(:ignore t :wk "frame")
-    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
-    "b"   '(:ignore t :wk "buffer")
-	"S"   '(:ignore t :wk "session")
-    "f"   '(:ignore t :wk "file")
-    "e"   '(:ignore t :wk "emacs")
-    "g"   '(:ignore t :wk "git")
-    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
-    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
-    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
-    "t"   '(:ignore t :wk "toggle")
-    "i"   '(:ignore t :wk "insert")
-    "q"   '(:ignore t :wk "quit"))
-  (+local-leader-def
-    ""    '(nil :wk "local leader")))
-
 (use-package evil
   :if +with-evil
   :demand
@@ -210,6 +172,44 @@
   (setq etcc-use-blink nil)
   :hook
   (after-init-hook . evil-terminal-cursor-changer-activate))
+
+(use-package general
+  :config
+  (general-create-definer +leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC"
+    :global-prefix "M-SPC")
+  (general-create-definer +local-leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC m"
+    :global-prefix "M-SPC m")
+  (general-define-key
+   :states '(normal visual)
+   "," (general-simulate-key "SPC m" :which-key "local leader"))
+  (+leader-def
+    ""    '(nil :wk "leader")
+    "l"   '(:ignore t :wk "llm")
+    "lc"  '(:ignore t :wk "chats")
+    "la"  '(:ignore t :wk "agents")
+    "o"   '(:ignore t :wk "open")
+    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
+    "F"   '(:ignore t :wk "frame")
+    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
+    "b"   '(:ignore t :wk "buffer")
+	"S"   '(:ignore t :wk "session")
+    "f"   '(:ignore t :wk "file")
+    "e"   '(:ignore t :wk "emacs")
+    "g"   '(:ignore t :wk "git")
+    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
+    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
+    "t"   '(:ignore t :wk "toggle")
+    "i"   '(:ignore t :wk "insert")
+    "q"   '(:ignore t :wk "quit"))
+  (+local-leader-def
+    ""    '(nil :wk "local leader")))
 
 (use-package which-key
   :ensure nil
