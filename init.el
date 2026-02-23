@@ -178,44 +178,6 @@
     :states '(normal visual insert emacs motion)
     :keymaps 'override
     :prefix "SPC"
-    :global-prefix "S-SPC")
-  (general-create-definer +local-leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC m"
-    :global-prefix "S-SPC m")
-  (general-define-key
-   :states '(normal visual)
-   "," (general-simulate-key "SPC m" :which-key "local leader"))
-  (+leader-def
-    ""    '(nil :wk "leader")
-    "l"   '(:ignore t :wk "llm")
-    "lc"  '(:ignore t :wk "chats")
-    "la"  '(:ignore t :wk "agents")
-    "o"   '(:ignore t :wk "open")
-    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
-    "F"   '(:ignore t :wk "frame")
-    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
-    "b"   '(:ignore t :wk "buffer")
-	"S"   '(:ignore t :wk "session")
-    "f"   '(:ignore t :wk "file")
-    "e"   '(:ignore t :wk "emacs")
-    "g"   '(:ignore t :wk "git")
-    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
-    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
-    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
-    "t"   '(:ignore t :wk "toggle")
-    "i"   '(:ignore t :wk "insert")
-    "q"   '(:ignore t :wk "quit"))
-  (+local-leader-def
-    ""    '(nil :wk "local leader")))
-
-(use-package general
-  :config
-  (general-create-definer +leader-def
-    :states '(normal visual insert emacs motion)
-    :keymaps 'override
-    :prefix "SPC"
     :global-prefix "M-SPC")
   (general-create-definer +local-leader-def
     :states '(normal visual insert emacs motion)
@@ -430,7 +392,8 @@
          (eq window-system 'ns)
          (boundp 'ns-system-appearance-change-functions))
     (add-hook 'ns-system-appearance-change-functions #'+theme-change)
-  (load-theme (alist-get 'default +theme-alist) :no-confirm))
+  (add-hook 'elpaca-after-init-hook
+            (lambda () (load-theme (alist-get 'default +theme-alist) :no-confirm))))
 
 (use-package frame
   :ensure nil
@@ -1716,7 +1679,7 @@
   (enable-theme-functions . +diff-hl-update-faces))
 
 (use-package diff-hl-dired
-  :ensure diff-hl
+  :ensure nil
   :preface
   (defun +diff-hl-dired-update ()
     (when (bound-and-true-p diff-hl-dired-mode)
@@ -1889,7 +1852,7 @@
   (org-mode-hook . toc-org-enable))
 
 (use-package ob-core
-  :ensure org
+  :ensure nil
   :preface
   (defun +org-babel-add-lang (lang)
     "Enable LANG in `org-babel-load-languages'.
