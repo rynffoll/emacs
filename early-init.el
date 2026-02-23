@@ -58,14 +58,14 @@
 
 (setq inhibit-compacting-font-caches t)
 
-;; (setq +font "JetBrains Mono:weight=medium:size=14")
-;; (setq +font "Iosevka Term:weight=medium:size=14")
-;; (setq +font "Iosevka Term:weight=medium:width=expanded:size=14") ;; Ioesevka Term Extended
-;; (setq +font "Martian Mono Condensed 14")
-;; (setq +font "Cascadia Code:size=16")
-;; (setq +font "Cascadia Code NF:size=16")
-;; (setq +font "Iosevka:size=16")
-(setq +font "Iosevka Term:size=16")
+;; (defvar +font "JetBrains Mono:weight=medium:size=14")
+;; (defvar +font "Iosevka Term:weight=medium:size=14")
+;; (defvar +font "Iosevka Term:weight=medium:width=expanded:size=14") ;; Ioesevka Term Extended
+;; (defvar +font "Martian Mono Condensed 14")
+;; (defvar +font "Cascadia Code:size=16")
+;; (defvar +font "Cascadia Code NF:size=16")
+;; (defvar +font "Iosevka:size=16")
+(defvar +font "Iosevka Term:size=16")
 
 (add-to-list 'default-frame-alist `(font . ,+font))
 

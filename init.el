@@ -37,7 +37,7 @@
   :type 'boolean
   :group '+feature-flags)
 
-(defcustom +with-dirvish t
+(defcustom +with-dirvish nil
   "Enable Dirvish integrations."
   :type 'boolean
   :group '+feature-flags)
@@ -184,6 +184,44 @@
     :keymaps 'override
     :prefix "SPC m"
     :global-prefix "S-SPC m")
+  (general-define-key
+   :states '(normal visual)
+   "," (general-simulate-key "SPC m" :which-key "local leader"))
+  (+leader-def
+    ""    '(nil :wk "leader")
+    "l"   '(:ignore t :wk "llm")
+    "lc"  '(:ignore t :wk "chats")
+    "la"  '(:ignore t :wk "agents")
+    "o"   '(:ignore t :wk "open")
+    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
+    "F"   '(:ignore t :wk "frame")
+    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
+    "b"   '(:ignore t :wk "buffer")
+	"S"   '(:ignore t :wk "session")
+    "f"   '(:ignore t :wk "file")
+    "e"   '(:ignore t :wk "emacs")
+    "g"   '(:ignore t :wk "git")
+    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
+    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
+    "t"   '(:ignore t :wk "toggle")
+    "i"   '(:ignore t :wk "insert")
+    "q"   '(:ignore t :wk "quit"))
+  (+local-leader-def
+    ""    '(nil :wk "local leader")))
+
+(use-package general
+  :config
+  (general-create-definer +leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC"
+    :global-prefix "M-SPC")
+  (general-create-definer +local-leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC m"
+    :global-prefix "M-SPC m")
   (general-define-key
    :states '(normal visual)
    "," (general-simulate-key "SPC m" :which-key "local leader"))
@@ -365,20 +403,34 @@
 
 (use-package doric-themes)
 
-(use-package standard-themes)
-
 (use-package doom-themes
   :init
   (setq doom-themes-enable-italic t)
   :config
   (doom-themes-org-config))
 
-(setq +theme 'modus-operandi)
-;; (setq +theme 'ef-melissa-light)
-;; (setq +theme 'doom-earl-grey)
+(setq +theme-alist '((default . modus-operandi)
+                     (light   . modus-operandi)
+                     (dark    . ef-dream)))
 
-(add-hook 'elpaca-after-init-hook
-          #'(lambda () (load-theme +theme :no-confirm)))
+(defun +theme-change (appearance)
+  "Load theme, taking current system APPEARANCE into consideration."
+  (when-let ((theme (alist-get appearance +theme-alist)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme :no-confirm)))
+
+(defun +theme-toggle ()
+  "Toggle between light and dark themes."
+  (interactive)
+  (if (memq (alist-get 'dark +theme-alist) custom-enabled-themes)
+      (+theme-change 'light)
+    (+theme-change 'dark)))
+
+(if (and (display-graphic-p)
+         (eq window-system 'ns)
+         (boundp 'ns-system-appearance-change-functions))
+    (add-hook 'ns-system-appearance-change-functions #'+theme-change)
+  (load-theme (alist-get 'default +theme-alist) :no-confirm))
 
 (use-package frame
   :ensure nil
@@ -481,6 +533,7 @@
   (elpaca-after-init-hook . project-tab-groups-mode))
 
 (use-package per-tab-group-theme
+  :disabled
   :ensure nil
   :load-path "site-lisp/per-tab-group-theme"
   :hook
@@ -556,8 +609,7 @@
           ("\\*vc-git :.*" :regexp t :align below :ignore t :select t)
           ("\\*docker-compose .*\\*" :regexp t :align below)
           (comint-mode :align below)
-          (go-test-mode :align below)
-          (magit-pre-commit-mode :align below)))
+          (go-test-mode :align below)))
   :hook
   (elpaca-after-init-hook . shackle-mode))
 
@@ -1157,12 +1209,26 @@
   :if +with-icons
   :unless +with-dirvish
   :preface
-  (defun +nerd-icons-dired-refresh ()
-    (when (bound-and-true-p nerd-icons-dired-mode)
-      (nerd-icons-dired--refresh)))
+  (defvar-local +nerd-icons-dired--refresh-timer nil)
+  (defun +nerd-icons-dired--refresh (orig-fn &rest _)
+    "Debounced advice for `nerd-icons-dired--refresh'."
+    (when (derived-mode-p 'dired-mode)
+      (when (timerp +nerd-icons-dired--refresh-timer)
+        (cancel-timer +nerd-icons-dired--refresh-timer))
+      (setq +nerd-icons-dired--refresh-timer
+            (run-with-timer
+             0.01 nil
+             (lambda (buf f)
+               (when (buffer-live-p buf)
+                 (with-current-buffer buf
+                   (when (bound-and-true-p nerd-icons-dired-mode)
+                     (funcall f)))))
+             (current-buffer) orig-fn))))
+  :config
+  (advice-add 'nerd-icons-dired--refresh :around #'+nerd-icons-dired--refresh)
   :hook
   (dired-mode-hook . nerd-icons-dired-mode)
-  (dired-subtree-after-insert-hook . +nerd-icons-dired-refresh))
+  (dired-subtree-after-insert-hook . nerd-icons-dired--refresh))
 
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
@@ -1295,6 +1361,7 @@
   :demand
   :init
   (setq exec-path-from-shell-arguments '("-l"))
+  :config
   (exec-path-from-shell-initialize))
 
 (use-package with-editor
@@ -1547,7 +1614,6 @@
   :init
   (setq vterm-shell "/opt/homebrew/bin/fish")
   (setq vterm-max-scrollback 10000)
-  (setq vterm-set-bold-highbright t)
   :config
   ;; https://github.com/akermu/emacs-libvterm/issues/313#issuecomment-1183650463
   (advice-add #'vterm--redraw :around (lambda (fun &rest args) (let ((cursor-type cursor-type)) (apply fun args))))
@@ -1605,13 +1671,6 @@
   :hook
   (elpaca-after-init-hook . magit-prime-mode))
 
-(use-package magit-pre-commit
-  :init
-  (when (executable-find "prek")
-    (setq magit-pre-commit-executable "prek"))
-  :hook
-  (magit-mode-hook . magit-pre-commit-mode))
-
 (use-package magit-todos
   :init
   (setq magit-todos-keyword-suffix (rx (optional "(" (1+ (not (any ")"))) ")" ":")))
@@ -1627,13 +1686,10 @@
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
-  (let* ((width 2)
+  (let* ((width 3)
          (bitmap (vector (1- (expt 2 width)))))
     (define-fringe-bitmap '+diff-hl-bmp-thin bitmap 1 width '(top t)))
   (defun +diff-hl-fringe-bmp-thin (_type _pos) '+diff-hl-bmp-thin)
-  (defun +diff-hl-dired-update ()
-    (when (bound-and-true-p diff-hl-dired-mode)
-      (diff-hl-dired-update)))
   (defun +diff-hl-update-faces (&optional _theme)
     (when (display-graphic-p)
       (dolist (face '(diff-hl-insert
@@ -1649,27 +1705,38 @@
   (setq diff-hl-margin-symbols-alist
         '((insert . " ") (delete . " ") (change . " ")
           (unknown . " ") (ignored . " ") (reference . " ")))
-  (setq diff-hl-dired-extra-indicators nil)
   ;; (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
-  ;; (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
   (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
-  (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
   :hook
   (elpaca-after-init-hook . global-diff-hl-mode)
   (elpaca-after-init-hook . global-diff-hl-show-hunk-mouse-mode)
   (diff-hl-mode-hook . diff-hl-flydiff-mode)
   (magit-post-refresh-hook . diff-hl-magit-post-refresh)
-  (dired-mode-hook . diff-hl-dired-mode)
-  (dired-subtree-after-insert-hook . +diff-hl-dired-update)
   (diff-hl-mode-hook . +diff-hl-update-faces)
-  (diff-hl-dired-mode-hook . +diff-hl-update-faces)
   (enable-theme-functions . +diff-hl-update-faces))
 
-(use-package diff-hl-dired-hacks
-  :ensure nil
-  :load-path "site-lisp/diff-hl-dired-hacks"
-  :demand t
-  :after diff-hl)
+(use-package diff-hl-dired
+  :ensure diff-hl
+  :preface
+  (defun +diff-hl-dired-update ()
+    (when (bound-and-true-p diff-hl-dired-mode)
+      (diff-hl-dired-update)))
+  :init
+  (setq diff-hl-dired-extra-indicators nil)
+  ;; (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
+  (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
+  :config
+  ;; diff-hl overlays are zero-width (point, point) and survive `delete-region'
+  ;; — they leak onto the next visible line. Remove them before subtree deletion.
+  (define-advice dired-subtree-remove (:before () clean-diff-hl-overlays)
+    "Remove diff-hl overlays in subtree region before deletion."
+    (when (bound-and-true-p diff-hl-dired-mode)
+      (-when-let (ov (dired-subtree--get-ov))
+        (diff-hl-remove-overlays (overlay-start ov) (overlay-end ov)))))
+  :hook
+  (dired-mode-hook . diff-hl-dired-mode)
+  (dired-subtree-after-insert-hook . +diff-hl-dired-update)
+  (diff-hl-dired-mode-hook . +diff-hl-update-faces))
 
 (use-package git-link
   :general
@@ -1697,7 +1764,7 @@
   :init
   (setq org-directory "~/Org")
 
-  (setq org-startup-folded t)
+  ;; (setq org-startup-folded 'overview)
   (setq org-startup-indented t)
   (setq org-insert-heading-respect-content t)
   (setq org-hide-leading-stars t)
@@ -1712,7 +1779,7 @@
   (setq org-ellipsis "…")
   ;; (setq org-ellipsis " ⌄ ")
   (setq org-pretty-entities t)
-  (setq org-hide-emphasis-markers t)
+  ;; (setq org-hide-emphasis-markers t)
   (setq org-use-sub-superscripts '{}) ;; allow _ and ^ characters to sub/super-script strings but only when string is wrapped in braces
 
   (setq org-use-fast-todo-selection 'expert)
@@ -1729,9 +1796,8 @@
 
   (setq org-log-done 'time)
 
-  (setq org-startup-with-inline-images t)
-
-  (setq org-fold-catch-invisible-edits 'smart)
+  (setq org-startup-with-inline-images t) ;; TODO: emacs 31 (org 9.8): renamed to `org-startup-with-link-previews'
+  (setq org-startup-with-link-previews t) ;; TODO: emacs 31 (org 9.8)
 
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
@@ -1784,13 +1850,9 @@
   :ensure nil
   :init
   (setq org-src-window-setup 'current-window)
-  (setq org-edit-src-content-indentation 0))
-
-(use-package org-list
-  :ensure nil
-  :init
-  (setq org-list-allow-alphabetical t)
-  (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))))
+  (setq org-edit-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8): renamed to `org-src-content-indentation'
+  (setq org-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8)
+  )
 
 (use-package org-agenda
   :ensure nil
@@ -1827,8 +1889,16 @@
   (org-mode-hook . toc-org-enable))
 
 (use-package ob-core
-  :ensure nil
+  :ensure org
+  :preface
+  (defun +org-babel-add-lang (lang)
+    "Enable LANG in `org-babel-load-languages'.
+  Use instead of `org-babel-do-load-languages' to avoid
+  overwriting `org-babel-load-languages'."
+    (add-to-list 'org-babel-load-languages (cons lang t))
+    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
   :init
+  ;; built-in languages, for external use `+org-babel-add-lang'
   (setq org-babel-load-languages
         '((emacs-lisp . t)
           (shell      . t)
@@ -1855,14 +1925,7 @@
   (setq verb-auto-kill-response-buffers t)
   (setq verb-json-use-mode 'json-ts-mode)
   :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((verb . t))))
-
-(use-package ob-chatgpt-shell
-  :commands (org-babel-execute:chatgpt-shell)
-  :config
-  (ob-chatgpt-shell-setup))
+  (+org-babel-add-lang 'verb))
 
 (use-package org-crypt
   :ensure nil
@@ -1873,10 +1936,6 @@
   (setq org-crypt-key nil)
   :config
   (org-crypt-use-before-save-magic))
-
-(use-package org-appear
-  :hook
-  (org-mode-hook . org-appear-mode))
 
 (use-package deft
   :general
@@ -2097,9 +2156,11 @@
     "." '(:keymap markdown-mode-command-map))
   :init
   (setq markdown-command "pandoc")
+  ;; (setq markdown-hide-markup t)
+  (setq markdown-fontify-whole-heading-line t)
   (setq markdown-fontify-code-blocks-natively t)
   :config
-  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-mode)))
+  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-ts-mode)))
 
 (use-package grip-mode
   :general
@@ -2127,7 +2188,7 @@
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  (yaml-ts-mode-hook . flymake-mode)
+  (yaml-ts-mode-hook . flymake-mode) 
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 
 (use-package yaml-pro
@@ -2204,12 +2265,6 @@
   (proced-mode-map
    "M-n" 'proced-narrow))
 
-(use-package recall
-  :init
-  (setq recall-completing-read-fn #'recall-consult-completing-read)
-  :hook
-  (elpaca-after-init-hook . recall-mode))
-
 (use-package keycast
   :init
   (setq keycast-tab-bar-location 'tab-bar-format-global)
@@ -2258,16 +2313,6 @@
   :hook
   (magit-mode-hook . gptel-magit-install))
 
-(use-package chatgpt-shell
-  :preface
-  (defun +chatgpt-shell-openai-key ()
-    (auth-source-pick-first-password :host "api.openai.com"))
-  :general
-  (+leader-def
-    "lcs" 'chatgpt-shell)
-  :init
-  (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
-
 (use-package claude-code-ide
   :ensure (:host github :repo "manzaltu/claude-code-ide.el")
   :bind ("C-c C-'" . claude-code-ide-menu)
@@ -2293,40 +2338,29 @@
   :bind
   (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
 
-(use-package mcp)
-
-(use-package acp
-  :ensure (:host github :repo "xenodium/acp.el"))
-
 (use-package agent-shell
-  :ensure (:host github :repo "xenodium/agent-shell")
   :preface
   (defun +agent-shell-diff-evil-setup ()
     (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-      ;; n - next conflict hunk
-      ;; p - previous conflict hunk
-      ;; q - kill buffer and exit
-      (evil-local-set-key 'normal "n" #'diff-hunk-next)
-      (evil-local-set-key 'normal "p" #'diff-hunk-prev)
-      (evil-local-set-key 'normal "q" #'kill-current-buffer)))
+      (evil-emacs-state)))
   :general
   (+leader-def
     "las" 'agent-shell)
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
   (project-prefix-map
-    "a" 'agent-shell)
+   "a" 'agent-shell)
+  ( :keymaps 'agent-shell-mode-map :states 'insert
+    "RET" 'newline)
+  ( :keymaps 'agent-shell-mode-map :states 'normal
+    "RET" 'comint-send-input)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
-
-(use-package agent-shell-manager
-  :ensure (:host github :repo "jethrokuan/agent-shell-manager"))
 
 ;; copilot requires track-changes >= 1.4, built-in is 1.2
 (use-package track-changes)
 
 (use-package copilot
-  :ensure (:host github :repo "copilot-emacs/copilot.el")
   :general
   (copilot-completion-map
    "TAB"   'copilot-accept-completion
@@ -2339,6 +2373,7 @@
   (setq copilot-max-char-warning-disable t)
   :hook
   (prog-mode-hook . copilot-mode)
+  (conf-mode-hook . copilot-mode)
   (git-commit-mode-hook . copilot-mode))
 
 (use-package focus

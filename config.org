@@ -1,5 +1,6 @@
 # -*- after-save-hook: org-babel-tangle; -*-
 #+title: Emacs config
+#+startup: overview
 #+property: header-args:emacs-lisp :tangle init.el :results silent
 * Table of Contents :TOC:
 - [[#early-initialization][Early Initialization]]
@@ -31,6 +32,7 @@
 - [[#async][Async]]
 - [[#evil][Evil]]
 - [[#general][General]]
+- [[#general-1][General]]
 - [[#which-key][Which-key]]
 - [[#repeat][Repeat]]
 - [[#keyboard-layout][Keyboard Layout]]
@@ -107,7 +109,6 @@
 - [[#git][Git]]
   - [[#magit][magit]]
   - [[#magit-prime][magit-prime]]
-  - [[#magit-pre-commit][magit-pre-commit]]
   - [[#magit-todos][magit-todos]]
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
@@ -121,7 +122,6 @@
   - [[#org-refile][org-refile]]
   - [[#org-link][org-link]]
   - [[#org-src][org-src]]
-  - [[#org-list][org-list]]
   - [[#org-agenda][org-agenda]]
   - [[#org-faces][org-faces]]
   - [[#toc-org][toc-org]]
@@ -130,9 +130,7 @@
     - [[#ob-tangle][ob-tangle]]
     - [[#ob-plantuml][ob-plantuml]]
     - [[#verb][verb]]
-    - [[#ob-chatgpt-shell][ob-chatgpt-shell]]
   - [[#org-crypt][org-crypt]]
-  - [[#org-appear][org-appear]]
 - [[#notes][Notes]]
   - [[#deft][deft]]
 - [[#lsp][LSP]]
@@ -162,20 +160,15 @@
   - [[#ansible][ansible]]
   - [[#mise][mise]]
   - [[#proced][proced]]
-  - [[#recall][recall]]
   - [[#keycast][keycast]]
   - [[#dothttp][dothttp]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-quick][gptel-quick]]
   - [[#gptel-magit][gptel-magit]]
-  - [[#chatgpt-shell][chatgpt-shell]]
   - [[#claude-code-ide][claude-code-ide]]
   - [[#claude-code][claude-code]]
-  - [[#mcp][mcp]]
-  - [[#acp][acp]]
   - [[#agent-shell][agent-shell]]
-  - [[#agent-shell-manager][agent-shell-manager]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
 - [[#private][Private]]
@@ -270,14 +263,14 @@
 #+end_src
 
 #+begin_src emacs-lisp
-;; (setq +font "JetBrains Mono:weight=medium:size=14")
-;; (setq +font "Iosevka Term:weight=medium:size=14")
-;; (setq +font "Iosevka Term:weight=medium:width=expanded:size=14") ;; Ioesevka Term Extended
-;; (setq +font "Martian Mono Condensed 14")
-;; (setq +font "Cascadia Code:size=16")
-;; (setq +font "Cascadia Code NF:size=16")
-;; (setq +font "Iosevka:size=16")
-(setq +font "Iosevka Term:size=16")
+;; (defvar +font "JetBrains Mono:weight=medium:size=14")
+;; (defvar +font "Iosevka Term:weight=medium:size=14")
+;; (defvar +font "Iosevka Term:weight=medium:width=expanded:size=14") ;; Ioesevka Term Extended
+;; (defvar +font "Martian Mono Condensed 14")
+;; (defvar +font "Cascadia Code:size=16")
+;; (defvar +font "Cascadia Code NF:size=16")
+;; (defvar +font "Iosevka:size=16")
+(defvar +font "Iosevka Term:size=16")
 
 (add-to-list 'default-frame-alist `(font . ,+font))
 #+end_src
@@ -367,7 +360,7 @@ If you'd like to test a different font, evaluate the following block:
 
 ** =+with-dirvish=
 #+begin_src emacs-lisp
-(defcustom +with-dirvish t
+(defcustom +with-dirvish nil
   "Enable Dirvish integrations."
   :type 'boolean
   :group '+feature-flags)
@@ -555,6 +548,47 @@ If you'd like to test a different font, evaluate the following block:
     :keymaps 'override
     :prefix "SPC m"
     :global-prefix "S-SPC m")
+  (general-define-key
+   :states '(normal visual)
+   "," (general-simulate-key "SPC m" :which-key "local leader"))
+  (+leader-def
+    ""    '(nil :wk "leader")
+    "l"   '(:ignore t :wk "llm")
+    "lc"  '(:ignore t :wk "chats")
+    "la"  '(:ignore t :wk "agents")
+    "o"   '(:ignore t :wk "open")
+    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
+    "F"   '(:ignore t :wk "frame")
+    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
+    "b"   '(:ignore t :wk "buffer")
+	"S"   '(:ignore t :wk "session")
+    "f"   '(:ignore t :wk "file")
+    "e"   '(:ignore t :wk "emacs")
+    "g"   '(:ignore t :wk "git")
+    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
+    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
+    "t"   '(:ignore t :wk "toggle")
+    "i"   '(:ignore t :wk "insert")
+    "q"   '(:ignore t :wk "quit"))
+  (+local-leader-def
+    ""    '(nil :wk "local leader")))
+#+end_src
+
+* General
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-create-definer +leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC"
+    :global-prefix "M-SPC")
+  (general-create-definer +local-leader-def
+    :states '(normal visual insert emacs motion)
+    :keymaps 'override
+    :prefix "SPC m"
+    :global-prefix "M-SPC m")
   (general-define-key
    :states '(normal visual)
    "," (general-simulate-key "SPC m" :which-key "local leader"))
@@ -799,11 +833,6 @@ Install fonts
 (use-package doric-themes)
 #+end_src
 
-[[https://protesilaos.com/emacs/standard-themes][standard-themes]]
-#+begin_src emacs-lisp
-(use-package standard-themes)
-#+end_src
-
 [[https://github.com/doomemacs/themes][doom-themes]]
 #+begin_src emacs-lisp
 (use-package doom-themes
@@ -814,12 +843,28 @@ Install fonts
 #+end_src
 
 #+begin_src emacs-lisp
-(setq +theme 'modus-operandi)
-;; (setq +theme 'ef-melissa-light)
-;; (setq +theme 'doom-earl-grey)
+(setq +theme-alist '((default . modus-operandi)
+                     (light   . modus-operandi)
+                     (dark    . ef-dream)))
 
-(add-hook 'elpaca-after-init-hook
-          #'(lambda () (load-theme +theme :no-confirm)))
+(defun +theme-change (appearance)
+  "Load theme, taking current system APPEARANCE into consideration."
+  (when-let ((theme (alist-get appearance +theme-alist)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme :no-confirm)))
+
+(defun +theme-toggle ()
+  "Toggle between light and dark themes."
+  (interactive)
+  (if (memq (alist-get 'dark +theme-alist) custom-enabled-themes)
+      (+theme-change 'light)
+    (+theme-change 'dark)))
+
+(if (and (display-graphic-p)
+         (eq window-system 'ns)
+         (boundp 'ns-system-appearance-change-functions))
+    (add-hook 'ns-system-appearance-change-functions #'+theme-change)
+  (load-theme (alist-get 'default +theme-alist) :no-confirm))
 #+end_src
 
 * Frames
@@ -941,6 +986,7 @@ Install fonts
 
 #+begin_src emacs-lisp
 (use-package per-tab-group-theme
+  :disabled
   :ensure nil
   :load-path "site-lisp/per-tab-group-theme"
   :hook
@@ -1036,8 +1082,7 @@ Install fonts
           ("\\*vc-git :.*" :regexp t :align below :ignore t :select t)
           ("\\*docker-compose .*\\*" :regexp t :align below)
           (comint-mode :align below)
-          (go-test-mode :align below)
-          (magit-pre-commit-mode :align below)))
+          (go-test-mode :align below)))
   :hook
   (elpaca-after-init-hook . shackle-mode))
 #+end_src
@@ -1780,12 +1825,26 @@ Install fonts
   :if +with-icons
   :unless +with-dirvish
   :preface
-  (defun +nerd-icons-dired-refresh ()
-    (when (bound-and-true-p nerd-icons-dired-mode)
-      (nerd-icons-dired--refresh)))
+  (defvar-local +nerd-icons-dired--refresh-timer nil)
+  (defun +nerd-icons-dired--refresh (orig-fn &rest _)
+    "Debounced advice for `nerd-icons-dired--refresh'."
+    (when (derived-mode-p 'dired-mode)
+      (when (timerp +nerd-icons-dired--refresh-timer)
+        (cancel-timer +nerd-icons-dired--refresh-timer))
+      (setq +nerd-icons-dired--refresh-timer
+            (run-with-timer
+             0.01 nil
+             (lambda (buf f)
+               (when (buffer-live-p buf)
+                 (with-current-buffer buf
+                   (when (bound-and-true-p nerd-icons-dired-mode)
+                     (funcall f)))))
+             (current-buffer) orig-fn))))
+  :config
+  (advice-add 'nerd-icons-dired--refresh :around #'+nerd-icons-dired--refresh)
   :hook
   (dired-mode-hook . nerd-icons-dired-mode)
-  (dired-subtree-after-insert-hook . +nerd-icons-dired-refresh))
+  (dired-subtree-after-insert-hook . nerd-icons-dired--refresh))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1936,6 +1995,7 @@ Install fonts
   :demand
   :init
   (setq exec-path-from-shell-arguments '("-l"))
+  :config
   (exec-path-from-shell-initialize))
 #+end_src
 
@@ -2337,7 +2397,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :init
   (setq vterm-shell "/opt/homebrew/bin/fish")
   (setq vterm-max-scrollback 10000)
-  (setq vterm-set-bold-highbright t)
   :config
   ;; https://github.com/akermu/emacs-libvterm/issues/313#issuecomment-1183650463
   (advice-add #'vterm--redraw :around (lambda (fun &rest args) (let ((cursor-type cursor-type)) (apply fun args))))
@@ -2410,16 +2469,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (elpaca-after-init-hook . magit-prime-mode))
 #+end_src
 
-** magit-pre-commit
-#+begin_src emacs-lisp
-(use-package magit-pre-commit
-  :init
-  (when (executable-find "prek")
-    (setq magit-pre-commit-executable "prek"))
-  :hook
-  (magit-mode-hook . magit-pre-commit-mode))
-#+end_src
-
 ** magit-todos
 #+begin_src emacs-lisp
 (use-package magit-todos
@@ -2444,13 +2493,10 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
-  (let* ((width 2)
+  (let* ((width 3)
          (bitmap (vector (1- (expt 2 width)))))
     (define-fringe-bitmap '+diff-hl-bmp-thin bitmap 1 width '(top t)))
   (defun +diff-hl-fringe-bmp-thin (_type _pos) '+diff-hl-bmp-thin)
-  (defun +diff-hl-dired-update ()
-    (when (bound-and-true-p diff-hl-dired-mode)
-      (diff-hl-dired-update)))
   (defun +diff-hl-update-faces (&optional _theme)
     (when (display-graphic-p)
       (dolist (face '(diff-hl-insert
@@ -2466,29 +2512,40 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq diff-hl-margin-symbols-alist
         '((insert . " ") (delete . " ") (change . " ")
           (unknown . " ") (ignored . " ") (reference . " ")))
-  (setq diff-hl-dired-extra-indicators nil)
   ;; (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
-  ;; (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
   (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
-  (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
   :hook
   (elpaca-after-init-hook . global-diff-hl-mode)
   (elpaca-after-init-hook . global-diff-hl-show-hunk-mouse-mode)
   (diff-hl-mode-hook . diff-hl-flydiff-mode)
   (magit-post-refresh-hook . diff-hl-magit-post-refresh)
-  (dired-mode-hook . diff-hl-dired-mode)
-  (dired-subtree-after-insert-hook . +diff-hl-dired-update)
   (diff-hl-mode-hook . +diff-hl-update-faces)
-  (diff-hl-dired-mode-hook . +diff-hl-update-faces)
   (enable-theme-functions . +diff-hl-update-faces))
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package diff-hl-dired-hacks
-  :ensure nil
-  :load-path "site-lisp/diff-hl-dired-hacks"
-  :demand t
-  :after diff-hl)
+(use-package diff-hl-dired
+  :ensure diff-hl
+  :preface
+  (defun +diff-hl-dired-update ()
+    (when (bound-and-true-p diff-hl-dired-mode)
+      (diff-hl-dired-update)))
+  :init
+  (setq diff-hl-dired-extra-indicators nil)
+  ;; (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
+  (setq diff-hl-dired-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
+  :config
+  ;; diff-hl overlays are zero-width (point, point) and survive `delete-region'
+  ;; — they leak onto the next visible line. Remove them before subtree deletion.
+  (define-advice dired-subtree-remove (:before () clean-diff-hl-overlays)
+    "Remove diff-hl overlays in subtree region before deletion."
+    (when (bound-and-true-p diff-hl-dired-mode)
+      (-when-let (ov (dired-subtree--get-ov))
+        (diff-hl-remove-overlays (overlay-start ov) (overlay-end ov)))))
+  :hook
+  (dired-mode-hook . diff-hl-dired-mode)
+  (dired-subtree-after-insert-hook . +diff-hl-dired-update)
+  (diff-hl-dired-mode-hook . +diff-hl-update-faces))
 #+end_src
 
 ** git-link
@@ -2532,7 +2589,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   :init
   (setq org-directory "~/Org")
 
-  (setq org-startup-folded t)
+  ;; (setq org-startup-folded 'overview)
   (setq org-startup-indented t)
   (setq org-insert-heading-respect-content t)
   (setq org-hide-leading-stars t)
@@ -2547,7 +2604,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq org-ellipsis "…")
   ;; (setq org-ellipsis " ⌄ ")
   (setq org-pretty-entities t)
-  (setq org-hide-emphasis-markers t)
+  ;; (setq org-hide-emphasis-markers t)
   (setq org-use-sub-superscripts '{}) ;; allow _ and ^ characters to sub/super-script strings but only when string is wrapped in braces
 
   (setq org-use-fast-todo-selection 'expert)
@@ -2564,9 +2621,8 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 
   (setq org-log-done 'time)
 
-  (setq org-startup-with-inline-images t)
-
-  (setq org-fold-catch-invisible-edits 'smart)
+  (setq org-startup-with-inline-images t) ;; TODO: emacs 31 (org 9.8): renamed to `org-startup-with-link-previews'
+  (setq org-startup-with-link-previews t) ;; TODO: emacs 31 (org 9.8)
 
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
@@ -2631,16 +2687,9 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   :ensure nil
   :init
   (setq org-src-window-setup 'current-window)
-  (setq org-edit-src-content-indentation 0))
-#+end_src
-
-** org-list
-#+begin_src emacs-lisp
-(use-package org-list
-  :ensure nil
-  :init
-  (setq org-list-allow-alphabetical t)
-  (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+"))))
+  (setq org-edit-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8): renamed to `org-src-content-indentation'
+  (setq org-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8)
+  )
 #+end_src
 
 ** org-agenda
@@ -2690,8 +2739,16 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
 *** ob-core
 #+begin_src emacs-lisp
 (use-package ob-core
-  :ensure nil
+  :ensure org
+  :preface
+  (defun +org-babel-add-lang (lang)
+    "Enable LANG in `org-babel-load-languages'.
+  Use instead of `org-babel-do-load-languages' to avoid
+  overwriting `org-babel-load-languages'."
+    (add-to-list 'org-babel-load-languages (cons lang t))
+    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
   :init
+  ;; built-in languages, for external use `+org-babel-add-lang'
   (setq org-babel-load-languages
         '((emacs-lisp . t)
           (shell      . t)
@@ -2727,17 +2784,7 @@ Major modes for =.gitignore=, =.gitconfig=, =.gitattributes=, =.gitmodules= file
   (setq verb-auto-kill-response-buffers t)
   (setq verb-json-use-mode 'json-ts-mode)
   :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((verb . t))))
-#+end_src
-
-*** ob-chatgpt-shell
-#+begin_src emacs-lisp
-(use-package ob-chatgpt-shell
-  :commands (org-babel-execute:chatgpt-shell)
-  :config
-  (ob-chatgpt-shell-setup))
+  (+org-babel-add-lang 'verb))
 #+end_src
 
 *** COMMENT tests
@@ -2757,10 +2804,6 @@ Bob -> Alice : Hello World!
 get https://github.com/status
 #+end_src
 
-#+begin_src chatgpt-shell :results silent
-Hello World!
-#+end_src
-
 ** org-crypt
 [[https://orgmode.org/worg/org-tutorials/encrypting-files.html][Encrypting org Files.]]
 #+begin_src emacs-lisp
@@ -2773,13 +2816,6 @@ Hello World!
   (setq org-crypt-key nil)
   :config
   (org-crypt-use-before-save-magic))
-#+end_src
-
-** org-appear
-#+begin_src emacs-lisp
-(use-package org-appear
-  :hook
-  (org-mode-hook . org-appear-mode))
 #+end_src
 
 * Notes
@@ -3071,9 +3107,11 @@ go install github.com/go-delve/delve/cmd/dlv@latest
     "." '(:keymap markdown-mode-command-map))
   :init
   (setq markdown-command "pandoc")
+  ;; (setq markdown-hide-markup t)
+  (setq markdown-fontify-whole-heading-line t)
   (setq markdown-fontify-code-blocks-natively t)
   :config
-  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-mode)))
+  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-ts-mode)))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3113,7 +3151,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  (yaml-ts-mode-hook . flymake-mode)
+  (yaml-ts-mode-hook . flymake-mode) 
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 #+end_src
 
@@ -3237,15 +3275,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
    "M-n" 'proced-narrow))
 #+end_src
 
-** recall
-#+begin_src emacs-lisp
-(use-package recall
-  :init
-  (setq recall-completing-read-fn #'recall-consult-completing-read)
-  :hook
-  (elpaca-after-init-hook . recall-mode))
-#+end_src
-
 ** keycast
 #+begin_src emacs-lisp
 (use-package keycast
@@ -3320,19 +3349,6 @@ machine api.openai.com login apikey password TOKEN
   (magit-mode-hook . gptel-magit-install))
 #+end_src
 
-** chatgpt-shell
-#+begin_src emacs-lisp
-(use-package chatgpt-shell
-  :preface
-  (defun +chatgpt-shell-openai-key ()
-    (auth-source-pick-first-password :host "api.openai.com"))
-  :general
-  (+leader-def
-    "lcs" 'chatgpt-shell)
-  :init
-  (setq chatgpt-shell-openai-key #'+chatgpt-shell-openai-key))
-#+end_src
-
 ** claude-code-ide
 #+begin_src emacs-lisp
 (use-package claude-code-ide
@@ -3368,49 +3384,26 @@ machine api.openai.com login apikey password TOKEN
   (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
 #+end_src
 
-** mcp
-#+begin_src emacs-lisp
-(use-package mcp)
-#+end_src
-
-** acp
-#+begin_src emacs-lisp
-(use-package acp
-  :ensure (:host github :repo "xenodium/acp.el"))
-#+end_src
-
-#+begin_src sh :tangle no :results silent
-npm install -g @zed-industries/claude-code-acp
-#+end_src
-
 ** agent-shell
 #+begin_src emacs-lisp
 (use-package agent-shell
-  :ensure (:host github :repo "xenodium/agent-shell")
   :preface
   (defun +agent-shell-diff-evil-setup ()
     (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-      ;; n - next conflict hunk
-      ;; p - previous conflict hunk
-      ;; q - kill buffer and exit
-      (evil-local-set-key 'normal "n" #'diff-hunk-next)
-      (evil-local-set-key 'normal "p" #'diff-hunk-prev)
-      (evil-local-set-key 'normal "q" #'kill-current-buffer)))
+      (evil-emacs-state)))
   :general
   (+leader-def
     "las" 'agent-shell)
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
   (project-prefix-map
-    "a" 'agent-shell)
+   "a" 'agent-shell)
+  ( :keymaps 'agent-shell-mode-map :states 'insert
+    "RET" 'newline)
+  ( :keymaps 'agent-shell-mode-map :states 'normal
+    "RET" 'comint-send-input)
   :hook
   (diff-mode-hook . +agent-shell-diff-evil-setup))
-#+end_src
-
-** agent-shell-manager
-#+begin_src emacs-lisp
-(use-package agent-shell-manager
-  :ensure (:host github :repo "jethrokuan/agent-shell-manager"))
 #+end_src
 
 ** copilot
@@ -3419,7 +3412,6 @@ npm install -g @zed-industries/claude-code-acp
 (use-package track-changes)
 
 (use-package copilot
-  :ensure (:host github :repo "copilot-emacs/copilot.el")
   :general
   (copilot-completion-map
    "TAB"   'copilot-accept-completion
@@ -3432,6 +3424,7 @@ npm install -g @zed-industries/claude-code-acp
   (setq copilot-max-char-warning-disable t)
   :hook
   (prog-mode-hook . copilot-mode)
+  (conf-mode-hook . copilot-mode)
   (git-commit-mode-hook . copilot-mode))
 #+end_src
 
