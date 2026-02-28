@@ -1648,16 +1648,24 @@
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
-  (let* ((width 3)
+  (let* ((width 4)
          (bitmap (vector (1- (expt 2 width)))))
     (define-fringe-bitmap '+diff-hl-bmp-thin bitmap 1 width '(top t)))
   (defun +diff-hl-fringe-bmp-thin (_type _pos) '+diff-hl-bmp-thin)
   (defun +diff-hl-update-faces (&optional _theme)
+    "Adapt diff-hl faces for fringe bitmap rendering.
+Fringe bitmaps use the face foreground color, not background.
+Move each face's background color to foreground and clear the
+background so our thin bitmap displays the indicator color correctly.
+Covers both working-tree faces and reference-revision faces."
     (when (display-graphic-p)
       (dolist (face '(diff-hl-insert
                       diff-hl-delete
-                      diff-hl-change))
-        (when-let ((bg (face-background face)))
+                      diff-hl-change
+                      diff-hl-reference-insert
+                      diff-hl-reference-delete
+                      diff-hl-reference-change))
+        (when-let ((bg (face-background face nil t)))
           (set-face-foreground face bg) ;; fg -> bg
           (set-face-background face nil) ;; bg -> nil (transparent)
           ))))
@@ -1669,6 +1677,7 @@
           (unknown . " ") (ignored . " ") (reference . " ")))
   ;; (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-empty)
   (setq diff-hl-fringe-bmp-function #'+diff-hl-fringe-bmp-thin)
+  (setq diff-hl-fringe-flat-bmp '+diff-hl-bmp-thin)
   :hook
   (after-init-hook . global-diff-hl-mode)
   (after-init-hook . global-diff-hl-show-hunk-mouse-mode)
