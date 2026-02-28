@@ -2331,18 +2331,26 @@ Covers both working-tree faces and reference-revision faces."
 (use-package copilot
   :general
   (copilot-completion-map
-   "TAB"   'copilot-accept-completion
-   "C-TAB" 'copilot-accept-completion-by-word
-   "C-j"   'copilot-next-completion
-   "C-k"   'copilot-previous-completion)
+   "<tab>"   'copilot-accept-completion
+   "TAB"     'copilot-accept-completion
+   "C-<tab>" 'copilot-accept-completion-by-word
+   "C-TAB"   'copilot-accept-completion-by-word
+   "C-j"     'copilot-next-completion
+   "C-k"     'copilot-previous-completion
+   "C-n"     'copilot-next-completion
+   "C-p"     'copilot-previous-completion)
   :init
   (setq copilot-indent-offset-warning-disable t)
   (setq copilot-max-char 1000000)
   (setq copilot-max-char-warning-disable t)
   :hook
+  ;; (after-init-hook . global-copilot-mode)
   (prog-mode-hook . copilot-mode)
   (conf-mode-hook . copilot-mode)
-  (git-commit-mode-hook . copilot-mode))
+  (git-commit-mode-hook . copilot-mode)
+  (conf-mode-hook . copilot-nes-mode)
+  (prog-mode-hook . copilot-nes-mode)
+  (git-commit-mode-hook . copilot-nes-mode))
 
 (use-package focus
   :general
