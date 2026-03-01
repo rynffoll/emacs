@@ -202,7 +202,7 @@
     "f"   '(:ignore t :wk "file")
     "e"   '(:ignore t :wk "emacs")
     "g"   '(:ignore t :wk "git")
-    "/"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "s"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
     "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
     "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
     "t"   '(:ignore t :wk "toggle")
@@ -770,9 +770,10 @@
   ([remap switch-to-buffer-other-window] 'consult-buffer-other-window)
   ([remap switch-to-buffer-other-frame]  'consult-buffer-other-frame)
   ([remap yank-pop]                      'consult-yank-pop)
+  ([remap project-find-regexp]           'consult-ripgrep)
   (+leader-def
-    "/." 'consult-ripgrep
-    "/b" 'consult-line)
+    "sb" 'consult-line
+    "sg" 'consult-ripgrep)
   :init
   (setq register-preview-delay 0)
   (setq register-preview-function #'consult-register-format)
@@ -798,7 +799,9 @@
 (use-package consult-todo
   :general
   (+leader-def
-    "jt" 'consult-todo))
+    "st" 'consult-todo)
+  (project-prefix-map
+   "T" 'consult-todo-project))
 
 (use-package marginalia
   :general
