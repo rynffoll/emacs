@@ -1681,10 +1681,16 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (after-init-hook . global-diff-hl-mode)
   (after-init-hook . global-diff-hl-show-hunk-mouse-mode)
-  (diff-hl-mode-hook . diff-hl-flydiff-mode)
   (magit-post-refresh-hook . diff-hl-magit-post-refresh)
   (diff-hl-mode-hook . +diff-hl-update-faces)
   (enable-theme-functions . +diff-hl-update-faces))
+
+(use-package diff-hl-flydiff
+  :ensure diff-hl
+  :init
+  (setq diff-hl-flydiff-delay 0.5)
+  :hook
+  (diff-hl-mode-hook . diff-hl-flydiff-mode))
 
 (use-package diff-hl-dired
   :ensure diff-hl
