@@ -991,10 +991,7 @@
 (use-package autorevert
   :ensure nil
   :init
-  (setq auto-revert-verbose t)
   (setq global-auto-revert-non-file-buffers t)
-  (setq auto-revert-check-vc-info t)
-  (setq auto-revert-stop-on-user-input nil)
   :hook
   (after-init-hook . global-auto-revert-mode))
 
