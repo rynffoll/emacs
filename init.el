@@ -191,8 +191,6 @@
   (+leader-def
     ""    '(nil :wk "leader")
     "l"   '(:ignore t :wk "llm")
-    "lc"  '(:ignore t :wk "chats")
-    "la"  '(:ignore t :wk "agents")
     "o"   '(:ignore t :wk "open")
     "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
     "F"   '(:ignore t :wk "frame")
@@ -2274,20 +2272,14 @@ Covers both working-tree faces and reference-revision faces."
 (use-package gptel
   :general
   (+leader-def
-    "lcg" 'gptel)
+    "lg" 'gptel)
   (+local-leader-def :keymaps 'gptel-mode-map
     "." 'gptel-menu)
   (embark-general-map
    "." #'gptel-menu)
   :init
   (setq gptel-default-mode 'org-mode)
-  (setq gptel-prompt-prefix-alist
-        '((markdown-mode . "### ")
-          ;; (org-mode . "*** ")
-          (org-mode . "* ")
-          (text-mode . "### ")))
-  (setq gptel-org-branching-context t)
-  (setq gptel-model 'gpt-5)
+  (setq gptel-model 'gpt-5-mini)
   (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
   :hook
   (gptel-post-stream-hook . gptel-auto-scroll)
@@ -2305,28 +2297,17 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu)
   :general
   (+leader-def
-    "laC" 'claude-code-ide-menu)
+    "lc" 'claude-code-ide-menu)
+  (project-prefix-map
+   "C" 'claude-code-ide-menu)
+  :init
+  (setq claude-code-ide-use-side-window nil)
+  (setq claude-code-ide-show-claude-window-in-ediff nil)
+  ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names) 
   :config
   (claude-code-ide-emacs-tools-setup))
-
-(use-package inheritenv
-  :vc (:url "https://github.com/purcell/inheritenv" :rev :newest))
-
-(use-package monet
-  :vc (:url "https://github.com/stevemolitor/monet" :rev :newest))
-
-(use-package claude-code :ensure t
-  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
-  :config
-  (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
-  (monet-mode 1)
-  (claude-code-mode)
-  :bind-keymap ("C-c c" . claude-code-command-map)
-  :bind
-  (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
 
 (use-package agent-shell
   :preface
@@ -2335,7 +2316,7 @@ Covers both working-tree faces and reference-revision faces."
       (evil-emacs-state)))
   :general
   (+leader-def
-    "las" 'agent-shell)
+    "la" 'agent-shell)
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
   (project-prefix-map
