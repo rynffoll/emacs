@@ -632,8 +632,10 @@ If you'd like to test a different font, evaluate the following block:
 
 * TTY
 #+begin_src emacs-lisp
+;; TODO: Emacs 31 (turned on by default)
 (use-package xt-mouse
   :unless (display-graphic-p)
+  :if (< emacs-major-version 31)
   :ensure nil
   :hook
   (after-init-hook . xterm-mouse-mode))
@@ -3463,5 +3465,6 @@ Install server
 Loading private configuration from ~~/.emacs.d/site-lisp/default.el~
 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html][50.4 The Emacs Initialization File]]
 #+begin_src emacs-lisp
+;; TODO: emacs 31: use `user-lisp'
 (add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
 #+end_src
