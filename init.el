@@ -1997,11 +1997,8 @@ Covers both working-tree faces and reference-revision faces."
   (after-init-hook . dape-breakpoint-load))
 
 (use-package mason
-  :preface
-  (defun +mason-setup ()
-    (mason-setup))
   :hook
-  (after-init-hook . +mason-setup))
+  (after-init-hook . mason-ensure))
 
 (use-package treesit
   :ensure nil
