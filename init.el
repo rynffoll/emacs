@@ -270,10 +270,9 @@
 (use-package emacs
   :ensure nil
   :init
-  (setq scroll-step 1)
   (setq scroll-preserve-screen-position t)
-  (setq scroll-margin 0)
-  (setq scroll-conservatively 101)
+  (setq scroll-conservatively 101) ;; scroll one line at a time, no recenter
+  (setq scroll-margin 4) ;; lines of context
   (setq fast-but-imprecise-scrolling t)
   (setq redisplay-skip-fontification-on-input t))
 
@@ -281,11 +280,6 @@
   :ensure nil
   :hook
   (after-init-hook . pixel-scroll-precision-mode))
-
-(use-package ultra-scroll
-  :if (display-graphic-p)
-  :hook
-  (after-init-hook . ultra-scroll-mode))
 
 (use-package ligature
   :if (display-graphic-p)
