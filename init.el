@@ -476,7 +476,9 @@
   ;; (setq tab-bar-separator " ") ;; the same behavior in GUI and TUI
   (setq tab-bar-separator "")
   (setq tab-bar-auto-width nil)
-  (setq tab-bar-tab-name-function #'tab-bar-tab-name-truncated)
+  :config
+  (add-to-list 'tab-bar-tab-name-format-functions
+               #'tab-bar-tab-name-format-truncated)
   :hook
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
