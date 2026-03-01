@@ -2178,7 +2178,7 @@ Covers both working-tree faces and reference-revision faces."
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
   :hook
-  (yaml-ts-mode-hook . flymake-mode) 
+  (yaml-ts-mode-hook . flymake-mode)
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 
 (use-package yaml-pro
@@ -2307,7 +2307,7 @@ Covers both working-tree faces and reference-revision faces."
   :init
   (setq claude-code-ide-use-side-window nil)
   (setq claude-code-ide-show-claude-window-in-ediff nil)
-  ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names) 
+  ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names)
   :config
   (claude-code-ide-emacs-tools-setup))
 
