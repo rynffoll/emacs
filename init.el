@@ -427,6 +427,7 @@
   (mode-line-inactive ((t (:height 0.9))))
   :init
   (setq doom-modeline-icon +with-icons)
+  (setq doom-modeline-modal-icon +with-icons)
   (setq doom-modeline-buffer-encoding 'nondefault)
   (setq doom-modeline-buffer-file-name-style 'buffer-name)
   (setq doom-modeline-check 'simple)
