@@ -185,28 +185,124 @@
     :keymaps 'override
     :prefix "SPC m"
     :global-prefix "M-SPC m")
-  (general-define-key
-   :states '(normal visual)
-   "," (general-simulate-key "SPC m" :which-key "local leader"))
   (+leader-def
     ""    '(nil :wk "leader")
-    "l"   '(:ignore t :wk "llm")
-    "o"   '(:ignore t :wk "open")
-    "p"   '(:ignore t :wk "project") ;; TODO: project-prefix-map
-    "F"   '(:ignore t :wk "frame")
-    "TAB" '(:ignore t :wk "tab") ;; TODO: tab-prefix-map
+
+    ":"   'execute-extended-command
+    "."   'find-file
+    ","   'switch-to-buffer
+
+    "0"   'dired-sidebar-jump-to-sidebar
+    "1"   'winum-select-window-1
+    "2"   'winum-select-window-2
+    "3"   'winum-select-window-3
+    "4"   'winum-select-window-4
+    "5"   'winum-select-window-5
+    "6"   'winum-select-window-6
+    "7"   'winum-select-window-7
+    "8"   'winum-select-window-8
+    "9"   'winum-select-window-9
+
     "b"   '(:ignore t :wk "buffer")
-	"S"   '(:ignore t :wk "session")
-    "f"   '(:ignore t :wk "file")
-    "e"   '(:ignore t :wk "emacs")
-    "g"   '(:ignore t :wk "git")
+    "bb"  'switch-to-buffer
+    "bk"  'kill-current-buffer
+    "bK"  'kill-buffer-and-window
+    "bn"  'evil-buffer-new
+    "br"  'revert-buffer
+    "bR"  'rename-buffer
+    "bs"  'scratch-buffer
+    "bl"  'list-buffers
+    "bi"  'ibuffer
+
     "c"   '(:ignore t :wk "code")
-    "s"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
-    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
-    "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
-    "t"   '(:ignore t :wk "toggle")
+    "cr"  'quickrun
+    "cf"  'apheleia-format-buffer
+
+    "e"   '(:ignore t :wk "emacs")
+    "ed"  'iqa-find-user-init-directory
+    "ee"  'iqa-find-user-init-file
+    "ec"  'iqa-find-user-custom-file
+    "er"  'iqa-reload-user-init-file
+    "eR"  'restart-emacs
+
+    "f"   '(:ignore t :wk "file")
+    "fl"  'find-library
+    "fr"  'recentf-open-files
+    "ft"  'dired-sidebar-toggle-sidebar
+    "ff"  '+dired-sidebar-follow-file
+    "fR"  'crux-rename-file-and-buffer
+    "fD"  'crux-delete-file-and-buffer
+    "fg"  'magit-file-dispatch
+
+    "F"   '(:ignore t :wk "frame")
+    "Ff"  'select-frame-by-name
+    "Fn"  'make-frame-command
+    "Fc"  'delete-frame
+    "FC"  'delete-other-frames
+    "Fo"  'other-frame
+    "Fb"  'switch-to-buffer-other-frame
+    "FM"  'toggle-frame-maximized
+    "FF"  'toggle-frame-fullscreen
+    "F["  'ns-prev-frame
+    "F]"  'ns-next-frame
+
+    "g"   '(:ignore t :wk "git")
+    "g."  'magit-dispatch
+    "gf"  'magit-file-dispatch
+    "gg"  'magit-status
+    "gL"  'git-link-dispatch
+    "gj"  'consult-git-log-grep
+    "gt"  'git-timemachine
+
+    "h"   '(:keymap help-map :package help :wk "help")
+
     "i"   '(:ignore t :wk "insert")
-    "q"   '(:ignore t :wk "quit"))
+    "it"  'tempel-insert
+
+    "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
+    "ji"  'imenu
+    "jc"  'avy-goto-char
+    "jw"  'avy-goto-word-0
+    "jW"  'avy-goto-word-1
+    "jl"  'avy-goto-line
+    "jL"  'avy-goto-end-of-line
+
+    "l"   '(:ignore t :wk "llm")
+    "lg"  'gptel
+    "lc"  'claude-code-ide-menu
+    "la"  'agent-shell
+
+    "o"   '(:ignore t :wk "open")
+    "oc"  'customize-group
+    "ol"  'link-hint-open-link
+    "ot"  'vterm
+    "oe"  'eat
+
+    "p"   '(:keymap project-prefix-map :package project :wk "project")
+
+    "s"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
+    "sb"  'consult-line
+    "sg"  'consult-ripgrep
+    "st"  'consult-todo
+
+    "S"   '(:ignore t :wk "session")
+    "Ss"  'desktop-save-in-desktop-dir
+    "Sr"  'desktop-read
+
+    "TAB" '(:keymap tab-prefix-map :wk "tab-bar")
+
+    "t"   '(:ignore t :wk "toggle")
+    "tc"  'colorful-mode
+    "tf"  'focus-mode
+    "ti"  'highlight-indent-guides-mode
+    "tl"  'global-hl-line-mode
+    "tn"  'display-line-numbers-mode
+    "ts"  'jinx-mode
+    "tt"  'load-theme
+    "tT"  'toggle-truncate-lines
+    "tw"  'whitespace-mode
+    "tz"  'olivetti-mode
+    )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
 
@@ -336,12 +432,6 @@
   :custom-face
   (header-line ((t (:height 0.9)))))
 
-(use-package custom
-  :ensure nil
-  :general
-  (+leader-def
-    "tt" 'load-theme))
-
 (use-package modus-themes
   ;; :ensure nil
   :pin melpa-stable
@@ -403,26 +493,8 @@
      (seq-filter (lambda (param)
                    (memq (car param) '(left top width height)))
                  default-frame-alist)))
-  :general
-  (+leader-def
-    "Ff" 'select-frame-by-name
-    "Fn" 'make-frame-command
-    "Fc" 'delete-frame
-    "FC" 'delete-other-frames
-    "Fo" 'other-frame
-    "Fb" 'switch-to-buffer-other-frame
-    "FM" 'toggle-frame-maximized
-    "FF" 'toggle-frame-fullscreen)
   :config
   (blink-cursor-mode -1))
-
-(use-package ns-win
-  :if (eq window-system 'ns)
-  :ensure nil
-  :general
-  (+leader-def
-    "F[" 'ns-prev-frame
-    "F]" 'ns-next-frame))
 
 (use-package fringe
   :if (display-graphic-p)
@@ -444,8 +516,6 @@
   :custom-face
   (tab-bar ((t (:height 0.9))))
   :general
-  (+leader-def
-    "TAB" '(:keymap tab-prefix-map :wk "tab-bar"))
   (tab-prefix-map
    "TAB" 'tab-recent
    "0" 'tab-recent
@@ -526,18 +596,6 @@
   (after-init-hook . winner-mode))
 
 (use-package winum
-  :general
-  (+leader-def
-    "0" 'winum-select-window-0-or-10
-    "1" 'winum-select-window-1
-    "2" 'winum-select-window-2
-    "3" 'winum-select-window-3
-    "4" 'winum-select-window-4
-    "5" 'winum-select-window-5
-    "6" 'winum-select-window-6
-    "7" 'winum-select-window-7
-    "8" 'winum-select-window-8
-    "9" 'winum-select-window-9)
   :init
   (setq winum-auto-setup-mode-line nil)
   (setq winum-scope 'frame-local)
@@ -621,47 +679,15 @@
   ;; (after-init-hook . popper-tab-line-mode)
   )
 
-(use-package emacs
-  :ensure nil
-  :general
-  (+leader-def
-    "bR" 'rename-buffer))
-
-(use-package simple
-  :ensure nil
-  :general
-  (+leader-def
-    "bs" 'scratch-buffer
-    "bk" 'kill-current-buffer))
-
-(use-package window
-  :ensure nil
-  :general
-  (+leader-def
-    ","  'switch-to-buffer
-    "bb" 'switch-to-buffer
-    "bK" 'kill-buffer-and-window))
-
 (use-package uniquify
   :ensure nil
   :init
   (setq uniquify-buffer-name-style 'forward))
 
-(use-package evil-commands
-  :if +with-evil
-  :ensure evil
-  :after evil
-  :general
-  (+leader-def
-    "bn" 'evil-buffer-new))
-
 (use-package ibuffer
   :ensure nil
   :general
   ([remap list-buffers] 'ibuffer)
-  (+leader-def
-    "bl" 'list-buffers
-    "bi" 'ibuffer)
   :init
   (setq ibuffer-human-readable-size t) ;; emacs 31
   )
@@ -704,9 +730,6 @@
 
 (use-package recentf
   :ensure nil
-  :general
-  (+leader-def
-    "fr" 'recentf-open-files)
   :init
   (setq recentf-max-saved-items 300)
   :hook
@@ -714,10 +737,6 @@
 
 (use-package desktop
   :ensure nil
-  :general
-  (+leader-def
-    "Ss" 'desktop-save-in-desktop-dir
-    "Sr" 'desktop-read)
   :init
   (setq desktop-path `(,user-emacs-directory))
   :config
@@ -773,9 +792,6 @@
   ([remap switch-to-buffer-other-frame]  'consult-buffer-other-frame)
   ([remap yank-pop]                      'consult-yank-pop)
   ([remap project-find-regexp]           'consult-ripgrep)
-  (+leader-def
-    "sb" 'consult-line
-    "sg" 'consult-ripgrep)
   :init
   (setq register-preview-delay 0)
   (setq register-preview-function #'consult-register-format)
@@ -800,8 +816,6 @@
 
 (use-package consult-todo
   :general
-  (+leader-def
-    "st" 'consult-todo)
   (project-prefix-map
    "T" 'consult-todo-project))
 
@@ -955,8 +969,6 @@
     (setq-local completion-at-point-functions
                 (cons #'tempel-expand completion-at-point-functions)))
   :general
-  (+leader-def
-    "it" 'tempel-insert)
   (tempel-map
     "TAB" 'tempel-next)
   :hook
@@ -977,11 +989,6 @@
     (interactive "DDirectory: ")
     (let ((default-directory (file-name-as-directory dir)))
       (call-interactively #'find-file)))
-  :general
-  (+leader-def
-    "."  'find-file
-    "br" 'revert-buffer
-    "eR" 'restart-emacs)
   :init
   (setq require-final-newline t)
   (setq make-backup-files nil)
@@ -1002,21 +1009,9 @@
            (default-directory dir))
       (project-current t)
       (find-file file)))
-  :general
-  (+leader-def
-    "ed" 'iqa-find-user-init-directory
-    "ee" 'iqa-find-user-init-file
-    "ec" 'iqa-find-user-custom-file
-    "er" 'iqa-reload-user-init-file)
   :init
   (setq iqa-find-file-function #'+iqa-find-file-project)
   (setq iqa-user-init-file (locate-user-emacs-file "config.org")))
-
-(use-package cus-edit
-  :ensure nil
-  :general
-  (+leader-def
-    "oc" 'customize-group))
 
 (use-package epg-config
   :ensure nil
@@ -1026,8 +1021,6 @@
 (use-package project
   :ensure nil
   :general
-  (+leader-def
-    "p" '(:keymap project-prefix-map :package project :wk "project"))
   (project-prefix-map
     "m" 'magit-project-status
     "b" 'consult-project-buffer)
@@ -1218,11 +1211,6 @@
     (if (dired-sidebar-showing-sidebar-p)
         (dired-sidebar-follow-file)
       (dired-sidebar-jump-to-sidebar)))
-  :general
-  (+leader-def
-    "0" 'dired-sidebar-jump-to-sidebar
-    "ft" 'dired-sidebar-toggle-sidebar
-    "ff" '+dired-sidebar-follow-file)
   :init
   ;; (setq dired-sidebar-theme (if +with-icons 'nerd-icons 'none))
   (setq dired-sidebar-theme 'none) ;; don't need dired-sidebar's customizations for nerd-icons, it's flickery and buggy, just use nerd-icons-dired
@@ -1301,11 +1289,6 @@
         (unless +dirvish-side-font-applied
           (setq-local +dirvish-side-font-applied t)
           (buffer-face-set '(:height 0.9))))))
-  :general
-  (+leader-def
-    "0" 'dirvish-side
-    "ft" 'dirvish-side
-    "ff" '+dirvish-side-follow-file)
   :init
   (setq dirvish-side-window-parameters '((no-delete-other-windows . t)))
   :config
@@ -1339,8 +1322,6 @@
 (use-package help
   :ensure nil
   :general
-  (+leader-def
-    "h" '(:keymap help-map :package help :wk "help"))
   (help-map
    "F" 'describe-face))
 
@@ -1351,14 +1332,8 @@
   ([remap describe-variable]            'helpful-variable)
   ([remap describe-function]            'helpful-callable)
   ([remap Info-goto-emacs-command-node] 'helpful-function)
-  (+leader-def
-    "h." 'helpful-at-point))
-
-(use-package find-func
-  :ensure nil
-  :general
-  (+leader-def
-    "fl" 'find-library))
+  (help-map
+   "." 'helpful-at-point))
 
 (use-package emacs
   :ensure nil
@@ -1375,10 +1350,6 @@
 
 (use-package simple
   :ensure nil
-  :general
-  (+leader-def
-    ":" 'execute-extended-command
-    "tT" 'toggle-truncate-lines)
   :hook
   (after-init-hook . column-number-mode))
 
@@ -1433,9 +1404,6 @@
   :preface
   (defun +disable-global-hl-line-mode ()
     (setq-local global-hl-line-mode nil))
-  :general
-  (+leader-def
-    "tl" 'global-hl-line-mode)
   :hook
   (after-init-hook . global-hl-line-mode))
 
@@ -1451,25 +1419,13 @@
   :hook
   (after-init-hook . global-paren-face-mode))
 
-(use-package colorful-mode
-  :general
-  (+leader-def
-    "tc" 'colorful-mode))
-
-(use-package whitespace
-  :ensure nil
-  :general
-  (+leader-def
-    "tw" 'whitespace-mode))
+(use-package colorful-mode)
 
 (use-package page-break-lines
   :hook
   (after-init-hook . global-page-break-lines-mode))
 
 (use-package highlight-indent-guides
-  :general
-  (+leader-def
-    "ti" 'highlight-indent-guides-mode)
   :init
   (setq highlight-indent-guides-method 'character)
   (setq highlight-indent-guides-responsive 'top))
@@ -1502,14 +1458,8 @@
   :hook
   (after-init-hook . global-hl-todo-mode))
 
-(use-package hi-lock
-  :ensure nil)
-
 (use-package display-line-numbers
   :ensure nil
-  :general
-  (+leader-def
-    "tn" 'display-line-numbers-mode)
   :init
   (setq display-line-numbers-width-start t))
 
@@ -1535,8 +1485,6 @@
 
 (use-package jinx
   :general
-  (+leader-def
-    "ts" 'jinx-mode)
   ([remap ispell-word] 'jinx-correct)
   :init
   (setq jinx-languages "ru en es")
@@ -1574,15 +1522,9 @@
   :hook
   (emacs-lisp-mode-hook . eros-mode))
 
-(use-package quickrun
-  :general
-  (+leader-def
-    "cr" 'quickrun))
+(use-package quickrun)
 
 (use-package apheleia
-  :general
-  (+leader-def
-    "cf" 'apheleia-format-buffer)
   :hook
   (after-init-hook . apheleia-global-mode))
 
@@ -1591,32 +1533,13 @@
   :init
   (setq xref-search-program 'ripgrep))
 
-(use-package imenu
-  :ensure nil
-  :general
-  (+leader-def
-    "ji" 'imenu))
-
 (use-package avy
-  :general
-  (+leader-def
-    "jc" 'avy-goto-char
-    "jw" 'avy-goto-word-0
-    "jW" 'avy-goto-word-1
-    "jl" 'avy-goto-line
-    "jL" 'avy-goto-end-of-line)
   :init
   (setq avy-background t))
 
-(use-package link-hint
-  :general
-  (+leader-def
-    "ol" 'link-hint-open-link))
+(use-package link-hint)
 
 (use-package vterm
-  :general
-  (+leader-def
-    "ot" 'vterm)
   :init
   (setq vterm-shell "/opt/homebrew/bin/fish")
   (setq vterm-max-scrollback 10000)
@@ -1637,9 +1560,6 @@
   (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
 
 (use-package eat
-  :general
-  (+leader-def
-    "oe" 'eat)
   :hook
   (eat-mode-hook . +disable-global-hl-line-mode))
 
@@ -1654,11 +1574,6 @@
   (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
 
 (use-package magit
-  :general
-  (+leader-def
-    "g." 'magit-dispatch
-    "gf" 'magit-file-dispatch
-    "gg" 'magit-status)
   :init
   (setq magit-define-global-key-bindings 'recommended)
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
@@ -1756,15 +1671,9 @@ Covers both working-tree faces and reference-revision faces."
   (dired-subtree-after-insert-hook . +diff-hl-dired-update)
   (diff-hl-dired-mode-hook . +diff-hl-update-faces))
 
-(use-package git-link
-  :general
-  (+leader-def
-    "gL" 'git-link-dispatch))
+(use-package git-link)
 
 (use-package consult-git-log-grep
-  :general
-  (+leader-def
-    "gj" 'consult-git-log-grep)
   :init
   (setq consult-git-log-grep-open-function #'magit-show-commit))
 
@@ -1772,10 +1681,7 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (after-init-hook . difftastic-bindings-mode))
 
-(use-package git-timemachine
-  :general
-  (+leader-def
-    "gt" 'git-timemachine))
+(use-package git-timemachine)
 
 (use-package org
   :ensure nil
@@ -2292,8 +2198,6 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package gptel
   :general
-  (+leader-def
-    "lg" 'gptel)
   (+local-leader-def :keymaps 'gptel-mode-map
     "." 'gptel-menu)
   (embark-general-map
@@ -2319,8 +2223,6 @@ Covers both working-tree faces and reference-revision faces."
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
   :general
-  (+leader-def
-    "lc" 'claude-code-ide-menu)
   (project-prefix-map
    "C" 'claude-code-ide-menu)
   :init
@@ -2332,8 +2234,6 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package agent-shell
   :general
-  (+leader-def
-    "la" 'agent-shell)
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
   (project-prefix-map
@@ -2369,23 +2269,13 @@ Covers both working-tree faces and reference-revision faces."
   (prog-mode-hook . copilot-nes-mode)
   (git-commit-mode-hook . copilot-nes-mode))
 
-(use-package focus
-  :general
-  (+leader-def
-    "tf" 'focus-mode))
+(use-package focus)
 
 (use-package olivetti
-  :general
-  (+leader-def
-    "tz" 'olivetti-mode)
   :init
   (setq olivetti-body-width 0.6))
 
-(use-package crux
-  :general
-  (+leader-def
-    "fR" 'crux-rename-file-and-buffer
-    "fD" 'crux-delete-file-and-buffer))
+(use-package crux)
 
 (use-package try)
 
