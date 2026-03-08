@@ -1661,7 +1661,9 @@ Install fonts
   (put 'projection-commands-install-project   'safe-local-variable #'stringp)
   :hook
   (after-init-hook . global-projection-hook-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package projection-ibuffer
   :ensure projection
   :after ibuffer
@@ -1673,7 +1675,9 @@ Install fonts
       (ibuffer-do-sort-by-alphabetic)))
   :hook
   (ibuffer-hook . +projection-ibuffer-setup))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package projection-multi
   :general
   (project-prefix-map
@@ -2282,7 +2286,9 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :init
   (setq sideline-backends-right '(sideline-flymake))
   (setq sideline-display-backend-name t))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package sideline-flymake
   :init
   (setq sideline-flymake-display-mode 'point)
@@ -2917,12 +2923,10 @@ Upgrade eglot to the latest version
 #+end_src
 
 ** clojure
-Common
 #+begin_src emacs-lisp
 (use-package clojure-ts-mode)
 #+end_src
 
-CIDER
 #+begin_src emacs-lisp
 (use-package cider
   :custom-face
@@ -2945,7 +2949,9 @@ CIDER
   (setq cider-eldoc-display-context-dependent-info t)
   :hook
   (clojure-ts-mode-hook . cider-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package clj-refactor
   :general
   (+local-leader-def :keymaps 'clojure-ts-mode-map
@@ -3138,9 +3144,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 ** ssh
 #+begin_src emacs-lisp
-(use-package ssh-config-mode
-  :init
-  (autoload 'ssh-config-mode "ssh-config-mode" t))
+(use-package ssh-config-mode)
 #+end_src
 
 ** protobuf
@@ -3383,17 +3387,29 @@ Install server
 
 #+begin_src emacs-lisp
 (use-package try)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package string-inflection)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package show-font)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package disk-usage)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package list-environment)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package daemons)
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package free-keys)
 #+end_src
 

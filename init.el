@@ -2158,9 +2158,7 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package vimrc-mode)
 
-(use-package ssh-config-mode
-  :init
-  (autoload 'ssh-config-mode "ssh-config-mode" t))
+(use-package ssh-config-mode)
 
 (use-package protobuf-ts-mode
   :mode "\\.proto\\'")
