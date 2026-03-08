@@ -302,6 +302,7 @@
     "tT"  'toggle-truncate-lines
     "tw"  'whitespace-mode
     "tz"  'olivetti-mode
+    "tb"  'breadcrumb-mode
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
@@ -431,6 +432,10 @@
   :ensure nil
   :custom-face
   (header-line ((t (:height 0.9)))))
+
+(use-package breadcrumb
+  :hook
+  (after-init-hook . breadcrumb-mode))
 
 (use-package modus-themes
   ;; :ensure nil

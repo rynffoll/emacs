@@ -43,6 +43,7 @@
   - [[#icons][icons]]
   - [[#mode-line][mode-line]]
   - [[#header-line][header-line]]
+  - [[#breadcrumb][breadcrumb]]
   - [[#themes][themes]]
 - [[#frames][Frames]]
 - [[#tabs][Tabs]]
@@ -672,6 +673,7 @@ If you'd like to test a different font, evaluate the following block:
     "tT"  'toggle-truncate-lines
     "tw"  'whitespace-mode
     "tz"  'olivetti-mode
+    "tb"  'breadcrumb-mode
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
@@ -848,6 +850,13 @@ Install fonts
   :ensure nil
   :custom-face
   (header-line ((t (:height 0.9)))))
+#+end_src
+
+** breadcrumb
+#+begin_src emacs-lisp
+(use-package breadcrumb
+  :hook
+  (after-init-hook . breadcrumb-mode))
 #+end_src
 
 ** themes
