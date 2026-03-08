@@ -409,6 +409,11 @@
              (not (member "Symbols Nerd Font Mono" (font-family-list))))
     (nerd-icons-install-fonts)))
 
+(use-package bindings
+  :ensure nil
+  :init
+  (setq mode-line-right-align-edge 'right-fringe))
+
 (use-package hide-mode-line)
 
 (use-package minions
