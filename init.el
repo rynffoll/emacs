@@ -638,6 +638,7 @@
   :ensure nil
   :general
   (+leader-def
+    ","  'switch-to-buffer
     "bb" 'switch-to-buffer
     "bK" 'kill-buffer-and-window))
 
