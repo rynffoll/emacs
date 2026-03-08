@@ -100,6 +100,10 @@
   - [[#jinx][jinx]]
 - [[#syntax-checking][Syntax Checking]]
   - [[#flymake][flymake]]
+- [[#code][Code]]
+  - [[#quickrun][quickrun]]
+- [[#format][Format]]
+  - [[#apheleia][apheleia]]
 - [[#goto][Goto]]
   - [[#xref][xref]]
   - [[#imenu][imenu]]
@@ -568,6 +572,7 @@ If you'd like to test a different font, evaluate the following block:
     "f"   '(:ignore t :wk "file")
     "e"   '(:ignore t :wk "emacs")
     "g"   '(:ignore t :wk "git")
+    "c"   '(:ignore t :wk "code")
     "s"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
     "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
     "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
@@ -2333,6 +2338,26 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq sideline-flymake-display-mode 'point)
   :hook
   (flymake-mode-hook . sideline-mode))
+#+end_src
+
+* Code
+** quickrun
+#+begin_src emacs-lisp
+(use-package quickrun
+  :general
+  (+leader-def
+    "cr" 'quickrun))
+#+end_src
+
+* Format
+** apheleia
+#+begin_src emacs-lisp
+(use-package apheleia
+  :general
+  (+leader-def
+    "cf" 'apheleia-format-buffer)
+  :hook
+  (after-init-hook . apheleia-global-mode))
 #+end_src
 
 * Goto

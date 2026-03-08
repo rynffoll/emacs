@@ -200,6 +200,7 @@
     "f"   '(:ignore t :wk "file")
     "e"   '(:ignore t :wk "emacs")
     "g"   '(:ignore t :wk "git")
+    "c"   '(:ignore t :wk "code")
     "s"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
     "j"   '(:ignore t :wk "jump") ;; TODO: goto-map (M-g)
     "h"   '(:ignore t :wk "help") ;; TODO: help-map (C-h)
@@ -1565,6 +1566,18 @@
   (setq sideline-flymake-display-mode 'point)
   :hook
   (flymake-mode-hook . sideline-mode))
+
+(use-package quickrun
+  :general
+  (+leader-def
+    "cr" 'quickrun))
+
+(use-package apheleia
+  :general
+  (+leader-def
+    "cf" 'apheleia-format-buffer)
+  :hook
+  (after-init-hook . apheleia-global-mode))
 
 (use-package xref
   :ensure nil
