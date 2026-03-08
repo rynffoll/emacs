@@ -101,6 +101,7 @@
 - [[#syntax-checking][Syntax Checking]]
   - [[#flymake][flymake]]
 - [[#goto][Goto]]
+  - [[#xref][xref]]
   - [[#imenu][imenu]]
   - [[#avy][avy]]
 - [[#terminal][Terminal]]
@@ -2335,6 +2336,14 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Goto
+** xref
+#+begin_src emacs-lisp
+(use-package xref
+  :ensure nil
+  :init
+  (setq xref-search-program 'ripgrep))
+#+end_src
+
 ** imenu
 #+begin_src emacs-lisp
 (use-package imenu

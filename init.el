@@ -1566,6 +1566,11 @@
   :hook
   (flymake-mode-hook . sideline-mode))
 
+(use-package xref
+  :ensure nil
+  :init
+  (setq xref-search-program 'ripgrep))
+
 (use-package imenu
   :ensure nil
   :general
