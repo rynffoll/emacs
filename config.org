@@ -2768,24 +2768,16 @@ get https://github.com/status
   :general
   (+local-leader-def :keymaps 'eglot-mode-map
     "=" 'eglot-format
-    "a" '(:ignore t :wk "code")
-    "a." 'eglot-code-actions
-    "ao" 'eglot-code-action-organize-imports
-    "ae" 'eglot-code-action-extract
-    "ai" 'eglot-code-action-inline
-    "aq" 'eglot-code-action-quickfix
-    "R" '(:ignore t :wk "refactor")
-    "Rr" 'eglot-rename
-    "Re" 'eglot-code-action-extract
-    "Ri" 'eglot-code-action-inline
-    "F" '(:ignore t :wk "find")
-    "Fd" 'eglot-find-declaration
-    "Ft" 'eglot-find-typeDefinition
-    "Fr" 'eglot-find-references
-    "Fi" 'eglot-find-implementation
-    "H" '(:ignore t :wk "hierarchy")
-    "Hc" 'eglot-show-call-hierarchy
-    "Ht" 'eglot-show-type-hierarchy)
+    "a" 'eglot-code-actions
+    "R" 'eglot-rename
+    "f" '(:ignore t :wk "find")
+    "fd" 'eglot-find-declaration
+    "ft" 'eglot-find-typeDefinition
+    "fr" 'eglot-find-references
+    "fi" 'eglot-find-implementation
+    "h" '(:ignore t :wk "hierarchy")
+    "hc" 'eglot-show-call-hierarchy
+    "ht" 'eglot-show-type-hierarchy)
   :init
   (setq eglot-autoshutdown t))
 #+end_src
