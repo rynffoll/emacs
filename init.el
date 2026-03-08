@@ -1693,6 +1693,8 @@ Covers both working-tree faces and reference-revision faces."
 (use-package org
   :ensure nil
   :init
+  (setq org-modules nil)
+
   (setq org-directory "~/Org")
 
   ;; (setq org-startup-folded 'overview)
