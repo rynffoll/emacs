@@ -277,6 +277,8 @@
     "ol"  'link-hint-open-link
     "ot"  'vterm
     "oe"  'eat
+    "oa"  'org-agenda
+    "ox"  'org-capture
 
     "p"   '(:keymap project-prefix-map :package project :wk "project")
 
@@ -1788,6 +1790,21 @@ Covers both working-tree faces and reference-revision faces."
   :init
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-tags-column 0))
+
+(use-package org-capture
+  :ensure org
+  :init
+  (setq org-capture-templates
+        `(("j" "Journal")
+          ("jj" "Journal note" entry
+           (file+olp+datetree ,(expand-file-name "journal.org" org-directory))
+           "* %<%H:%M> - %^{Title|untitled} :journal:\n\n%?\n\n"
+           :empty-lines 1)
+          ("jm" "Meeting note" entry
+           (file+olp+datetree ,(expand-file-name "journal.org" org-directory))
+           "* %<%H:%M> - %^{Title|untitled} :meeting:\n\n%?\n\n"
+           :empty-lines 1 :clock-in t :clock-resume t)
+          )))
 
 (use-package org-faces
   :ensure org
