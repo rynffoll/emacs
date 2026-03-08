@@ -2317,10 +2317,6 @@ Covers both working-tree faces and reference-revision faces."
   (claude-code-ide-emacs-tools-setup))
 
 (use-package agent-shell
-  :preface
-  (defun +agent-shell-diff-evil-setup ()
-    (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-      (evil-emacs-state)))
   :general
   (+leader-def
     "la" 'agent-shell)
@@ -2332,8 +2328,8 @@ Covers both working-tree faces and reference-revision faces."
     "RET" 'newline)
   ( :keymaps 'agent-shell-mode-map :states 'normal
     "RET" 'comint-send-input)
-  :hook
-  (diff-mode-hook . +agent-shell-diff-evil-setup))
+  :config
+  (add-to-list 'evil-buffer-regexps '("\\*agent-shell-diff\\*" . emacs)))
 
 (use-package copilot
   :general
