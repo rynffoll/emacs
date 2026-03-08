@@ -2286,10 +2286,7 @@ Covers both working-tree faces and reference-revision faces."
   ;; (after-init-hook . global-copilot-mode)
   (prog-mode-hook . copilot-mode)
   (conf-mode-hook . copilot-mode)
-  (git-commit-mode-hook . copilot-mode)
-  (conf-mode-hook . copilot-nes-mode)
-  (prog-mode-hook . copilot-nes-mode)
-  (git-commit-mode-hook . copilot-nes-mode))
+  (git-commit-mode-hook . copilot-mode))
 
 (use-package focus)
 
