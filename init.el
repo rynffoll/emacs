@@ -16,6 +16,11 @@
   ;; :init
   ;; https://www.reddit.com/r/emacs/comments/1f8ok7c/comment/llhcdgy/
   ;; (setq package-install-upgrade-built-in t)
+  ;; TODO: Emacs 31:
+  ;; package-review-policy
+  ;; package-autosuggest-mode
+  ;; package-retention-policy
+  ;; package-upgrade-keep-previous
   :config
   ;; https://elpa.gnu.org/devel/
   (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
@@ -2039,6 +2044,7 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (go-ts-mode-hook . eglot-ensure))
 
+;; TODO: Emacs 31: gotest-ts is obsoleted by go-ts-mode's built-in test commands
 (use-package gotest-ts
   :general
   (+local-leader-def :keymaps 'go-ts-mode-map
