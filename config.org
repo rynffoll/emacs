@@ -2453,6 +2453,7 @@ Covers both working-tree faces and reference-revision faces."
           (set-face-background face nil) ;; bg -> nil (transparent)
           ))))
   :init
+  (setq diff-hl-disable-on-remote t)
   (setq diff-hl-update-async 'thread)
   (setq diff-hl-draw-borders nil)
   (setq diff-hl-margin-symbols-alist
@@ -2498,7 +2499,7 @@ Covers both working-tree faces and reference-revision faces."
       (-when-let (ov (dired-subtree--get-ov))
         (diff-hl-remove-overlays (overlay-start ov) (overlay-end ov)))))
   :hook
-  (dired-mode-hook . diff-hl-dired-mode)
+  (dired-mode-hook . diff-hl-dired-mode-unless-remote)
   (dired-subtree-after-insert-hook . +diff-hl-dired-update)
   (diff-hl-dired-mode-hook . +diff-hl-update-faces))
 #+end_src
