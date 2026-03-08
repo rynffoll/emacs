@@ -1171,7 +1171,9 @@
   :init
   (setq dired-subtree-use-backgrounds nil)
   ;; Tabs scale with `text-scale-adjust', plain spaces don't.
-  (setq dired-subtree-line-prefix "\t\t"))
+  ;; Avoid artifacts when `dired-subtree' is used together with `nerd-icons-dired' and scaled fonts.
+  (when +with-icons
+    (setq dired-subtree-line-prefix "\t\t")))
 
 (use-package diredfl
   :custom-face
