@@ -100,7 +100,8 @@
   - [[#jinx][jinx]]
 - [[#syntax-checking][Syntax Checking]]
   - [[#flymake][flymake]]
-- [[#code][Code]]
+- [[#eval][Eval]]
+  - [[#eros][eros]]
   - [[#quickrun][quickrun]]
 - [[#format][Format]]
   - [[#apheleia][apheleia]]
@@ -2341,7 +2342,16 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (flymake-mode-hook . sideline-mode))
 #+end_src
 
-* Code
+* Eval
+** eros
+#+begin_src emacs-lisp
+(use-package eros
+  :custom-face
+  (eros-result-overlay-face ((t (:inherit shadow :box t))))
+  :hook
+  (emacs-lisp-mode-hook . eros-mode))
+#+end_src
+
 ** quickrun
 #+begin_src emacs-lisp
 (use-package quickrun
@@ -2979,14 +2989,6 @@ Upgrade eglot to the latest version
 (use-package highlight-quoted
   :hook
   (emacs-lisp-mode-hook . highlight-quoted-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package eros
-  :custom-face
-  (eros-result-overlay-face ((t (:inherit shadow :box t))))
-  :hook
-  (emacs-lisp-mode-hook . eros-mode))
 #+end_src
 
 #+begin_src emacs-lisp

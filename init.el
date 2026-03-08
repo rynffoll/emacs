@@ -1568,6 +1568,12 @@
   :hook
   (flymake-mode-hook . sideline-mode))
 
+(use-package eros
+  :custom-face
+  (eros-result-overlay-face ((t (:inherit shadow :box t))))
+  :hook
+  (emacs-lisp-mode-hook . eros-mode))
+
 (use-package quickrun
   :general
   (+leader-def
@@ -2054,12 +2060,6 @@ Covers both working-tree faces and reference-revision faces."
 (use-package highlight-quoted
   :hook
   (emacs-lisp-mode-hook . highlight-quoted-mode))
-
-(use-package eros
-  :custom-face
-  (eros-result-overlay-face ((t (:inherit shadow :box t))))
-  :hook
-  (emacs-lisp-mode-hook . eros-mode))
 
 (use-package package-lint)
 
