@@ -554,6 +554,9 @@
    "<" 'tab-bar-move-tab-backward
    "c" 'tab-close
    "C" 'tab-close-other)
+  (evil-window-map
+   "u" 'tab-bar-history-back
+   "U" 'tab-bar-history-forward)
   :init
   (setq tab-bar-format '(tab-bar-format-tabs-groups
                          tab-bar-separator
@@ -601,17 +604,6 @@
   (evil-window-map
    "m" 'maximize-window
    "M" 'minimize-window))
-
-(use-package winner
-  :ensure nil
-  :general
-  (evil-window-map
-   "u" 'winner-undo
-   "U" 'winner-redo)
-  :init
-  (setq winner-dont-bind-my-keys t)
-  :hook
-  (after-init-hook . winner-mode))
 
 (use-package winum
   :init
