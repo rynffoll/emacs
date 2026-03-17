@@ -1007,15 +1007,15 @@ Install fonts
    "u" 'tab-bar-history-back
    "U" 'tab-bar-history-forward)
   :init
-  (setq tab-bar-format '(tab-bar-format-tabs-groups
-                         tab-bar-separator
+  (setq tab-bar-format '(tab-bar-separator
+                         tab-bar-format-menu-bar
+                         tab-bar-format-tabs-groups
                          tab-bar-format-align-right
                          tab-bar-format-global))
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
   (setq tab-bar-tab-hints t)
-  ;; (setq tab-bar-separator " ") ;; the same behavior in GUI and TUI
-  (setq tab-bar-separator "")
+  (setq tab-bar-separator " ")
   (setq tab-bar-auto-width nil)
   :config
   (add-to-list 'tab-bar-tab-name-format-functions
