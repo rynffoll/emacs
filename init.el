@@ -1582,6 +1582,7 @@
   (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
 
 (use-package magit
+  :pin melpa-stable ;; for compatibility with built-in transient
   :init
   (setq magit-define-global-key-bindings 'recommended)
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
