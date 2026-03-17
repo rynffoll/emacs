@@ -1389,8 +1389,8 @@
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-merge-split-window-function 'split-window-horizontally)
   :hook
-  (ediff-prepare-buffer-hook . show-all)
-  (ediff-quit-hook . winner-undo))
+  (ediff-prepare-buffer-hook . outline-show-all)
+  (ediff-quit-hook . tab-bar-history-back))
 
 (use-package undo-fu-session
   :init

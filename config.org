@@ -51,7 +51,6 @@
   - [[#tab-line][tab-line]]
 - [[#windows][Windows]]
   - [[#window][window]]
-  - [[#winner][winner]]
   - [[#winum][winum]]
   - [[#zoom][zoom]]
   - [[#shackle][shackle]]
@@ -2042,8 +2041,8 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq ediff-split-window-function 'split-window-horizontally)
   (setq ediff-merge-split-window-function 'split-window-horizontally)
   :hook
-  (ediff-prepare-buffer-hook . show-all)
-  (ediff-quit-hook . winner-undo))
+  (ediff-prepare-buffer-hook . outline-show-all)
+  (ediff-quit-hook . tab-bar-history-back))
 #+end_src
 
 * Undo/Redo
