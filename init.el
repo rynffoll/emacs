@@ -1120,7 +1120,7 @@
   (setq dired-mouse-drag-files t)
   (setq mouse-drag-and-drop-region-cross-program t)
   (setq dired-free-space nil)
-  (setq dired-hide-details-hide-absolute-location t) ;; emacs 31
+  (setq dired-hide-details-hide-absolute-location t)
   :config
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls"))
@@ -1718,8 +1718,8 @@ Covers both working-tree faces and reference-revision faces."
 
   (setq org-log-done 'time)
 
-  (setq org-startup-with-inline-images t) ;; TODO: emacs 31 (org 9.8): renamed to `org-startup-with-link-previews'
-  (setq org-startup-with-link-previews t) ;; TODO: emacs 31 (org 9.8)
+  (setq org-startup-with-inline-images t) ;; TODO: org 9.8: renamed to `org-startup-with-link-previews'
+  (setq org-startup-with-link-previews t) ;; TODO: org 9.8: obsolete
 
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
@@ -1772,8 +1772,8 @@ Covers both working-tree faces and reference-revision faces."
   :ensure org
   :init
   (setq org-src-window-setup 'current-window)
-  (setq org-edit-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8): renamed to `org-src-content-indentation'
-  (setq org-src-content-indentation 0) ;; TODO: emacs 31 (org 9.8)
+  (setq org-edit-src-content-indentation 0) ;; TODO: org 9.8: renamed to `org-src-content-indentation'
+  (setq org-src-content-indentation 0) ;; TODO: org 9.8: obsolete
   )
 
 (use-package org-agenda
