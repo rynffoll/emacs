@@ -2292,7 +2292,9 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 (use-package xref
   :ensure nil
   :init
-  (setq xref-search-program 'ripgrep))
+  (setq xref-search-program 'ripgrep)
+  :hook
+  (after-init-hook . global-xref-mouse-mode))
 #+end_src
 
 ** avy

@@ -1527,7 +1527,9 @@
 (use-package xref
   :ensure nil
   :init
-  (setq xref-search-program 'ripgrep))
+  (setq xref-search-program 'ripgrep)
+  :hook
+  (after-init-hook . global-xref-mouse-mode))
 
 (use-package avy
   :init
