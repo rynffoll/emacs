@@ -2077,31 +2077,13 @@ Covers both working-tree faces and reference-revision faces."
                                 (sql-password "postgres")
                                 (sql-database "postgres")))))
 
-(use-package markdown-mode
-  :custom-face
-  (markdown-code-face ((t (:inherit default))))
-  :general
-  (+local-leader-def :keymaps 'markdown-mode-map
-    "." '(:keymap markdown-mode-command-map))
-  :init
-  (setq markdown-command "pandoc")
-  ;; (setq markdown-hide-markup t)
-  (setq markdown-fontify-whole-heading-line t)
-  (setq markdown-fontify-code-blocks-natively t)
-  :config
-  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-ts-mode)))
+(use-package markdown-ts-mode
+  :ensure nil)
 
 (use-package grip-mode
   :general
-  (+local-leader-def :keymaps 'markdown-mode-map
-    "g" 'grip-mode)
-  :init
-  (setq grip-update-after-change nil)
-  (setq grip-preview-use-webkit t))
-
-(use-package markdown-toc)
-
-(use-package edit-indirect)
+  (+local-leader-def :keymaps 'markdown-ts-mode-map
+    "p" 'grip-mode))
 
 (use-package json-ts-mode
   :ensure nil
