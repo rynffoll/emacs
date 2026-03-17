@@ -12,9 +12,16 @@
 
 ;;; Code:
 
-(require 'dothttp)
+(require 'dothttp nil t)
 
-
+(defvar dothttp-methods)
+(defvar dothttp-backend-alist)
+(defvar dothttp-mode-map)
+(declare-function dothttp-rebuild-font-lock "dothttp")
+(declare-function dothttp--parse-request-at-point "dothttp")
+(declare-function dothttp--resolve-request "dothttp")
+
+
 ;;; Customization
 
 (defcustom dothttp-grpcurl-executable "grpcurl"
@@ -27,13 +34,13 @@
   :group 'dothttp
   :type 'string)
 
-
+
 ;;; Variables
 
 (defvar-local dothttp-grpc--processes nil
   "List of grpcui processes launched from this buffer.")
 
-
+
 ;;; Command Builder
 
 (defun dothttp-grpc--parse-url (url)
@@ -83,7 +90,7 @@ Return (ARGS HOST-PORT SERVICE-METHOD)."
         (list "-d" (or body "{}") host-port)
         (when service-method (list service-method)))))))
 
-
+
 ;;; Interactive Commands
 
 ;;;###autoload
@@ -125,7 +132,7 @@ Return (ARGS HOST-PORT SERVICE-METHOD)."
       (delete-process proc)))
   (setq dothttp-grpc--processes nil))
 
-
+
 ;;; Registration
 
 (add-to-list 'dothttp-methods "GRPC")

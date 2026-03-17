@@ -110,6 +110,13 @@
   :group 'tab-bar-theme)
 
 
+(defcustom tab-bar-theme-height nil
+  "Height of tab bar face.
+When nil, height is not set."
+  :type '(choice (const :tag "Unset" nil)
+                 (number :tag "Height"))
+  :group 'tab-bar-theme)
+
 (defcustom tab-bar-theme-line-width 3
   "Line width of tab bar box."
   :type 'integer
@@ -221,6 +228,7 @@
     (custom-set-faces
            `(tab-bar
              ((t ( :inherit unspecified
+                   ,@(when tab-bar-theme-height (list :height tab-bar-theme-height))
                    :background ,bg-inactive
                    :foreground ,fg-inactive
                    :box ,(tab-bar-theme--box-style line-width bg-inactive)))))

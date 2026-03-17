@@ -21,8 +21,8 @@
 
 ;;; Code:
 
-(require 'treemacs)
-(require 'all-the-icons)
+(require 'treemacs nil t)
+(require 'all-the-icons nil t)
 
 
 (defgroup treemacs-theme

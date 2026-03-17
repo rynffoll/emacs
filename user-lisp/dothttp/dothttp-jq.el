@@ -10,7 +10,7 @@
 
 ;;; Code:
 
-(require 'dothttp)
+(require 'dothttp nil t)
 
 
 ;;; Customization

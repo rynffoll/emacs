@@ -175,7 +175,6 @@
   - [[#agent-shell][agent-shell]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
-- [[#private][Private]]
 
 * Early Initialization
 :PROPERTIES:
@@ -1029,7 +1028,6 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package tab-bar-theme
   :ensure nil
-  :load-path "site-lisp/tab-bar-theme"
   :hook
   (after-init-hook . tab-bar-theme-mode))
 #+end_src
@@ -1044,7 +1042,6 @@ Install fonts
 (use-package per-tab-group-theme
   :disabled
   :ensure nil
-  :load-path "site-lisp/per-tab-group-theme"
   :hook
   (after-init-hook . per-tab-group-theme-mode))
 #+end_src
@@ -2347,7 +2344,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package project-vterm
   :ensure nil
-  :load-path "site-lisp/project-vterm"
   :general
   (project-prefix-map
     "t" 'project-vterm)
@@ -2366,7 +2362,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package project-eat
   :ensure nil
-  :load-path "site-lisp/project-eat"
   :general
   (project-prefix-map
     "E" 'project-eat)
@@ -3226,7 +3221,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+begin_src emacs-lisp
 (use-package dothttp
   :ensure nil
-  :load-path "site-lisp/dothttp"
   :mode ("\\.http\\'" . dothttp-mode))
 #+end_src
 
@@ -3405,10 +3399,3 @@ Install server
 (use-package free-keys)
 #+end_src
 
-* Private
-Loading private configuration from ~~/.emacs.d/site-lisp/default.el~
-[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html][50.4 The Emacs Initialization File]]
-#+begin_src emacs-lisp
-;; TODO: emacs 31: use `user-lisp'
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
-#+end_src

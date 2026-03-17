@@ -577,7 +577,6 @@
 
 (use-package tab-bar-theme
   :ensure nil
-  :load-path "site-lisp/tab-bar-theme"
   :hook
   (after-init-hook . tab-bar-theme-mode))
 
@@ -588,7 +587,6 @@
 (use-package per-tab-group-theme
   :disabled
   :ensure nil
-  :load-path "site-lisp/per-tab-group-theme"
   :hook
   (after-init-hook . per-tab-group-theme-mode))
 
@@ -1563,7 +1561,6 @@
 
 (use-package project-vterm
   :ensure nil
-  :load-path "site-lisp/project-vterm"
   :general
   (project-prefix-map
     "t" 'project-vterm)
@@ -1577,7 +1574,6 @@
 
 (use-package project-eat
   :ensure nil
-  :load-path "site-lisp/project-eat"
   :general
   (project-prefix-map
     "E" 'project-eat)
@@ -2209,7 +2205,6 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package dothttp
   :ensure nil
-  :load-path "site-lisp/dothttp"
   :mode ("\\.http\\'" . dothttp-mode))
 
 (use-package dothttp-grpc
@@ -2308,6 +2303,3 @@ Covers both working-tree faces and reference-revision faces."
 (use-package daemons)
 
 (use-package free-keys)
-
-;; TODO: emacs 31: use `user-lisp'
-(add-to-list 'load-path (concat user-emacs-directory "site-lisp"))

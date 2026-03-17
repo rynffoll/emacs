@@ -22,7 +22,7 @@
 ;;; Code:
 
 (require 'project)
-(require 'vterm)
+(require 'vterm nil t)
 
 
 (defgroup project-vterm

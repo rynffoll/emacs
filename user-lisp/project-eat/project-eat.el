@@ -22,7 +22,7 @@
 ;;; Code:
 
 (require 'project)
-(require 'eat)
+(require 'eat nil t)
 
 
 (defgroup project-eat
