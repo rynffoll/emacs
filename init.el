@@ -109,11 +109,6 @@
     (setq-local evil-normal-state-cursor nil)
     (setq-local evil-insert-state-cursor nil)
     (setq-local evil-emacs-state-cursor  nil))
-  :custom-face
-  (evil-ex-substitute-matches
-   ((t (:inherit diff-removed :foreground unspecified :background unspecified :strike-through t))))
-  (evil-ex-substitute-replacement
-   ((t (:inherit diff-added :foreground unspecified :background unspecified :underline nil))))
   :init
   (setq evil-want-keybinding nil)
   (setq evil-motion-state-cursor 'box)  ;; █
@@ -422,10 +417,6 @@
   (setq mode-line-collapse-minor-modes t))
 
 (use-package doom-modeline
-  :custom-face
-  (mode-line ((t (:height 0.9))))
-  (mode-line-active ((t (:height 0.9))))
-  (mode-line-inactive ((t (:height 0.9))))
   :init
   (setq doom-modeline-icon +with-icons)
   (setq doom-modeline-modal-icon +with-icons)
@@ -437,14 +428,36 @@
   :hook
   (after-init-hook . doom-modeline-mode))
 
-(use-package faces
-  :ensure nil
-  :custom-face
-  (header-line ((t (:height 0.9)))))
-
 (use-package breadcrumb
   :hook
   (after-init-hook . breadcrumb-mode))
+
+(defun +custom-faces (&rest _)
+  "Reapply custom face attributes after theme load."
+  (custom-set-faces
+   '(mode-line                      ((t (:height 0.9))))
+   '(mode-line-active               ((t (:height 0.9))))
+   '(mode-line-inactive             ((t (:height 0.9))))
+   ;; do not change header-line height because it breaks alignment in proced, profile-report, etc.
+   ;; '(header-line                    ((t (:height 0.9))))
+   ;; '(header-line-inactive           ((t (:height 0.9))))
+   '(evil-ex-substitute-matches     ((t (:inherit diff-removed :foreground unspecified :background unspecified :strike-through t))))
+   '(evil-ex-substitute-replacement ((t (:inherit diff-added   :foreground unspecified :background unspecified :underline nil))))
+   ;; '(diredfl-dir-name               ((t (:bold t))))
+   '(vundo-highlight                ((t (:inherit success :foreground unspecified))))
+   '(vundo-last-saved               ((t (:inherit error   :foreground unspecified))))
+   '(vundo-saved                    ((t (:inherit warning :foreground unspecified))))
+   '(eros-result-overlay-face       ((t (:inherit shadow :box t))))
+   '(cider-result-overlay-face      ((t (:inherit shadow :box t))))
+   '(org-tag                        ((t (:inherit shadow :foreground unspecified :background unspecified :bold nil))))
+   ;; '(org-ellipsis                   ((t (:underline nil))))
+   ;; '(org-block-begin-line           ((t (:underline nil))))
+   ;; '(org-block-end-line             ((t (:overline nil))))
+   '(dape-breakpoint-face           ((t (:inherit error))))
+   '(dirvish-hl-line                ((t (:inherit hl-line))))
+   ))
+
+(add-hook 'enable-theme-functions #'+custom-faces)
 
 (use-package modus-themes
   ;; :ensure nil
@@ -527,8 +540,6 @@
 
 (use-package tab-bar
   :ensure nil
-  :custom-face
-  (tab-bar ((t (:height 0.9))))
   :general
   (tab-prefix-map
    "TAB" 'tab-recent
@@ -573,6 +584,8 @@
 
 (use-package tab-bar-theme
   :ensure nil
+  :init
+  (setq tab-bar-theme-height 0.9)
   :hook
   (after-init-hook . tab-bar-theme-mode))
 
@@ -1162,8 +1175,6 @@
     (setq dired-subtree-line-prefix "\t\t")))
 
 (use-package diredfl
-  :custom-face
-  (diredfl-dir-name ((t (:bold t))))
   :hook
   (dired-mode-hook . diredfl-mode))
 
@@ -1239,8 +1250,6 @@
 
 (use-package dirvish
   :if +with-dirvish
-  :custom-face
-  (dirvish-hl-line ((t (:inherit hl-line))))
   :general
   ( :keymaps 'dirvish-mode-map :states 'normal
     "q" 'dirvish-quit)
@@ -1397,10 +1406,6 @@
 (use-package vundo
   :general
   ("C-x u" 'vundo)
-  :custom-face
-  (vundo-highlight  ((t (:inherit success :foreground unspecified))))
-  (vundo-last-saved ((t (:inherit error   :foreground unspecified))))
-  (vundo-saved      ((t (:inherit warning :foreground unspecified))))
   :config
   (setq vundo-compact-display t)
   (setq vundo-glyph-alist vundo-unicode-symbols))
@@ -1523,8 +1528,6 @@
   (flymake-mode-hook . sideline-mode))
 
 (use-package eros
-  :custom-face
-  (eros-result-overlay-face ((t (:inherit shadow :box t))))
   :hook
   (emacs-lisp-mode-hook . eros-mode))
 
@@ -1809,11 +1812,6 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package org-faces
   :ensure org
-  :custom-face
-  (org-tag              ((t (:inherit shadow :foreground unspecified :background unspecified :bold nil))))
-  (org-ellipsis         ((t (:underline nil))))
-  (org-block-begin-line ((t (:underline nil))))
-  (org-block-end-line   ((t (:overline nil))))
   :init
   (setq org-fontify-quote-and-verse-blocks t)
   (setq org-priority-faces
@@ -1926,8 +1924,6 @@ Covers both working-tree faces and reference-revision faces."
   (consult-eglot-embark-mode))
 
 (use-package dape
-  :custom-face
-  (dape-breakpoint-face ((t (:inherit error))))
   :init
   (setq dape-key-prefix (kbd "C-x C-a"))
   (setq dape-inlay-hints t)
@@ -1967,8 +1963,6 @@ Covers both working-tree faces and reference-revision faces."
 (use-package clojure-ts-mode)
 
 (use-package cider
-  :custom-face
-  (cider-result-overlay-face ((t (:inherit shadow :box t))))
   :general
   (+local-leader-def :keymaps 'clojure-ts-mode-map
     "c" '(:ignore t           :wk "connect")
