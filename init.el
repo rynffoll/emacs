@@ -2035,12 +2035,6 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (go-ts-mode-hook . eglot-ensure))
 
-;; TODO: Emacs 31: gotest-ts is obsoleted by go-ts-mode's built-in test commands
-(use-package gotest-ts
-  :general
-  (+local-leader-def :keymaps 'go-ts-mode-map
-    "tt" 'gotest-ts-run-dwim))
-
 (use-package makefile-executor
   :general
   (+local-leader-def :keymaps 'makefile-mode-map

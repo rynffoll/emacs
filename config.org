@@ -2972,15 +2972,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (go-ts-mode-hook . eglot-ensure))
 #+end_src
 
-- [[https://github.com/chmouel/gotest-ts.el][GitHub - chmouel/gotest-ts.el: Run subtests and test with treesitter and gotest.el]]
-#+begin_src emacs-lisp
-;; TODO: Emacs 31: gotest-ts is obsoleted by go-ts-mode's built-in test commands
-(use-package gotest-ts
-  :general
-  (+local-leader-def :keymaps 'go-ts-mode-map
-    "tt" 'gotest-ts-run-dwim))
-#+end_src
-
 ** makefile
 #+begin_src emacs-lisp
 (use-package makefile-executor
