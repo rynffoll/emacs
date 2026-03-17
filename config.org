@@ -680,6 +680,7 @@ If you'd like to test a different font, evaluate the following block:
     "tw"  'whitespace-mode
     "tz"  'olivetti-mode
     "tb"  'breadcrumb-mode
+    "tM"  'mode-line-invisible-mode
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
@@ -826,17 +827,8 @@ Install fonts
 (use-package bindings
   :ensure nil
   :init
-  (setq mode-line-right-align-edge 'right-fringe))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package hide-mode-line)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package minions
-  :hook
-  (after-init-hook . minions-mode))
+  (setq mode-line-right-align-edge 'right-fringe)
+  (setq mode-line-collapse-minor-modes t))
 #+end_src
 
 [[https://github.com/seagle0128/doom-modeline][doom-modeline]]

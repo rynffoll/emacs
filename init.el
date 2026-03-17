@@ -310,6 +310,7 @@
     "tw"  'whitespace-mode
     "tz"  'olivetti-mode
     "tb"  'breadcrumb-mode
+    "tM"  'mode-line-invisible-mode
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
@@ -417,13 +418,8 @@
 (use-package bindings
   :ensure nil
   :init
-  (setq mode-line-right-align-edge 'right-fringe))
-
-(use-package hide-mode-line)
-
-(use-package minions
-  :hook
-  (after-init-hook . minions-mode))
+  (setq mode-line-right-align-edge 'right-fringe)
+  (setq mode-line-collapse-minor-modes t))
 
 (use-package doom-modeline
   :custom-face
