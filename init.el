@@ -483,7 +483,7 @@
 
 (defun +theme-change (appearance)
   "Load theme, taking current system APPEARANCE into consideration."
-  (when-let ((theme (alist-get appearance +theme-alist)))
+  (when-let* ((theme (alist-get appearance +theme-alist)))
     (mapc #'disable-theme custom-enabled-themes)
     (load-theme theme :no-confirm)))
 
@@ -1629,7 +1629,7 @@ Covers both working-tree faces and reference-revision faces."
                       diff-hl-reference-insert
                       diff-hl-reference-delete
                       diff-hl-reference-change))
-        (when-let ((bg (face-background face nil t)))
+        (when-let* ((bg (face-background face nil t)))
           (set-face-foreground face bg) ;; fg -> bg
           (set-face-background face nil) ;; bg -> nil (transparent)
           ))))
