@@ -1455,15 +1455,6 @@ Install fonts
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package corfu-terminal
-  :if (< emacs-major-version 31)
-  :unless (featurep 'tty-child-frames)
-  :unless (display-graphic-p)
-  :hook
-  (corfu-mode-hook . corfu-terminal-mode))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package kind-icon
   :unless +with-icons
   :after corfu

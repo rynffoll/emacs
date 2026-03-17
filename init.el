@@ -913,13 +913,6 @@
   :hook
   (corfu-mode-hook . corfu-history-mode))
 
-(use-package corfu-terminal
-  :if (< emacs-major-version 31)
-  :unless (featurep 'tty-child-frames)
-  :unless (display-graphic-p)
-  :hook
-  (corfu-mode-hook . corfu-terminal-mode))
-
 (use-package kind-icon
   :unless +with-icons
   :after corfu
