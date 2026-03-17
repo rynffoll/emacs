@@ -347,10 +347,8 @@
   :hook
   (after-init-hook . reverse-im-mode))
 
-;; TODO: Emacs 31 (turned on by default)
 (use-package xt-mouse
   :unless (display-graphic-p)
-  :if (< emacs-major-version 31)
   :ensure nil
   :hook
   (after-init-hook . xterm-mouse-mode))

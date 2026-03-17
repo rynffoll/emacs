@@ -733,10 +733,8 @@ If you'd like to test a different font, evaluate the following block:
 
 * TTY
 #+begin_src emacs-lisp
-;; TODO: Emacs 31 (turned on by default)
 (use-package xt-mouse
   :unless (display-graphic-p)
-  :if (< emacs-major-version 31)
   :ensure nil
   :hook
   (after-init-hook . xterm-mouse-mode))
