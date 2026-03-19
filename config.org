@@ -38,6 +38,7 @@
 - [[#keyboard-layout][Keyboard Layout]]
 - [[#tty][TTY]]
 - [[#ui-1][UI]]
+  - [[#taskbar][taskbar]]
   - [[#scroll][scroll]]
   - [[#ligatures][ligatures]]
   - [[#icons][icons]]
@@ -759,6 +760,14 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * UI
+** taskbar
+#+begin_src emacs-lisp
+(use-package system-taskbar
+  :ensure nil
+  :hook
+  (after-init-hook . system-taskbar-mode))
+#+end_src
+
 ** scroll
 #+begin_src emacs-lisp
 (use-package emacs

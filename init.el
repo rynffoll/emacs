@@ -364,6 +364,11 @@
         (set-display-table-slot display-table 'vertical-border divider)))
     (add-hook 'window-configuration-change-hook #'+update-window-divider)))
 
+(use-package system-taskbar
+  :ensure nil
+  :hook
+  (after-init-hook . system-taskbar-mode))
+
 (use-package emacs
   :ensure nil
   :init
