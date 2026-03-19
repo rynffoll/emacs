@@ -3019,12 +3019,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 #+end_src
 
-#+begin_src emacs-lisp
-(use-package yaml-pro
-  :hook
-  (yaml-ts-mode-hook . yaml-pro-ts-mode))
-#+end_src
-
 ** lua
 #+begin_src emacs-lisp
 (use-package lua-ts-mode

@@ -2061,10 +2061,6 @@ Covers both working-tree faces and reference-revision faces."
   (yaml-ts-mode-hook . flymake-mode)
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 
-(use-package yaml-pro
-  :hook
-  (yaml-ts-mode-hook . yaml-pro-ts-mode))
-
 (use-package lua-ts-mode
   :ensure nil
   :mode ("\\.lua\\'" . lua-ts-mode)
