@@ -74,6 +74,10 @@
   - [[#templ][templ]]
 - [[#files][Files]]
 - [[#projects][Projects]]
+  - [[#project][project]]
+  - [[#disproject][disproject]]
+  - [[#projection][projection]]
+  - [[#project-butler][project-butler]]
 - [[#dired][Dired]]
 - [[#dirvish][Dirvish]]
 - [[#environment-variables][Environment Variables]]
@@ -1595,6 +1599,7 @@ Install fonts
 #+end_src
 
 * Projects
+** project
 #+begin_src emacs-lisp
 (use-package project
   :ensure nil
@@ -1613,7 +1618,7 @@ Install fonts
   (setq project-vc-extra-root-markers '(".project")))
 #+end_src
 
-[[https://github.com/aurtzy/disproject][disproject]]
+** disproject
 #+begin_src emacs-lisp
 (use-package disproject
   :general
@@ -1621,7 +1626,7 @@ Install fonts
     "." 'disproject-dispatch))
 #+end_src
 
-[[https://github.com/mohkale/projection][projection]]
+** projection
 #+begin_src emacs-lisp
 (use-package projection
   :general
@@ -1657,7 +1662,9 @@ Install fonts
   :general
   (project-prefix-map
     "RET" 'projection-multi-compile))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package projection-multi-embark
   :after embark
   :after projection-multi
@@ -1666,7 +1673,7 @@ Install fonts
   (projection-multi-embark-setup-command-map))
 #+end_src
 
-[[https://codeberg.org/jabbo/project-butler][project-butler]]
+** project-butler
 #+begin_src emacs-lisp
 (use-package project-butler
   :disabled
