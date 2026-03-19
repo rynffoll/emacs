@@ -114,6 +114,7 @@
   - [[#vterm][vterm]]
   - [[#eat][eat]]
 - [[#git][Git]]
+  - [[#vc][vc]]
   - [[#magit][magit]]
   - [[#magit-prime][magit-prime]]
   - [[#magit-todos][magit-todos]]
@@ -1573,8 +1574,10 @@ Install fonts
   :ensure nil
   :init
   (setq global-auto-revert-non-file-buffers t)
-  :hook
-  (after-init-hook . global-auto-revert-mode))
+  ;; replaced by `vc-auto-revert-mode'
+  ;; :hook
+  ;; (after-init-hook . global-auto-revert-mode)
+  )
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2363,6 +2366,18 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Git
+** vc
+#+begin_src emacs-lisp
+(use-package vc
+  :ensure nil
+  :init
+  (setq vc-handled-backends '(Git))
+  (setq vc-async-checkin t)
+  (setq vc-allow-async-diff t)
+  :hook
+  (after-init-hook . vc-auto-revert-mode))
+#+end_src
+
 ** magit
 #+begin_src emacs-lisp
 (use-package magit
