@@ -885,6 +885,7 @@ Install fonts
    ;; '(org-block-end-line             ((t (:overline nil))))
    '(dape-breakpoint-face           ((t (:inherit error))))
    '(dirvish-hl-line                ((t (:inherit hl-line))))
+   '(hs-ellipsis                    ((t (:inherit shadow))))
    ))
 
 (add-hook 'enable-theme-functions #'+custom-faces)
@@ -2184,7 +2185,9 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq hs-display-lines-hidden t)
   (setq hs-allow-nesting t)
   :hook
-  (prog-mode-hook . hs-minor-mode))
+  (prog-mode-hook . hs-minor-mode)
+  (conf-mode-hook . hs-minor-mode)
+  (yaml-ts-mode-hook . hs-minor-mode))
 #+end_src
 
 #+begin_src emacs-lisp

@@ -458,6 +458,7 @@
    ;; '(org-block-end-line             ((t (:overline nil))))
    '(dape-breakpoint-face           ((t (:inherit error))))
    '(dirvish-hl-line                ((t (:inherit hl-line))))
+   '(hs-ellipsis                    ((t (:inherit shadow))))
    ))
 
 (add-hook 'enable-theme-functions #'+custom-faces)
@@ -1486,7 +1487,9 @@
   (setq hs-display-lines-hidden t)
   (setq hs-allow-nesting t)
   :hook
-  (prog-mode-hook . hs-minor-mode))
+  (prog-mode-hook . hs-minor-mode)
+  (conf-mode-hook . hs-minor-mode)
+  (yaml-ts-mode-hook . hs-minor-mode))
 
 (use-package outline-indent
   :hook
