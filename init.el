@@ -368,6 +368,16 @@
         (set-display-table-slot display-table 'vertical-border divider)))
     (add-hook 'window-configuration-change-hook #'+update-window-divider)))
 
+;; TODO: emacs 31: system-taskbar-mode
+;; +++
+;; # ** New mode 'system-taskbar-mode'.
+;; # This is a global minor mode and companion functions that integrate Emacs
+;; # with system GUI taskbars (also called docks or launchers or something
+;; # similar) to display a taskbar icon "badge" overlay, a progress bar
+;; # report overlay, alert the user that an Emacs session needs attention,
+;; # often by flashing or bouncing the Emacs application icon.  Supported
+;; # capable systems are GNU/Linux via D-Bus, macOS/GNUstep 10.5+, MS-Windows
+;; # 7+.
 (use-package system-taskbar
   :ensure nil
   :hook
@@ -1967,6 +1977,9 @@ Covers both working-tree faces and reference-revision faces."
   :init
   (setq treesit-font-lock-level 4))
 
+;; TODO: elisp-fontify-semantically
+;; TODO: eldoc-help-at-pt
+
 (use-package highlight-defined
   :init
   (setq highlight-defined-face-use-itself t)
@@ -2081,6 +2094,7 @@ Covers both working-tree faces and reference-revision faces."
   (+local-leader-def :keymaps 'json-ts-mode-map
     "=" '(json-pretty-print-buffer :wk "format")))
 
+;; TODO: yaml-ts-mode-yamllint-options
 (use-package yaml-ts-mode
   :ensure nil
   :mode ("\\.ya?ml\\'" . yaml-ts-mode)
