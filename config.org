@@ -2898,8 +2898,10 @@ Upgrade eglot to the latest version
 
 ** elisp
 #+begin_src emacs-lisp
-;; TODO: elisp-fontify-semantically
-;; TODO: eldoc-help-at-pt
+(use-package elisp-mode
+  :ensure nil
+  :init
+  (setq elisp-fontify-semantically t))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -3063,7 +3065,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 ** yaml
 #+begin_src emacs-lisp
-;; TODO: yaml-ts-mode-yamllint-options
 (use-package yaml-ts-mode
   :ensure nil
   :mode ("\\.ya?ml\\'" . yaml-ts-mode)

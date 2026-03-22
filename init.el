@@ -1977,8 +1977,10 @@ Covers both working-tree faces and reference-revision faces."
   :init
   (setq treesit-font-lock-level 4))
 
-;; TODO: elisp-fontify-semantically
-;; TODO: eldoc-help-at-pt
+(use-package elisp-mode
+  :ensure nil
+  :init
+  (setq elisp-fontify-semantically t))
 
 (use-package highlight-defined
   :init
@@ -2094,7 +2096,6 @@ Covers both working-tree faces and reference-revision faces."
   (+local-leader-def :keymaps 'json-ts-mode-map
     "=" '(json-pretty-print-buffer :wk "format")))
 
-;; TODO: yaml-ts-mode-yamllint-options
 (use-package yaml-ts-mode
   :ensure nil
   :mode ("\\.ya?ml\\'" . yaml-ts-mode)
