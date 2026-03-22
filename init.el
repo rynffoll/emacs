@@ -1997,6 +1997,11 @@ Covers both working-tree faces and reference-revision faces."
   (+local-leader-def :keymaps 'emacs-lisp-mode-map
     "m" 'macrostep-expand))
 
+(use-package elisp-def
+  :general
+  (+local-leader-def :keymaps 'emacs-lisp-mode-map
+    "d" 'elisp-def))
+
 (use-package package-lint)
 
 (use-package package-lint-flymake
