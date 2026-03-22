@@ -1992,6 +1992,11 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (emacs-lisp-mode-hook . highlight-quoted-mode))
 
+(use-package macrostep
+  :general
+  (+local-leader-def :keymaps 'emacs-lisp-mode-map
+    "m" 'macrostep-expand))
+
 (use-package package-lint)
 
 (use-package package-lint-flymake
