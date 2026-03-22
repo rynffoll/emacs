@@ -13,14 +13,13 @@
 
 (use-package package
   :ensure nil
-  ;; :init
+  :init
   ;; https://www.reddit.com/r/emacs/comments/1f8ok7c/comment/llhcdgy/
   ;; (setq package-install-upgrade-built-in t)
   ;; TODO: Emacs 31:
-  ;; package-review-policy
   ;; package-autosuggest-mode
-  ;; package-retention-policy
-  ;; package-upgrade-keep-previous
+  (setq package-review-policy t)
+  (setq package-retention-policy t)
   :config
   ;; https://elpa.gnu.org/devel/
   (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
