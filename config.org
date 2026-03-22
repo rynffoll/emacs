@@ -415,16 +415,17 @@ If you'd like to test a different font, evaluate the following block:
 (use-package time
   :ensure nil
   :init
-  (setq world-clock-time-format "%a %d %b %R %z")
-  (setq world-clock-list
-        '(("America/Mexico_City" "Mexico/Mexico City")
-          ("UTC" "UTC")
-          ("Europe/Madrid" "Spain/Madrid")
-          ("Europe/Moscow" "Russia/Moscow")
-          ("Asia/Nicosia" "Cyprus/Nicosia")
-          ("Asia/Tbilisi" "Georgia/Tbilisi")
-          ("Asia/Yerevan" "Armenia/Yerevan")
-          ("Asia/Almaty" "Kazakhstan/Almaty"))))
+  (setq zoneinfo-style-world-list
+        '(("America/Mexico_City" "🇲🇽 Mexico City")
+          ("America/Bagota"      "🇨🇴 Bogota")
+          ("UTC"                 "🕒 UTC")
+          ("Europe/Madrid"       "🇪🇸 Barcelona")
+          ("Europe/Moscow"       "🇷🇺 Moscow")
+          ("Asia/Nicosia"        "🇨🇾 Cyprus")
+          ("Asia/Yerevan"        "🇦🇲 Yerevan")
+          ("Asia/Almaty"         "🇰🇿 Almaty")))
+  (setq world-clock-time-format "%z %R	%a %d %b (%Z)")
+  (setq world-clock-sort-order "%FT%T"))
 #+end_src
 
 ** calendar
