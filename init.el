@@ -709,6 +709,13 @@
   :init
   (setq uniquify-buffer-name-style 'forward))
 
+(use-package buff-menu ;; see list-buffers
+  :ensure nil
+  :init
+  (setq Buffer-menu-group-by '(Buffer-menu-group-by-root))
+  (setq Buffer-menu-group-sort-by 'Buffer-menu-group-sort-alphabetically)
+  (setq Buffer-menu-human-readable-sizes t))
+
 (use-package ibuffer
   :ensure nil
   :general

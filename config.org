@@ -1194,6 +1194,15 @@ Install fonts
   (setq uniquify-buffer-name-style 'forward))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package buff-menu ;; see list-buffers
+  :ensure nil
+  :init
+  (setq Buffer-menu-group-by '(Buffer-menu-group-by-root))
+  (setq Buffer-menu-group-sort-by 'Buffer-menu-group-sort-alphabetically)
+  (setq Buffer-menu-human-readable-sizes t))
+#+end_src
+
 ** ibuffer
 #+begin_src emacs-lisp
 (use-package ibuffer
