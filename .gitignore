@@ -32,3 +32,5 @@
 /recall
 /mason/
 /elpaca/
+/user-lisp/**/*.elc
+/user-lisp/**/*-autoloads.el
