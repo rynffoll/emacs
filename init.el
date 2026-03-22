@@ -132,7 +132,11 @@
   :init
   (setq evil-collection-magit-want-horizontal-movement t)
   :config
-  (evil-collection-init))
+  (evil-collection-init)
+  ;; Emacs 31 changed `define-globalized-minor-mode' timing, causing
+  ;; `evil-normalize-keymaps' to run before `evil-collection-unimpaired-mode'
+  ;; activates.  Re-normalize when the per-buffer mode turns on.
+  (add-hook 'evil-collection-unimpaired-mode-hook #'evil-normalize-keymaps))
 
 (use-package evil-commentary
   :if +with-evil
