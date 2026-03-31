@@ -2096,7 +2096,18 @@ Covers both working-tree faces and reference-revision faces."
                                 (sql-database "postgres")))))
 
 (use-package markdown-ts-mode
-  :ensure nil)
+  :ensure nil
+  :init
+  ;; BUG: `markdown-ts-mode' adds `invisible' to the global value of
+  ;; `font-lock-extra-managed-props' instead of making it buffer-local.
+  ;; This causes font-lock to strip `invisible' text properties in all
+  ;; buffers, breaking `dired-hide-details-mode' among others.
+  ;; https://github.com/jrblevin/markdown-mode/issues/218
+  (advice-add 'markdown-ts-mode :after
+              (lambda (&rest _)
+                (make-local-variable 'font-lock-extra-managed-props)
+                (setq-default font-lock-extra-managed-props
+                              (delq 'invisible (default-value 'font-lock-extra-managed-props))))))
 
 (use-package grip-mode
   :general
