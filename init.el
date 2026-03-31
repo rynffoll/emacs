@@ -136,7 +136,11 @@
   ;; Emacs 31 changed `define-globalized-minor-mode' timing, causing
   ;; `evil-normalize-keymaps' to run before `evil-collection-unimpaired-mode'
   ;; activates.  Re-normalize when the per-buffer mode turns on.
-  (add-hook 'evil-collection-unimpaired-mode-hook #'evil-normalize-keymaps))
+  (add-hook 'evil-collection-unimpaired-mode-hook #'evil-normalize-keymaps)
+  ;; add diff-hl hunk navigation to unimpaired
+  (evil-collection-define-key 'normal 'evil-collection-unimpaired-mode-map
+    "[d" 'diff-hl-previous-hunk
+    "]d" 'diff-hl-next-hunk))
 
 (use-package evil-commentary
   :if +with-evil
