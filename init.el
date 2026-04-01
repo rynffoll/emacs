@@ -94,6 +94,11 @@
   (after-init-hook . async-bytecomp-package-mode)
   (dired-mode-hook . dired-async-mode))
 
+(use-package server
+  :ensure nil
+  :hook
+  (after-init-hook . server-start))
+
 (use-package repeat
   :ensure nil
   :hook

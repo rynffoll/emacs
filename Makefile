@@ -1,9 +1,10 @@
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  make config    - Tangle config.org into init.el and early-init.el"
-	@echo "  make test      - Test that config loads without errors"
-	@echo "  make check     - Run config and test targets"
+	@echo "  make config         - Tangle config.org into init.el and early-init.el"
+	@echo "  make test           - Test that config loads without errors"
+	@echo "  make check          - Run config and test targets"
+	@echo "  make check-server   - Check that emacsclient can connect to running Emacs server"
 
 .PHONY: config
 config:
@@ -16,3 +17,7 @@ test:
 .PHONY: check
 check: config test
 	@echo "All checks passed!"
+
+.PHONY: check-server
+check-server:
+	emacsclient -e '(emacs-version)' -e '(emacs-uptime)'

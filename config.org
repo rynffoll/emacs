@@ -31,6 +31,7 @@
   - [[#calendar][calendar]]
 - [[#gc][GC]]
 - [[#async][Async]]
+- [[#server][Server]]
 - [[#keybindings][Keybindings]]
   - [[#repeat][repeat]]
   - [[#which-key][which-key]]
@@ -457,6 +458,14 @@ If you'd like to test a different font, evaluate the following block:
   :hook
   (after-init-hook . async-bytecomp-package-mode)
   (dired-mode-hook . dired-async-mode))
+#+end_src
+
+* Server
+#+begin_src emacs-lisp
+(use-package server
+  :ensure nil
+  :hook
+  (after-init-hook . server-start))
 #+end_src
 
 * Keybindings
