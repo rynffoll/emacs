@@ -94,6 +94,19 @@
   (after-init-hook . async-bytecomp-package-mode)
   (dired-mode-hook . dired-async-mode))
 
+(use-package repeat
+  :ensure nil
+  :hook
+  (after-init-hook . repeat-mode))
+
+(use-package which-key
+  :ensure nil
+  :init
+  (setq which-key-popup-type 'minibuffer)
+  (setq which-key-dont-use-unicode nil)
+  :hook
+  (after-init-hook . which-key-mode))
+
 (use-package evil
   :if +with-evil
   :demand
@@ -102,13 +115,6 @@
     (interactive)
     (save-buffer)
     (kill-buffer))
-  (defun +disable-evil-cursor ()
-    (setq-local evil-default-cursor    '(nil))
-    (setq-local evil-motion-state-cursor nil)
-    (setq-local evil-visual-state-cursor nil)
-    (setq-local evil-normal-state-cursor nil)
-    (setq-local evil-insert-state-cursor nil)
-    (setq-local evil-emacs-state-cursor  nil))
   :init
   (setq evil-want-keybinding nil)
   (setq evil-motion-state-cursor 'box)  ;; █
@@ -317,19 +323,6 @@
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
-
-(use-package which-key
-  :ensure nil
-  :init
-  (setq which-key-popup-type 'minibuffer)
-  (setq which-key-dont-use-unicode nil)
-  :hook
-  (after-init-hook . which-key-mode))
-
-(use-package repeat
-  :ensure nil
-  :hook
-  (after-init-hook . repeat-mode))
 
 (use-package mule
   :ensure nil
