@@ -2078,9 +2078,6 @@ Covers both working-tree faces and reference-revision faces."
   :mode
   ("\\.go\\'" . go-ts-mode)
   ("go\\.mod\\'" . go-mod-ts-mode)
-  :general
-  (+local-leader-def :keymaps 'go-ts-mode-map
-    "t"  '(:ignore t :wk "test"))
   :init
   (setq go-ts-mode-indent-offset 4)
   :hook
