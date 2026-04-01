@@ -1986,7 +1986,7 @@ Covers both working-tree faces and reference-revision faces."
 (use-package consult-eglot
   :general
   (+local-leader-def :keymaps 'eglot-mode-map
-    "Fs" 'consult-eglot-symbols))
+    "fs" 'consult-eglot-symbols))
 
 (use-package consult-eglot-embark
   :config
