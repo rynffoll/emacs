@@ -1030,11 +1030,10 @@
 (use-package autorevert
   :ensure nil
   :init
+  (setq auto-revert-avoid-polling t)
   (setq global-auto-revert-non-file-buffers t)
-  ;; replaced by `vc-auto-revert-mode'
-  ;; :hook
-  ;; (after-init-hook . global-auto-revert-mode)
-  )
+  :hook
+  (after-init-hook . global-auto-revert-mode))
 
 (use-package iqa
   :preface
@@ -1611,9 +1610,7 @@
   :init
   (setq vc-handled-backends '(Git))
   (setq vc-async-checkin t)
-  (setq vc-allow-async-diff t)
-  :hook
-  (after-init-hook . vc-auto-revert-mode))
+  (setq vc-allow-async-diff t))
 
 (use-package magit
   :pin melpa-stable ;; for compatibility with built-in transient
