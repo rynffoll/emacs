@@ -44,11 +44,6 @@
   :type 'boolean
   :group '+feature-flags)
 
-(defcustom +with-dirvish nil
-  "Enable Dirvish integrations."
-  :type 'boolean
-  :group '+feature-flags)
-
 (use-package emacs
   :ensure nil
   :init
@@ -473,7 +468,6 @@
    ;; '(org-block-begin-line           ((t (:underline nil))))
    ;; '(org-block-end-line             ((t (:overline nil))))
    '(dape-breakpoint-face           ((t (:inherit error))))
-   '(dirvish-hl-line                ((t (:inherit hl-line))))
    '(hs-ellipsis                    ((t (:inherit shadow))))
    ))
 
@@ -1172,7 +1166,6 @@
         (concat dired-omit-files "\\|^\\..*$")))
 
 (use-package dired-subtree
-  :unless +with-dirvish
   :demand t
   :after dired
   :general
@@ -1191,7 +1184,6 @@
 
 (use-package nerd-icons-dired
   :if +with-icons
-  :unless +with-dirvish
   :preface
   (defvar-local +nerd-icons-dired--refresh-timer nil)
   (defun +nerd-icons-dired--refresh (orig-fn &rest _)
@@ -1232,7 +1224,6 @@
 
 (use-package dired-sidebar
   :disabled ; replaced by dired-side
-  :unless +with-dirvish
   :autoload dired-sidebar-showing-sidebar-p
   :preface
   (defun +dired-sidebar-follow-file ()
@@ -1263,7 +1254,6 @@
     (add-to-list 'winum-assign-functions #'winum-assign-0-to-dired-sidebar)))
 
 (use-package dired-side
-  :unless +with-dirvish
   :ensure nil
   :preface
   (defun +dired-side-custom-face ()
@@ -1302,75 +1292,6 @@
   (dired-side-mode-hook . dired-hide-details-mode)
   (dired-side-mode-hook . mode-line-invisible-mode)
   (dired-side-mode-hook . +dired-side-custom-face))
-
-(use-package dirvish
-  :if +with-dirvish
-  :general
-  ( :keymaps 'dirvish-mode-map :states 'normal
-    "q" 'dirvish-quit)
-  :init
-  (when +with-icons
-    (setq dirvish-attributes '(nerd-icons)))
-  (setq dirvish-path-separators '("  ~" "   " "/"))
-  :config
-  (with-eval-after-load 'doom-modeline
-    (setq dirvish-mode-line-bar-image-width doom-modeline-bar-width)
-    (setq dirvish-mode-line-height doom-modeline-height)
-    (setq dirvish-header-line-height doom-modeline-height))
-  (with-eval-after-load 'winum
-    (dirvish-define-mode-line winum
-      "A `winum-mode' indicator."
-      (and (bound-and-true-p winum-mode)
-           (let ((num (winum-get-number-string)))
-             (propertize (format " %s " num)
-                         'face 'winum-face))))
-    (setq dirvish-mode-line-format
-          '( :left  (winum sort)
-             :right (omit yank))))
-  :hook
-  (after-init-hook . dirvish-override-dired-mode))
-
-(use-package dirvish-subtree
-  :if +with-dirvish
-  :ensure dirvish
-  :general
-  ( :keymaps 'dirvish-mode-map :states 'normal
-    "TAB" 'dirvish-subtree-toggle)
-  :init
-  (setq dirvish-subtree-prefix "  "))
-
-(use-package dirvish-side
-  :if +with-dirvish
-  :ensure dirvish
-  :autoload
-  dirvish-side--session-visible-p
-  dirvish-side--auto-jump
-  :preface
-  (defun +dirvish-side-follow-file ()
-    (interactive)
-    (if (dirvish-side--session-visible-p)
-        (dirvish-side--auto-jump)
-      (dirvish-side)))
-  (defvar-local +dirvish-side-font-applied nil)
-  (defun +dirvish-side-set-font (&rest _)
-    (when-let* ((side-window (dirvish-side--session-visible-p))
-                (side-buffer (window-buffer side-window)))
-      (with-current-buffer side-buffer
-        (unless +dirvish-side-font-applied
-          (setq-local +dirvish-side-font-applied t)
-          (buffer-face-set '(:height 0.9))))))
-  :init
-  (setq dirvish-side-window-parameters '((no-delete-other-windows . t)))
-  :config
-  (with-eval-after-load 'winum
-    (defun winum-assign-0-to-dirvish-side ()
-      (when (and (functionp 'dirvish-side--session-visible-p)
-                 (eq (selected-window) (dirvish-side--session-visible-p))
-                 (eq (selected-window) (frame-first-window)))
-        0))
-    (add-to-list 'winum-assign-functions #'winum-assign-0-to-dirvish-side))
-  ;; update buffer face
-  (advice-add 'dirvish-side :after #'+dirvish-side-set-font))
 
 (use-package exec-path-from-shell
   :if (or (memq window-system '(mac ns x)) (daemonp))

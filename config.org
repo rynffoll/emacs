@@ -23,7 +23,6 @@
 - [[#feature-flags][Feature Flags]]
   - [[#with-evil][=+with-evil=]]
   - [[#with-icons][=+with-icons=]]
-  - [[#with-dirvish][=+with-dirvish=]]
 - [[#defaults-1][Defaults]]
   - [[#emacs][emacs]]
   - [[#compile][compile]]
@@ -102,7 +101,6 @@
   - [[#dired-git-info][dired-git-info]]
   - [[#dired-sidebar][dired-sidebar]]
   - [[#dired-side][dired-side]]
-- [[#dirvish][Dirvish]]
 - [[#environment-variables][Environment Variables]]
 - [[#help][Help]]
 - [[#editor][Editor]]
@@ -395,14 +393,6 @@ If you'd like to test a different font, evaluate the following block:
 #+begin_src emacs-lisp
 (defcustom +with-icons t
   "Enable icon integrations."
-  :type 'boolean
-  :group '+feature-flags)
-#+end_src
-
-** =+with-dirvish=
-#+begin_src emacs-lisp
-(defcustom +with-dirvish nil
-  "Enable Dirvish integrations."
   :type 'boolean
   :group '+feature-flags)
 #+end_src
@@ -933,7 +923,6 @@ Install fonts
    ;; '(org-block-begin-line           ((t (:underline nil))))
    ;; '(org-block-end-line             ((t (:overline nil))))
    '(dape-breakpoint-face           ((t (:inherit error))))
-   '(dirvish-hl-line                ((t (:inherit hl-line))))
    '(hs-ellipsis                    ((t (:inherit shadow))))
    ))
 
@@ -1823,7 +1812,6 @@ Install fonts
 ** dired-subtree
 #+begin_src emacs-lisp
 (use-package dired-subtree
-  :unless +with-dirvish
   :demand t
   :after dired
   :general
@@ -1848,7 +1836,6 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package nerd-icons-dired
   :if +with-icons
-  :unless +with-dirvish
   :preface
   (defvar-local +nerd-icons-dired--refresh-timer nil)
   (defun +nerd-icons-dired--refresh (orig-fn &rest _)
@@ -1898,7 +1885,6 @@ Install fonts
 #+begin_src emacs-lisp
 (use-package dired-sidebar
   :disabled ; replaced by dired-side
-  :unless +with-dirvish
   :autoload dired-sidebar-showing-sidebar-p
   :preface
   (defun +dired-sidebar-follow-file ()
@@ -1932,7 +1918,6 @@ Install fonts
 ** dired-side
 #+begin_src emacs-lisp
 (use-package dired-side
-  :unless +with-dirvish
   :ensure nil
   :preface
   (defun +dired-side-custom-face ()
@@ -1971,82 +1956,6 @@ Install fonts
   (dired-side-mode-hook . dired-hide-details-mode)
   (dired-side-mode-hook . mode-line-invisible-mode)
   (dired-side-mode-hook . +dired-side-custom-face))
-#+end_src
-
-* Dirvish
-#+begin_src emacs-lisp
-(use-package dirvish
-  :if +with-dirvish
-  :general
-  ( :keymaps 'dirvish-mode-map :states 'normal
-    "q" 'dirvish-quit)
-  :init
-  (when +with-icons
-    (setq dirvish-attributes '(nerd-icons)))
-  (setq dirvish-path-separators '("  ~" "   " "/"))
-  :config
-  (with-eval-after-load 'doom-modeline
-    (setq dirvish-mode-line-bar-image-width doom-modeline-bar-width)
-    (setq dirvish-mode-line-height doom-modeline-height)
-    (setq dirvish-header-line-height doom-modeline-height))
-  (with-eval-after-load 'winum
-    (dirvish-define-mode-line winum
-      "A `winum-mode' indicator."
-      (and (bound-and-true-p winum-mode)
-           (let ((num (winum-get-number-string)))
-             (propertize (format " %s " num)
-                         'face 'winum-face))))
-    (setq dirvish-mode-line-format
-          '( :left  (winum sort)
-             :right (omit yank))))
-  :hook
-  (after-init-hook . dirvish-override-dired-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package dirvish-subtree
-  :if +with-dirvish
-  :ensure dirvish
-  :general
-  ( :keymaps 'dirvish-mode-map :states 'normal
-    "TAB" 'dirvish-subtree-toggle)
-  :init
-  (setq dirvish-subtree-prefix "  "))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package dirvish-side
-  :if +with-dirvish
-  :ensure dirvish
-  :autoload
-  dirvish-side--session-visible-p
-  dirvish-side--auto-jump
-  :preface
-  (defun +dirvish-side-follow-file ()
-    (interactive)
-    (if (dirvish-side--session-visible-p)
-        (dirvish-side--auto-jump)
-      (dirvish-side)))
-  (defvar-local +dirvish-side-font-applied nil)
-  (defun +dirvish-side-set-font (&rest _)
-    (when-let* ((side-window (dirvish-side--session-visible-p))
-                (side-buffer (window-buffer side-window)))
-      (with-current-buffer side-buffer
-        (unless +dirvish-side-font-applied
-          (setq-local +dirvish-side-font-applied t)
-          (buffer-face-set '(:height 0.9))))))
-  :init
-  (setq dirvish-side-window-parameters '((no-delete-other-windows . t)))
-  :config
-  (with-eval-after-load 'winum
-    (defun winum-assign-0-to-dirvish-side ()
-      (when (and (functionp 'dirvish-side--session-visible-p)
-                 (eq (selected-window) (dirvish-side--session-visible-p))
-                 (eq (selected-window) (frame-first-window)))
-        0))
-    (add-to-list 'winum-assign-functions #'winum-assign-0-to-dirvish-side))
-  ;; update buffer face
-  (advice-add 'dirvish-side :after #'+dirvish-side-set-font))
 #+end_src
 
 * Environment Variables
