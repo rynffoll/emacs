@@ -74,10 +74,13 @@ When nil, `dired-side-follow-file' only shows the sidebar."
   (let* ((name (dired-side--buffer-name dir))
          (buf (get-buffer name)))
     (or buf
-        (with-current-buffer (dired-noselect dir)
-          (rename-buffer name)
-          (dired-side-mode 1)
-          (current-buffer)))))
+        ;; Create fresh buffer; hide from future `dired-find-buffer-nocreate'
+        (let ((dired-buffers nil))
+          (with-current-buffer (dired-noselect dir)
+            (rename-buffer name)
+            (dired-side-mode 1)
+            (setq dired-buffers (rassq-delete-all (current-buffer) dired-buffers))
+            (current-buffer))))))
 
 (defun dired-side--show (buffer)
   "Display sidebar BUFFER in a side window."
