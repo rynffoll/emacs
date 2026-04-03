@@ -1285,7 +1285,8 @@
   :config
   (with-eval-after-load 'winum
     (defun +winum-assign-0-to-dired-side ()
-      (when (bound-and-true-p dired-side-mode)
+      (when (and (bound-and-true-p dired-side-mode)
+                 (window-parameter (selected-window) 'window-side))
         0))
     (add-to-list 'winum-assign-functions #'+winum-assign-0-to-dired-side))
   :hook
