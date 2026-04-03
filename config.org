@@ -1761,7 +1761,7 @@ Install fonts
          "--almost-all "              ;; show hidden files, but not . or ..
          "--no-group "                ;; do not show group, only owner
          ;; conflict w/ `dired-sidebar-follow-file'
-         ;; "--classify "                ;; append indicator (one of */=>@|) to entries
+         "--classify "                ;; append indicator (one of */=>@|) to entries
          "--human-readable "          ;; print sizes in human readable format
          "--sort=version "            ;; sort by version number (netural order)
          "--group-directories-first " ;; group directories first
