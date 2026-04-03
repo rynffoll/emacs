@@ -211,7 +211,7 @@
     "."   'find-file
     ","   'switch-to-buffer
 
-    "0"   'dired-sidebar-jump-to-sidebar
+    "0"   'dired-side-jump
     "1"   'winum-select-window-1
     "2"   'winum-select-window-2
     "3"   'winum-select-window-3
@@ -247,8 +247,8 @@
     "f"   '(:ignore t :wk "file")
     "fl"  'find-library
     "fr"  'recentf-open-files
-    "ft"  'dired-sidebar-toggle-sidebar
-    "ff"  '+dired-sidebar-follow-file
+    "ft"  'dired-side-toggle
+    "ff"  'dired-side-follow-file
     "fR"  'crux-rename-file-and-buffer
     "fD"  'crux-delete-file-and-buffer
     "fg"  'magit-file-dispatch
@@ -1237,6 +1237,7 @@
   (setq dgi-auto-hide-details-p nil))
 
 (use-package dired-sidebar
+  :disabled ; replaced by dired-side
   :unless +with-dirvish
   :autoload dired-sidebar-showing-sidebar-p
   :preface
@@ -1266,6 +1267,47 @@
                  (eq (selected-window) (frame-first-window)))
         0))
     (add-to-list 'winum-assign-functions #'winum-assign-0-to-dired-sidebar)))
+
+(use-package dired-side
+  :unless +with-dirvish
+  :ensure nil
+  :preface
+  (defun +dired-side-custom-face ()
+    (face-remap-add-relative 'default :height 0.9))
+  (defun +dired-side-point-at-file (file)
+    "Reveal FILE in sidebar by expanding subtrees along the path."
+    (when (and file (fboundp 'dired-subtree--is-expanded-p))
+      ;; HACK: suppress diff-hl per-insert updates to avoid concurrent
+      ;; git processes (index.lock conflict); call diff-hl-dired-update
+      ;; once at the end instead
+      (let* ((dired-subtree-after-insert-hook
+              (remq '+diff-hl-dired-update dired-subtree-after-insert-hook))
+             (root (dired-current-directory))
+             (relative (file-relative-name file root))
+             (parts (split-string relative "/" t))
+             (path root))
+        (goto-char (point-min))
+        (dolist (part parts)
+          (setq path (concat path part))
+          (when (dired-goto-file-1 part (expand-file-name path) nil)
+            (when (and (file-directory-p path)
+                       (not (dired-subtree--is-expanded-p)))
+              (dired-subtree-cycle))
+            (setq path (file-name-as-directory path)))))
+      (when (bound-and-true-p diff-hl-dired-mode)
+        (diff-hl-dired-update))))
+  :init
+  (setq dired-side-follow-file-function #'+dired-side-point-at-file)
+  :config
+  (with-eval-after-load 'winum
+    (defun +winum-assign-0-to-dired-side ()
+      (when (bound-and-true-p dired-side-mode)
+        0))
+    (add-to-list 'winum-assign-functions #'+winum-assign-0-to-dired-side))
+  :hook
+  (dired-side-mode-hook . dired-hide-details-mode)
+  (dired-side-mode-hook . mode-line-invisible-mode)
+  (dired-side-mode-hook . +dired-side-custom-face))
 
 (use-package dirvish
   :if +with-dirvish
@@ -1730,7 +1772,7 @@ Covers both working-tree faces and reference-revision faces."
     (when (and (bound-and-true-p diff-hl-dired-mode)
                (memq this-command '(dired-subtree-insert
                                     dired-subtree-toggle
-                                    dired-sidebar-subtree-toggle)))
+                                    dired-subtree-cycle)))
       (diff-hl-dired-update)))
   :init
   (setq diff-hl-dired-extra-indicators nil)
