@@ -3366,29 +3366,6 @@ machine api.openai.com login apikey password TOKEN
   (claude-code-ide-emacs-tools-setup))
 #+end_src
 
-** COMMENT claude-code
-#+begin_src emacs-lisp
-(use-package inheritenv
-  :vc (:url "https://github.com/purcell/inheritenv" :rev :newest))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package monet
-  :vc (:url "https://github.com/stevemolitor/monet" :rev :newest))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package claude-code :ensure t
-  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
-  :config
-  (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
-  (monet-mode 1)
-  (claude-code-mode)
-  :bind-keymap ("C-c c" . claude-code-command-map)
-  :bind
-  (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
-#+end_src
-
 ** agent-shell
 #+begin_src emacs-lisp
 (use-package agent-shell
