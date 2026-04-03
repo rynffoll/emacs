@@ -87,7 +87,8 @@ When nil, `dired-side-follow-file' only shows the sidebar."
   (let ((window (display-buffer-in-side-window buffer
                                                `(,@dired-side-display-alist
                                                  (dedicated . t)
-                                                 (no-delete-other-windows . t)))))
+                                                 (window-parameters
+                                                  . ((no-delete-other-windows . t)))))))
     (window-preserve-size window t t) ; preserve width during resize operations
     window))
 
