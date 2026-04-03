@@ -26,6 +26,7 @@
 - [[#defaults-1][Defaults]]
   - [[#emacs][emacs]]
   - [[#compile][compile]]
+  - [[#ansi-color][ansi-color]]
   - [[#time][time]]
   - [[#calendar][calendar]]
 - [[#gc][GC]]
@@ -42,7 +43,9 @@
   - [[#evil-mc][evil-mc]]
   - [[#evil-terminal-cursor-changer][evil-terminal-cursor-changer]]
   - [[#general][general]]
-- [[#keyboard-layout][Keyboard Layout]]
+  - [[#mule][mule]]
+  - [[#char-fold][char-fold]]
+  - [[#reverse-im][reverse-im]]
 - [[#tty][TTY]]
 - [[#ui-1][UI]]
   - [[#taskbar][taskbar]]
@@ -54,6 +57,9 @@
   - [[#custom-faces][custom-faces]]
   - [[#themes][themes]]
 - [[#frames][Frames]]
+  - [[#frame][frame]]
+  - [[#fringe][fringe]]
+  - [[#default-text-scale][default-text-scale]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
   - [[#tab-line][tab-line]]
@@ -64,10 +70,16 @@
   - [[#shackle][shackle]]
   - [[#popper][popper]]
 - [[#buffers][Buffers]]
-  - [[#common-1][common]]
+  - [[#uniquify][uniquify]]
+  - [[#buff-menu][buff-menu]]
   - [[#ibuffer][ibuffer]]
+  - [[#ibuffer-vc][ibuffer-vc]]
+  - [[#nerd-icons-ibuffer][nerd-icons-ibuffer]]
   - [[#persistent-scratch][persistent-scratch]]
 - [[#history][History]]
+  - [[#savehist][savehist]]
+  - [[#saveplace][saveplace]]
+  - [[#recentf][recentf]]
 - [[#session-manager][Session Manager]]
   - [[#desktop][desktop]]
 - [[#completion][Completion]]
@@ -102,8 +114,19 @@
   - [[#dired-sidebar][dired-sidebar]]
   - [[#dired-side][dired-side]]
 - [[#environment-variables][Environment Variables]]
+  - [[#exec-path-from-shell][exec-path-from-shell]]
+  - [[#with-editor][with-editor]]
 - [[#help][Help]]
+  - [[#help-1][help]]
+  - [[#helpful][helpful]]
 - [[#editor][Editor]]
+  - [[#emacs-2][emacs]]
+  - [[#delsel][delsel]]
+  - [[#simple][simple]]
+  - [[#prog-mode][prog-mode]]
+  - [[#so-long][so-long]]
+  - [[#hungry-delete][hungry-delete]]
+  - [[#elec-pair][elec-pair]]
 - [[#ediff][Ediff]]
 - [[#undoredo][Undo/Redo]]
   - [[#undo-fu-session][undo-fu-session]]
@@ -117,8 +140,12 @@
   - [[#highlight-indent-guides][highlight-indent-guides]]
   - [[#hl-todo][hl-todo]]
 - [[#line-numbers][Line Numbers]]
+  - [[#display-line-numbers][display-line-numbers]]
 - [[#search][Search]]
+  - [[#anzu][anzu]]
+  - [[#evil-anzu][evil-anzu]]
 - [[#folding][Folding]]
+  - [[#hideshow][hideshow]]
 - [[#spell-checking][Spell Checking]]
   - [[#jinx][jinx]]
 - [[#syntax-checking][Syntax Checking]]
@@ -146,7 +173,7 @@
   - [[#difftastic][difftastic]]
   - [[#git-timemachine][git-timemachine]]
 - [[#org][Org]]
-  - [[#common-2][common]]
+  - [[#org-1][org]]
   - [[#org-archive][org-archive]]
   - [[#org-refile][org-refile]]
   - [[#org-link][org-link]]
@@ -414,6 +441,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq compilation-scroll-output 'first-error))
 #+end_src
 
+** ansi-color
 #+begin_src emacs-lisp
 (use-package ansi-color
   :ensure nil
@@ -735,7 +763,7 @@ If you'd like to test a different font, evaluate the following block:
     ""    '(nil :wk "local leader")))
 #+end_src
 
-* Keyboard Layout
+** mule
 #+begin_src emacs-lisp
 (use-package mule
   :ensure nil
@@ -743,6 +771,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq default-input-method 'russian-computer))
 #+end_src
 
+** char-fold
 #+begin_src emacs-lisp
 (use-package char-fold
   :ensure nil
@@ -751,6 +780,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq search-default-mode #'char-fold-to-regexp))
 #+end_src
 
+** reverse-im
 #+begin_src emacs-lisp
 (use-package reverse-im
   :general
@@ -995,6 +1025,7 @@ Install fonts
 #+end_src
 
 * Frames
+** frame
 #+begin_src emacs-lisp
 (use-package frame
   :ensure nil
@@ -1011,6 +1042,7 @@ Install fonts
   (blink-cursor-mode -1))
 #+end_src
 
+** fringe
 #+begin_src emacs-lisp
 (use-package fringe
   :if (display-graphic-p)
@@ -1024,6 +1056,7 @@ Install fonts
         ))
 #+end_src
 
+** default-text-scale
 #+begin_src emacs-lisp
 (use-package default-text-scale
   :hook
@@ -1220,7 +1253,7 @@ Install fonts
 #+end_src
 
 * Buffers
-** common
+** uniquify
 #+begin_src emacs-lisp
 (use-package uniquify
   :ensure nil
@@ -1228,6 +1261,7 @@ Install fonts
   (setq uniquify-buffer-name-style 'forward))
 #+end_src
 
+** buff-menu
 #+begin_src emacs-lisp
 (use-package buff-menu ;; see list-buffers
   :ensure nil
@@ -1247,6 +1281,7 @@ Install fonts
   (setq ibuffer-human-readable-size t))
 #+end_src
 
+** ibuffer-vc
 #+begin_src emacs-lisp
 (use-package ibuffer-vc
   :disabled ;; replaced by projection-ibuffer
@@ -1259,6 +1294,7 @@ Install fonts
   (ibuffer-hook . +setup-ibuffer-vc))
 #+end_src
 
+** nerd-icons-ibuffer
 #+begin_src emacs-lisp
 (use-package nerd-icons-ibuffer
   :if +with-icons
@@ -1278,6 +1314,7 @@ Install fonts
 #+end_src
 
 * History
+** savehist
 #+begin_src emacs-lisp
 (use-package savehist
   :ensure nil
@@ -1285,6 +1322,7 @@ Install fonts
   (after-init-hook . savehist-mode))
 #+end_src
 
+** saveplace
 #+begin_src emacs-lisp
 (use-package saveplace
   :ensure nil
@@ -1292,6 +1330,7 @@ Install fonts
   (after-init-hook . save-place-mode))
 #+end_src
 
+** recentf
 #+begin_src emacs-lisp
 (use-package recentf
   :ensure nil
@@ -1960,6 +1999,7 @@ Install fonts
 #+end_src
 
 * Environment Variables
+** exec-path-from-shell
 ~$PATH~ from user's shell
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
@@ -1971,6 +2011,7 @@ Install fonts
   (exec-path-from-shell-initialize))
 #+end_src
 
+** with-editor
 Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package with-editor
@@ -1984,6 +2025,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Help
+** help
 #+begin_src emacs-lisp
 (use-package help
   :ensure nil
@@ -1992,6 +2034,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
    "F" 'describe-face))
 #+end_src
 
+** helpful
 #+begin_src emacs-lisp
 (use-package helpful
   :general
@@ -2005,6 +2048,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Editor
+** emacs
 #+begin_src emacs-lisp
 (use-package emacs
   :ensure nil
@@ -2013,6 +2057,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq-default indent-tabs-mode nil))
 #+end_src
 
+** delsel
 #+begin_src emacs-lisp
 (use-package delsel
   :ensure nil
@@ -2022,6 +2067,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (after-init-hook . delete-selection-mode))
 #+end_src
 
+** simple
 #+begin_src emacs-lisp
 (use-package simple
   :ensure nil
@@ -2029,6 +2075,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (after-init-hook . column-number-mode))
 #+end_src
 
+** prog-mode
 #+begin_src emacs-lisp
 (use-package prog-mode
   :ensure nil
@@ -2036,6 +2083,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (after-init-hook . global-prettify-symbols-mode))
 #+end_src
 
+** so-long
 #+begin_src emacs-lisp
 (use-package so-long
   :ensure nil
@@ -2043,12 +2091,14 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (after-init-hook . global-so-long-mode))
 #+end_src
 
+** hungry-delete
 #+begin_src emacs-lisp
 (use-package hungry-delete
   :hook
   (after-init-hook . global-hungry-delete-mode))
 #+end_src
 
+** elec-pair
 #+begin_src emacs-lisp
 (use-package elec-pair
   :ensure nil
@@ -2171,6 +2221,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Line Numbers
+** display-line-numbers
 #+begin_src emacs-lisp
 (use-package display-line-numbers
   :ensure nil
@@ -2179,6 +2230,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Search
+** anzu
 #+begin_src emacs-lisp
 (use-package anzu
   :init
@@ -2187,6 +2239,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (after-init-hook . global-anzu-mode))
 #+end_src
 
+** evil-anzu
 #+begin_src emacs-lisp
 (use-package evil-anzu
   :if +with-evil
@@ -2195,6 +2248,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Folding
+** hideshow
 #+begin_src emacs-lisp
 (use-package hideshow
   :ensure nil
@@ -2206,12 +2260,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (prog-mode-hook . hs-minor-mode)
   (conf-mode-hook . hs-minor-mode)
   (yaml-ts-mode-hook . hs-minor-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package outline-indent
-  :hook
-  (yaml-ts-mode-hook . outline-indent-minor-mode))
 #+end_src
 
 * Spell Checking
@@ -2586,7 +2634,7 @@ Covers both working-tree faces and reference-revision faces."
 #+end_src
 
 * Org
-** common
+** org
 #+begin_src emacs-lisp
 (use-package org
   :ensure nil

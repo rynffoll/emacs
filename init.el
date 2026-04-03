@@ -1473,10 +1473,6 @@
   (conf-mode-hook . hs-minor-mode)
   (yaml-ts-mode-hook . hs-minor-mode))
 
-(use-package outline-indent
-  :hook
-  (yaml-ts-mode-hook . outline-indent-minor-mode))
-
 (use-package jinx
   :general
   ([remap ispell-word] 'jinx-correct)
