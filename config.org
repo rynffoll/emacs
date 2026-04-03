@@ -92,6 +92,16 @@
   - [[#projection][projection]]
   - [[#project-butler][project-butler]]
 - [[#dired][Dired]]
+  - [[#dired-1][dired]]
+  - [[#dired-aux][dired-aux]]
+  - [[#dired-x][dired-x]]
+  - [[#dired-subtree][dired-subtree]]
+  - [[#diredfl][diredfl]]
+  - [[#nerd-icons-dired][nerd-icons-dired]]
+  - [[#nerd-icons-multimodal][nerd-icons-multimodal]]
+  - [[#dired-git-info][dired-git-info]]
+  - [[#dired-sidebar][dired-sidebar]]
+  - [[#dired-side][dired-side]]
 - [[#dirvish][Dirvish]]
 - [[#environment-variables][Environment Variables]]
 - [[#help][Help]]
@@ -1751,6 +1761,7 @@ Install fonts
 #+end_src
 
 * Dired
+** dired
 #+begin_src emacs-lisp
 (use-package dired
   :ensure nil
@@ -1783,6 +1794,7 @@ Install fonts
   (dired-mode-hook . dired-hide-details-mode))
 #+end_src
 
+** dired-aux
 #+begin_src emacs-lisp
 (use-package dired-aux
   :ensure nil
@@ -1791,6 +1803,7 @@ Install fonts
   (setq dired-create-destination-dirs 'ask))
 #+end_src
 
+** dired-x
 #+begin_src emacs-lisp
 (use-package dired-x
   :ensure nil
@@ -1807,7 +1820,7 @@ Install fonts
         (concat dired-omit-files "\\|^\\..*$")))
 #+end_src
 
-[[https://github.com/Fuco1/dired-hacks][dired-hacks]]
+** dired-subtree
 #+begin_src emacs-lisp
 (use-package dired-subtree
   :unless +with-dirvish
@@ -1824,13 +1837,14 @@ Install fonts
     (setq dired-subtree-line-prefix "\t\t")))
 #+end_src
 
-[[https://github.com/purcell/diredfl][diredfl]]
+** diredfl
 #+begin_src emacs-lisp
 (use-package diredfl
   :hook
   (dired-mode-hook . diredfl-mode))
 #+end_src
 
+** nerd-icons-dired
 #+begin_src emacs-lisp
 (use-package nerd-icons-dired
   :if +with-icons
@@ -1858,6 +1872,7 @@ Install fonts
   (dired-subtree-after-insert-hook . nerd-icons-dired--refresh))
 #+end_src
 
+** nerd-icons-multimodal
 #+begin_src emacs-lisp
 (use-package nerd-icons-multimodal
   :disabled ;; conflicts with dired-sidebar
@@ -1869,6 +1884,7 @@ Install fonts
   (tar-mode-hook     . nerd-icons-multimodal-mode))
 #+end_src
 
+** dired-git-info
 #+begin_src emacs-lisp
 (use-package dired-git-info
   :general
@@ -1878,7 +1894,7 @@ Install fonts
   (setq dgi-auto-hide-details-p nil))
 #+end_src
 
-[[https://github.com/jojojames/dired-sidebar][dired-sidebar]]
+** dired-sidebar
 #+begin_src emacs-lisp
 (use-package dired-sidebar
   :disabled ; replaced by dired-side
@@ -1913,7 +1929,7 @@ Install fonts
     (add-to-list 'winum-assign-functions #'winum-assign-0-to-dired-sidebar)))
 #+end_src
 
-dired-side
+** dired-side
 #+begin_src emacs-lisp
 (use-package dired-side
   :unless +with-dirvish
