@@ -908,7 +908,7 @@ Install fonts
    ;; '(header-line-inactive           ((t (:height 0.9))))
    '(evil-ex-substitute-matches     ((t (:inherit diff-removed :foreground unspecified :background unspecified :strike-through t))))
    '(evil-ex-substitute-replacement ((t (:inherit diff-added   :foreground unspecified :background unspecified :underline nil))))
-   ;; '(diredfl-dir-name               ((t (:bold t))))
+   '(diredfl-dir-name               ((t (:bold t))))
    '(vundo-highlight                ((t (:inherit success :foreground unspecified))))
    '(vundo-last-saved               ((t (:inherit error   :foreground unspecified))))
    '(vundo-saved                    ((t (:inherit warning :foreground unspecified))))
@@ -1899,6 +1899,8 @@ Install fonts
   (setq dired-sidebar-use-custom-font t) ;; to custom `dired-sidebar-face'
   (setq dired-sidebar-face '(:height 0.9))
   (setq dired-sidebar-refresh-on-project-switch nil)
+  (setq dired-sidebar-delay-auto-revert-updates nil) ; redundant with `auto-revert-avoid-polling'
+  (setq dired-sidebar-refresh-on-special-commands nil) ; revert loop with subtrees
   :config
   (with-eval-after-load 'winum
     (defun winum-assign-0-to-dired-sidebar ()
@@ -2563,7 +2565,10 @@ Covers both working-tree faces and reference-revision faces."
   :ensure diff-hl
   :preface
   (defun +diff-hl-dired-update ()
-    (when (bound-and-true-p diff-hl-dired-mode)
+    (when (and (bound-and-true-p diff-hl-dired-mode)
+               (memq this-command '(dired-subtree-insert
+                                    dired-subtree-toggle
+                                    dired-sidebar-subtree-toggle)))
       (diff-hl-dired-update)))
   :init
   (setq diff-hl-dired-extra-indicators nil)
