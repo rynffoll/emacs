@@ -1016,12 +1016,6 @@
 
 (use-package files
   :ensure nil
-  :preface
-  (defun +find-file-in-dir (dir)
-    "Open a file starting in DIR."
-    (interactive "DDirectory: ")
-    (let ((default-directory (file-name-as-directory dir)))
-      (call-interactively #'find-file)))
   :init
   (setq require-final-newline t)
   (setq make-backup-files nil)

@@ -82,6 +82,10 @@
   - [[#embark][embark]]
   - [[#templ][templ]]
 - [[#files][Files]]
+  - [[#files-1][files]]
+  - [[#autorevert][autorevert]]
+  - [[#iqa][iqa]]
+  - [[#epg][epg]]
 - [[#projects][Projects]]
   - [[#project][project]]
   - [[#disproject][disproject]]
@@ -1608,21 +1612,17 @@ Install fonts
 #+end_src
 
 * Files
+** files
 #+begin_src emacs-lisp
 (use-package files
   :ensure nil
-  :preface
-  (defun +find-file-in-dir (dir)
-    "Open a file starting in DIR."
-    (interactive "DDirectory: ")
-    (let ((default-directory (file-name-as-directory dir)))
-      (call-interactively #'find-file)))
   :init
   (setq require-final-newline t)
   (setq make-backup-files nil)
   (setq auto-save-default nil))
 #+end_src
 
+** autorevert
 #+begin_src emacs-lisp
 (use-package autorevert
   :ensure nil
@@ -1633,6 +1633,7 @@ Install fonts
   (after-init-hook . global-auto-revert-mode))
 #+end_src
 
+** iqa
 #+begin_src emacs-lisp
 (use-package iqa
   :preface
@@ -1647,6 +1648,7 @@ Install fonts
   (setq iqa-user-init-file (locate-user-emacs-file "config.org")))
 #+end_src
 
+** epg
 #+begin_src emacs-lisp
 (use-package epg-config
   :ensure nil
