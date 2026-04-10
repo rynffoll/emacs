@@ -1,2 +1,12 @@
-* ~/site-lisp/~
-~default.el~: Private configuration
+* ~user-lisp/~
+
+Personal Emacs packages.
+
+** Packages
+
+- [[file:dothttp/dothttp.el][dothttp]] — HTTP client
+- [[file:dired-side/dired-side.el][dired-side]] — Side panel with Dired
+- [[file:per-tab-group-theme/per-tab-group-theme.el][per-tab-group-theme]] — Per tab-group themes
+- [[file:tab-bar-theme/tab-bar-theme.el][tab-bar-theme]] — Tab bar theming
+- [[file:project-eat/project-eat.el][project-eat]] — Project-aware eat terminal
+- [[file:project-vterm/project-vterm.el][project-vterm]] — Project-aware vterm terminal
