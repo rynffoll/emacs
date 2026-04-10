@@ -289,8 +289,9 @@
     "o"   '(:ignore t :wk "open")
     "oc"  'customize-group
     "ol"  'link-hint-open-link
-    "ot"  'vterm
+    "ov"  'vterm
     "oe"  'eat
+    "og"  'ghostel
     "oa"  'org-agenda
     "ox"  'org-capture
 
@@ -1560,6 +1561,15 @@
   :config
   (add-to-list 'project-switch-commands '(project-eat "Eat") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
+
+(use-package ghostel
+  :init
+  (setq ghostel-shell "/opt/homebrew/bin/fish"))
+
+(use-package ghostel-evil
+  :ensure ghostel
+  :hook
+  (ghostel-mode-hook . ghostel-evil-mode))
 
 (use-package vc
   :ensure nil

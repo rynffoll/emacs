@@ -161,6 +161,7 @@
 - [[#terminal][Terminal]]
   - [[#vterm][vterm]]
   - [[#eat][eat]]
+  - [[#ghostel][ghostel]]
 - [[#git][Git]]
   - [[#vc][vc]]
   - [[#magit][magit]]
@@ -727,8 +728,9 @@ If you'd like to test a different font, evaluate the following block:
     "o"   '(:ignore t :wk "open")
     "oc"  'customize-group
     "ol"  'link-hint-open-link
-    "ot"  'vterm
+    "ov"  'vterm
     "oe"  'eat
+    "og"  'ghostel
     "oa"  'org-agenda
     "ox"  'org-capture
 
@@ -2441,6 +2443,20 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :config
   (add-to-list 'project-switch-commands '(project-eat "Eat") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
+#+end_src
+
+** ghostel
+#+begin_src emacs-lisp
+(use-package ghostel
+  :init
+  (setq ghostel-shell "/opt/homebrew/bin/fish"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package ghostel-evil
+  :ensure ghostel
+  :hook
+  (ghostel-mode-hook . ghostel-evil-mode))
 #+end_src
 
 * Git
