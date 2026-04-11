@@ -3231,7 +3231,12 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 ** protobuf
 #+begin_src emacs-lisp
 (use-package protobuf-ts-mode
+  :disabled ;; tree-sitter grammar is outdated and causes parsing errors
   :mode "\\.proto\\'")
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package protobuf-mode)
 #+end_src
 
 ** dockerfile

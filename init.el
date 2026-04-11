@@ -2147,7 +2147,10 @@ Covers both working-tree faces and reference-revision faces."
 (use-package ssh-config-mode)
 
 (use-package protobuf-ts-mode
+  :disabled ;; tree-sitter grammar is outdated and causes parsing errors
   :mode "\\.proto\\'")
+
+(use-package protobuf-mode)
 
 (use-package dockerfile-ts-mode
   :ensure nil
