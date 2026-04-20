@@ -89,6 +89,7 @@ When nil, `dired-side-follow-file' only shows the sidebar."
                                                  (dedicated . t)
                                                  (window-parameters
                                                   . ((no-delete-other-windows . t)))))))
+    (set-window-parameter window 'dired-side t)
     (window-preserve-size window t t) ; preserve width during resize operations
     window))
 
@@ -96,6 +97,15 @@ When nil, `dired-side-follow-file' only shows the sidebar."
   "Hide the sidebar WINDOW."
   (when (window-live-p window)
     (delete-window window)))
+
+(defun dired-side--display-buffer-condition (buf _action)
+  (and (window-parameter (selected-window) 'dired-side)
+       (buffer-file-name (get-buffer buf))))
+
+(add-to-list 'display-buffer-alist
+             '(dired-side--display-buffer-condition
+               (display-buffer-use-some-window)
+               (inhibit-same-window . t)))
 
 
 
