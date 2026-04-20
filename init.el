@@ -1265,20 +1265,22 @@
       ;; HACK: suppress diff-hl per-insert updates to avoid concurrent
       ;; git processes (index.lock conflict); call diff-hl-dired-update
       ;; once at the end instead
+      (goto-char (point-min))
       (let* ((dired-subtree-after-insert-hook
               (remq '+diff-hl-dired-update dired-subtree-after-insert-hook))
              (root (dired-current-directory))
              (relative (file-relative-name file root))
              (parts (split-string relative "/" t))
              (path root))
-        (goto-char (point-min))
         (dolist (part parts)
-          (setq path (concat path part))
+          (setq path (file-name-concat path part))
           (when (dired-goto-file-1 part (expand-file-name path) nil)
-            (when (and (file-directory-p path)
-                       (not (dired-subtree--is-expanded-p)))
-              (dired-subtree-cycle))
-            (setq path (file-name-as-directory path)))))
+            (let ((pos (point)))
+              (when (and (file-directory-p path)
+                         (not (dired-subtree--is-expanded-p)))
+                (dired-subtree-cycle))
+              (setq path (file-name-as-directory path))
+              (goto-char pos)))))
       (when (bound-and-true-p diff-hl-dired-mode)
         (diff-hl-dired-update))))
   :init
