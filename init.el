@@ -1223,37 +1223,6 @@
   :init
   (setq dgi-auto-hide-details-p nil))
 
-(use-package dired-sidebar
-  :disabled ; replaced by dired-side
-  :autoload dired-sidebar-showing-sidebar-p
-  :preface
-  (defun +dired-sidebar-follow-file ()
-    (interactive)
-    (if (dired-sidebar-showing-sidebar-p)
-        (dired-sidebar-follow-file)
-      (dired-sidebar-jump-to-sidebar)))
-  :init
-  ;; (setq dired-sidebar-theme (if +with-icons 'nerd-icons 'none))
-  (setq dired-sidebar-theme 'none) ;; don't need dired-sidebar's customizations for nerd-icons, it's flickery and buggy, just use nerd-icons-dired
-  ;; (setq dired-sidebar-use-custom-modeline nil)
-  (setq dired-sidebar-use-custom-modeline t)
-  (setq dired-sidebar-mode-line-format nil) ;; hide mode-line
-  (setq dired-sidebar-no-delete-other-windows t)
-  (setq dired-sidebar-toggle-hidden-commands nil) ;; don't hide on `balance-windows'
-  ;; (setq dired-sidebar-window-fixed nil)
-  (setq dired-sidebar-use-custom-font t) ;; to custom `dired-sidebar-face'
-  (setq dired-sidebar-face '(:height 0.9))
-  (setq dired-sidebar-refresh-on-project-switch nil)
-  (setq dired-sidebar-delay-auto-revert-updates nil) ; redundant with `auto-revert-avoid-polling'
-  (setq dired-sidebar-refresh-on-special-commands nil) ; revert loop with subtrees
-  :config
-  (with-eval-after-load 'winum
-    (defun winum-assign-0-to-dired-sidebar ()
-      (when (and (eq major-mode 'dired-sidebar-mode)
-                 (eq (selected-window) (frame-first-window)))
-        0))
-    (add-to-list 'winum-assign-functions #'winum-assign-0-to-dired-sidebar)))
-
 (use-package dired-side
   :ensure nil
   :preface

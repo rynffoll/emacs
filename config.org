@@ -111,7 +111,6 @@
   - [[#nerd-icons-dired][nerd-icons-dired]]
   - [[#nerd-icons-multimodal][nerd-icons-multimodal]]
   - [[#dired-git-info][dired-git-info]]
-  - [[#dired-sidebar][dired-sidebar]]
   - [[#dired-side][dired-side]]
 - [[#environment-variables][Environment Variables]]
   - [[#exec-path-from-shell][exec-path-from-shell]]
@@ -1922,7 +1921,7 @@ Install fonts
   (setq dgi-auto-hide-details-p nil))
 #+end_src
 
-** dired-sidebar
+** COMMENT dired-sidebar
 #+begin_src emacs-lisp
 (use-package dired-sidebar
   :disabled ; replaced by dired-side
