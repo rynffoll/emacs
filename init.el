@@ -2061,6 +2061,7 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package markdown-ts-mode
   :ensure nil
+  :disabled ;; not ready, missing features
   :init
   ;; BUG: `markdown-ts-mode' adds `invisible' to the global value of
   ;; `font-lock-extra-managed-props' instead of making it buffer-local.
@@ -2073,9 +2074,23 @@ Covers both working-tree faces and reference-revision faces."
                 (setq-default font-lock-extra-managed-props
                               (delq 'invisible (default-value 'font-lock-extra-managed-props))))))
 
+(use-package markdown-mode
+  :custom-face
+  (markdown-code-face ((t (:inherit default))))
+  :general
+  (+local-leader-def :keymaps 'markdown-mode-map
+    "." '(:keymap markdown-mode-command-map))
+  :init
+  (setq markdown-command "pandoc")
+  ;; (setq markdown-hide-markup t)
+  (setq markdown-fontify-whole-heading-line t)
+  (setq markdown-fontify-code-blocks-natively t)
+  :config
+  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-ts-mode)))
+
 (use-package grip-mode
   :general
-  (+local-leader-def :keymaps 'markdown-ts-mode-map
+  (+local-leader-def :keymaps 'markdown-mode-map
     "p" 'grip-mode))
 
 (use-package json-ts-mode

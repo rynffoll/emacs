@@ -3148,6 +3148,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+begin_src emacs-lisp
 (use-package markdown-ts-mode
   :ensure nil
+  :disabled ;; not ready, missing features
   :init
   ;; BUG: `markdown-ts-mode' adds `invisible' to the global value of
   ;; `font-lock-extra-managed-props' instead of making it buffer-local.
@@ -3162,9 +3163,26 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+end_src
 
 #+begin_src emacs-lisp
+(use-package markdown-mode
+  :custom-face
+  (markdown-code-face ((t (:inherit default))))
+  :general
+  (+local-leader-def :keymaps 'markdown-mode-map
+    "." '(:keymap markdown-mode-command-map))
+  :init
+  (setq markdown-command "pandoc")
+  ;; (setq markdown-hide-markup t)
+  (setq markdown-fontify-whole-heading-line t)
+  (setq markdown-fontify-code-blocks-natively t)
+  :config
+  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-ts-mode)))
+#+end_src
+
+
+#+begin_src emacs-lisp
 (use-package grip-mode
   :general
-  (+local-leader-def :keymaps 'markdown-ts-mode-map
+  (+local-leader-def :keymaps 'markdown-mode-map
     "p" 'grip-mode))
 #+end_src
 
