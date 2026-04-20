@@ -2459,6 +2459,17 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (ghostel-mode-hook . ghostel-evil-mode))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package project-ghostel
+  :ensure nil
+  :general
+  (project-prefix-map
+    "G" 'project-ghostel)
+  :config
+  (add-to-list 'project-switch-commands '(project-ghostel "Ghostel") t)
+  (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode)))
+#+end_src
+
 * Git
 ** vc
 #+begin_src emacs-lisp

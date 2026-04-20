@@ -1542,6 +1542,15 @@
   :hook
   (ghostel-mode-hook . ghostel-evil-mode))
 
+(use-package project-ghostel
+  :ensure nil
+  :general
+  (project-prefix-map
+    "G" 'project-ghostel)
+  :config
+  (add-to-list 'project-switch-commands '(project-ghostel "Ghostel") t)
+  (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode)))
+
 (use-package vc
   :ensure nil
   :init
