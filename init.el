@@ -1230,7 +1230,9 @@
               (setq path (file-name-as-directory path))
               (goto-char pos)))))
       (when (bound-and-true-p diff-hl-dired-mode)
-        (diff-hl-dired-update))))
+        (diff-hl-dired-update))
+      (when (bound-and-true-p nerd-icons-dired-mode)
+        (nerd-icons-dired--refresh))))
   :init
   (setq dired-side-follow-file-function #'+dired-side-point-at-file)
   :config
