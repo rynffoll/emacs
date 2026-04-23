@@ -289,9 +289,7 @@
     "o"   '(:ignore t :wk "open")
     "oc"  'customize-group
     "ol"  'link-hint-open-link
-    "ov"  'vterm
-    "oe"  'eat
-    "og"  'ghostel
+    "ot"  'ghostel
     "oa"  'org-agenda
     "ox"  'org-capture
 
@@ -1501,45 +1499,13 @@
 
 (use-package link-hint)
 
-(use-package vterm
-  :init
-  (setq vterm-shell "/opt/homebrew/bin/fish")
-  (setq vterm-max-scrollback 10000)
-  :config
-  ;; https://github.com/akermu/emacs-libvterm/issues/313#issuecomment-1183650463
-  (advice-add #'vterm--redraw :around (lambda (fun &rest args) (let ((cursor-type cursor-type)) (apply fun args))))
-  :hook
-  (vterm-mode-hook . +disable-global-hl-line-mode))
-
-(use-package project-vterm
-  :ensure nil
-  :general
-  (project-prefix-map
-    "t" 'project-vterm)
-  :config
-  (add-to-list 'project-switch-commands '(project-vterm "Vterm") t)
-  (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
-
-(use-package eat
-  :hook
-  (eat-mode-hook . +disable-global-hl-line-mode))
-
-(use-package project-eat
-  :ensure nil
-  :general
-  (project-prefix-map
-    "E" 'project-eat)
-  :config
-  (add-to-list 'project-switch-commands '(project-eat "Eat") t)
-  (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
-
 (use-package ghostel
   :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "lisp" :rev :newest)
   :init
   (setq ghostel-shell "/opt/homebrew/bin/fish")
   :general
   (project-prefix-map
-    "G" 'ghostel-project)
+    "t" 'ghostel-project)
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode)))

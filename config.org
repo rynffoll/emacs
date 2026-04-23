@@ -158,8 +158,6 @@
   - [[#xref][xref]]
   - [[#avy][avy]]
 - [[#terminal][Terminal]]
-  - [[#vterm][vterm]]
-  - [[#eat][eat]]
   - [[#ghostel][ghostel]]
 - [[#git][Git]]
   - [[#vc][vc]]
@@ -726,9 +724,7 @@ If you'd like to test a different font, evaluate the following block:
     "o"   '(:ignore t :wk "open")
     "oc"  'customize-group
     "ol"  'link-hint-open-link
-    "ov"  'vterm
-    "oe"  'eat
-    "og"  'ghostel
+    "ot"  'ghostel
     "oa"  'org-agenda
     "ox"  'org-capture
 
@@ -2403,7 +2399,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 * Terminal
-** vterm
+** COMMENT vterm
 #+begin_src emacs-lisp
 (use-package vterm
   :init
@@ -2427,7 +2423,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
 #+end_src
 
-** eat
+** COMMENT eat
 #+begin_src emacs-lisp
 (use-package eat
   :hook
@@ -2453,7 +2449,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq ghostel-shell "/opt/homebrew/bin/fish")
   :general
   (project-prefix-map
-    "G" 'ghostel-project)
+    "t" 'ghostel-project)
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode)))
