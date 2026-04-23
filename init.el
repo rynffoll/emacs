@@ -812,7 +812,6 @@
 
 (use-package consult
   :general
-  ([remap apropos]                       'consult-apropos)
   ([remap bookmark-jump]                 'consult-bookmark)
   ([remap goto-line]                     'consult-goto-line)
   ([remap imenu]                         'consult-imenu)
