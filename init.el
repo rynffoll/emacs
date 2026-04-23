@@ -1534,22 +1534,23 @@
   (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
 
 (use-package ghostel
+  :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "lisp" :rev :newest)
   :init
-  (setq ghostel-shell "/opt/homebrew/bin/fish"))
-
-(use-package ghostel-evil
-  :ensure ghostel
-  :hook
-  (ghostel-mode-hook . ghostel-evil-mode))
-
-(use-package project-ghostel
-  :ensure nil
+  (setq ghostel-shell "/opt/homebrew/bin/fish")
   :general
   (project-prefix-map
-    "G" 'project-ghostel)
+    "G" 'ghostel-project)
   :config
-  (add-to-list 'project-switch-commands '(project-ghostel "Ghostel") t)
+  (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode)))
+
+;; :vc until https://github.com/melpa/melpa/pull/9949 is merged
+(use-package evil-ghostel
+  :vc (:url "https://github.com/dakra/ghostel"
+       :lisp-dir "extensions/evil-ghostel"
+       :rev :newest)
+  :hook
+  (ghostel-mode-hook . evil-ghostel-mode))
 
 (use-package vc
   :ensure nil
