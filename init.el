@@ -1559,7 +1559,6 @@
   (setq vc-allow-async-diff t))
 
 (use-package magit
-  :pin melpa-stable ;; for compatibility with built-in transient
   :preface
   (defun +magit-worktree-switch-project (worktree)
     "Create .dir-locals.el with `project-vc-name' in WORKTREE.

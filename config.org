@@ -2484,7 +2484,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 ** magit
 #+begin_src emacs-lisp
 (use-package magit
-  :pin melpa-stable ;; for compatibility with built-in transient
   :preface
   (defun +magit-worktree-switch-project (worktree)
     "Create .dir-locals.el with `project-vc-name' in WORKTREE.
