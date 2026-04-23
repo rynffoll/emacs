@@ -1552,6 +1552,10 @@ can distinguish worktrees from the main checkout."
   (transient-append-suffix 'magit-worktree "g"
     '("p" "Switch project" +magit-worktree-switch-project)))
 
+(use-package magit-prime
+  :hook
+  (after-init-hook . magit-prime-mode))
+
 (use-package magit-todos
   :init
   (setq magit-todos-keyword-suffix (rx (optional "(" (1+ (not (any ")"))) ")" ":")))

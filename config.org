@@ -162,6 +162,7 @@
 - [[#git][Git]]
   - [[#vc][vc]]
   - [[#magit][magit]]
+  - [[#magit-prime][magit-prime]]
   - [[#magit-todos][magit-todos]]
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
@@ -2504,6 +2505,13 @@ can distinguish worktrees from the main checkout."
   :config
   (transient-append-suffix 'magit-worktree "g"
     '("p" "Switch project" +magit-worktree-switch-project)))
+#+end_src
+
+** magit-prime
+#+begin_src emacs-lisp
+(use-package magit-prime
+  :hook
+  (after-init-hook . magit-prime-mode))
 #+end_src
 
 ** magit-todos
