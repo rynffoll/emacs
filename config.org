@@ -2407,24 +2407,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (add-to-list 'project-kill-buffer-conditions '(major-mode . vterm-mode)))
 #+end_src
 
-** COMMENT eat
-#+begin_src emacs-lisp
-(use-package eat
-  :hook
-  (eat-mode-hook . +disable-global-hl-line-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package project-eat
-  :ensure nil
-  :general
-  (project-prefix-map
-    "E" 'project-eat)
-  :config
-  (add-to-list 'project-switch-commands '(project-eat "Eat") t)
-  (add-to-list 'project-kill-buffer-conditions '(major-mode . eat-mode)))
-#+end_src
-
 ** ghostel
 #+begin_src emacs-lisp
 (use-package ghostel
