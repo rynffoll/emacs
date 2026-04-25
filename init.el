@@ -388,10 +388,12 @@
   (setq fast-but-imprecise-scrolling t)
   (setq redisplay-skip-fontification-on-input t))
 
-(use-package pixel-scroll
-  :ensure nil
+(use-package ultra-scroll
+  :if (display-graphic-p)
+  :init
+  (setq scroll-margin 0) ;; important: scroll-margin>0 not yet supported
   :hook
-  (after-init-hook . pixel-scroll-precision-mode))
+  (after-init-hook . ultra-scroll-mode))
 
 (use-package ligature
   :if (display-graphic-p)
