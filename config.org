@@ -163,7 +163,6 @@
   - [[#vc][vc]]
   - [[#magit][magit]]
   - [[#magit-prime][magit-prime]]
-  - [[#magit-todos][magit-todos]]
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
@@ -2474,7 +2473,7 @@ can distinguish worktrees from the main checkout."
   (after-init-hook . magit-prime-mode))
 #+end_src
 
-** magit-todos
+** COMMENT magit-todos
 #+begin_src emacs-lisp
 (use-package magit-todos
   :init

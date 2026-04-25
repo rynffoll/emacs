@@ -1558,13 +1558,6 @@ can distinguish worktrees from the main checkout."
   :hook
   (after-init-hook . magit-prime-mode))
 
-(use-package magit-todos
-  :init
-  (setq magit-todos-keyword-suffix (rx (optional "(" (1+ (not (any ")"))) ")" ":")))
-  (put 'magit-todos-exclude-globs 'safe-local-variable #'listp)
-  :hook
-  (magit-mode-hook . magit-todos-mode))
-
 (use-package git-modes
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
