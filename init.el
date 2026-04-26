@@ -447,6 +447,9 @@
   :hook
   (after-init-hook . breadcrumb-mode))
 
+(use-package spacious-padding
+  :if (display-graphic-p))
+
 (defun +custom-faces (&rest _)
   "Reapply custom face attributes after theme load."
   (custom-set-faces

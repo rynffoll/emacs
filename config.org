@@ -54,6 +54,7 @@
   - [[#icons][icons]]
   - [[#mode-line][mode-line]]
   - [[#breadcrumb][breadcrumb]]
+  - [[#spacious-padding][spacious-padding]]
   - [[#custom-faces][custom-faces]]
   - [[#themes][themes]]
 - [[#frames][Frames]]
@@ -925,6 +926,12 @@ Install fonts
 (use-package breadcrumb
   :hook
   (after-init-hook . breadcrumb-mode))
+#+end_src
+
+** spacious-padding
+#+begin_src emacs-lisp
+(use-package spacious-padding
+  :if (display-graphic-p))
 #+end_src
 
 ** custom-faces
