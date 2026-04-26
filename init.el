@@ -1489,11 +1489,21 @@
 
 (use-package ghostel
   :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "lisp" :rev :newest)
-  :init
-  (setq ghostel-shell "/opt/homebrew/bin/fish")
+  :preface
+  (defun +ghostel-notify (title body)
+    (let ((summary (if (or (null title) (string-empty-p title))
+                       (buffer-name)
+                     title)))
+      (if (fboundp 'do-applescript)
+          (do-applescript
+           (format "display notification \"%s\" with title \"%s\"" body summary))
+        (message "%s: %s" summary body))))
   :general
   (project-prefix-map
    "t" 'ghostel-project)
+  :init
+  (setq ghostel-shell "/opt/homebrew/bin/fish")
+  (setq ghostel-notification-function #'+ghostel-notify)
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
