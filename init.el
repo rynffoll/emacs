@@ -1578,7 +1578,7 @@ can distinguish worktrees from the main checkout."
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
 (use-package diff-hl
-  :vc (:url "https://github.com/rynffoll/diff-hl" :branch "dired-nested-paths" :rev :newest)
+  :vc (:url "https://github.com/dgutov/diff-hl" :rev :newest)
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
