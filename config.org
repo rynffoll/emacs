@@ -1202,7 +1202,8 @@ Install fonts
           ("\\*vc-git :.*" :regexp t :align below :ignore t :select t)
           ("\\*docker-compose .*\\*" :regexp t :align below)
           (comint-mode :align below)
-          (go-test-mode :align below)))
+          ("*compilation*" :align below)
+          (ghostel-compile-view-mode :align below)))
   :hook
   (after-init-hook . shackle-mode))
 #+end_src
