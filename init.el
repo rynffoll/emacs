@@ -2195,13 +2195,7 @@ Covers both working-tree faces and reference-revision faces."
   (+local-leader-def :keymaps 'agent-shell-mode-map
     "." 'agent-shell-help-menu)
   (project-prefix-map
-   "a" 'agent-shell)
-  ( :keymaps 'agent-shell-mode-map :states 'insert
-    "RET" 'newline)
-  ( :keymaps 'agent-shell-mode-map :states 'normal
-    "RET" 'comint-send-input)
-  :config
-  (add-to-list 'evil-buffer-regexps '("\\*agent-shell-diff\\*" . emacs)))
+   "a" 'agent-shell))
 
 (use-package copilot
   :general
