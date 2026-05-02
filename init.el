@@ -1489,7 +1489,6 @@
 (use-package link-hint)
 
 (use-package ghostel
-  :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "lisp" :rev :newest)
   :preface
   (defun +ghostel-notify (title body)
     (let ((summary (if (or (null title) (string-empty-p title))
@@ -1511,11 +1510,7 @@
   :hook
   (after-init-hook . ghostel-compile-global-mode))
 
-;; :vc until https://github.com/melpa/melpa/pull/9949 is merged
 (use-package evil-ghostel
-  :vc ( :url "https://github.com/dakra/ghostel"
-        :lisp-dir "extensions/evil-ghostel"
-        :rev :newest)
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 

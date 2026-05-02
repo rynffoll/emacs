@@ -2395,7 +2395,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 ** ghostel
 #+begin_src emacs-lisp
 (use-package ghostel
-  :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "lisp" :rev :newest)
   :preface
   (defun +ghostel-notify (title body)
     (let ((summary (if (or (null title) (string-empty-p title))
@@ -2419,11 +2418,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 #+begin_src emacs-lisp
-;; :vc until https://github.com/melpa/melpa/pull/9949 is merged
 (use-package evil-ghostel
-  :vc ( :url "https://github.com/dakra/ghostel"
-        :lisp-dir "extensions/evil-ghostel"
-        :rev :newest)
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 #+end_src
