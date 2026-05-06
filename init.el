@@ -2063,10 +2063,12 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package yaml-ts-mode
   :ensure nil
-  :mode ("\\.ya?ml\\'" . yaml-ts-mode)
   :preface
   (defun +yaml-ts-mode-set-evil-shift-width ()
     (setq-local evil-shift-width 2))
+  :init
+  (setq yaml-ts-mode-yamllint-options
+        '("-d" "{extends: relaxed, rules: {line-length: {max: 120}}}"))
   :hook
   (yaml-ts-mode-hook . flymake-mode)
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
