@@ -2025,20 +2025,17 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package markdown-ts-mode
   :ensure nil
-  :disabled ;; not ready, missing features
   :init
-  ;; BUG: `markdown-ts-mode' adds `invisible' to the global value of
-  ;; `font-lock-extra-managed-props' instead of making it buffer-local.
-  ;; This causes font-lock to strip `invisible' text properties in all
-  ;; buffers, breaking `dired-hide-details-mode' among others.
-  ;; https://github.com/jrblevin/markdown-mode/issues/218
-  (advice-add 'markdown-ts-mode :after
-              (lambda (&rest _)
-                (make-local-variable 'font-lock-extra-managed-props)
-                (setq-default font-lock-extra-managed-props
-                              (delq 'invisible (default-value 'font-lock-extra-managed-props))))))
+  (setq markdown-ts-ellipsis "…")
+  (setq markdown-ts-inline-images t))
+
+(use-package markdown-ts-mode-x
+  :ensure nil
+  :hook
+  (markdown-ts-mode-hook . markdown-ts-toc-update-before-save-mode))
 
 (use-package markdown-mode
+  :disabled ;; back to built-in markdown-ts-mode
   :custom-face
   (markdown-code-face ((t (:inherit default))))
   :general
@@ -2054,7 +2051,7 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package grip-mode
   :general
-  (+local-leader-def :keymaps 'markdown-mode-map
+  (+local-leader-def :keymaps 'markdown-ts-mode-map
     "p" 'grip-mode))
 
 (use-package json-ts-mode
