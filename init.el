@@ -136,6 +136,7 @@
   :demand
   :after evil
   :init
+  (setq evil-collection-repl-submit-state 'insert)
   (setq evil-collection-magit-want-horizontal-movement t)
   :config
   (evil-collection-init)
