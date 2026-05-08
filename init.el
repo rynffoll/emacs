@@ -14,10 +14,6 @@
 (use-package package
   :ensure nil
   :init
-  ;; https://www.reddit.com/r/emacs/comments/1f8ok7c/comment/llhcdgy/
-  ;; (setq package-install-upgrade-built-in t)
-  ;; TODO: Emacs 31:
-  ;; package-autosuggest-mode
   (setq package-review-policy t)
   (setq package-retention-policy t)
   :config
@@ -370,16 +366,6 @@
         (set-display-table-slot display-table 'vertical-border divider)))
     (add-hook 'window-configuration-change-hook #'+update-window-divider)))
 
-;; TODO: emacs 31: system-taskbar-mode
-;; +++
-;; # ** New mode 'system-taskbar-mode'.
-;; # This is a global minor mode and companion functions that integrate Emacs
-;; # with system GUI taskbars (also called docks or launchers or something
-;; # similar) to display a taskbar icon "badge" overlay, a progress bar
-;; # report overlay, alert the user that an Emacs session needs attention,
-;; # often by flashing or bouncing the Emacs application icon.  Supported
-;; # capable systems are GNU/Linux via D-Bus, macOS/GNUstep 10.5+, MS-Windows
-;; # 7+.
 (use-package system-taskbar
   :ensure nil
   :hook
@@ -1704,8 +1690,7 @@ Covers both working-tree faces and reference-revision faces."
 
   (setq org-log-done 'time)
 
-  (setq org-startup-with-inline-images t) ;; TODO: org 9.8: renamed to `org-startup-with-link-previews'
-  (setq org-startup-with-link-previews t) ;; TODO: org 9.8: obsolete
+  (setq org-startup-with-link-previews t)
 
   (setq org-fontify-whole-heading-line t)
   (setq org-fontify-done-headline nil)
@@ -1758,9 +1743,7 @@ Covers both working-tree faces and reference-revision faces."
   :ensure org
   :init
   (setq org-src-window-setup 'current-window)
-  (setq org-edit-src-content-indentation 0) ;; TODO: org 9.8: renamed to `org-src-content-indentation'
-  (setq org-src-content-indentation 0) ;; TODO: org 9.8: obsolete
-  )
+  (setq org-src-content-indentation 0))
 
 (use-package org-agenda
   :ensure org
