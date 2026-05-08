@@ -1885,7 +1885,26 @@ Covers both working-tree faces and reference-revision faces."
     "hc" 'eglot-show-call-hierarchy
     "ht" 'eglot-show-type-hierarchy)
   :init
-  (setq eglot-autoshutdown t))
+  (setq eglot-autoshutdown t)
+  (setq eglot-sync-connect nil)
+  (setq eglot-events-buffer-config '(:size 0 :format full))
+  :config
+  ;; https://github.com/doomemacs/doomemacs/blob/master/modules/tools/lsp/%2Beglot.el
+  (defvar +eglot-defer-shutdown 3
+    "Seconds to defer `eglot-shutdown' triggered by `eglot-autoshutdown'.")
+  (define-advice eglot--managed-mode
+      (:around (fn &rest args) +defer-shutdown)
+    "Defer auto-shutdown so buffer kills don't block on slow LSP shutdown,
+and reopening project files within the window avoids a restart."
+    (cl-letf* ((orig (symbol-function #'eglot-shutdown))
+               ((symbol-function #'eglot-shutdown)
+                (lambda (server &rest _)
+                  (run-at-time
+                   +eglot-defer-shutdown nil
+                   (lambda ()
+                     (unless (eglot--managed-buffers server)
+                       (funcall orig server)))))))
+      (apply fn args))))
 
 (use-package consult-eglot
   :general
