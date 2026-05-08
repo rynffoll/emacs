@@ -1426,7 +1426,6 @@
   :ensure nil
   :init
   (setq hs-show-indicators t)
-  (setq hs-display-lines-hidden t)
   (setq hs-allow-nesting t)
   :hook
   (prog-mode-hook . hs-minor-mode)
