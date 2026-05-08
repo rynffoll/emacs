@@ -1488,7 +1488,9 @@
       (if (fboundp 'do-applescript)
           (do-applescript
            (format "display notification \"%s\" with title \"%s\"" body summary))
-        (message "%s: %s" summary body))))
+        (message "%s: %s" summary body))
+      (when (fboundp 'system-taskbar-attention)
+        (system-taskbar-attention 'critical))))
   :general
   (project-prefix-map
    "t" 'ghostel-project)
