@@ -81,6 +81,11 @@
   (setq calendar-week-start-day 1))
 
 (use-package gcmh
+  :unless (fboundp 'igc-info) ;; Emacs 32?
+  :init
+  (setq gcmh-idle-delay 'auto)
+  (setq gcmh-auto-idle-delay-factor 10)
+  (setq gcmh-high-cons-threshold (* 64 1024 1024)) ;; 64mb
   :hook
   (emacs-startup-hook . gcmh-mode))
 
