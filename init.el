@@ -1899,7 +1899,7 @@ and reopening project files within the window avoids a restart."
     (cl-letf* ((orig (symbol-function #'eglot-shutdown))
                ((symbol-function #'eglot-shutdown)
                 (lambda (server &rest _)
-                  (run-at-time
+                  (run-with-idle-timer
                    +eglot-defer-shutdown nil
                    (lambda ()
                      (unless (eglot--managed-buffers server)
