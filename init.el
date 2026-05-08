@@ -1574,7 +1574,6 @@ can distinguish worktrees from the main checkout."
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
 (use-package diff-hl
-  :vc (:url "https://github.com/dgutov/diff-hl" :rev :newest)
   :preface
   (defun +diff-hl-fringe-bmp-empty (_type _pos) 'diff-hl-bmp-empty)
   ;; https://github.com/dgutov/diff-hl/issues/116#issuecomment-1573253134
@@ -1617,6 +1616,7 @@ Covers both working-tree faces and reference-revision faces."
   (enable-theme-functions . +diff-hl-update-faces))
 
 (use-package diff-hl-flydiff
+  :disabled
   :ensure diff-hl
   :init
   (setq diff-hl-flydiff-delay 0.5)
