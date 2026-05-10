@@ -382,9 +382,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq package-review-policy t)
   (setq package-retention-policy t)
   :config
-  ;; https://elpa.gnu.org/devel/
   (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
-  ;; https://github.com/melpa/melpa
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
   (package-initialize))
@@ -444,7 +442,6 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 ** time
-[[https://emacsredux.com/blog/2024/03/11/tracking-world-time-with-emacs/][Tracking World Time with Emacs]]
 #+begin_src emacs-lisp
 (use-package time
   :ensure nil
@@ -872,7 +869,6 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 ** icons
-[[https://github.com/rainstormstudio/nerd-icons.el][nerd-icons]]
 #+begin_src emacs-lisp
 (use-package nerd-icons
   :if +with-icons
@@ -898,7 +894,6 @@ Install fonts
   (setq mode-line-collapse-minor-modes t))
 #+end_src
 
-[[https://github.com/seagle0128/doom-modeline][doom-modeline]]
 #+begin_src emacs-lisp
 (use-package doom-modeline
   :init
@@ -957,7 +952,6 @@ Install fonts
 #+end_src
 
 ** themes
-[[https://protesilaos.com/emacs/modus-themes][modus-themes]]
 #+begin_src emacs-lisp
 (use-package modus-themes
   ;; :ensure nil
@@ -977,17 +971,14 @@ Install fonts
           )))
 #+end_src
 
-[[https://protesilaos.com/emacs/ef-themes][ef-themes]]
 #+begin_src emacs-lisp
 (use-package ef-themes)
 #+end_src
 
-[[https://github.com/protesilaos/doric-themes][doric-themes]]
 #+begin_src emacs-lisp
 (use-package doric-themes)
 #+end_src
 
-[[https://github.com/doomemacs/themes][doom-themes]]
 #+begin_src emacs-lisp
 (use-package doom-themes
   :init
@@ -1175,7 +1166,6 @@ Install fonts
 #+end_src
 
 ** shackle
-[[https://depp.brause.cc/shackle/][shackle]]
 #+begin_src emacs-lisp
 (use-package shackle
   :init
@@ -1201,7 +1191,6 @@ Install fonts
 #+end_src
 
 ** popper
-[[https://github.com/karthink/popper][popper]]
 #+begin_src emacs-lisp
 (use-package popper
   :disabled
@@ -1477,7 +1466,6 @@ Install fonts
   (rfn-eshadow-update-overlay-hook . vertico-directory-tidy))
 #+end_src
 
-[[https://github.com/tumashu/vertico-posframe][vertico-posframe]]
 #+begin_src emacs-lisp
 (use-package vertico-posframe
   :disabled ;; by performance reasons (try again in emacs 31 with feature `tty-child-frames')
@@ -1594,8 +1582,6 @@ Install fonts
 #+end_src
 
 ** embark
-- [[https://github.com/oantolin/embark]]
-
 #+begin_src emacs-lisp
 (use-package embark
   :general
@@ -1618,9 +1604,6 @@ Install fonts
 #+end_src
 
 ** templ
-- [[https://github.com/minad/tempel]]
-- https://github.com/Crandel/tempel-collection
-
 #+begin_src emacs-lisp
 (use-package tempel
   :preface

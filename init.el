@@ -17,9 +17,7 @@
   (setq package-review-policy t)
   (setq package-retention-policy t)
   :config
-  ;; https://elpa.gnu.org/devel/
   (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
-  ;; https://github.com/melpa/melpa
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
   (package-initialize))
