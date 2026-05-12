@@ -2180,12 +2180,6 @@ and reopening project files within the window avoids a restart."
   (gptel-post-stream-hook . gptel-auto-scroll)
   (gptel-post-response-functions . gptel-end-of-response))
 
-(use-package gptel-quick
-  :vc (:url "https://github.com/karthink/gptel-quick" :rev :newest)
-  :general
-  (embark-general-map
-   "?" #'gptel-quick))
-
 (use-package gptel-magit
   :hook
   (magit-mode-hook . gptel-magit-install))

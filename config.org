@@ -219,7 +219,6 @@
   - [[#dothttp][dothttp]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
-  - [[#gptel-quick][gptel-quick]]
   - [[#gptel-magit][gptel-magit]]
   - [[#claude-code-ide][claude-code-ide]]
   - [[#agent-shell][agent-shell]]
@@ -3327,15 +3326,6 @@ machine api.openai.com login apikey password TOKEN
   :hook
   (gptel-post-stream-hook . gptel-auto-scroll)
   (gptel-post-response-functions . gptel-end-of-response))
-#+end_src
-
-** gptel-quick
-#+begin_src emacs-lisp
-(use-package gptel-quick
-  :vc (:url "https://github.com/karthink/gptel-quick" :rev :newest)
-  :general
-  (embark-general-map
-   "?" #'gptel-quick))
 #+end_src
 
 ** gptel-magit
