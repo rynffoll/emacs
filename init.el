@@ -1552,7 +1552,12 @@ can distinguish worktrees from the main checkout."
     (setq magit-format-file-function #'magit-format-file-nerd-icons))
   :config
   (transient-append-suffix 'magit-worktree "g"
-    '("p" "Switch project" +magit-worktree-switch-project)))
+    '("p" "Switch project" +magit-worktree-switch-project))
+  ;; https://github.com/magit/magit/issues/3230#issuecomment-339900039
+  (magit-add-section-hook 'magit-status-sections-hook
+                          'magit-insert-unpushed-to-upstream
+                          'magit-insert-unpushed-to-upstream-or-recent
+                          'replace))
 
 (use-package git-modes
   :mode ("/.dockerignore\\'" . gitignore-mode))
