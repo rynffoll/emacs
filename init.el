@@ -1135,7 +1135,7 @@
   ;;        time/date format with -l; see TIME_STYLE below
   ;;
   (setq dired-listing-switches "-lAGFhv --group-directories-first --time-style=long-iso")
-  (setq dired-auto-revert-buffer t)
+  (setq dired-auto-revert-buffer #'dired-directory-changed-p)
   (setq dired-dwim-target t)
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
@@ -1144,6 +1144,7 @@
   (setq mouse-drag-and-drop-region-cross-program t)
   (setq dired-free-space nil)
   (setq dired-hide-details-hide-absolute-location t)
+  (setq dired-create-destination-dirs-on-trailing-dirsep t)
   :config
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls"))
