@@ -408,8 +408,6 @@
 
 (use-package nerd-icons
   :if +with-icons
-  :init
-  (setq nerd-icons-color-icons t)
   :config
   (when (and (display-graphic-p)
              (not (member "Symbols Nerd Font Mono" (font-family-list))))
