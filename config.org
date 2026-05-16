@@ -1765,18 +1765,31 @@ If you'd like to test a different font, evaluate the following block:
 (use-package dired
   :ensure nil
   :init
-  (setq dired-listing-switches
-        (concat
-         "-l "                        ;; long listing (dired requires this)
-         "--almost-all "              ;; show hidden files, but not . or ..
-         "--no-group "                ;; do not show group, only owner
-         ;; conflict w/ `dired-sidebar-follow-file'
-         "--classify "                ;; append indicator (one of */=>@|) to entries
-         "--human-readable "          ;; print sizes in human readable format
-         "--sort=version "            ;; sort by version number (netural order)
-         "--group-directories-first " ;; group directories first
-         "--time-style=long-iso"      ;; use ISO 8601 date format (YYYY-MM-DD HH:MM)
-         ))
+  ;; -l     use a long listing format
+  ;;
+  ;; -A, --almost-all
+  ;;        do not list implied . and ..
+  ;;
+  ;; -G, --no-group
+  ;;        in a long listing, don't print group names
+  ;;
+  ;; -F, --classify[=WHEN]
+  ;;        append indicator (one of */=>@|) to entries WHEN
+  ;;
+  ;; -h, --human-readable
+  ;;        with -l and -s, print sizes like 1K 234M 2G etc.
+  ;;
+  ;; --sort=WORD
+  ;;        change default 'name' sort to WORD: none (-U), size (-S), time
+  ;;        (-t), version (-v), extension (-X), name, width
+  ;;
+  ;; --group-directories-first
+  ;;        group directories before files
+  ;;
+  ;; --time-style=TIME_STYLE
+  ;;        time/date format with -l; see TIME_STYLE below
+  ;;
+  (setq dired-listing-switches "-lAGFhv --group-directories-first --time-style=long-iso")
   (setq dired-auto-revert-buffer t)
   (setq dired-dwim-target t)
   (setq dired-recursive-copies 'always)
