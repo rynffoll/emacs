@@ -219,7 +219,6 @@
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-magit][gptel-magit]]
-  - [[#claude-code-ide][claude-code-ide]]
   - [[#agent-shell][agent-shell]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
@@ -3340,7 +3339,7 @@ machine api.openai.com login apikey password TOKEN
   (magit-mode-hook . gptel-magit-install))
 #+end_src
 
-** claude-code-ide
+** COMMENT claude-code-ide
 #+begin_src emacs-lisp
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)

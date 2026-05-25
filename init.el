@@ -2198,18 +2198,6 @@ and reopening project files within the window avoids a restart."
   :hook
   (magit-mode-hook . gptel-magit-install))
 
-(use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :general
-  (project-prefix-map
-   "C" 'claude-code-ide-menu)
-  :init
-  (setq claude-code-ide-use-side-window nil)
-  (setq claude-code-ide-show-claude-window-in-ediff nil)
-  ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names)
-  :config
-  (claude-code-ide-emacs-tools-setup))
-
 (use-package agent-shell
   :general
   (+local-leader-def :keymaps 'agent-shell-mode-map
