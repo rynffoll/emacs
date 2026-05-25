@@ -1506,6 +1506,7 @@
    "t" 'ghostel-project)
   :init
   (setq ghostel-shell "/opt/homebrew/bin/fish")
+  (setq ghostel-macos-login-shell nil)
   (setq ghostel-notification-function #'+ghostel-notify)
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
