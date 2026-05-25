@@ -2198,13 +2198,6 @@ and reopening project files within the window avoids a restart."
   :hook
   (magit-mode-hook . gptel-magit-install))
 
-(use-package agent-shell
-  :general
-  (+local-leader-def :keymaps 'agent-shell-mode-map
-    "." 'agent-shell-help-menu)
-  (project-prefix-map
-   "a" 'agent-shell))
-
 (use-package copilot
   :general
   (copilot-completion-map
