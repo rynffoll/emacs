@@ -49,6 +49,7 @@
   (setq compilation-scroll-output 'first-error))
 
 (use-package ansi-color
+  :disabled ;; replaced by ghostel
   :ensure nil
   :hook
   (compilation-filter-hook . ansi-color-compilation-filter))
@@ -1512,7 +1513,8 @@
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
   :hook
-  (after-init-hook . ghostel-compile-global-mode))
+  (after-init-hook . ghostel-compile-global-mode)
+  (after-init-hook . ghostel-comint-global-mode))
 
 (use-package evil-ghostel
   :hook

@@ -432,6 +432,7 @@ If you'd like to test a different font, evaluate the following block:
 ** ansi-color
 #+begin_src emacs-lisp
 (use-package ansi-color
+  :disabled ;; replaced by ghostel
   :ensure nil
   :hook
   (compilation-filter-hook . ansi-color-compilation-filter))
@@ -2394,7 +2395,8 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
   :hook
-  (after-init-hook . ghostel-compile-global-mode))
+  (after-init-hook . ghostel-compile-global-mode)
+  (after-init-hook . ghostel-comint-global-mode))
 #+end_src
 
 #+begin_src emacs-lisp
