@@ -2154,7 +2154,7 @@ and reopening project files within the window avoids a restart."
   :ensure nil
   :init
   (setq proced-enable-color-flag t)
-  ;; (setq proced-auto-update-flag t)
+  (setq proced-auto-update-flag 'visible)
   (setq proced-format 'medium))
 
 (use-package proced-narrow

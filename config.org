@@ -3266,7 +3266,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :ensure nil
   :init
   (setq proced-enable-color-flag t)
-  ;; (setq proced-auto-update-flag t)
+  (setq proced-auto-update-flag 'visible)
   (setq proced-format 'medium))
 #+end_src
 
