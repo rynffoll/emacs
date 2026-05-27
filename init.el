@@ -2135,11 +2135,6 @@ and reopening project files within the window avoids a restart."
 
 (use-package docker)
 
-(use-package docker-compose-mode
-  :general
-  (+local-leader-def :keymaps 'docker-compose-mode-map
-    "." 'docker-compose))
-
 (use-package jinja2-mode
   :mode "\\.j2\\'")
 
