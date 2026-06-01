@@ -2056,6 +2056,7 @@ Covers both working-tree faces and reference-revision faces."
   (clojure-ts-mode-hook . cider-mode))
 
 (use-package clj-refactor
+  :disabled
   :general
   (+local-leader-def :keymaps 'clojure-ts-mode-map
     "R" '(hydra-cljr-help-menu/body :wk "refactor"))
@@ -2064,9 +2065,6 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package go-ts-mode
   :ensure nil
-  :mode
-  ("\\.go\\'" . go-ts-mode)
-  ("go\\.mod\\'" . go-mod-ts-mode)
   :init
   (setq go-ts-mode-indent-offset 4)
   :hook
@@ -2124,21 +2122,6 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (markdown-ts-mode-hook . markdown-ts-toc-update-before-save-mode))
 
-(use-package markdown-mode
-  :disabled ;; back to built-in markdown-ts-mode
-  :custom-face
-  (markdown-code-face ((t (:inherit default))))
-  :general
-  (+local-leader-def :keymaps 'markdown-mode-map
-    "." '(:keymap markdown-mode-command-map))
-  :init
-  (setq markdown-command "pandoc")
-  ;; (setq markdown-hide-markup t)
-  (setq markdown-fontify-whole-heading-line t)
-  (setq markdown-fontify-code-blocks-natively t)
-  :config
-  (add-to-list 'markdown-code-lang-modes '("clj" . clojure-ts-mode)))
-
 (use-package grip-mode
   :general
   (+local-leader-def :keymaps 'markdown-ts-mode-map
@@ -2184,10 +2167,6 @@ Covers both working-tree faces and reference-revision faces."
 (use-package vimrc-mode)
 
 (use-package ssh-config-mode)
-
-(use-package protobuf-ts-mode
-  :disabled ;; tree-sitter grammar is outdated and causes parsing errors
-  :mode "\\.proto\\'")
 
 (use-package protobuf-mode)
 
