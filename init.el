@@ -2128,6 +2128,10 @@ and reopening project files within the window avoids a restart."
   :ensure nil
   :mode ("\\(?:Dockerfile\\(?:\\..*\\)?\\|\\.[Dd]ockerfile\\)\\'" . dockerfile-ts-mode))
 
+(use-package toml-ts-mode
+  :ensure nil
+  :mode "\\.toml\\'")
+
 (use-package editorconfig
   :ensure nil
   :hook

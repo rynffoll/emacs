@@ -208,6 +208,7 @@
   - [[#ssh][ssh]]
   - [[#protobuf][protobuf]]
   - [[#dockerfile][dockerfile]]
+  - [[#toml][toml]]
 - [[#tools][Tools]]
   - [[#editorconfig][editorconfig]]
   - [[#docker][docker]]
@@ -3223,6 +3224,13 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :mode ("\\(?:Dockerfile\\(?:\\..*\\)?\\|\\.[Dd]ockerfile\\)\\'" . dockerfile-ts-mode))
 #+end_src
 
+** toml
+#+begin_src emacs-lisp
+(use-package toml-ts-mode
+  :ensure nil
+  :mode "\\.toml\\'")
+#+end_src
+
 * Tools
 ** editorconfig
 #+begin_src emacs-lisp
@@ -3425,4 +3433,3 @@ machine api.openai.com login apikey password TOKEN
 #+begin_src emacs-lisp
 (use-package free-keys)
 #+end_src
-
