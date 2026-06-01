@@ -86,8 +86,10 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
 
 (defvar-local modeline-x-buffer-identification
   '(:eval
-    (propertize (format-mode-line mode-line-buffer-identification)
-                'face (modeline-x--buffer-id-face)))
+    (propertize
+     ;; (format-mode-line mode-line-buffer-identification)
+     (format-mode-line (propertized-buffer-identification "%b"))
+     'face (modeline-x--buffer-id-face)))
   "Buffer name, colored when the buffer has unsaved changes.")
 
 
