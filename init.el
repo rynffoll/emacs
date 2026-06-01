@@ -417,8 +417,9 @@
 (use-package bindings
   :ensure nil
   :init
-  (setq mode-line-right-align-edge 'right-fringe)
-  (setq mode-line-collapse-minor-modes t))
+  ;; (setq mode-line-right-align-edge 'right-fringe)
+  (setq mode-line-collapse-minor-modes t)
+  (setq mode-line-position-column-line-format '(" %l:%c")))
 
 (use-package doom-modeline
   :init
@@ -429,8 +430,52 @@
   (setq doom-modeline-check 'simple)
   (setq doom-modeline-unicode-number nil)
   (setq doom-modeline-workspace-name nil)
-  :hook
-  (after-init-hook . doom-modeline-mode))
+  ;; :hook
+  ;; (after-init-hook . doom-modeline-mode)
+  )
+
+(use-package modeline-x
+  :ensure nil
+  :demand t
+  :config
+  (setq-default mode-line-format
+                `("%e"
+                  " "
+                  (winum-mode modeline-x-winum)
+                  ;; (evil-mode modeline-x-evil-state)
+                  (evil-mode modeline-x-evil-state-icon)
+                  modeline-x-major-mode-icon
+                  " "
+                  modeline-x-buffer-identification
+                  " "
+                  modeline-x-position
+                  ;; modeline-x-selection-info
+                  mode-line-format-right-align
+                  modeline-x-misc-info
+                  (flymake-mode modeline-x-flymake)
+                  (vc-mode modeline-x-vc)
+                  " "
+                  mode-line-modes))
+  ;; reset modeline format in all buffers to apply the new default
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (kill-local-variable 'mode-line-format))))
+
+(use-package emacs
+  :ensure nil
+  :preface
+  (defun +format-input-method ()
+    (when-let* ((im (cond
+                     (current-input-method
+                      current-input-method-title)
+                     ((and (bound-and-true-p evil-local-mode)
+                           (bound-and-true-p evil-input-method))
+                      ;; (INPUT-METHOD LANGUAGE-ENV ACTIVATE-FUNC TITLE DESCRIPTION ARGS...)
+                      ;; (0            1            2             3     4           5   ...)
+                      (nth 3 (assoc evil-input-method input-method-alist))))))
+      (concat " " (propertize im 'face 'bold) " ")))
+  :config
+  (add-to-list 'global-mode-string '(:eval (+format-input-method))))
 
 (use-package breadcrumb
   :hook
@@ -442,9 +487,12 @@
 (defun +custom-faces (&rest _)
   "Reapply custom face attributes after theme load."
   (custom-set-faces
-   '(mode-line                      ((t (:height 0.9))))
-   '(mode-line-active               ((t (:height 0.9))))
-   '(mode-line-inactive             ((t (:height 0.9))))
+   `(mode-line
+     ((t (:height 0.9 :box (:line-width 3 :style nil :color ,(face-attribute 'mode-line :background nil 'default))))))
+   `(mode-line-active
+     ((t (:height 0.9 :box (:line-width 3 :style nil :color ,(face-attribute 'mode-line-active :background nil 'default))))))
+   `(mode-line-inactive
+     ((t (:height 0.9 :box (:line-width 3 :style nil :color ,(face-attribute 'mode-line-inactive :background nil 'default))))))
    ;; do not change header-line height because it breaks alignment in proced, profile-report, etc.
    ;; '(header-line                    ((t (:height 0.9))))
    ;; '(header-line-inactive           ((t (:height 0.9))))
@@ -621,8 +669,9 @@
 
 (use-package winum
   :init
-  (setq winum-auto-setup-mode-line nil)
   (setq winum-scope 'frame-local)
+  (setq winum-auto-setup-mode-line nil)
+  (setq winum-format "%s")
   :hook
   (after-init-hook . winum-mode))
 
@@ -1414,8 +1463,8 @@
   (setq display-line-numbers-width-start t))
 
 (use-package anzu
-  :init
-  (setq anzu-cons-mode-line-p nil)
+  ;; :init
+  ;; (setq anzu-cons-mode-line-p nil)
   :hook
   (after-init-hook . global-anzu-mode))
 
@@ -1453,6 +1502,7 @@
   :init
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-margin-indicator-position 'right-margin)
+  (setq flymake-suppress-zero-counters t)
   :hook
   (prog-mode-hook . flymake-mode))
 
@@ -1525,7 +1575,8 @@
   :init
   (setq vc-handled-backends '(Git))
   (setq vc-async-checkin t)
-  (setq vc-allow-async-diff t))
+  (setq vc-allow-async-diff t)
+  (setq vc-display-status 'no-backend))
 
 (use-package magit
   :preface
@@ -1894,7 +1945,7 @@ Covers both working-tree faces and reference-revision faces."
   (define-advice eglot--managed-mode
       (:around (fn &rest args) +defer-shutdown)
     "Defer auto-shutdown so buffer kills don't block on slow LSP shutdown,
-and reopening project files within the window avoids a restart."
+  and reopening project files within the window avoids a restart."
     (cl-letf* ((orig (symbol-function #'eglot-shutdown))
                ((symbol-function #'eglot-shutdown)
                 (lambda (server &rest _)
