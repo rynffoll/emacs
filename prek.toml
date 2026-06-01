@@ -1,0 +1,23 @@
+#:schema https://www.schemastore.org/prek.json
+
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "check-yaml" },
+  { id = "check-json" },
+  { id = "check-json5" },
+  { id = "check-toml" },
+  { id = "check-symlinks" },
+  { id = "check-case-conflict" },
+  { id = "check-merge-conflict" },
+  { id = "check-executables-have-shebangs" },
+  { id = "check-added-large-files" },
+  { id = "end-of-file-fixer" },
+  { id = "trailing-whitespace", args = ["--chars", " \t"] },
+  { id = "detect-private-key" },
+]
+
+[[repos]]
+repo = "https://github.com/gitleaks/gitleaks"
+rev = "v8.30.1"
+hooks = [{ id = "gitleaks" }]
