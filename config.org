@@ -115,7 +115,6 @@
   - [[#disproject][disproject]]
   - [[#projection][projection]]
   - [[#project-x][project-x]]
-  - [[#project-butler][project-butler]]
 - [[#dired][Dired]]
   - [[#dired-1][dired]]
   - [[#dired-aux][dired-aux]]
@@ -1813,25 +1812,6 @@ If you'd like to test a different font, evaluate the following block:
   (setq project-x-layout '(dired-side-toggle magit-project-status))
   :config
   (add-to-list 'project-switch-commands '(project-x-open-layout "Layout") t))
-#+end_src
-
-** project-butler
-#+begin_src emacs-lisp
-(use-package project-butler
-  :disabled
-  :after project
-  :demand
-  :general
-  (project-prefix-map
-    "K" 'project-butler-cleanup)
-  :config
-  (add-to-list
-   'project-butler-projects-list
-   `(,user-emacs-directory . ("" ("config.org"))))
-  (add-to-list
-   'project-butler-projects-list
-   `(,(file-name-as-directory org-directory)
-     . ("1|2" (,+org-notes-file ,+org-todo-file)))))
 #+end_src
 
 * Dired

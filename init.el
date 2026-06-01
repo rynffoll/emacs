@@ -1137,22 +1137,6 @@
   :config
   (add-to-list 'project-switch-commands '(project-x-open-layout "Layout") t))
 
-(use-package project-butler
-  :disabled
-  :after project
-  :demand
-  :general
-  (project-prefix-map
-    "K" 'project-butler-cleanup)
-  :config
-  (add-to-list
-   'project-butler-projects-list
-   `(,user-emacs-directory . ("" ("config.org"))))
-  (add-to-list
-   'project-butler-projects-list
-   `(,(file-name-as-directory org-directory)
-     . ("1|2" (,+org-notes-file ,+org-todo-file)))))
-
 (use-package dired
   :ensure nil
   :init
