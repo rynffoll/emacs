@@ -419,7 +419,11 @@
   :init
   ;; (setq mode-line-right-align-edge 'right-fringe)
   (setq mode-line-collapse-minor-modes t)
-  (setq mode-line-position-column-line-format '(" %l:%c")))
+  (setq mode-line-percent-position nil) ;; move percent to `mode-line-position-column-line-format'
+  ;; (setq mode-line-position-column-line-format '("%l:%c:%p"))
+  ;; (setq mode-line-position-column-line-format '("%l:%c:" (-3 "%p")))
+  (setq mode-line-position-column-line-format '("%l:%c"))
+  (setq mode-line-compact t))
 
 (use-package doom-modeline
   :init
@@ -437,7 +441,7 @@
 (use-package modeline-x
   :ensure nil
   :demand t
-  :config
+  :init
   (setq-default mode-line-format
                 `("%e"
                   " "
@@ -456,10 +460,8 @@
                   (vc-mode modeline-x-vc)
                   " "
                   mode-line-modes))
-  ;; reset modeline format in all buffers to apply the new default
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (kill-local-variable 'mode-line-format))))
+  :config
+  (modeline-x-reset))
 
 (use-package emacs
   :ensure nil
@@ -530,6 +532,9 @@
           (border-mode-line-active unspecified)
           (border-mode-line-inactive unspecified)
           )))
+
+(use-package modus-catppuccin
+  :vc (:url "https://gitlab.com/magus/modus-catppuccin.git" :rev :newest))
 
 (use-package ef-themes)
 

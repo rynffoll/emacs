@@ -53,6 +53,8 @@
   - [[#ligatures][ligatures]]
   - [[#icons][icons]]
   - [[#mode-line][mode-line]]
+  - [[#doom-modeline][doom-modeline]]
+  - [[#modeline-x][modeline-x]]
   - [[#global-mode-string][global-mode-string]]
   - [[#breadcrumb][breadcrumb]]
   - [[#spacious-padding][spacious-padding]]
@@ -895,9 +897,14 @@ If you'd like to test a different font, evaluate the following block:
   :init
   ;; (setq mode-line-right-align-edge 'right-fringe)
   (setq mode-line-collapse-minor-modes t)
-  (setq mode-line-position-column-line-format '(" %l:%c")))
+  (setq mode-line-percent-position nil) ;; move percent to `mode-line-position-column-line-format'
+  ;; (setq mode-line-position-column-line-format '("%l:%c:%p"))
+  ;; (setq mode-line-position-column-line-format '("%l:%c:" (-3 "%p")))
+  (setq mode-line-position-column-line-format '("%l:%c"))
+  (setq mode-line-compact t))
 #+end_src
 
+** doom-modeline
 #+begin_src emacs-lisp
 (use-package doom-modeline
   :init
@@ -913,11 +920,12 @@ If you'd like to test a different font, evaluate the following block:
   )
 #+end_src
 
+** modeline-x
 #+begin_src emacs-lisp
 (use-package modeline-x
   :ensure nil
   :demand t
-  :config
+  :init
   (setq-default mode-line-format
                 `("%e"
                   " "
@@ -936,10 +944,8 @@ If you'd like to test a different font, evaluate the following block:
                   (vc-mode modeline-x-vc)
                   " "
                   mode-line-modes))
-  ;; reset modeline format in all buffers to apply the new default
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (kill-local-variable 'mode-line-format))))
+  :config
+  (modeline-x-reset))
 #+end_src
 
 ** global-mode-string
@@ -1025,6 +1031,11 @@ If you'd like to test a different font, evaluate the following block:
           (border-mode-line-active unspecified)
           (border-mode-line-inactive unspecified)
           )))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package modus-catppuccin
+  :vc (:url "https://gitlab.com/magus/modus-catppuccin.git" :rev :newest))
 #+end_src
 
 #+begin_src emacs-lisp

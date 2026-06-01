@@ -193,6 +193,14 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
 
 
 
+(defun modeline-x-reset ()
+  "Reset `mode-line-format' in all buffers to the current default."
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (kill-local-variable 'mode-line-format))))
+
+
+
 (dolist (construct '(modeline-x-flymake
                      modeline-x-misc-info
                      modeline-x-vc
