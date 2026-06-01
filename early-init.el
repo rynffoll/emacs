@@ -37,7 +37,6 @@
 
 (setq initial-scratch-message nil)
 
-(setq frame-inhibit-implied-resize t)
 (setq frame-resize-pixelwise t)
 (setq window-resize-pixelwise t)
 
