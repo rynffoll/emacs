@@ -1554,9 +1554,14 @@
 (use-package ghostel
   :preface
   (defun +ghostel-notify (title body)
-    (let ((summary (if (or (null title) (string-empty-p title))
-                       (buffer-name)
-                     title)))
+    (let* ((proj (when-let* ((p (project-current)))
+                   (project-name p)))
+           (summary (if (or (null title) (string-empty-p title))
+                        (buffer-name)
+                      title))
+           (summary (if (or (null proj) (string-empty-p proj))
+                        summary
+                      (format "%s: %s" proj summary))))
       (if (fboundp 'do-applescript)
           (do-applescript
            (format "display notification \"%s\" with title \"%s\"" body summary))
