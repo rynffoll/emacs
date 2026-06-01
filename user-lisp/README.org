@@ -9,3 +9,4 @@ Personal Emacs packages.
 - [[file:per-tab-group-theme/per-tab-group-theme.el][per-tab-group-theme]] — Per tab-group themes
 - [[file:tab-bar-theme/tab-bar-theme.el][tab-bar-theme]] — Tab bar theming
 - [[file:modeline-x/modeline-x.el][modeline-x]] — Custom mode-line
+- [[file:project-x/project-x.el][project-x]] — Project extensions

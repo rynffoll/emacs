@@ -103,6 +103,7 @@
   - [[#project][project]]
   - [[#disproject][disproject]]
   - [[#projection][projection]]
+  - [[#project-x][project-x]]
   - [[#project-butler][project-butler]]
 - [[#dired][Dired]]
   - [[#dired-1][dired]]
@@ -1792,6 +1793,20 @@ If you'd like to test a different font, evaluate the following block:
   :demand t
   :config
   (projection-multi-embark-setup-command-map))
+#+end_src
+
+** project-x
+#+begin_src emacs-lisp
+(use-package project-x
+  :ensure nil
+  :demand t
+  :general
+  (project-prefix-map
+   "l" #'project-x-open-layout)
+  :init
+  (setq project-x-layout '(dired-side-toggle magit-project-status))
+  :config
+  (add-to-list 'project-switch-commands '(project-x-open-layout "Layout") t))
 #+end_src
 
 ** project-butler

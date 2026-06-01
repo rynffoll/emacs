@@ -1141,6 +1141,17 @@
   :config
   (projection-multi-embark-setup-command-map))
 
+(use-package project-x
+  :ensure nil
+  :demand t
+  :general
+  (project-prefix-map
+   "l" #'project-x-open-layout)
+  :init
+  (setq project-x-layout '(dired-side-toggle magit-project-status))
+  :config
+  (add-to-list 'project-switch-commands '(project-x-open-layout "Layout") t))
+
 (use-package project-butler
   :disabled
   :after project
