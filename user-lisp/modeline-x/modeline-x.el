@@ -28,48 +28,44 @@
 (defvar evil-state)
 (defvar evil-mode-line-tag)
 
-
 
 (defgroup modeline-x nil
   "Mode-line extras."
   :group 'mode-line)
 
-
 
 (defface modeline-x-evil-normal
   '((t (:inherit shadow :weight normal :slant normal)))
-  "Face for evil normal state tag."
+  "Face for `evil-normal-state'."
   :group 'modeline-x)
 
 (defface modeline-x-evil-insert
   '((t (:inherit success :weight normal :slant normal)))
-  "Face for evil insert state tag."
+  "Face for `evil-insert-state'."
   :group 'modeline-x)
 
 (defface modeline-x-evil-visual
   '((t (:inherit font-lock-keyword-face :weight normal :slant normal)))
-  "Face for evil visual state tag."
+  "Face for `evil-visual-state'."
   :group 'modeline-x)
 
 (defface modeline-x-evil-emacs
   '((t (:inherit font-lock-builtin-face :weight normal :slant normal)))
-  "Face for evil emacs state tag."
+  "Face for `'evil-emacs-state'."
   :group 'modeline-x)
 
 (defface modeline-x-evil-other
   '((t (:inherit shadow :weight normal :slant normal)))
-  "Face for evil replace, motion, and operator state tags."
+  "Face for evil states (replace, motion, operator, ...)."
   :group 'modeline-x)
-
 
 
 (defvar-local modeline-x-vc
   '(:eval
     (when (mode-line-window-selected-p)
-      (concat " " (nerd-icons-devicon "nf-dev-git_branch") (string-trim vc-mode))))
+      (format "%s%s" (nerd-icons-devicon "nf-dev-git_branch") (string-trim vc-mode))))
   "VC branch segment with icon.
 The `vc-mode' string format is described in `vc-default-mode-line-string'.")
-
 
 
 (defvar-local modeline-x-position
@@ -77,7 +73,6 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
     (when (mode-line-window-selected-p)
       mode-line-position))
   "Position segment showing `mode-line-position' for the selected window.")
-
 
 
 (defun modeline-x--buffer-id-face ()
@@ -95,12 +90,10 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
                 'face (modeline-x--buffer-id-face)))
   "Buffer name, colored when the buffer has unsaved changes.")
 
-
 
 (defvar-local modeline-x-major-mode-icon
   '(:eval (nerd-icons-icon-for-buffer))
   "Major-mode icon for use in `mode-line-format'.")
-
 
 
 (defvar winum-format)
@@ -108,7 +101,6 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
 (defvar-local modeline-x-winum
   '(:eval (format winum-format (winum-get-number-string)))
   "Window number via winum, using `winum-format'.")
-
 
 
 (defun modeline-x--evil-face (&optional state)
@@ -135,13 +127,12 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
    :face (modeline-x--evil-face)))
 
 (defvar-local modeline-x-evil-state
-  '(:eval (propertize evil-mode-line-tag 'face (modeline-x--evil-face)))
+  '(:eval (propertize (string-trim evil-mode-line-tag) 'face (modeline-x--evil-face)))
   "Evil modal state tag, colored by state.")
 
 (defvar-local modeline-x-evil-state-icon
-  '(:eval (concat " " (modeline-x--evil-icon) " "))
+  '(:eval (modeline-x--evil-icon))
   "Evil modal state icon, colored by state.")
-
 
 
 (defvar-local modeline-x-misc-info
@@ -178,16 +169,14 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
             (cons (region-beginning) (region-end)))
         (let ((lines (count-lines beg (min end (point-max)))))
           (propertize
-           (concat " "
-                   (cond
-                    ((and (bound-and-true-p evil-visual-selection)
-                          (eq evil-visual-selection 'line))
-                     (format "%dL" lines))
-                    ((> lines 1)
-                     (format "%dC %dL" (- end beg) lines))
-                    (t
-                     (format "%dC" (- end beg))))
-                   " ")
+           (cond
+            ((and (bound-and-true-p evil-visual-selection)
+                  (eq evil-visual-selection 'line))
+             (format "%dL" lines))
+            ((> lines 1)
+             (format "%dC %dL" (- end beg) lines))
+            (t
+             (format "%dC" (- end beg))))
            'face 'success)))))
   "Selection info: chars/lines count for active region or evil visual state.")
 
@@ -198,7 +187,6 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (kill-local-variable 'mode-line-format))))
-
 
 
 (dolist (construct '(modeline-x-flymake

@@ -423,7 +423,8 @@
   ;; (setq mode-line-position-column-line-format '("%l:%c:%p"))
   ;; (setq mode-line-position-column-line-format '("%l:%c:" (-3 "%p")))
   (setq mode-line-position-column-line-format '("%l:%c"))
-  (setq mode-line-compact t))
+  ;; (setq mode-line-compact t) ;; breaks right-align spacing
+  )
 
 (use-package doom-modeline
   :init
@@ -446,17 +447,21 @@
                 `("%e"
                   " "
                   (winum-mode modeline-x-winum)
+                  " "
                   ;; (evil-mode modeline-x-evil-state)
                   (evil-mode modeline-x-evil-state-icon)
+                  " "
                   modeline-x-major-mode-icon
                   " "
                   modeline-x-buffer-identification
                   " "
                   modeline-x-position
+                  " "
                   ;; modeline-x-selection-info
                   mode-line-format-right-align
                   modeline-x-misc-info
                   (flymake-mode modeline-x-flymake)
+                  " "
                   (vc-mode modeline-x-vc)
                   " "
                   mode-line-modes))
