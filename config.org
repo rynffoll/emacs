@@ -219,6 +219,7 @@
   - [[#proced][proced]]
   - [[#keycast][keycast]]
   - [[#dothttp][dothttp]]
+  - [[#flamegraph][flamegraph]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-magit][gptel-magit]]
@@ -3377,6 +3378,12 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :ensure nil
   :demand t
   :after dothttp)
+#+end_src
+
+** flamegraph
+#+begin_src emacs-lisp
+(use-package flamegraph
+  :vc (:url "https://github.com/dgutov/emacs-flamegraph" :rev :newest))
 #+end_src
 
 * LLM
