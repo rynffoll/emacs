@@ -64,6 +64,9 @@
   - [[#default-text-scale][default-text-scale]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
+  - [[#project-tab-groups][project-tab-groups]]
+  - [[#tab-bar-theme][tab-bar-theme]]
+  - [[#per-tab-group-theme][per-tab-group-theme]]
   - [[#tab-line][tab-line]]
 - [[#windows][Windows]]
   - [[#window][window]]
@@ -86,14 +89,22 @@
   - [[#desktop][desktop]]
 - [[#completion][Completion]]
   - [[#emacs-1][emacs]]
+  - [[#mouse][mouse]]
+  - [[#nerd-icons-completion][nerd-icons-completion]]
   - [[#consult][consult]]
+  - [[#nerd-icons-xref][nerd-icons-xref]]
+  - [[#consult-dir][consult-dir]]
   - [[#marginalia][marginalia]]
   - [[#vertico][vertico]]
   - [[#orderless][orderless]]
   - [[#corfu][corfu]]
+  - [[#kind-icon][kind-icon]]
+  - [[#nerd-icons-corfu][nerd-icons-corfu]]
   - [[#cape][cape]]
   - [[#embark][embark]]
+  - [[#embark-consult][embark-consult]]
   - [[#templ][templ]]
+  - [[#tempel-collection][tempel-collection]]
 - [[#files][Files]]
   - [[#files-1][files]]
   - [[#autorevert][autorevert]]
@@ -1145,6 +1156,14 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . tab-bar-history-mode))
 #+end_src
 
+** project-tab-groups
+#+begin_src emacs-lisp
+(use-package project-tab-groups
+  :hook
+  (after-init-hook . project-tab-groups-mode))
+#+end_src
+
+** tab-bar-theme
 #+begin_src emacs-lisp
 (use-package tab-bar-theme
   :ensure nil
@@ -1154,12 +1173,7 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . tab-bar-theme-mode))
 #+end_src
 
-#+begin_src emacs-lisp
-(use-package project-tab-groups
-  :hook
-  (after-init-hook . project-tab-groups-mode))
-#+end_src
-
+** per-tab-group-theme
 #+begin_src emacs-lisp
 (use-package per-tab-group-theme
   :disabled
@@ -1273,7 +1287,9 @@ If you'd like to test a different font, evaluate the following block:
           ansible-doc-module-mode))
   :hook
   (after-init-hook . popper-mode))
+#+end_src
 
+#+begin_src emacs-lisp
 (use-package popper-echo
   :disabled
   :ensure popper
@@ -1412,6 +1428,7 @@ If you'd like to test a different font, evaluate the following block:
   (minibuffer-setup-hook . cursor-intangible-mode))
 #+end_src
 
+** mouse
 #+begin_src emacs-lisp
 (use-package mouse
   :ensure nil
@@ -1420,6 +1437,7 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . context-menu-mode))
 #+end_src
 
+** nerd-icons-completion
 #+begin_src emacs-lisp
 (use-package nerd-icons-completion
   :if +with-icons
@@ -1460,6 +1478,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq xref-show-definitions-function #'consult-xref))
 #+end_src
 
+** nerd-icons-xref
 #+begin_src emacs-lisp
 (use-package nerd-icons-xref
   :if +with-icons
@@ -1467,17 +1486,11 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . nerd-icons-xref-mode))
 #+end_src
 
+** consult-dir
 #+begin_src emacs-lisp
 (use-package consult-dir
   :general
   ([remap list-directory] 'consult-dir))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package consult-todo
-  :general
-  (project-prefix-map
-   "T" 'consult-todo-project))
 #+end_src
 
 ** marginalia
@@ -1511,18 +1524,6 @@ If you'd like to test a different font, evaluate the following block:
    "DEL" 'vertico-directory-delete-char)
   :hook
   (rfn-eshadow-update-overlay-hook . vertico-directory-tidy))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package vertico-posframe
-  :disabled ;; by performance reasons (try again in emacs 31 with feature `tty-child-frames')
-  :init
-  (setq vertico-posframe-poshandler #'posframe-poshandler-frame-center)
-  (setq vertico-posframe-parameters
-        '((left-fringe . 8)
-          (right-fringe . 8)))
-  :hook
-  (vertico-mode-hook . vertico-posframe-mode))
 #+end_src
 
 ** orderless
@@ -1587,6 +1588,7 @@ If you'd like to test a different font, evaluate the following block:
   (corfu-mode-hook . corfu-history-mode))
 #+end_src
 
+** kind-icon
 #+begin_src emacs-lisp
 (use-package kind-icon
   :unless +with-icons
@@ -1605,6 +1607,7 @@ If you'd like to test a different font, evaluate the following block:
   (advice-add #'disable-theme :before #'+kind-icon-reset-cache))
 #+end_src
 
+** nerd-icons-corfu
 #+begin_src emacs-lisp
 (use-package nerd-icons-corfu
   :if +with-icons
@@ -1644,6 +1647,7 @@ If you'd like to test a different font, evaluate the following block:
                  (window-parameters (mode-line-format . none)))))
 #+end_src
 
+** embark-consult
 #+begin_src emacs-lisp
 (use-package embark-consult
   :hook
@@ -1672,6 +1676,7 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . global-tempel-abbrev-mode))
 #+end_src
 
+** tempel-collection
 #+begin_src emacs-lisp
 (use-package tempel-collection)
 #+end_src

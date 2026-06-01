@@ -637,16 +637,16 @@
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
 
+(use-package project-tab-groups
+  :hook
+  (after-init-hook . project-tab-groups-mode))
+
 (use-package tab-bar-theme
   :ensure nil
   :init
   (setq tab-bar-theme-height 0.9)
   :hook
   (after-init-hook . tab-bar-theme-mode))
-
-(use-package project-tab-groups
-  :hook
-  (after-init-hook . project-tab-groups-mode))
 
 (use-package per-tab-group-theme
   :disabled
@@ -890,11 +890,6 @@
   :general
   ([remap list-directory] 'consult-dir))
 
-(use-package consult-todo
-  :general
-  (project-prefix-map
-   "T" 'consult-todo-project))
-
 (use-package marginalia
   :general
   (minibuffer-local-map
@@ -919,16 +914,6 @@
    "DEL" 'vertico-directory-delete-char)
   :hook
   (rfn-eshadow-update-overlay-hook . vertico-directory-tidy))
-
-(use-package vertico-posframe
-  :disabled ;; by performance reasons (try again in emacs 31 with feature `tty-child-frames')
-  :init
-  (setq vertico-posframe-poshandler #'posframe-poshandler-frame-center)
-  (setq vertico-posframe-parameters
-        '((left-fringe . 8)
-          (right-fringe . 8)))
-  :hook
-  (vertico-mode-hook . vertico-posframe-mode))
 
 (use-package orderless
   :init
