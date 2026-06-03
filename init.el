@@ -599,10 +599,6 @@
         ;; '(left-curly-arrow right-curly-arrow) ;; default
         ))
 
-(use-package default-text-scale
-  :hook
-  (after-init-hook . default-text-scale-mode))
-
 (use-package tab-bar
   :ensure nil
   :general

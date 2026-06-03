@@ -63,7 +63,6 @@
 - [[#frames][Frames]]
   - [[#frame][frame]]
   - [[#fringe][fringe]]
-  - [[#default-text-scale][default-text-scale]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
   - [[#project-tab-groups][project-tab-groups]]
@@ -1120,13 +1119,6 @@ If you'd like to test a different font, evaluate the following block:
         ;; '(left-curly-arrow nil) ;; left indicator only
         ;; '(left-curly-arrow right-curly-arrow) ;; default
         ))
-#+end_src
-
-** default-text-scale
-#+begin_src emacs-lisp
-(use-package default-text-scale
-  :hook
-  (after-init-hook . default-text-scale-mode))
 #+end_src
 
 * Tabs
