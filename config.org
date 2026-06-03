@@ -163,6 +163,8 @@
   - [[#jinx][jinx]]
 - [[#syntax-checking][Syntax Checking]]
   - [[#flymake][flymake]]
+  - [[#sideline][sideline]]
+  - [[#sideline-flymake][sideline-flymake]]
 - [[#eval][Eval]]
   - [[#eros][eros]]
   - [[#quickrun][quickrun]]
@@ -171,8 +173,10 @@
 - [[#goto][Goto]]
   - [[#xref][xref]]
   - [[#avy][avy]]
+  - [[#link-hint][link-hint]]
 - [[#terminal][Terminal]]
   - [[#ghostel][ghostel]]
+  - [[#evil-ghostel][evil-ghostel]]
 - [[#git][Git]]
   - [[#vc][vc]]
   - [[#magit][magit]]
@@ -2388,6 +2392,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (prog-mode-hook . flymake-mode))
 #+end_src
 
+** sideline
 #+begin_src emacs-lisp
 (use-package sideline
   :init
@@ -2395,6 +2400,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq sideline-display-backend-name t))
 #+end_src
 
+** sideline-flymake
 #+begin_src emacs-lisp
 (use-package sideline-flymake
   :init
@@ -2442,6 +2448,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq avy-background t))
 #+end_src
 
+** link-hint
 #+begin_src emacs-lisp
 (use-package link-hint)
 #+end_src
@@ -2485,6 +2492,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (after-init-hook . ghostel-comint-global-mode))
 #+end_src
 
+** evil-ghostel
 #+begin_src emacs-lisp
 (use-package evil-ghostel
   :hook
