@@ -1541,6 +1541,9 @@
         (message "%s: %s" summary body))
       (when (fboundp 'system-taskbar-attention)
         (system-taskbar-attention 'critical))))
+  (defun +ghostel-setup ()
+    (setq-local nobreak-char-display nil) ;; don't render as `_'
+    )
   :general
   (project-prefix-map
    "t" 'ghostel-project)
@@ -1552,6 +1555,7 @@
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
   :hook
+  (ghostel-mode-hook . +ghostel-setup)
   (after-init-hook . ghostel-compile-global-mode)
   (after-init-hook . ghostel-comint-global-mode))
 
