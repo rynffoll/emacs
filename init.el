@@ -311,7 +311,8 @@
     "tc"  'colorful-mode
     "tf"  'focus-mode
     "ti"  'highlight-indent-guides-mode
-    "tl"  'global-hl-line-mode
+    "tl"  'hl-line-mode
+    "tL"  'global-hl-line-mode
     "tn"  'display-line-numbers-mode
     "ts"  'jinx-mode
     "tt"  'load-theme
@@ -1386,9 +1387,6 @@
 
 (use-package hl-line
   :ensure nil
-  :preface
-  (defun +disable-global-hl-line-mode ()
-    (setq-local global-hl-line-mode nil))
   :hook
   (after-init-hook . global-hl-line-mode))
 
