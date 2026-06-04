@@ -1110,6 +1110,7 @@
   (after-init-hook . global-projection-hook-mode))
 
 (use-package projection-ibuffer
+  :disabled ;; use `project-list-buffers' instead
   :ensure projection
   :after ibuffer
   :demand t

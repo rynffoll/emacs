@@ -1802,6 +1802,7 @@ If you'd like to test a different font, evaluate the following block:
 
 #+begin_src emacs-lisp
 (use-package projection-ibuffer
+  :disabled ;; use `project-list-buffers' instead
   :ensure projection
   :after ibuffer
   :demand t
