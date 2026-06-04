@@ -59,7 +59,12 @@
   - [[#breadcrumb][breadcrumb]]
   - [[#spacious-padding][spacious-padding]]
   - [[#custom-faces][custom-faces]]
-  - [[#themes][themes]]
+  - [[#modus-themes][modus-themes]]
+  - [[#modus-catppuccin][modus-catppuccin]]
+  - [[#ef-themes][ef-themes]]
+  - [[#doric-themes][doric-themes]]
+  - [[#doom-themes][doom-themes]]
+  - [[#load-theme][load-theme]]
 - [[#frames][Frames]]
   - [[#frame][frame]]
   - [[#fringe][fringe]]
@@ -115,6 +120,7 @@
   - [[#project][project]]
   - [[#disproject][disproject]]
   - [[#projection][projection]]
+  - [[#projection-multi][projection-multi]]
   - [[#project-x][project-x]]
 - [[#dired][Dired]]
   - [[#dired-1][dired]]
@@ -1028,7 +1034,7 @@ If you'd like to test a different font, evaluate the following block:
 (add-hook 'enable-theme-functions #'+custom-faces)
 #+end_src
 
-** themes
+** modus-themes
 #+begin_src emacs-lisp
 (use-package modus-themes
   ;; :ensure nil
@@ -1048,19 +1054,23 @@ If you'd like to test a different font, evaluate the following block:
           )))
 #+end_src
 
+** modus-catppuccin
 #+begin_src emacs-lisp
 (use-package modus-catppuccin
   :vc (:url "https://gitlab.com/magus/modus-catppuccin.git" :rev :newest))
 #+end_src
 
+** ef-themes
 #+begin_src emacs-lisp
 (use-package ef-themes)
 #+end_src
 
+** doric-themes
 #+begin_src emacs-lisp
 (use-package doric-themes)
 #+end_src
 
+** doom-themes
 #+begin_src emacs-lisp
 (use-package doom-themes
   :init
@@ -1069,6 +1079,7 @@ If you'd like to test a different font, evaluate the following block:
   (doom-themes-org-config))
 #+end_src
 
+** load-theme
 #+begin_src emacs-lisp
 (setq +theme-alist '((default . modus-operandi)
                      (light   . modus-operandi)
@@ -1803,6 +1814,7 @@ If you'd like to test a different font, evaluate the following block:
   (ibuffer-hook . +projection-ibuffer-setup))
 #+end_src
 
+** projection-multi
 #+begin_src emacs-lisp
 (use-package projection-multi
   :general
