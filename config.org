@@ -84,7 +84,6 @@
   - [[#uniquify][uniquify]]
   - [[#buff-menu][buff-menu]]
   - [[#ibuffer][ibuffer]]
-  - [[#ibuffer-vc][ibuffer-vc]]
   - [[#nerd-icons-ibuffer][nerd-icons-ibuffer]]
   - [[#persistent-scratch][persistent-scratch]]
 - [[#history][History]]
@@ -1360,19 +1359,6 @@ If you'd like to test a different font, evaluate the following block:
   (setq ibuffer-human-readable-size t))
 #+end_src
 
-** ibuffer-vc
-#+begin_src emacs-lisp
-(use-package ibuffer-vc
-  :disabled ;; replaced by projection-ibuffer
-  :preface
-  (defun +setup-ibuffer-vc ()
-    (ibuffer-vc-set-filter-groups-by-vc-root)
-    (unless (eq ibuffer-sorting-mode 'alphabetic)
-      (ibuffer-do-sort-by-alphabetic)))
-  :hook
-  (ibuffer-hook . +setup-ibuffer-vc))
-#+end_src
-
 ** nerd-icons-ibuffer
 #+begin_src emacs-lisp
 (use-package nerd-icons-ibuffer
@@ -1798,21 +1784,6 @@ If you'd like to test a different font, evaluate the following block:
   (put 'projection-commands-install-project   'safe-local-variable #'stringp)
   :hook
   (after-init-hook . global-projection-hook-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package projection-ibuffer
-  :disabled ;; use `project-list-buffers' instead
-  :ensure projection
-  :after ibuffer
-  :demand t
-  :preface
-  (defun +projection-ibuffer-setup ()
-    (setq ibuffer-filter-groups (projection-ibuffer--filter-groups))
-    (unless (eq ibuffer-sorting-mode 'alphabetic)
-      (ibuffer-do-sort-by-alphabetic)))
-  :hook
-  (ibuffer-hook . +projection-ibuffer-setup))
 #+end_src
 
 ** projection-multi

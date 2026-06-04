@@ -779,16 +779,6 @@
   :init
   (setq ibuffer-human-readable-size t))
 
-(use-package ibuffer-vc
-  :disabled ;; replaced by projection-ibuffer
-  :preface
-  (defun +setup-ibuffer-vc ()
-    (ibuffer-vc-set-filter-groups-by-vc-root)
-    (unless (eq ibuffer-sorting-mode 'alphabetic)
-      (ibuffer-do-sort-by-alphabetic)))
-  :hook
-  (ibuffer-hook . +setup-ibuffer-vc))
-
 (use-package nerd-icons-ibuffer
   :if +with-icons
   :hook
@@ -1108,19 +1098,6 @@
   (put 'projection-commands-install-project   'safe-local-variable #'stringp)
   :hook
   (after-init-hook . global-projection-hook-mode))
-
-(use-package projection-ibuffer
-  :disabled ;; use `project-list-buffers' instead
-  :ensure projection
-  :after ibuffer
-  :demand t
-  :preface
-  (defun +projection-ibuffer-setup ()
-    (setq ibuffer-filter-groups (projection-ibuffer--filter-groups))
-    (unless (eq ibuffer-sorting-mode 'alphabetic)
-      (ibuffer-do-sort-by-alphabetic)))
-  :hook
-  (ibuffer-hook . +projection-ibuffer-setup))
 
 (use-package projection-multi
   :general
