@@ -2547,6 +2547,21 @@ can distinguish worktrees from the main checkout."
                           'replace))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package magit-blame
+  :ensure magit
+  :config
+  (add-to-list
+   'magit-blame-styles
+   '(margin
+     (margin-format    . ("%C %a%f"))
+     (time-format      . "%F")
+     (margin-width     . 32)
+     (margin-face      . magit-blame-margin)
+     (margin-body-face . (magit-blame-dimmed))
+     (show-message     . t))))
+#+end_src
+
 ** COMMENT magit-todos
 #+begin_src emacs-lisp
 (use-package magit-todos

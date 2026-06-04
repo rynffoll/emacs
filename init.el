@@ -1598,6 +1598,19 @@ can distinguish worktrees from the main checkout."
                           'magit-insert-unpushed-to-upstream-or-recent
                           'replace))
 
+(use-package magit-blame
+  :ensure magit
+  :config
+  (add-to-list
+   'magit-blame-styles
+   '(margin
+     (margin-format    . ("%C %a%f"))
+     (time-format      . "%F")
+     (margin-width     . 32)
+     (margin-face      . magit-blame-margin)
+     (margin-body-face . (magit-blame-dimmed))
+     (show-message     . t))))
+
 (use-package git-modes
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
