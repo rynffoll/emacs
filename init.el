@@ -733,52 +733,6 @@
   :hook
   (after-init-hook . shackle-mode))
 
-(use-package popper
-  :disabled
-  :general
-  ("C-`"   'popper-toggle-latest)
-  ("C-§"   'popper-toggle-latest)
-  ;; ("M-`"   'popper-cycle)
-  ;; ("M-~"   'popper-cycle-backwards)
-  ("C-M-`" 'popper-toggle-type)
-  ("C-M-§" 'popper-toggle-type)
-  :init
-  (setq popper-mode-line '(:eval (propertize " POP " 'face '(region bold))))
-  (setq popper-display-control nil) ;; for shackle
-  (setq popper-window-height 0.3)
-  (setq popper-reference-buffers
-        '("\\*Messages\\*"
-          "Output\\*$"
-          "\\*Async Shell Command\\*"
-          "\\*[Wo]Man.*\\*$"
-          ;; "\\*Warnings\\*"
-          "\\*Compile-Log\\*"
-          "\\*vc-git : .*"
-
-          help-mode
-          helpful-mode
-
-          compilation-mode
-          comint-mode
-
-          flymake-diagnostics-buffer-mode
-
-          cider-repl-mode
-          ansible-doc-module-mode))
-  :hook
-  (after-init-hook . popper-mode))
-
-(use-package popper-echo
-  :disabled
-  :ensure popper
-  :init
-  (setq popper-echo-dispatch-actions t)
-  (setq popper-echo-lines 3)
-  :hook
-  (after-init-hook . popper-echo-mode)
-  ;; (after-init-hook . popper-tab-line-mode)
-  )
-
 (use-package uniquify
   :ensure nil
   :init
