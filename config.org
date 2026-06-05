@@ -911,6 +911,7 @@ If you'd like to test a different font, evaluate the following block:
   ;; (setq mode-line-position-column-line-format '("%l:%c:" (-3 "%p")))
   (setq mode-line-position-column-line-format '("%l:%c"))
   ;; (setq mode-line-compact t) ;; breaks right-align spacing
+  (setq mode-line-modes-delimiters nil)
   )
 #+end_src
 
@@ -947,8 +948,6 @@ If you'd like to test a different font, evaluate the following block:
                   " "
                   (winum-mode modeline-x-winum)
                   " "
-                  " "
-                  modeline-x-major-mode-icon
                   (evil-mode modeline-x-evil-state-tag)
                   ;; (evil-mode modeline-x-evil-state-icon)
                   " "
@@ -962,6 +961,8 @@ If you'd like to test a different font, evaluate the following block:
                   (flymake-mode modeline-x-flymake)
                   " "
                   (vc-mode modeline-x-vc)
+                  " "
+                  modeline-x-major-mode-icon
                   " "
                   mode-line-modes))
   :config

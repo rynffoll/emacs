@@ -425,6 +425,7 @@
   ;; (setq mode-line-position-column-line-format '("%l:%c:" (-3 "%p")))
   (setq mode-line-position-column-line-format '("%l:%c"))
   ;; (setq mode-line-compact t) ;; breaks right-align spacing
+  (setq mode-line-modes-delimiters nil)
   )
 
 (use-package doom-modeline
@@ -449,8 +450,6 @@
                   " "
                   (winum-mode modeline-x-winum)
                   " "
-                  " "
-                  modeline-x-major-mode-icon
                   (evil-mode modeline-x-evil-state-tag)
                   ;; (evil-mode modeline-x-evil-state-icon)
                   " "
@@ -464,6 +463,8 @@
                   (flymake-mode modeline-x-flymake)
                   " "
                   (vc-mode modeline-x-vc)
+                  " "
+                  modeline-x-major-mode-icon
                   " "
                   mode-line-modes))
   :config
