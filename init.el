@@ -666,7 +666,26 @@
   :ensure nil
   :init
   (setq tab-line-close-button-show nil)
-  (setq tab-line-new-button-show nil))
+  (setq tab-line-new-button-show nil)
+  (setq tab-line-tab-name-function #'tab-line-tab-name-truncated-buffer)
+  (setq tab-line-tabs-buffer-group-function #'tab-line-tabs-buffer-group-by-project)
+  (setq tab-line-separator " ")
+  ;; :hook
+  ;; (after-init-hook . global-tab-line-mode)
+  )
+
+(use-package tab-line-theme
+  :ensure nil
+  :init
+  (setq tab-line-theme-height 0.9)
+  (setq tab-line-theme-tab-name-padding "")
+  :hook
+  (after-init-hook . tab-line-theme-mode))
+
+(use-package tab-line-nerd-icons
+  :if +with-icons
+  :hook
+  (after-init-hook . tab-line-nerd-icons-global-mode))
 
 (use-package window
   :ensure nil

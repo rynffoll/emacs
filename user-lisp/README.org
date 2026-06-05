@@ -8,5 +8,6 @@ Personal Emacs packages.
 - [[file:dired-side/dired-side.el][dired-side]] — Side panel with Dired
 - [[file:per-tab-group-theme/per-tab-group-theme.el][per-tab-group-theme]] — Per tab-group themes
 - [[file:tab-bar-theme/tab-bar-theme.el][tab-bar-theme]] — Tab bar theming
+- [[file:tab-line-theme/tab-line-theme.el][tab-line-theme]] — Tab line theming
 - [[file:modeline-x/modeline-x.el][modeline-x]] — Custom mode-line
 - [[file:project-x/project-x.el][project-x]] — Project extensions

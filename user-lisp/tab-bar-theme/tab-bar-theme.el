@@ -128,15 +128,15 @@ When nil, height is not set."
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-group-active-faces
-  '(tab-group-active-1 tab-group-active-2 tab-group-active-3 tab-group-active-4
-    tab-group-active-5 tab-group-active-6 tab-group-active-7 tab-group-active-8)
+  '( tab-group-active-1 tab-group-active-2 tab-group-active-3 tab-group-active-4
+     tab-group-active-5 tab-group-active-6 tab-group-active-7 tab-group-active-8)
   "Available active faces for `tab-group' coloring."
   :type '(repeat face)
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-group-inactive-faces
-  '(tab-group-inactive-1 tab-group-inactive-2 tab-group-inactive-3 tab-group-inactive-4
-    tab-group-inactive-5 tab-group-inactive-6 tab-group-inactive-7 tab-group-inactive-8)
+  '( tab-group-inactive-1 tab-group-inactive-2 tab-group-inactive-3 tab-group-inactive-4
+     tab-group-inactive-5 tab-group-inactive-6 tab-group-inactive-7 tab-group-inactive-8)
   "Available inactive faces for `tab-group' coloring."
   :type '(repeat face)
   :group 'tab-bar-theme)
@@ -226,39 +226,39 @@ When nil, height is not set."
          (fg-active   (face-attribute 'default :foreground))
          (line-width  tab-bar-theme-line-width))
     (custom-set-faces
-           `(tab-bar
-             ((t ( :inherit unspecified
-                   ,@(when tab-bar-theme-height (list :height tab-bar-theme-height))
-                   :background ,bg-inactive
-                   :foreground ,fg-inactive
-                   :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
-           `(tab-bar-tab
-             ((t ( :inherit tab-bar
-                   :background ,bg-active
-                   :foreground ,fg-active
-                   :box ,(tab-bar-theme--box-style line-width bg-active)))))
-           `(tab-bar-tab-inactive
-             ((t ( :inherit tab-bar-tab
-                   :background ,bg-inactive
-                   :foreground ,fg-inactive
-                   :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
-           `(tab-bar-tab-ungrouped
-             ((t ( :inherit tab-bar-tab-inactive
-                   :background ,bg-inactive
-                   :foreground ,fg-inactive
-                   :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
-           `(tab-bar-tab-group-inactive
-             ((t ( :inherit tab-bar-tab-inactive
-                   :background ,bg-inactive
-                   :foreground ,fg-inactive
-                   :weight bold
-                   :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
-           `(tab-bar-tab-group-current
-             ((t ( :inherit tab-bar-tab
-                   :background ,bg-inactive
-                   :foreground ,fg-active
-                   :weight bold
-                   :box ,(tab-bar-theme--box-style line-width bg-inactive))))))))
+     `(tab-bar
+       ((t ( :inherit unspecified
+             ,@(when tab-bar-theme-height (list :height tab-bar-theme-height))
+             :background ,bg-inactive
+             :foreground ,fg-inactive
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
+     `(tab-bar-tab
+       ((t ( :inherit tab-bar
+             :background ,bg-active
+             :foreground ,fg-active
+             :box ,(tab-bar-theme--box-style line-width bg-active)))))
+     `(tab-bar-tab-inactive
+       ((t ( :inherit tab-bar-tab
+             :background ,bg-inactive
+             :foreground ,fg-inactive
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
+     `(tab-bar-tab-ungrouped
+       ((t ( :inherit tab-bar-tab-inactive
+             :background ,bg-inactive
+             :foreground ,fg-inactive
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
+     `(tab-bar-tab-group-inactive
+       ((t ( :inherit tab-bar-tab-inactive
+             :background ,bg-inactive
+             :foreground ,fg-inactive
+             :weight bold
+             :box ,(tab-bar-theme--box-style line-width bg-inactive)))))
+     `(tab-bar-tab-group-current
+       ((t ( :inherit tab-bar-tab
+             :background ,bg-inactive
+             :foreground ,fg-active
+             :weight bold
+             :box ,(tab-bar-theme--box-style line-width bg-inactive))))))))
 
 (defun tab-bar-theme--apply (&optional _theme)
   "Apply `tab-bar-theme' settings."

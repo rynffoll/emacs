@@ -74,6 +74,8 @@
   - [[#tab-bar-theme][tab-bar-theme]]
   - [[#per-tab-group-theme][per-tab-group-theme]]
   - [[#tab-line][tab-line]]
+  - [[#tab-line-theme][tab-line-theme]]
+  - [[#tab-line-nerd-icons][tab-line-nerd-icons]]
 - [[#windows][Windows]]
   - [[#window][window]]
   - [[#winum][winum]]
@@ -1217,7 +1219,32 @@ If you'd like to test a different font, evaluate the following block:
   :ensure nil
   :init
   (setq tab-line-close-button-show nil)
-  (setq tab-line-new-button-show nil))
+  (setq tab-line-new-button-show nil)
+  (setq tab-line-tab-name-function #'tab-line-tab-name-truncated-buffer)
+  (setq tab-line-tabs-buffer-group-function #'tab-line-tabs-buffer-group-by-project)
+  (setq tab-line-separator " ")
+  ;; :hook
+  ;; (after-init-hook . global-tab-line-mode)
+  )
+#+end_src
+
+** tab-line-theme
+#+begin_src emacs-lisp
+(use-package tab-line-theme
+  :ensure nil
+  :init
+  (setq tab-line-theme-height 0.9)
+  (setq tab-line-theme-tab-name-padding "")
+  :hook
+  (after-init-hook . tab-line-theme-mode))
+#+end_src
+
+** tab-line-nerd-icons
+#+begin_src emacs-lisp
+(use-package tab-line-nerd-icons
+  :if +with-icons
+  :hook
+  (after-init-hook . tab-line-nerd-icons-global-mode))
 #+end_src
 
 * Windows
