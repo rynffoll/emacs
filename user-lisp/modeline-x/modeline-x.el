@@ -109,14 +109,12 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
 
 (defvar-local modeline-x-winum-icon
   '(:eval
-    (nerd-icons-mdicon
-     (format
-      (if (mode-line-window-selected-p)
-          "nf-md-numeric_%d_circle"
-        "nf-md-numeric_%d_circle_outline")
-      (winum-get-number))
-     :v-adjust 0.1
-     :face 'shadow))
+    (let* ((num      (winum-get-number))
+           (selected (mode-line-window-selected-p))
+           (icon     (if (<= 1 num 10)
+                         (if selected "nf-md-numeric_%d_circle" "nf-md-numeric_%d_circle_outline")
+                       (if selected "nf-md-record_circle" "nf-md-record_circle_outline"))))
+      (nerd-icons-mdicon (format icon num) :v-adjust 0.1 :face 'shadow)))
   "Window number icon.")
 
 
