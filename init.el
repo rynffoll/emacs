@@ -448,10 +448,11 @@
   (setq-default mode-line-format
                 '("%e"
                   " "
-                  (winum-mode modeline-x-winum)
+                  ;; (winum-mode modeline-x-winum)
+                  (winum-mode modeline-x-winum-icon)
                   " "
-                  (evil-mode modeline-x-evil-state-tag)
-                  ;; (evil-mode modeline-x-evil-state-icon)
+                  ;; (evil-mode modeline-x-evil-state-tag)
+                  (evil-mode modeline-x-evil-state-icon)
                   " "
                   modeline-x-buffer-identification
                   " "
@@ -678,7 +679,6 @@
   :init
   (setq winum-scope 'frame-local)
   (setq winum-auto-setup-mode-line nil)
-  (setq winum-format "%s")
   :hook
   (after-init-hook . winum-mode))
 

@@ -63,7 +63,9 @@
 (defvar-local modeline-x-vc
   '(:eval
     (when (mode-line-window-selected-p)
-      (format "%s%s" (nerd-icons-devicon "nf-dev-git_branch") (string-trim vc-mode))))
+      (format "%s%s"
+              (nerd-icons-devicon "nf-dev-git_branch" :v-adjust 0.1)
+              (string-trim vc-mode))))
   "VC branch segment with icon.
 The `vc-mode' string format is described in `vc-default-mode-line-string'.")
 
@@ -90,19 +92,32 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
      ;; (format-mode-line mode-line-buffer-identification)
      (format-mode-line (propertized-buffer-identification "%b"))
      'face (modeline-x--buffer-id-face)))
-  "Buffer name, colored when the buffer has unsaved changes.")
+  "Buffer name, colored when the buffer is modified.")
 
 
 (defvar-local modeline-x-major-mode-icon
-  '(:eval (nerd-icons-icon-for-buffer))
-  "Major-mode icon for use in `mode-line-format'.")
+  '(:eval
+    (if (mode-line-window-selected-p)
+        (nerd-icons-icon-for-buffer :v-adjust 0.1)
+      (nerd-icons-icon-for-buffer :v-adjust 0.1 :face 'shadow)))
+  "Major-mode icon.")
 
 
-(defvar winum-format)
-
 (defvar-local modeline-x-winum
-  '(:eval (format winum-format (winum-get-number-string)))
-  "Window number via winum, using `winum-format'.")
+  '(:eval (winum-get-number-string))
+  "Window number string.")
+
+(defvar-local modeline-x-winum-icon
+  '(:eval
+    (nerd-icons-mdicon
+     (format
+      (if (mode-line-window-selected-p)
+          "nf-md-numeric_%d_circle"
+        "nf-md-numeric_%d_circle_outline")
+      (winum-get-number))
+     :v-adjust 0.1
+     :face 'shadow))
+  "Window number icon.")
 
 
 (defun modeline-x--evil-face ()
@@ -118,14 +133,15 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
   "Return a nerd icon for the current evil state."
   (nerd-icons-mdicon
    (pcase evil-state
-     ('normal   "nf-md-alpha_n_circle")
-     ('insert   "nf-md-alpha_i_circle")
-     ('visual   "nf-md-alpha_v_circle")
-     ('replace  "nf-md-alpha_r_circle")
-     ('operator "nf-md-alpha_o_circle")
-     ('motion   "nf-md-alpha_m_circle")
-     ('emacs    "nf-md-alpha_e_circle")
-     (_         "nf-md-alpha_n_circle"))
+     ('normal   "nf-md-alpha_n_box")
+     ('insert   "nf-md-alpha_i_box")
+     ('visual   "nf-md-alpha_v_box")
+     ('replace  "nf-md-alpha_r_box")
+     ('operator "nf-md-alpha_o_box")
+     ('motion   "nf-md-alpha_m_box")
+     ('emacs    "nf-md-alpha_e_box")
+     (_         "nf-md-alpha_n_box"))
+   :v-adjust 0.1
    :face (modeline-x--evil-face)))
 
 (defvar-local modeline-x-evil-state-tag
@@ -171,6 +187,7 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
                      modeline-x-buffer-identification
                      modeline-x-major-mode-icon
                      modeline-x-winum
+                     modeline-x-winum-icon
                      modeline-x-evil-state-tag
                      modeline-x-evil-state-icon))
   (put construct 'risky-local-variable t))
