@@ -128,8 +128,11 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
      (_         "nf-md-alpha_n_circle"))
    :face (modeline-x--evil-face)))
 
-(defvar-local modeline-x-evil-state
-  '(:eval (propertize (string-trim evil-mode-line-tag) 'face (modeline-x--evil-face)))
+(defvar-local modeline-x-evil-state-tag
+  '(:eval
+    (propertize
+     (string-trim evil-mode-line-tag)
+     'face `(bold ,(modeline-x--evil-face))))
   "Evil modal state tag, colored by state.")
 
 (defvar-local modeline-x-evil-state-icon
@@ -198,7 +201,7 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
                      modeline-x-buffer-identification
                      modeline-x-major-mode-icon
                      modeline-x-winum
-                     modeline-x-evil-state
+                     modeline-x-evil-state-tag
                      modeline-x-evil-state-icon
                      modeline-x-selection-info))
   (put construct 'risky-local-variable t))

@@ -445,14 +445,14 @@
   :demand t
   :init
   (setq-default mode-line-format
-                `("%e"
+                '("%e"
                   " "
                   (winum-mode modeline-x-winum)
                   " "
-                  ;; (evil-mode modeline-x-evil-state)
-                  (evil-mode modeline-x-evil-state-icon)
                   " "
                   modeline-x-major-mode-icon
+                  (evil-mode modeline-x-evil-state-tag)
+                  ;; (evil-mode modeline-x-evil-state-icon)
                   " "
                   modeline-x-buffer-identification
                   " "
