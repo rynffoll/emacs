@@ -18,7 +18,7 @@
 ;;; Commentary:
 
 ;; Custom mode-line segments: evil state, buffer identification, VC branch,
-;; position, selection info, and misc info.
+;; position, and misc info.
 
 ;;; Code:
 
@@ -105,9 +105,9 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
   "Window number via winum, using `winum-format'.")
 
 
-(defun modeline-x--evil-face (&optional state)
-  "Return the modeline-x face for evil STATE."
-  (pcase (or state evil-state)
+(defun modeline-x--evil-face ()
+  "Return the modeline-x face for the current evil state."
+  (pcase evil-state
     ('normal  'modeline-x-evil-normal)
     ('insert  'modeline-x-evil-insert)
     ('visual  'modeline-x-evil-visual)
@@ -157,36 +157,6 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
   "Flymake counters, shown only when diagnostics are present.")
 
 
-(defvar evil-visual-beginning)
-(defvar evil-visual-end)
-(defvar evil-visual-selection)
-
-(defvar-local modeline-x-selection-info
-  '(:eval
-    (when (and (mode-line-window-selected-p)
-               (or mark-active
-                   (and (bound-and-true-p evil-local-mode)
-                        (eq evil-state 'visual))))
-      (cl-destructuring-bind (beg . end)
-          (if (and (bound-and-true-p evil-local-mode)
-                   (eq evil-state 'visual))
-              (cons evil-visual-beginning evil-visual-end)
-            (cons (region-beginning) (region-end)))
-        (let ((lines (count-lines beg (min end (point-max)))))
-          (propertize
-           (cond
-            ((and (bound-and-true-p evil-visual-selection)
-                  (eq evil-visual-selection 'line))
-             (format "%dL" lines))
-            ((> lines 1)
-             (format "%dC %dL" (- end beg) lines))
-            (t
-             (format "%dC" (- end beg))))
-           'face 'success)))))
-  "Selection info: chars/lines count for active region or evil visual state.")
-
-
-
 (defun modeline-x-reset ()
   "Reset `mode-line-format' in all buffers to the current default."
   (dolist (buf (buffer-list))
@@ -202,8 +172,7 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
                      modeline-x-major-mode-icon
                      modeline-x-winum
                      modeline-x-evil-state-tag
-                     modeline-x-evil-state-icon
-                     modeline-x-selection-info))
+                     modeline-x-evil-state-icon))
   (put construct 'risky-local-variable t))
 
 

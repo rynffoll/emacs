@@ -457,7 +457,6 @@
                   " "
                   modeline-x-position
                   " "
-                  ;; modeline-x-selection-info
                   mode-line-format-right-align
                   modeline-x-misc-info
                   (flymake-mode modeline-x-flymake)
