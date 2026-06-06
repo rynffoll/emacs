@@ -531,6 +531,7 @@
   (setq modus-themes-italic-constructs t)
   (setq modus-themes-common-palette-overrides
         '(;; (bg-region bg-cyan-intense)
+          ;; (cursor fg-main)
           (fg-region unspecified)
           (bg-prose-block-delimiter bg-inactive)
           (fg-prose-block-delimiter fg-dim)
@@ -863,7 +864,7 @@
 (use-package marginalia
   :general
   (minibuffer-local-map
-    "M-A" 'marginalia-cycle)
+   "M-A" 'marginalia-cycle)
   :hook
   (after-init-hook . marginalia-mode))
 
@@ -994,7 +995,7 @@
                 (cons #'tempel-expand completion-at-point-functions)))
   :general
   (tempel-map
-    "TAB" 'tempel-next)
+   "TAB" 'tempel-next)
   :hook
   (conf-mode-hook . tempel-setup-capf)
   (prog-mode-hook . tempel-setup-capf)
@@ -1041,8 +1042,8 @@
   :ensure nil
   :general
   (project-prefix-map
-    "m" 'magit-project-status
-    "b" 'consult-project-buffer)
+   "m" 'magit-project-status
+   "b" 'consult-project-buffer)
   :init
   (setq project-buffers-viewer 'project-list-buffers-ibuffer)
   (setq project-kill-buffers-display-buffer-list t)
@@ -1056,12 +1057,12 @@
 (use-package disproject
   :general
   (project-prefix-map
-    "." 'disproject-dispatch))
+   "." 'disproject-dispatch))
 
 (use-package projection
   :general
   (project-prefix-map
-    "P" '(:keymap projection-map :package projection-map :wk "projection"))
+   "P" '(:keymap projection-map :package projection-map :wk "projection"))
   :config
   (put 'projection-commands-configure-project 'safe-local-variable #'stringp)
   (put 'projection-commands-build-project     'safe-local-variable #'stringp)
@@ -1075,7 +1076,7 @@
 (use-package projection-multi
   :general
   (project-prefix-map
-    "RET" 'projection-multi-compile))
+   "RET" 'projection-multi-compile))
 
 (use-package projection-multi-embark
   :after embark
@@ -1433,7 +1434,7 @@
   :ensure nil
   :general
   (project-prefix-map
-    "D" 'flymake-show-project-diagnostics)
+   "D" 'flymake-show-project-diagnostics)
   :init
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-margin-indicator-position 'right-margin)
