@@ -2169,8 +2169,7 @@ Covers both working-tree faces and reference-revision faces."
   :demand t
   :after dothttp)
 
-(use-package flamegraph
-  :vc (:url "https://github.com/dgutov/emacs-flamegraph" :rev :newest))
+(use-package flamegraph)
 
 (use-package gptel
   :general

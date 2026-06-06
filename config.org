@@ -3351,8 +3351,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 ** flamegraph
 #+begin_src emacs-lisp
-(use-package flamegraph
-  :vc (:url "https://github.com/dgutov/emacs-flamegraph" :rev :newest))
+(use-package flamegraph)
 #+end_src
 
 * LLM
