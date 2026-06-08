@@ -2190,6 +2190,19 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (magit-mode-hook . gptel-magit-install))
 
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :general
+  (project-prefix-map
+   "a" 'claude-code-ide-menu)
+  :init
+  (setq claude-code-ide-terminal-backend 'ghostel)
+  (setq claude-code-ide-use-side-window nil)
+  (setq claude-code-ide-show-claude-window-in-ediff nil)
+  ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names)
+  :config
+  (claude-code-ide-emacs-tools-setup))
+
 (use-package copilot
   :general
   (copilot-completion-map

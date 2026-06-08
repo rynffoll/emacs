@@ -243,6 +243,7 @@
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-magit][gptel-magit]]
+  - [[#claude-code-ide][claude-code-ide]]
   - [[#copilot][copilot]]
 - [[#utils][Utils]]
 
@@ -3387,14 +3388,15 @@ machine api.openai.com login apikey password TOKEN
   (magit-mode-hook . gptel-magit-install))
 #+end_src
 
-** COMMENT claude-code-ide
+** claude-code-ide
 #+begin_src emacs-lisp
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
   :general
   (project-prefix-map
-   "C" 'claude-code-ide-menu)
+   "a" 'claude-code-ide-menu)
   :init
+  (setq claude-code-ide-terminal-backend 'ghostel)
   (setq claude-code-ide-use-side-window nil)
   (setq claude-code-ide-show-claude-window-in-ediff nil)
   ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names)
