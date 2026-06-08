@@ -147,7 +147,11 @@
   ;; add diff-hl hunk navigation to unimpaired
   (evil-collection-define-key 'normal 'evil-collection-unimpaired-mode-map
     "[d" 'diff-hl-previous-hunk
-    "]d" 'diff-hl-next-hunk))
+    "]d" 'diff-hl-next-hunk)
+  ;; add tab-bar navigation to unimpaired
+  (evil-collection-define-key 'normal 'evil-collection-unimpaired-mode-map
+    (kbd "[ TAB") 'tab-previous
+    (kbd "] TAB") 'tab-next))
 
 (use-package evil-commentary
   :if +with-evil
