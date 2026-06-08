@@ -1670,10 +1670,6 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package git-link)
 
-(use-package consult-git-log-grep
-  :init
-  (setq consult-git-log-grep-open-function #'magit-show-commit))
-
 (use-package difftastic
   :hook
   (after-init-hook . difftastic-bindings-mode))

@@ -189,7 +189,6 @@
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
   - [[#git-link][git-link]]
-  - [[#consult-git-log-grep][consult-git-log-grep]]
   - [[#difftastic][difftastic]]
   - [[#git-timemachine][git-timemachine]]
 - [[#org][Org]]
@@ -2645,13 +2644,6 @@ Covers both working-tree faces and reference-revision faces."
 ** git-link
 #+begin_src emacs-lisp
 (use-package git-link)
-#+end_src
-
-** consult-git-log-grep
-#+begin_src emacs-lisp
-(use-package consult-git-log-grep
-  :init
-  (setq consult-git-log-grep-open-function #'magit-show-commit))
 #+end_src
 
 ** difftastic
