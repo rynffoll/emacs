@@ -2009,6 +2009,8 @@ Covers both working-tree faces and reference-revision faces."
   :ensure nil
   :init
   (setq go-ts-mode-indent-offset 4)
+  :config
+  (put 'go-ts-mode-build-tags 'safe-local-variable #'listp)
   :hook
   (go-ts-mode-hook . eglot-ensure))
 
