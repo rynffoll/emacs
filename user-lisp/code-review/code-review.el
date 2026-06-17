@@ -57,22 +57,17 @@
   (file-name-directory (or load-file-name buffer-file-name))
   "Directory where code-review.el and its bundled prompt.md live.")
 
-(defcustom code-review-prompt-file
-  (expand-file-name "prompt.md" code-review--dir)
-  "Markdown file whose contents `code-review-send-to-claude' sends to the agent.
-Edit this file to change the prompt, or point the variable at your own.
-Read fresh on each send, so edits take effect without reloading."
-  :type 'file)
-
-(defun code-review--prompt ()
-  "Return the agent prompt: the trimmed contents of `code-review-prompt-file'."
+(defcustom code-review-prompt
   (with-temp-buffer
-    (insert-file-contents code-review-prompt-file)
-    (string-trim (buffer-string))))
+    (insert-file-contents (expand-file-name "prompt.md" code-review--dir))
+    (string-trim (buffer-string)))
+  "Prompt `code-review-send-to-claude' sends to the agent.
+Defaults to the bundled prompt.md, read when the package loads."
+  :type 'string)
 
 (defcustom code-review-capture-template
   '("r" "Review note" entry
-    (function code-review-goto-review-file)
+    (function code-review--goto-review-file)
     "* TODO %(code-review--link)\n%(code-review--src-block)\n%?"
     :empty-lines 1
     :after-finalize code-review--after-finalize)
@@ -89,13 +84,20 @@ Set to \"rev: \" for a shorter tag, or \"\" to disable."
 
 ;;; Location helpers
 
+(defconst code-review-file-name "review.org"
+  "Base name of the per-project review file.")
+
 (defun code-review--root ()
   "Project root (or `default-directory' outside a project) — review.org's dir."
   (or (ignore-errors (project-root (project-current))) default-directory))
 
 (defun code-review-file ()
   "Path to the current project's review.org."
-  (expand-file-name "review.org" (code-review--root)))
+  (expand-file-name code-review-file-name (code-review--root)))
+
+(defun code-review--review-file-p (path)
+  "Non-nil when PATH is a review file, judged by its base name."
+  (and path (equal (file-name-nondirectory path) code-review-file-name)))
 
 
 ;;; org-capture template helpers
@@ -107,13 +109,10 @@ Set to \"rev: \" for a shorter tag, or \"\" to disable."
     ;; python-ts-mode -> python, go-mode -> go, emacs-lisp-mode -> emacs-lisp
     (replace-regexp-in-string "\\(?:-ts\\)?-mode\\'" "" (symbol-name mode))))
 
-(defun code-review--snippet ()
-  "Active region for capture, without trailing newlines."
-  (string-trim-right (or (org-capture-get :initial) "")))
-
 (defun code-review--src-block ()
-  "Return a `#+begin_src' block for the captured text, or \"\" when empty."
-  (let ((code (code-review--snippet)))
+  "Return a `#+begin_src' block for the captured text, or \"\" when empty.
+The captured text is the region `org-capture' stashed as :initial."
+  (let ((code (string-trim-right (or (org-capture-get :initial) ""))))
     (if (string-empty-p code)
         ""
       (format "#+begin_src %s\n%s\n#+end_src\n" (code-review--lang) code))))
@@ -122,6 +121,10 @@ Set to \"rev: \" for a shorter tag, or \"\" to disable."
   "Plist (:file :line :base) of the annotated spot.
 Dynamically bound by `code-review-annotate' around the capture; :base is
 review.org's directory, so the link is relative to where it is inserted.")
+
+(defun code-review--make-link (file line base)
+  "Org backlink to FILE at LINE, with FILE made relative to BASE."
+  (format "[[file:%s::%d]]" (file-relative-name file base) line))
 
 (defun code-review--relativize-link (link)
   "Rewrite the file path in LINK (\"[[file:PATH::…]]\") relative to review.org's dir."
@@ -145,7 +148,7 @@ also rewritten relative to review.org's directory."
         (line (plist-get code-review--here :line))
         (base (plist-get code-review--here :base)))
     (if (and file line base)
-        (format "[[file:%s::%d]]" (file-relative-name file base) line)
+        (code-review--make-link file line base)
       (code-review--relativize-link
        (or (and (fboundp 'org-capture-get) (org-capture-get :annotation)) "")))))
 
@@ -169,7 +172,7 @@ freshly created (or pre-existing empty) review.org wires up at once."
     (org-set-regexps-and-options)        ; activate #+TODO
     (hack-local-variables)))             ; apply the -*- save/revert hooks
 
-(defun code-review-goto-review-file ()
+(defun code-review--goto-review-file ()
   "`org-capture' target function: visit the project's review.org at its end."
   (set-buffer (org-capture-target-buffer (code-review-file)))
   (code-review--ensure-header)
@@ -178,19 +181,24 @@ freshly created (or pre-existing empty) review.org wires up at once."
 
 ;;; Commands
 
+(defun code-review--bounds ()
+  "Char bounds (BEG . END) of the active region, else of the current line."
+  (if (use-region-p)
+      (cons (region-beginning) (region-end))
+    (cons (line-beginning-position) (line-end-position))))
+
 ;;;###autoload
 (defun code-review-annotate ()
   "Leave a review note on the region, or the current line if no region.
 The selection (or line) is captured into the entry's `#+begin_src' block."
   (interactive)
-  (let* ((beg (if (use-region-p) (region-beginning) (line-beginning-position)))
-         (end (if (use-region-p) (region-end) (line-end-position)))
-         (org-capture-initial (buffer-substring-no-properties beg end))
-         (code-review--here
-          (list :file buffer-file-name
-                :line (line-number-at-pos beg)
-                :base (code-review--root))))
-    (org-capture nil "r")))
+  (pcase-let ((`(,beg . ,end) (code-review--bounds)))
+    (let ((org-capture-initial (buffer-substring-no-properties beg end))
+          (code-review--here
+           (list :file buffer-file-name
+                 :line (line-number-at-pos beg)
+                 :base (code-review--root))))
+      (org-capture nil "r"))))
 
 ;;;###autoload
 (defun code-review-list ()
@@ -208,7 +216,7 @@ The selection (or line) is captured into the entry's `#+begin_src' block."
       (user-error "No review.org yet — annotate first (`code-review-annotate')"))
     (when-let* ((buf (find-buffer-visiting file)))
       (with-current-buffer buf (when (buffer-modified-p) (save-buffer))))
-    (claude-code-ide-send-prompt (code-review--prompt))
+    (claude-code-ide-send-prompt code-review-prompt)
     ;; reveal the Claude window if it is hidden (a visible one is left alone)
     (let ((cc (and (fboundp 'claude-code-ide--get-buffer-name)
                    (get-buffer (claude-code-ide--get-buffer-name)))))
@@ -280,8 +288,8 @@ Replaces this backend's diagnostics (the :region covers the whole buffer)."
   (when (buffer-live-p buffer)
     (with-current-buffer buffer
       (when code-review--report-fn
-        (let (diags (file buffer-file-name))
-          (when (and file (not (equal (file-name-nondirectory file) "review.org")))
+        (let ((file buffer-file-name) diags)
+          (when (and file (not (code-review--review-file-p file)))
             (save-excursion
               (dolist (a (code-review-annotations file))
                 (unless (equal (nth 1 a) "DONE")          ; ignore DONE
@@ -321,8 +329,7 @@ not on buffer edits."
 (defun code-review--after-review-change ()
   "On save/revert of a review.org, push notes to that project's buffers.
 For `after-save-hook' and `after-revert-hook'."
-  (when (and buffer-file-name
-             (equal (file-name-nondirectory buffer-file-name) "review.org"))
+  (when (code-review--review-file-p buffer-file-name)
     (code-review--propagate (file-name-directory buffer-file-name))))
 
 ;;;###autoload
@@ -331,15 +338,16 @@ For `after-save-hook' and `after-revert-hook'."
 Matches an entry whose recorded line falls within the selection (or the
 current line).  Errors when there is no note there."
   (interactive)
-  (let* ((file buffer-file-name)
-         (lo (line-number-at-pos (if (use-region-p) (region-beginning) (point))))
-         (hi (line-number-at-pos (if (use-region-p) (region-end) (point))))
-         (match (seq-find (lambda (a) (<= lo (nth 0 a) hi))
-                          (and file (code-review-annotations file)))))
+  (pcase-let* ((`(,beg . ,end) (code-review--bounds))
+               (file buffer-file-name)
+               (lo (line-number-at-pos beg))
+               (hi (line-number-at-pos end))
+               (match (seq-find (lambda (a) (<= lo (nth 0 a) hi))
+                                (and file (code-review-annotations file)))))
     (unless match (user-error "No review note on these lines"))
     (let* ((review (code-review-file))
-           (rel  (file-relative-name file (file-name-directory review)))
-           (link (format "[[file:%s::%d]]" rel (nth 0 match))))
+           (link (code-review--make-link file (nth 0 match)
+                                         (file-name-directory review))))
       (find-file review)
       (goto-char (point-min))
       (unless (search-forward link nil t)
