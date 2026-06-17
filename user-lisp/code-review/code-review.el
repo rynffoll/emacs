@@ -31,6 +31,7 @@
 (require 'project)
 (require 'subr-x)
 (require 'seq)
+(require 'rx)
 
 (declare-function org-capture "org-capture" (&optional goto keys))
 (declare-function org-capture-get "org-capture" (prop &optional local))
@@ -107,7 +108,7 @@ Set to \"rev: \" for a shorter tag, or \"\" to disable."
   (let* ((buf  (and (fboundp 'org-capture-get) (org-capture-get :original-buffer)))
          (mode (if (buffer-live-p buf) (buffer-local-value 'major-mode buf) major-mode)))
     ;; python-ts-mode -> python, go-mode -> go, emacs-lisp-mode -> emacs-lisp
-    (replace-regexp-in-string "\\(?:-ts\\)?-mode\\'" "" (symbol-name mode))))
+    (replace-regexp-in-string (rx (? "-ts") "-mode" eos) "" (symbol-name mode))))
 
 (defun code-review--src-block ()
   "Return a `#+begin_src' block for the captured text, or \"\" when empty.
@@ -129,7 +130,7 @@ review.org's directory, so the link is relative to where it is inserted.")
 (defun code-review--relativize-link (link)
   "Rewrite the file path in LINK (\"[[file:PATH::…]]\") relative to review.org's dir."
   (let ((base (file-name-directory (code-review-file))))
-    (if (string-match "\\[\\[file:\\(.+?\\)\\(::\\|\\]\\)" link)
+    (if (string-match (rx "[[file:" (group (+? nonl)) (group (or "::" "]"))) link)
         ;; capture match positions BEFORE expand/relative clobber the match data
         (let ((start (match-beginning 1))
               (raw   (match-string 1 link))
@@ -250,7 +251,7 @@ TABLE maps a target file's truename to a list of (LINE STATUS NOTE).")
                    (search (and link (org-element-property :search-option link))))
               (when (and link
                          (equal (org-element-property :type link) "file")
-                         search (string-match-p "\\`[0-9]+\\'" search))
+                         search (string-match-p (rx bos (+ (any "0-9")) eos) search))
                 (let ((key  (file-truename
                              (expand-file-name (org-element-property :path link) base)))
                       (body (org-element-map hl 'paragraph
