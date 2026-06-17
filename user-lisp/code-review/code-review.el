@@ -1,30 +1,26 @@
 ;;; code-review.el --- Annotate code into review.org and feed it to an agent  -*- lexical-binding: t; -*-
 
-;; Author: Ruslan Kamashev
-;; Keywords: convenience, tools
-;; Package-Requires: ((emacs "30.1"))
+;; Copyright (C) 2026  Ruslan Kamashev
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; Lightweight, agent-oriented code review.
 ;;
-;; `code-review-annotate' captures the region (or current line) into a per-project review.org
-;; as a `* TODO' entry: the headline is a `[[file:relpath::LINE]]' backlink,
-;; the body holds the note, and the snippet goes into a `#+begin_src' block.
-;;
-;; `code-review-send-to-claude' points claude-code-ide at review.org so the
-;; agent applies each TODO and flips it to DONE.  Open (TODO) notes are
-;; surfaced in code buffers as flymake `:note' diagnostics via the global
-;; backend `code-review-flymake' (rendered by whatever flymake UI is in use,
-;; e.g. sideline + fringe).
-;;
-;; The backend is eglot-style: it stashes Flymake's `report-fn' and pushes
-;; diagnostics built from review.org (parsed once per change and cached),
-;; instead of checking the buffer text.  When review.org changes (capture,
-;; manual edit, agent) the notes are re-pushed to the affected buffers via
-;; the stashed callback -- no `flymake-start', so other backends aren't re-run.
-;;
-;; Status model is plain Org: review.org carries `#+TODO: TODO(t) | DONE(d)'.
+;; Annotate code with review notes, see them inline as you work, and hand
+;; them to an AI agent that applies the fixes.
 
 ;;; Code:
 
@@ -165,9 +161,9 @@ The hook values must be whitelisted in `safe-local-variable-values'."
   :type 'string)
 
 (defun code-review--ensure-header ()
-  "Insert `code-review-file-header' into the current buffer when it is empty,
-then activate its `#+TODO:' keywords and apply the `-*-' hook cookie, so a
-freshly created (or pre-existing empty) review.org wires up at once."
+  "Set up review.org's header when the current buffer is empty.
+Insert `code-review-file-header', activate its `#+TODO:' keywords, and apply
+the `-*-' hook cookie, so a freshly created (or empty) review.org wires up."
   (when (= (point-min) (point-max))
     (insert code-review-file-header)
     (org-set-regexps-and-options)        ; activate #+TODO
@@ -210,7 +206,7 @@ The selection (or line) is captured into the entry's `#+begin_src' block."
 
 ;;;###autoload
 (defun code-review-send-to-claude ()
-  "Point claude-code-ide at review.org; reveal its window if hidden."
+  "Point `claude-code-ide' at review.org; reveal its window if hidden."
   (interactive)
   (let ((file (code-review-file)))
     (unless (file-exists-p file)
