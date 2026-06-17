@@ -240,6 +240,7 @@
   - [[#keycast][keycast]]
   - [[#dothttp][dothttp]]
   - [[#flamegraph][flamegraph]]
+  - [[#code-review][code-review]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-magit][gptel-magit]]
@@ -3354,6 +3355,29 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 ** flamegraph
 #+begin_src emacs-lisp
 (use-package flamegraph)
+#+end_src
+
+** code-review
+#+begin_src emacs-lisp
+(use-package code-review
+  :ensure nil
+  :demand t
+  :general
+  (+leader-def
+    "r"  '(:ignore t :wk "review")
+    "ra" 'code-review-annotate
+    "re" 'code-review-edit
+    "rl" 'code-review-list
+    "rc" 'code-review-send-to-claude)
+  :config
+  (with-eval-after-load 'org-capture
+    (add-to-list 'org-capture-templates code-review-capture-template t))
+  (add-hook 'flymake-diagnostic-functions #'code-review-flymake)
+  ;; review.org wires its own save/revert hooks via a -*- cookie; whitelist them
+  (add-to-list 'safe-local-variable-values
+               '(after-save-hook . code-review--after-review-change))
+  (add-to-list 'safe-local-variable-values
+               '(after-revert-hook . code-review--after-review-change)))
 #+end_src
 
 * LLM

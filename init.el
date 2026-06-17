@@ -2173,6 +2173,26 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package flamegraph)
 
+(use-package code-review
+  :ensure nil
+  :demand t
+  :general
+  (+leader-def
+    "r"  '(:ignore t :wk "review")
+    "ra" 'code-review-annotate
+    "re" 'code-review-edit
+    "rl" 'code-review-list
+    "rc" 'code-review-send-to-claude)
+  :config
+  (with-eval-after-load 'org-capture
+    (add-to-list 'org-capture-templates code-review-capture-template t))
+  (add-hook 'flymake-diagnostic-functions #'code-review-flymake)
+  ;; review.org wires its own save/revert hooks via a -*- cookie; whitelist them
+  (add-to-list 'safe-local-variable-values
+               '(after-save-hook . code-review--after-review-change))
+  (add-to-list 'safe-local-variable-values
+               '(after-revert-hook . code-review--after-review-change)))
+
 (use-package gptel
   :general
   (+local-leader-def :keymaps 'gptel-mode-map

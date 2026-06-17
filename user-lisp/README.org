@@ -11,3 +11,4 @@ Personal Emacs packages.
 - [[file:tab-line-theme/tab-line-theme.el][tab-line-theme]] — Tab line theming
 - [[file:modeline-x/modeline-x.el][modeline-x]] — Custom mode-line
 - [[file:project-x/project-x.el][project-x]] — Project extensions
+- [[file:code-review/code-review.el][code-review]] — Annotate code into review.org for an AI agent
