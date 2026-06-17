@@ -1,4 +1,4 @@
-`review.org` is a code review.
+@review.org is a code review.
 
 Format:
 ```org
