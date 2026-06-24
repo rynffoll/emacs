@@ -234,8 +234,7 @@
     "bi"  'ibuffer
 
     "c"   '(:ignore t :wk "code")
-    "cr"  'quickrun
-    "cf"  'apheleia-format-buffer
+    "c="  'apheleia-format-buffer
 
     "e"   '(:ignore t :wk "emacs")
     "ed"  'iqa-find-user-init-directory
@@ -1460,8 +1459,6 @@
 (use-package eros
   :hook
   (emacs-lisp-mode-hook . eros-mode))
-
-(use-package quickrun)
 
 (use-package apheleia
   :hook

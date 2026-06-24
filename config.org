@@ -173,7 +173,6 @@
   - [[#sideline-flymake][sideline-flymake]]
 - [[#eval][Eval]]
   - [[#eros][eros]]
-  - [[#quickrun][quickrun]]
 - [[#format][Format]]
   - [[#apheleia][apheleia]]
 - [[#goto][Goto]]
@@ -690,8 +689,7 @@ If you'd like to test a different font, evaluate the following block:
     "bi"  'ibuffer
 
     "c"   '(:ignore t :wk "code")
-    "cr"  'quickrun
-    "cf"  'apheleia-format-buffer
+    "c="  'apheleia-format-buffer
 
     "e"   '(:ignore t :wk "emacs")
     "ed"  'iqa-find-user-init-directory
@@ -2380,11 +2378,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 (use-package eros
   :hook
   (emacs-lisp-mode-hook . eros-mode))
-#+end_src
-
-** quickrun
-#+begin_src emacs-lisp
-(use-package quickrun)
 #+end_src
 
 * Format
