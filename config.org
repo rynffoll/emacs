@@ -2997,7 +2997,8 @@ Upgrade eglot to the latest version
 (use-package treesit
   :ensure nil
   :init
-  (setq treesit-font-lock-level 4))
+  (setq treesit-font-lock-level 4)
+  (setq treesit-enabled-modes t))
 #+end_src
 
 ** elisp

@@ -1935,7 +1935,8 @@ Covers both working-tree faces and reference-revision faces."
 (use-package treesit
   :ensure nil
   :init
-  (setq treesit-font-lock-level 4))
+  (setq treesit-font-lock-level 4)
+  (setq treesit-enabled-modes t))
 
 (use-package elisp-mode
   :ensure nil
