@@ -129,7 +129,6 @@
   - [[#dired-subtree][dired-subtree]]
   - [[#diredfl][diredfl]]
   - [[#nerd-icons-dired][nerd-icons-dired]]
-  - [[#nerd-icons-multimodal][nerd-icons-multimodal]]
   - [[#dired-git-info][dired-git-info]]
   - [[#dired-side][dired-side]]
 - [[#environment-variables][Environment Variables]]
@@ -1908,18 +1907,6 @@ If you'd like to test a different font, evaluate the following block:
   :hook
   (dired-mode-hook . nerd-icons-dired-mode)
   (dired-subtree-after-insert-hook . nerd-icons-dired--refresh))
-#+end_src
-
-** nerd-icons-multimodal
-#+begin_src emacs-lisp
-(use-package nerd-icons-multimodal
-  :disabled ;; conflicts with dired-sidebar
-  :if +with-icons
-  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal" :rev :newest)
-  :hook
-  (dired-mode-hook   . nerd-icons-multimodal-mode)
-  (archive-mode-hook . nerd-icons-multimodal-mode)
-  (tar-mode-hook     . nerd-icons-multimodal-mode))
 #+end_src
 
 ** dired-git-info

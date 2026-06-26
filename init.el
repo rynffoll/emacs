@@ -1186,15 +1186,6 @@
   (dired-mode-hook . nerd-icons-dired-mode)
   (dired-subtree-after-insert-hook . nerd-icons-dired--refresh))
 
-(use-package nerd-icons-multimodal
-  :disabled ;; conflicts with dired-sidebar
-  :if +with-icons
-  :vc (:url "https://github.com/abougouffa/nerd-icons-multimodal" :rev :newest)
-  :hook
-  (dired-mode-hook   . nerd-icons-multimodal-mode)
-  (archive-mode-hook . nerd-icons-multimodal-mode)
-  (tar-mode-hook     . nerd-icons-multimodal-mode))
-
 (use-package dired-git-info
   :general
   ( :keymaps 'dired-mode-map :states 'normal
