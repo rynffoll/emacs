@@ -1516,6 +1516,8 @@
   (after-init-hook . ghostel-comint-global-mode))
 
 (use-package evil-ghostel
+  :init
+  (setq evil-ghostel-escape 'evil)
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 
