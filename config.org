@@ -3415,16 +3415,6 @@ machine api.openai.com login apikey password TOKEN
   (claude-code-ide-emacs-tools-setup))
 #+end_src
 
-** COMMENT agent-shell
-#+begin_src emacs-lisp
-(use-package agent-shell
-  :general
-  (+local-leader-def :keymaps 'agent-shell-mode-map
-    "." 'agent-shell-help-menu)
-  (project-prefix-map
-   "a" 'agent-shell))
-#+end_src
-
 ** copilot
 #+begin_src emacs-lisp
 (use-package copilot
