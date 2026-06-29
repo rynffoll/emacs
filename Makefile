@@ -12,7 +12,7 @@ config:
 
 .PHONY: test
 test:
-	emacs --batch -l init.el -eval '(message "Config loaded successfully")'
+	emacs --batch --eval '(prepare-user-lisp t)' -l init.el -eval '(message "Config loaded successfully")'
 
 .PHONY: check
 check: config test
