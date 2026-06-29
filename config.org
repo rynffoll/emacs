@@ -239,6 +239,7 @@
   - [[#dothttp][dothttp]]
   - [[#flamegraph][flamegraph]]
   - [[#code-review][code-review]]
+  - [[#rebased][rebased]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-magit][gptel-magit]]
@@ -748,6 +749,7 @@ If you'd like to test a different font, evaluate the following block:
     "oc"  'customize-group
     "ol"  'link-hint-open-link
     "ot"  'ghostel
+    "or"  '+rebased
     "oa"  'org-agenda
     "ox"  'org-capture
 
@@ -3364,6 +3366,19 @@ go install github.com/go-delve/delve/cmd/dlv@latest
                '(after-save-hook . code-review--after-review-change))
   (add-to-list 'safe-local-variable-values
                '(after-revert-hook . code-review--after-review-change)))
+#+end_src
+
+** rebased
+#+begin_src emacs-lisp
+(defun +rebased ()
+  "Open the current project root in the Rebased Git client."
+  (interactive)
+  (let ((root (expand-file-name
+               (if-let* ((proj (project-current)))
+                   (project-root proj)
+                 default-directory))))
+    (start-process "rebased" nil "open" "-na" "Rebased" "--args" root)
+    (message "Opening Rebased in %s…" root)))
 #+end_src
 
 * LLM

@@ -294,6 +294,7 @@
     "oc"  'customize-group
     "ol"  'link-hint-open-link
     "ot"  'ghostel
+    "or"  '+rebased
     "oa"  'org-agenda
     "ox"  'org-capture
 
@@ -2186,6 +2187,16 @@ Covers both working-tree faces and reference-revision faces."
                '(after-save-hook . code-review--after-review-change))
   (add-to-list 'safe-local-variable-values
                '(after-revert-hook . code-review--after-review-change)))
+
+(defun +rebased ()
+  "Open the current project root in the Rebased Git client."
+  (interactive)
+  (let ((root (expand-file-name
+               (if-let* ((proj (project-current)))
+                   (project-root proj)
+                 default-directory))))
+    (start-process "rebased" nil "open" "-na" "Rebased" "--args" root)
+    (message "Opening Rebased in %s…" root)))
 
 (use-package gptel
   :general
