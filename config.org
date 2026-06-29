@@ -3360,6 +3360,14 @@ go install github.com/go-delve/delve/cmd/dlv@latest
     "rl" 'code-review-list
     "rc" 'code-review-send-to-claude)
   :config
+  (with-eval-after-load 'claude-code-ide-transient
+    (transient-define-prefix +code-review-menu ()
+      "Code review menu."
+      ["Code Review"
+       ("c" "Send to Claude" code-review-send-to-claude)
+       ("o" "Open review.org" code-review-list)])
+    (transient-append-suffix 'claude-code-ide-menu 'claude-code-ide-debug-menu
+      '("R" "Code Review" +code-review-menu)))
   (with-eval-after-load 'org-capture
     (add-to-list 'org-capture-templates code-review-capture-template t))
   (add-hook 'flymake-diagnostic-functions #'code-review-flymake)
