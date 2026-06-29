@@ -938,9 +938,9 @@ If you'd like to test a different font, evaluate the following block:
 
 ** modeline-x
 #+begin_example
-┌───────┬──────┬────────┬─────┬─────────────────────┬──────┬─────────┬────┬──────┬───────┐
-│ winum │ evil │ buffer │ pos │          →          │ misc │ flymake │ vc │ icon │ modes │
-└───────┴──────┴────────┴─────┴─────────────────────┴──────┴─────────┴────┴──────┴───────┘
+┌───────┬──────┬────────┬─────┬───────────────┬───────┬──────┬─────────┬────┬──────┬───────┐
+│ winum │ evil │ buffer │ pos │       →       │ debug │ misc │ flymake │ vc │ icon │ modes │
+└───────┴──────┴────────┴─────┴───────────────┴───────┴──────┴─────────┴────┴──────┴───────┘
 #+end_example
 
 #+begin_src emacs-lisp
@@ -962,6 +962,8 @@ If you'd like to test a different font, evaluate the following block:
                   modeline-x-position
                   " "
                   mode-line-format-right-align
+                  modeline-x-debug
+                  " "
                   modeline-x-misc-info
                   (flymake-mode modeline-x-flymake)
                   " "

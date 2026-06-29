@@ -25,6 +25,7 @@
 (declare-function nerd-icons-icon-for-buffer "nerd-icons" ())
 (declare-function nerd-icons-devicon "nerd-icons" (icon &rest args))
 (declare-function nerd-icons-mdicon "nerd-icons" (icon &rest args))
+(declare-function nerd-icons-codicon "nerd-icons" (icon &rest args))
 (defvar evil-state)
 (defvar evil-mode-line-tag)
 
@@ -171,6 +172,27 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
   "Flymake counters, shown only when diagnostics are present.")
 
 
+(defun modeline-x--debug-icon (face help toggle)
+  "Return a clickable debug icon with FACE and HELP echo.
+Clicking it with mouse-1 runs the TOGGLE command."
+  (propertize
+   (nerd-icons-codicon "nf-cod-debug" :v-adjust 0.1 :face face)
+   'help-echo (format "%s\nmouse-1: toggle" help)
+   'mouse-face 'mode-line-highlight
+   'local-map (make-mode-line-mouse-map 'mouse-1 toggle)))
+
+(defvar-local modeline-x-debug
+  '(:eval
+    (when (mode-line-window-selected-p)
+      (concat
+       (when debug-on-error
+         (modeline-x--debug-icon 'error "Debug on error" #'toggle-debug-on-error))
+       (when debug-on-quit
+         (modeline-x--debug-icon 'warning "Debug on quit" #'toggle-debug-on-quit)))))
+  "Debugger indicator; click an icon to toggle the matching flag.
+Shows `debug-on-error' and `debug-on-quit' when enabled.")
+
+
 (defun modeline-x-reset ()
   "Reset `mode-line-format' in all buffers to the current default."
   (dolist (buf (buffer-list))
@@ -179,6 +201,7 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
 
 
 (dolist (construct '(modeline-x-flymake
+                     modeline-x-debug
                      modeline-x-misc-info
                      modeline-x-vc
                      modeline-x-position

@@ -463,6 +463,8 @@
                   modeline-x-position
                   " "
                   mode-line-format-right-align
+                  modeline-x-debug
+                  " "
                   modeline-x-misc-info
                   (flymake-mode modeline-x-flymake)
                   " "
