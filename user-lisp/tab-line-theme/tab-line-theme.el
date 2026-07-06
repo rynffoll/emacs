@@ -61,12 +61,16 @@ When nil, height is not set."
   "Return box style for LINE-WIDTH and COLOR."
   (when (and (display-graphic-p)
              (> line-width 0))
-    `(:line-width ,line-width :style nil :color ,color)))
+    ;; `unspecified' is not a valid box color and would poison the face
+    ;; spec saved by `custom-set-faces'; omit :color instead (the box
+    ;; then uses the face's foreground).
+    `(:line-width ,line-width :style nil
+      ,@(when (stringp color) (list :color color)))))
 
 (defun tab-line-theme--setup-base-faces ()
   "Apply base `tab-line' faces."
-  (let* ((bg-inactive (face-attribute 'mode-line-inactive :background))
-         (fg-inactive (face-attribute 'mode-line-inactive :foreground))
+  (let* ((bg-inactive (face-attribute 'mode-line-inactive :background nil 'default))
+         (fg-inactive (face-attribute 'mode-line-inactive :foreground nil 'default))
          (bg-active   (face-attribute 'default :background))
          (fg-active   (face-attribute 'default :foreground))
          (line-width  tab-line-theme-line-width))
