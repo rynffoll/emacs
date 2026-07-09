@@ -1786,14 +1786,6 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 ** project-x
-#+begin_example
-|------------|---------------|
-|            |               |
-| dired-side | magit-status* |
-|            |               |
-|------------|---------------|
-#+end_example
-
 #+begin_src emacs-lisp
 (use-package project-x
   :ensure nil
@@ -1802,7 +1794,9 @@ If you'd like to test a different font, evaluate the following block:
   (project-prefix-map
    "l" #'project-x-open-layout)
   :init
-  (setq project-x-layout '(dired-side-toggle magit-project-status))
+  (setq project-x-layouts
+        '(("Dired + Magit"  . (dired-side-toggle magit-project-status))
+          ("Magit + Claude" . (magit-project-status claude-code-ide))))
   :config
   (add-to-list 'project-switch-commands '(project-x-open-layout "Layout") t))
 #+end_src

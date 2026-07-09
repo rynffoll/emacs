@@ -1098,7 +1098,9 @@
   (project-prefix-map
    "l" #'project-x-open-layout)
   :init
-  (setq project-x-layout '(dired-side-toggle magit-project-status))
+  (setq project-x-layouts
+        '(("Dired + Magit"  . (dired-side-toggle magit-project-status))
+          ("Magit + Claude" . (magit-project-status claude-code-ide))))
   :config
   (add-to-list 'project-switch-commands '(project-x-open-layout "Layout") t))
 
