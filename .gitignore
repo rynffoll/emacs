@@ -1,12 +1,17 @@
 /.cache/
 /auto-save-list/
 /bookmarks
+/bookmarks.eld
+/network-security
+/network-security.eld
 /elpa/
 /elpa*/
 /eshell/
 /history
 /places
+/places.eld
 /recentf
+/recentf.eld
 /request/
 /tramp
 /transient/
@@ -17,6 +22,7 @@
 /eln-cache/
 /tree-sitter/
 /projects
+/projects.eld
 /site-lisp/default.el
 /.persistent-scratch
 /persistent-scratch/
