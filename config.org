@@ -3422,10 +3422,21 @@ machine api.openai.com login apikey password TOKEN
 #+begin_src emacs-lisp
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :preface
+  (defun +claude-code-ide-project-buffer-name (directory)
+    "Name the Claude Code buffer for DIRECTORY after its `project.el' name.
+Unlike the default (directory basename), this respects `project-vc-name'
+set in .dir-locals.el, so worktree sessions get distinct names like
+\"*claude-code[project[worktree]]*\"."
+    (format "*claude-code[%s]*"
+            (if-let* ((project (project-current nil directory)))
+                (project-name project)
+              (file-name-nondirectory (directory-file-name directory)))))
   :general
   (project-prefix-map
    "a" 'claude-code-ide-menu)
   :init
+  (setq claude-code-ide-buffer-name-function #'+claude-code-ide-project-buffer-name)
   (setq claude-code-ide-terminal-backend 'ghostel)
   (setq claude-code-ide-use-side-window nil)
   (setq claude-code-ide-show-claude-window-in-ediff nil)
