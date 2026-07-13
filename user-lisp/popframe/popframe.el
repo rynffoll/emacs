@@ -46,7 +46,7 @@
   "Buffer shown by `popframe-toggle'.
 A buffer, a buffer name, or a function returning one.  A function is
 called inside `save-window-excursion'."
-  :type '(choice (const :tag "None" nil) function string buffer))
+  :type '(choice (const :tag "None" nil) function string))
 
 (defcustom popframe-width-ratio 0.7
   "Child frame width as a fraction of the parent frame width."
@@ -69,14 +69,20 @@ is called inside `save-window-excursion'."
        (save-window-excursion (funcall spec))
      spec)))
 
+(defun popframe--frame (buffer)
+  "Return the child frame BUFFER is displayed in, or nil.
+Reads posframe's buffer-local `posframe--frame': posframe exposes no
+public accessor, so this is the de-facto seam its own code uses too."
+  (buffer-local-value 'posframe--frame buffer))
+
 (defun popframe--visible-p (buffer)
   "Non-nil when BUFFER's child frame is live and visible."
-  (when-let* ((frame (buffer-local-value 'posframe--frame buffer)))
+  (when-let* ((frame (popframe--frame buffer)))
     (and (frame-live-p frame) (frame-visible-p frame))))
 
 (defun popframe--hide (buffer)
   "Hide BUFFER's child frame and return focus to its parent frame."
-  (let* ((frame  (buffer-local-value 'posframe--frame buffer))
+  (let* ((frame  (popframe--frame buffer))
          (parent (and (frame-live-p frame)
                       (frame-parameter frame 'parent-frame))))
     (posframe-hide buffer)
@@ -94,9 +100,11 @@ is called inside `save-window-excursion'."
                  :internal-border-width 3
                  :internal-border-color (face-background 'region nil t)
                  :respect-mode-line t
+                 :respect-header-line t
                  :accept-focus t
-                 :cursor t)
-  (select-frame-set-input-focus (buffer-local-value 'posframe--frame buffer)))
+                 :cursor t
+                 :window-point (with-current-buffer buffer (point)))
+  (select-frame-set-input-focus (popframe--frame buffer)))
 
 
 ;;;###autoload
