@@ -84,6 +84,9 @@
   - [[#winum][winum]]
   - [[#zoom][zoom]]
   - [[#shackle][shackle]]
+- [[#childframe][Childframe]]
+  - [[#posframe][posframe]]
+  - [[#popframe][popframe]]
 - [[#buffers][Buffers]]
   - [[#uniquify][uniquify]]
   - [[#buff-menu][buff-menu]]
@@ -1328,6 +1331,23 @@ If you'd like to test a different font, evaluate the following block:
           (ghostel-compile-view-mode :align below)))
   :hook
   (after-init-hook . shackle-mode))
+#+end_src
+
+* Childframe
+** posframe
+#+begin_src emacs-lisp
+(use-package posframe)
+#+end_src
+
+** popframe
+#+begin_src emacs-lisp
+(use-package popframe
+  :ensure nil
+  :demand t
+  :general
+  ("C-`" 'popframe-toggle)
+  :init
+  (setq popframe-buffer-function #'ghostel-project))
 #+end_src
 
 * Buffers

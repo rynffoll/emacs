@@ -750,6 +750,16 @@
   :hook
   (after-init-hook . shackle-mode))
 
+(use-package posframe)
+
+(use-package popframe
+  :ensure nil
+  :demand t
+  :general
+  ("C-`" 'popframe-toggle)
+  :init
+  (setq popframe-buffer-function #'ghostel-project))
+
 (use-package uniquify
   :ensure nil
   :init
