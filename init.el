@@ -376,6 +376,10 @@
   :hook
   (window-configuration-change-hook . +update-window-divider))
 
+(use-package kkp
+  :hook
+  (tty-setup-hook . global-kkp-mode))
+
 (use-package system-taskbar
   :ensure nil
   :hook

@@ -47,6 +47,9 @@
   - [[#char-fold][char-fold]]
   - [[#reverse-im][reverse-im]]
 - [[#tty][TTY]]
+  - [[#xt-mouse][xt-mouse]]
+  - [[#disp-table][disp-table]]
+  - [[#kkp][kkp]]
 - [[#ui-1][UI]]
   - [[#taskbar][taskbar]]
   - [[#scroll][scroll]]
@@ -819,6 +822,7 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * TTY
+** xt-mouse
 #+begin_src emacs-lisp
 (use-package xt-mouse
   :unless (display-graphic-p)
@@ -827,6 +831,7 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . xterm-mouse-mode))
 #+end_src
 
+** disp-table
 #+begin_src emacs-lisp
 (use-package disp-table
   :unless (display-graphic-p)
@@ -844,6 +849,13 @@ If you'd like to test a different font, evaluate the following block:
   (standard-display-unicode-special-glyphs)
   :hook
   (window-configuration-change-hook . +update-window-divider))
+#+end_src
+
+** kkp
+#+begin_src emacs-lisp
+(use-package kkp
+  :hook
+  (tty-setup-hook . global-kkp-mode))
 #+end_src
 
 * UI
