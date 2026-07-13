@@ -359,16 +359,22 @@
   :hook
   (after-init-hook . xterm-mouse-mode))
 
-;; Better window divider in terminal: | -> │
-;; https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/
-(unless (display-graphic-p)
-  (with-eval-after-load 'disp-table
-    (defun +update-window-divider ()
-      (let ((display-table (or buffer-display-table
-                               standard-display-table))
-            (divider (make-glyph-code ?│)))
-        (set-display-table-slot display-table 'vertical-border divider)))
-    (add-hook 'window-configuration-change-hook #'+update-window-divider)))
+(use-package disp-table
+  :unless (display-graphic-p)
+  :ensure nil
+  :demand t
+  :preface
+  ;; Better window divider in terminal: | -> │
+  ;; https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/
+  (defun +update-window-divider ()
+    (let ((display-table (or buffer-display-table
+                             standard-display-table))
+          (divider (make-glyph-code ?│)))
+      (set-display-table-slot display-table 'vertical-border divider)))
+  :config
+  (standard-display-unicode-special-glyphs)
+  :hook
+  (window-configuration-change-hook . +update-window-divider))
 
 (use-package system-taskbar
   :ensure nil
