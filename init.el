@@ -377,6 +377,7 @@
   (window-configuration-change-hook . +update-window-divider))
 
 (use-package kkp
+  :unless (display-graphic-p)
   :hook
   (tty-setup-hook . global-kkp-mode))
 
