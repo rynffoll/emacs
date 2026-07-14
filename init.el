@@ -374,6 +374,7 @@
   :config
   (standard-display-unicode-special-glyphs)
   :hook
+  (after-init-hook . prettify-special-glyphs-mode)
   (window-configuration-change-hook . +update-window-divider))
 
 (use-package kkp

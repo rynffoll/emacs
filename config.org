@@ -851,6 +851,7 @@ If you'd like to test a different font, evaluate the following block:
   :config
   (standard-display-unicode-special-glyphs)
   :hook
+  (after-init-hook . prettify-special-glyphs-mode)
   (window-configuration-change-hook . +update-window-divider))
 #+end_src
 
