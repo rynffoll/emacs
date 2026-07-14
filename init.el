@@ -1459,6 +1459,8 @@
   (setq flymake-margin-indicator-position 'right-margin)
   (setq flymake-suppress-zero-counters t)
   :hook
+  (text-mode-hook . flymake-mode)
+  (conf-mode-hook . flymake-mode)
   (prog-mode-hook . flymake-mode))
 
 (use-package sideline
@@ -2106,7 +2108,6 @@ Covers both working-tree faces and reference-revision faces."
   (setq yaml-ts-mode-yamllint-options
         '("-d" "{extends: relaxed, rules: {line-length: {max: 120}}}"))
   :hook
-  (yaml-ts-mode-hook . flymake-mode)
   (yaml-ts-mode-hook . +yaml-ts-mode-set-evil-shift-width))
 
 (use-package lua-ts-mode
