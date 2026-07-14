@@ -54,11 +54,11 @@ A buffer, a buffer name, or a function returning one.  A function is
 called inside `save-window-excursion'."
   :type '(choice (const :tag "None" nil) function string))
 
-(defcustom popframe-width-ratio 0.7
+(defcustom popframe-width-ratio 0.8
   "Child frame width as a fraction of the parent frame width."
   :type 'number)
 
-(defcustom popframe-height-ratio 0.6
+(defcustom popframe-height-ratio 0.7
   "Child frame height as a fraction of the parent frame height."
   :type 'number)
 
