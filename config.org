@@ -3551,3 +3551,8 @@ set in .dir-locals.el, so worktree sessions get distinct names like
 #+begin_src emacs-lisp
 (use-package free-keys)
 #+end_src
+
+* File Local Variables :noexport:
+# Local Variables:
+# eval: (copilot-mode)
+# End:
