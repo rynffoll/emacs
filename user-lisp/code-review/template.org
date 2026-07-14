@@ -1,0 +1,20 @@
+# -*- after-save-hook: code-review--after-review-change; after-revert-hook: code-review--after-review-change; -*-
+#+TITLE: Code review
+#+TODO: TODO(t) | DONE(d)
+
+* COMMENT Agent instructions
+This file (~review.org~) is a code review. Entries look like:
+
+#+begin_example
+,* TODO|DONE [[file:...]] (link to the file)
+  ,#+begin_src LANG
+  (code by region)
+  ,#+end_src
+
+  (comment by user)
+#+end_example
+
+To-Do:
+- Skip ~DONE~ items.
+- Fix ~TODO~ items.
+- After fixing, switch ~TODO~ -> ~DONE~.

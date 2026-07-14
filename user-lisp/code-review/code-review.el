@@ -41,9 +41,6 @@
 (declare-function org-element-map "org-element" (data types fun &optional info first-match no-recursion with-affiliated))
 (declare-function org-element-property "org-element" (property node))
 (declare-function flymake-make-diagnostic "flymake" (locus beg end type text &optional data overlay-properties))
-(declare-function claude-code-ide-send-prompt "claude-code-ide" (&optional prompt))
-(declare-function claude-code-ide-toggle "claude-code-ide" ())
-(declare-function claude-code-ide--get-buffer-name "claude-code-ide" (&optional directory))
 (defvar org-capture-initial)
 
 (defgroup code-review nil
@@ -52,15 +49,22 @@
 
 (defconst code-review--dir
   (file-name-directory (or load-file-name buffer-file-name))
-  "Directory where code-review.el and its bundled prompt.md live.")
+  "Directory where code-review.el and its bundled template.org live.")
 
-(defcustom code-review-prompt
-  (with-temp-buffer
-    (insert-file-contents (expand-file-name "prompt.md" code-review--dir))
-    (string-trim (buffer-string)))
-  "Prompt `code-review-send-to-claude' sends to the agent.
-Defaults to the bundled prompt.md, read when the package loads."
+(defcustom code-review-agent-message "@review.org"
+  "Message `code-review-send' hands to `code-review-send-function'.
+The default is a bare `@'-reference to the project's review.org (Claude
+Code opens the file, whose `* COMMENT' heading from
+`code-review-file-template' holds the instructions).  Adjust to suit your
+agent."
   :type 'string)
+
+(defcustom code-review-send-function nil
+  "Function that hands the review to an agent.
+Called by `code-review-send' with one argument, `code-review-agent-message',
+after review.org is saved.  Set it to integrate with your agent — e.g. a
+wrapper around claude-code-ide, aider, or gptel."
+  :type '(choice (const :tag "None" nil) function))
 
 (defcustom code-review-capture-template
   '("r" "Review note" entry
@@ -149,30 +153,34 @@ also rewritten relative to review.org's directory."
       (code-review--relativize-link
        (or (and (fboundp 'org-capture-get) (org-capture-get :annotation)) "")))))
 
-(defcustom code-review-file-header
-  (concat "# -*- after-save-hook: code-review--after-review-change; "
-          "after-revert-hook: code-review--after-review-change; -*-\n"
-          "#+TITLE: Code review\n"
-          "#+TODO: TODO(t) | DONE(d)\n\n")
-  "Template inserted into a freshly created review.org.
-The `-*-' cookie sets buffer-local save/revert hooks that re-push notes to
-code buffers; the `#+TODO:' line defines the workflow's status keywords.
-The hook values must be whitelisted in `safe-local-variable-values'."
+(defcustom code-review-file-template
+  (with-temp-buffer
+    (insert-file-contents (expand-file-name "template.org" code-review--dir))
+    (buffer-string))
+  "Content inserted into a freshly created review.org.
+Defaults to the bundled template.org, read when the package loads.  It
+carries the `-*-' cookie (buffer-local save/revert hooks that re-push
+notes to code buffers; whitelist them in `safe-local-variable-values'),
+the `#+TODO:' status keywords, and a `* COMMENT Agent instructions'
+heading — a real heading so it folds away, and \"COMMENT\" keeps
+`code-review--parse' (which only matches headlines with a file: link) and
+Org export from touching it.  Edit template.org before creating new
+review.org files, not after."
   :type 'string)
 
-(defun code-review--ensure-header ()
-  "Set up review.org's header when the current buffer is empty.
-Insert `code-review-file-header', activate its `#+TODO:' keywords, and apply
+(defun code-review--ensure-template ()
+  "Set up review.org from the template when the current buffer is empty.
+Insert `code-review-file-template', activate its `#+TODO:' keywords, and apply
 the `-*-' hook cookie, so a freshly created (or empty) review.org wires up."
   (when (= (point-min) (point-max))
-    (insert code-review-file-header)
+    (insert code-review-file-template)
     (org-set-regexps-and-options)        ; activate #+TODO
     (hack-local-variables)))             ; apply the -*- save/revert hooks
 
 (defun code-review--goto-review-file ()
   "`org-capture' target function: visit the project's review.org at its end."
   (set-buffer (org-capture-target-buffer (code-review-file)))
-  (code-review--ensure-header)
+  (code-review--ensure-template)
   (goto-char (point-max)))
 
 
@@ -198,27 +206,24 @@ The selection (or line) is captured into the entry's `#+begin_src' block."
       (org-capture nil "r"))))
 
 ;;;###autoload
-(defun code-review-list ()
-  "Open the current project's review.org (creating its header if new)."
+(defun code-review-open ()
+  "Open the current project's review.org (creating it from the template if new)."
   (interactive)
   (find-file (code-review-file))
-  (code-review--ensure-header))
+  (code-review--ensure-template))
 
 ;;;###autoload
-(defun code-review-send-to-claude ()
-  "Point `claude-code-ide' at review.org; reveal its window if hidden."
+(defun code-review-send ()
+  "Save review.org and hand it to the agent via `code-review-send-function'."
   (interactive)
   (let ((file (code-review-file)))
     (unless (file-exists-p file)
       (user-error "No review.org yet — annotate first (`code-review-annotate')"))
+    (unless (functionp code-review-send-function)
+      (user-error "Set `code-review-send-function' to send the review"))
     (when-let* ((buf (find-buffer-visiting file)))
       (with-current-buffer buf (when (buffer-modified-p) (save-buffer))))
-    (claude-code-ide-send-prompt code-review-prompt)
-    ;; reveal the Claude window if it is hidden (a visible one is left alone)
-    (let ((cc (and (fboundp 'claude-code-ide--get-buffer-name)
-                   (get-buffer (claude-code-ide--get-buffer-name)))))
-      (when (and cc (not (get-buffer-window cc)))
-        (claude-code-ide-toggle)))))
+    (funcall code-review-send-function code-review-agent-message)))
 
 
 ;;; Flymake backend — open (TODO) notes as :note diagnostics (eglot-style)
