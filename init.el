@@ -766,7 +766,7 @@
   :general
   ("C-`" 'popframe-toggle)
   :init
-  (setq popframe-alpha 0.9)
+  (setq popframe-override-parameters '((alpha . 95)))
   (setq popframe-buffer-function #'+popframe-ghostel))
 
 (use-package uniquify

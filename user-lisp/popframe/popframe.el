@@ -62,12 +62,11 @@ called inside `save-window-excursion'."
   "Child frame height as a fraction of the parent frame height."
   :type 'number)
 
-(defcustom popframe-alpha nil
-  "Child frame opacity, or nil to leave it unset.
-See the `alpha' frame parameter."
-  :type '(choice (const :tag "Unset" nil)
-                 number
-                 (cons number number)))
+(defcustom popframe-override-parameters nil
+  "Extra frame parameters for the child frame, as an alist.
+Passed verbatim to posframe's :override-parameters.  For example,
+`((alpha . 90))' sets the frame opacity."
+  :type '(alist :key-type symbol :value-type sexp))
 
 
 (defvar popframe--buffer nil
@@ -108,8 +107,7 @@ public accessor, so this is the de-facto seam its own code uses too."
                  :poshandler #'posframe-poshandler-frame-center
                  :width  (round (* (frame-width)  popframe-width-ratio))
                  :height (round (* (frame-height) popframe-height-ratio))
-                 :override-parameters (when popframe-alpha
-                                        `((alpha . ,popframe-alpha)))
+                 :override-parameters popframe-override-parameters
                  :left-fringe 8
                  :right-fringe 8
                  :internal-border-width 3
