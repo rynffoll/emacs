@@ -1355,6 +1355,7 @@ If you'd like to test a different font, evaluate the following block:
   :general
   ("C-`" 'popframe-toggle)
   :init
+  (setq popframe-alpha 0.9)
   (setq popframe-buffer-function #'+popframe-ghostel))
 #+end_src
 
