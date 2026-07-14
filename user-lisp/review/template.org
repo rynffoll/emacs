@@ -1,6 +1,7 @@
 # -*- after-save-hook: review--after-review-change; after-revert-hook: review--after-review-change; -*-
 #+TITLE: Code review
 #+TODO: TODO(t) | DONE(d)
+#+startup: overview
 
 * COMMENT Agent instructions
 This file (~review.org~) is a code review. Entries look like:
