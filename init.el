@@ -869,8 +869,10 @@
   ([remap project-find-regexp]           'consult-ripgrep)
   :init
   (setq register-preview-delay 0)
-  (setq register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
+  :config
+  ;; In a project, `consult-buffer' opens narrowed to project buffers.
+  (consult-customize consult-buffer :initial-narrow (and (project-current) ?p))
   :hook
   (completion-list-mode-hook . consult-preview-at-point-mode))
 
