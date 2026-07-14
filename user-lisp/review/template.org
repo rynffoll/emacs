@@ -1,4 +1,4 @@
-# -*- after-save-hook: code-review--after-review-change; after-revert-hook: code-review--after-review-change; -*-
+# -*- after-save-hook: review--after-review-change; after-revert-hook: review--after-review-change; -*-
 #+TITLE: Code review
 #+TODO: TODO(t) | DONE(d)
 

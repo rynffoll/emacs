@@ -2192,34 +2192,34 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package flamegraph)
 
-(use-package code-review
+(use-package review
   :ensure nil
   :demand t
   :general
   (+leader-def
     "r"  '(:ignore t :wk "review")
-    "ra" 'code-review-annotate
-    "re" 'code-review-edit
-    "ro" 'code-review-open
-    "rs" 'code-review-send)
+    "rn" 'review-note
+    "re" 'review-edit
+    "ro" 'review-open
+    "rs" 'review-send)
   :init
-  (setq code-review-send-function #'claude-code-ide-send-prompt)
+  (setq review-send-function #'claude-code-ide-send-prompt)
   :config
   (with-eval-after-load 'claude-code-ide-transient
-    (transient-define-prefix +code-review-menu ()
+    (transient-define-prefix +review-menu ()
       "Code review menu."
-      ["Code Review"
-       ("s" "Send to Claude" code-review-send)])
+      ["Review"
+       ("s" "Send" review-send)])
     (transient-append-suffix 'claude-code-ide-menu 'claude-code-ide-debug-menu
-      '("R" "Code Review" +code-review-menu)))
+      '("R" "Code Review" +review-menu)))
   (with-eval-after-load 'org-capture
-    (add-to-list 'org-capture-templates code-review-capture-template t))
-  (add-hook 'flymake-diagnostic-functions #'code-review-flymake)
+    (add-to-list 'org-capture-templates review-capture-template t))
+  (add-hook 'flymake-diagnostic-functions #'review-flymake)
   ;; review.org wires its own save/revert hooks via a -*- cookie; whitelist them
   (add-to-list 'safe-local-variable-values
-               '(after-save-hook . code-review--after-review-change))
+               '(after-save-hook . review--after-review-change))
   (add-to-list 'safe-local-variable-values
-               '(after-revert-hook . code-review--after-review-change)))
+               '(after-revert-hook . review--after-review-change)))
 
 (defun +rebased ()
   "Open the current project root in the Rebased Git client."
