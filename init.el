@@ -757,10 +757,16 @@
 (use-package popframe
   :ensure nil
   :demand t
+  :preface
+  (defun +popframe-ghostel ()
+    (interactive)
+    (if (project-current)
+        (ghostel-project)
+      (ghostel)))
   :general
   ("C-`" 'popframe-toggle)
   :init
-  (setq popframe-buffer-function #'ghostel-project))
+  (setq popframe-buffer-function #'+popframe-ghostel))
 
 (use-package uniquify
   :ensure nil
