@@ -17,12 +17,16 @@
 (use-package package
   :ensure nil
   :init
-  (setq package-review-policy t)
+  (setq package-review-policy (not noninteractive))
   (setq package-retention-policy t)
+  (setq package-archives
+        '(("gnu"             . "https://elpa.gnu.org/packages/")
+          ("nongnu"          . "https://elpa.nongnu.org/nongnu/")
+          ("melpa-releases"  . "https://releases.melpa.org/packages/")
+          ("gnu-devel"       . "https://elpa.gnu.org/devel/")
+          ("nongnu-devel"    . "https://elpa.nongnu.org/nongnu-devel/")
+          ("melpa-snapshots" . "https://snapshots.melpa.org/packages/")))
   :config
-  (add-to-list 'package-archives '("elpa-devel" . "https://elpa.gnu.org/devel/"))
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
   (package-initialize))
 
 (use-package gnu-elpa-keyring-update)
@@ -546,7 +550,6 @@
 
 (use-package modus-themes
   ;; :ensure nil
-  :pin melpa-stable
   :init
   (setq modus-themes-bold-constructs t)
   (setq modus-themes-italic-constructs t)
@@ -1478,6 +1481,8 @@
   (prog-mode-hook . flymake-mode))
 
 (use-package sideline
+  ;; TODO: https://github.com/emacs-sideline/sideline/pull/42
+  :vc (:url "https://github.com/rynffoll/sideline" :rev :newest)
   :init
   (setq sideline-backends-right '(sideline-flymake))
   (setq sideline-display-backend-name t))
