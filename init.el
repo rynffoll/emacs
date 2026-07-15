@@ -4,12 +4,15 @@
       user-login-name "rynffoll"
       user-mail-address "rynffoll@gmail.com")
 
-(setq use-package-always-defer t)
-(setq use-package-always-ensure t)
-(setq use-package-hook-name-suffix nil)
-(setq use-package-enable-imenu-support t)
-(setq use-package-compute-statistics t)
-(setq use-package-expand-minimally t)
+(use-package use-package
+  :ensure nil
+  :init
+  (setq use-package-always-defer t)
+  (setq use-package-always-ensure t)
+  (setq use-package-hook-name-suffix nil)
+  (setq use-package-enable-imenu-support t)
+  (setq use-package-compute-statistics t)
+  (setq use-package-expand-minimally t))
 
 (use-package package
   :ensure nil

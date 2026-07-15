@@ -392,12 +392,15 @@ If you'd like to test a different font, evaluate the following block:
 * Package Manager
 ** use-package
 #+begin_src emacs-lisp
-(setq use-package-always-defer t)
-(setq use-package-always-ensure t)
-(setq use-package-hook-name-suffix nil)
-(setq use-package-enable-imenu-support t)
-(setq use-package-compute-statistics t)
-(setq use-package-expand-minimally t)
+(use-package use-package
+  :ensure nil
+  :init
+  (setq use-package-always-defer t)
+  (setq use-package-always-ensure t)
+  (setq use-package-hook-name-suffix nil)
+  (setq use-package-enable-imenu-support t)
+  (setq use-package-compute-statistics t)
+  (setq use-package-expand-minimally t))
 #+end_src
 
 ** package
