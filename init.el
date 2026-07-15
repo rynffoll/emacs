@@ -1799,7 +1799,15 @@ Covers both working-tree faces and reference-revision faces."
   :ensure org
   :init
   (setq org-src-window-setup 'current-window)
-  (setq org-src-content-indentation 0))
+  (setq org-src-content-indentation 0)
+  :config
+  ;; Fontify Org src blocks with the -ts modes from treesit's catalog.
+  (pcase-dolist (`(,base . ,ts) treesit-major-mode-remap-alist)
+    (add-to-list 'org-src-lang-modes
+                 (cons (string-remove-suffix "-mode" (symbol-name base))
+                       (intern (string-remove-suffix "-mode" (symbol-name ts))))))
+  (dolist (pair '(("json" . json-ts) ("toml" . toml-ts) ("js" . js-ts)))
+    (add-to-list 'org-src-lang-modes pair)))
 
 (use-package org-agenda
   :ensure org
