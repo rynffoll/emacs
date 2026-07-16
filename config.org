@@ -3508,6 +3508,7 @@ set in .dir-locals.el, so worktree sessions get distinct names like
   (setq claude-code-ide-use-side-window nil)
   (setq claude-code-ide-show-claude-window-in-ediff nil)
   ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names)
+  (setq claude-code-ide-use-ide-diff nil) ;; it's not useful in my config, switch back doesn't work
   :config
   (claude-code-ide-emacs-tools-setup))
 #+end_src
