@@ -31,6 +31,8 @@
 
 (use-package gnu-elpa-keyring-update)
 
+(use-package try)
+
 (defgroup +feature-flags nil
   "Feature flags for this configuration."
   :group 'convenience)
@@ -360,6 +362,8 @@
   :hook
   (after-init-hook . reverse-im-mode))
 
+(use-package free-keys)
+
 (use-package xt-mouse
   :unless (display-graphic-p)
   :ensure nil
@@ -430,6 +434,8 @@
      "\\\\" "://"))
   :hook
   (after-init-hook . global-ligature-mode))
+
+(use-package show-font)
 
 (use-package nerd-icons
   :if +with-icons
@@ -517,6 +523,10 @@
 
 (use-package spacious-padding
   :if (display-graphic-p))
+
+(use-package olivetti
+  :init
+  (setq olivetti-body-width 0.6))
 
 (defun +custom-faces (&rest _)
   "Reapply custom face attributes after theme load."
@@ -625,6 +635,23 @@
         ;; '(left-curly-arrow nil) ;; left indicator only
         ;; '(left-curly-arrow right-curly-arrow) ;; default
         ))
+
+(use-package posframe)
+
+(use-package popframe
+  :ensure nil
+  :demand t
+  :preface
+  (defun +popframe-ghostel ()
+    (interactive)
+    (if (project-current)
+        (ghostel-project)
+      (ghostel)))
+  :general
+  ("C-`" 'popframe-toggle)
+  :init
+  (setq popframe-override-parameters '((alpha . 95)))
+  (setq popframe-buffer-function #'+popframe-ghostel))
 
 (use-package tab-bar
   :ensure nil
@@ -757,23 +784,6 @@
           (ghostel-compile-view-mode :align below)))
   :hook
   (after-init-hook . shackle-mode))
-
-(use-package posframe)
-
-(use-package popframe
-  :ensure nil
-  :demand t
-  :preface
-  (defun +popframe-ghostel ()
-    (interactive)
-    (if (project-current)
-        (ghostel-project)
-      (ghostel)))
-  :general
-  ("C-`" 'popframe-toggle)
-  :init
-  (setq popframe-override-parameters '((alpha . 95)))
-  (setq popframe-buffer-function #'+popframe-ghostel))
 
 (use-package uniquify
   :ensure nil
@@ -1297,6 +1307,8 @@
   (term-exec-hook    . with-editor-export-editor)
   (eshell-mode-hook  . with-editor-export-editor))
 
+(use-package list-environment)
+
 (use-package help
   :ensure nil
   :general
@@ -1349,6 +1361,8 @@
   :ensure nil
   :hook
   (after-init-hook . electric-pair-mode))
+
+(use-package focus)
 
 (use-package ediff
   :ensure nil
@@ -2202,6 +2216,10 @@ Covers both working-tree faces and reference-revision faces."
   (proced-mode-map
    "M-n" 'proced-narrow))
 
+(use-package disk-usage)
+
+(use-package daemons)
+
 (use-package keycast
   :init
   (setq keycast-tab-bar-location 'tab-bar-format-global)
@@ -2326,24 +2344,6 @@ set in .dir-locals.el, so worktree sessions get distinct names like
   (git-commit-mode-hook . copilot-mode)
   (yaml-ts-mode-hook . copilot-mode))
 
-(use-package focus)
-
-(use-package olivetti
-  :init
-  (setq olivetti-body-width 0.6))
-
 (use-package crux)
 
-(use-package try)
-
 (use-package string-inflection)
-
-(use-package show-font)
-
-(use-package disk-usage)
-
-(use-package list-environment)
-
-(use-package daemons)
-
-(use-package free-keys)

@@ -20,6 +20,7 @@
   - [[#use-package][use-package]]
   - [[#package][package]]
   - [[#gnu-elpa-keyring-update][gnu-elpa-keyring-update]]
+  - [[#try][try]]
 - [[#feature-flags][Feature Flags]]
   - [[#with-evil][=+with-evil=]]
   - [[#with-icons][=+with-icons=]]
@@ -46,6 +47,7 @@
   - [[#mule][mule]]
   - [[#char-fold][char-fold]]
   - [[#reverse-im][reverse-im]]
+  - [[#free-keys][free-keys]]
 - [[#tty][TTY]]
   - [[#xt-mouse][xt-mouse]]
   - [[#disp-table][disp-table]]
@@ -53,7 +55,8 @@
 - [[#ui-1][UI]]
   - [[#taskbar][taskbar]]
   - [[#scroll][scroll]]
-  - [[#ligatures][ligatures]]
+  - [[#ligature][ligature]]
+  - [[#show-font][show-font]]
   - [[#icons][icons]]
   - [[#mode-line][mode-line]]
   - [[#doom-modeline][doom-modeline]]
@@ -61,6 +64,7 @@
   - [[#global-mode-string][global-mode-string]]
   - [[#breadcrumb][breadcrumb]]
   - [[#spacious-padding][spacious-padding]]
+  - [[#olivetti][olivetti]]
   - [[#custom-faces][custom-faces]]
   - [[#modus-themes][modus-themes]]
   - [[#modus-catppuccin][modus-catppuccin]]
@@ -71,6 +75,8 @@
 - [[#frames][Frames]]
   - [[#frame][frame]]
   - [[#fringe][fringe]]
+  - [[#posframe][posframe]]
+  - [[#popframe][popframe]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
   - [[#project-tab-groups][project-tab-groups]]
@@ -84,9 +90,6 @@
   - [[#winum][winum]]
   - [[#zoom][zoom]]
   - [[#shackle][shackle]]
-- [[#childframe][Childframe]]
-  - [[#posframe][posframe]]
-  - [[#popframe][popframe]]
 - [[#buffers][Buffers]]
   - [[#uniquify][uniquify]]
   - [[#buff-menu][buff-menu]]
@@ -140,6 +143,7 @@
 - [[#environment-variables][Environment Variables]]
   - [[#exec-path-from-shell][exec-path-from-shell]]
   - [[#with-editor][with-editor]]
+  - [[#list-environment][list-environment]]
 - [[#help][Help]]
   - [[#help-1][help]]
   - [[#helpful][helpful]]
@@ -151,6 +155,7 @@
   - [[#so-long][so-long]]
   - [[#hungry-delete][hungry-delete]]
   - [[#elec-pair][elec-pair]]
+  - [[#focus][focus]]
 - [[#ediff][Ediff]]
 - [[#undoredo][Undo/Redo]]
   - [[#undo-fu-session][undo-fu-session]]
@@ -241,6 +246,8 @@
   - [[#ansible][ansible]]
   - [[#mise][mise]]
   - [[#proced][proced]]
+  - [[#disk-usage][disk-usage]]
+  - [[#daemons][daemons]]
   - [[#keycast][keycast]]
   - [[#dothttp][dothttp]]
   - [[#flamegraph][flamegraph]]
@@ -252,7 +259,7 @@
   - [[#gptel-magit][gptel-magit]]
   - [[#claude-code-ide][claude-code-ide]]
   - [[#copilot][copilot]]
-- [[#utils][Utils]]
+- [[#misc][Misc]]
 
 * Early Initialization
 :PROPERTIES:
@@ -425,6 +432,11 @@ If you'd like to test a different font, evaluate the following block:
 ** gnu-elpa-keyring-update
 #+begin_src emacs-lisp
 (use-package gnu-elpa-keyring-update)
+#+end_src
+
+** try
+#+begin_src emacs-lisp
+(use-package try)
 #+end_src
 
 * Feature Flags
@@ -832,6 +844,11 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . reverse-im-mode))
 #+end_src
 
+** free-keys
+#+begin_src emacs-lisp
+(use-package free-keys)
+#+end_src
+
 * TTY
 ** xt-mouse
 #+begin_src emacs-lisp
@@ -901,7 +918,7 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . ultra-scroll-mode))
 #+end_src
 
-** ligatures
+** ligature
 #+begin_src emacs-lisp
 (use-package ligature
   :if (display-graphic-p)
@@ -923,6 +940,11 @@ If you'd like to test a different font, evaluate the following block:
      "\\\\" "://"))
   :hook
   (after-init-hook . global-ligature-mode))
+#+end_src
+
+** show-font
+#+begin_src emacs-lisp
+(use-package show-font)
 #+end_src
 
 ** icons
@@ -1037,6 +1059,13 @@ If you'd like to test a different font, evaluate the following block:
 #+begin_src emacs-lisp
 (use-package spacious-padding
   :if (display-graphic-p))
+#+end_src
+
+** olivetti
+#+begin_src emacs-lisp
+(use-package olivetti
+  :init
+  (setq olivetti-body-width 0.6))
 #+end_src
 
 ** custom-faces
@@ -1173,6 +1202,29 @@ If you'd like to test a different font, evaluate the following block:
         ;; '(left-curly-arrow nil) ;; left indicator only
         ;; '(left-curly-arrow right-curly-arrow) ;; default
         ))
+#+end_src
+
+** posframe
+#+begin_src emacs-lisp
+(use-package posframe)
+#+end_src
+
+** popframe
+#+begin_src emacs-lisp
+(use-package popframe
+  :ensure nil
+  :demand t
+  :preface
+  (defun +popframe-ghostel ()
+    (interactive)
+    (if (project-current)
+        (ghostel-project)
+      (ghostel)))
+  :general
+  ("C-`" 'popframe-toggle)
+  :init
+  (setq popframe-override-parameters '((alpha . 95)))
+  (setq popframe-buffer-function #'+popframe-ghostel))
 #+end_src
 
 * Tabs
@@ -1340,30 +1392,6 @@ If you'd like to test a different font, evaluate the following block:
           (ghostel-compile-view-mode :align below)))
   :hook
   (after-init-hook . shackle-mode))
-#+end_src
-
-* Childframe
-** posframe
-#+begin_src emacs-lisp
-(use-package posframe)
-#+end_src
-
-** popframe
-#+begin_src emacs-lisp
-(use-package popframe
-  :ensure nil
-  :demand t
-  :preface
-  (defun +popframe-ghostel ()
-    (interactive)
-    (if (project-current)
-        (ghostel-project)
-      (ghostel)))
-  :general
-  ("C-`" 'popframe-toggle)
-  :init
-  (setq popframe-override-parameters '((alpha . 95)))
-  (setq popframe-buffer-function #'+popframe-ghostel))
 #+end_src
 
 * Buffers
@@ -2081,6 +2109,11 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (eshell-mode-hook  . with-editor-export-editor))
 #+end_src
 
+** list-environment
+#+begin_src emacs-lisp
+(use-package list-environment)
+#+end_src
+
 * Help
 ** help
 #+begin_src emacs-lisp
@@ -2161,6 +2194,11 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :ensure nil
   :hook
   (after-init-hook . electric-pair-mode))
+#+end_src
+
+** focus
+#+begin_src emacs-lisp
+(use-package focus)
 #+end_src
 
 * Ediff
@@ -3379,6 +3417,16 @@ go install github.com/go-delve/delve/cmd/dlv@latest
    "M-n" 'proced-narrow))
 #+end_src
 
+** disk-usage
+#+begin_src emacs-lisp
+(use-package disk-usage)
+#+end_src
+
+** daemons
+#+begin_src emacs-lisp
+(use-package daemons)
+#+end_src
+
 ** keycast
 #+begin_src emacs-lisp
 (use-package keycast
@@ -3544,47 +3592,13 @@ set in .dir-locals.el, so worktree sessions get distinct names like
   (yaml-ts-mode-hook . copilot-mode))
 #+end_src
 
-* Utils
-#+begin_src emacs-lisp
-(use-package focus)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package olivetti
-  :init
-  (setq olivetti-body-width 0.6))
-#+end_src
-
+* Misc
 #+begin_src emacs-lisp
 (use-package crux)
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package try)
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package string-inflection)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package show-font)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package disk-usage)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package list-environment)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package daemons)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package free-keys)
 #+end_src
 
 * File Local Variables :noexport:
