@@ -181,8 +181,8 @@
 
 (use-package evil-org-agenda
   :if +with-evil
-  :demand
   :ensure evil-org
+  :demand
   :after org-agenda
   :config
   (evil-org-agenda-set-keys))
@@ -817,6 +817,14 @@
   :hook
   (after-init-hook . persistent-scratch-setup-default))
 
+(use-package desktop
+  :ensure nil
+  :init
+  (setq desktop-path `(,user-emacs-directory))
+  :config
+  (dolist (mode '(git-commit-mode))
+    (add-to-list 'desktop-modes-not-to-save mode)))
+
 (use-package savehist
   :ensure nil
   :hook
@@ -834,13 +842,18 @@
   :hook
   (after-init-hook . recentf-mode))
 
-(use-package desktop
-  :ensure nil
+(use-package undo-fu-session
   :init
-  (setq desktop-path `(,user-emacs-directory))
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  :hook
+  (after-init-hook . undo-fu-session-global-mode))
+
+(use-package vundo
+  :general
+  ("C-x u" 'vundo)
   :config
-  (dolist (mode '(git-commit-mode))
-    (add-to-list 'desktop-modes-not-to-save mode)))
+  (setq vundo-compact-display t)
+  (setq vundo-glyph-alist vundo-unicode-symbols))
 
 (use-package emacs
   :ensure nil
@@ -1364,28 +1377,24 @@
 
 (use-package focus)
 
-(use-package ediff
+(use-package display-line-numbers
   :ensure nil
   :init
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-  (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-merge-split-window-function 'split-window-horizontally)
-  :hook
-  (ediff-prepare-buffer-hook . outline-show-all)
-  (ediff-quit-hook . tab-bar-history-back))
+  (setq display-line-numbers-width-start t))
 
-(use-package undo-fu-session
+(use-package hideshow
+  :ensure nil
   :init
-  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  (setq hs-show-indicators t)
+  (setq hs-allow-nesting t)
   :hook
-  (after-init-hook . undo-fu-session-global-mode))
+  (prog-mode-hook . hs-minor-mode)
+  (conf-mode-hook . hs-minor-mode)
+  (yaml-ts-mode-hook . hs-minor-mode))
 
-(use-package vundo
-  :general
-  ("C-x u" 'vundo)
-  :config
-  (setq vundo-compact-display t)
-  (setq vundo-glyph-alist vundo-unicode-symbols))
+(use-package apheleia
+  :hook
+  (after-init-hook . apheleia-global-mode))
 
 (use-package hl-line
   :ensure nil
@@ -1443,10 +1452,9 @@
   :hook
   (after-init-hook . global-hl-todo-mode))
 
-(use-package display-line-numbers
-  :ensure nil
-  :init
-  (setq display-line-numbers-width-start t))
+(use-package eros
+  :hook
+  (emacs-lisp-mode-hook . eros-mode))
 
 (use-package anzu
   ;; :init
@@ -1458,16 +1466,6 @@
   :if +with-evil
   :demand
   :after evil anzu)
-
-(use-package hideshow
-  :ensure nil
-  :init
-  (setq hs-show-indicators t)
-  (setq hs-allow-nesting t)
-  :hook
-  (prog-mode-hook . hs-minor-mode)
-  (conf-mode-hook . hs-minor-mode)
-  (yaml-ts-mode-hook . hs-minor-mode))
 
 (use-package jinx
   :general
@@ -1504,14 +1502,6 @@
   (setq sideline-flymake-display-mode 'point)
   :hook
   (flymake-mode-hook . sideline-mode))
-
-(use-package eros
-  :hook
-  (emacs-lisp-mode-hook . eros-mode))
-
-(use-package apheleia
-  :hook
-  (after-init-hook . apheleia-global-mode))
 
 (use-package xref
   :ensure nil
@@ -1577,6 +1567,16 @@
   (setq vc-async-checkin t)
   (setq vc-allow-async-diff t)
   (setq vc-display-status 'no-backend))
+
+(use-package ediff
+  :ensure nil
+  :init
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-merge-split-window-function 'split-window-horizontally)
+  :hook
+  (ediff-prepare-buffer-hook . outline-show-all)
+  (ediff-quit-hook . tab-bar-history-back))
 
 (use-package magit
   :preface

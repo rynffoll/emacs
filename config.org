@@ -24,15 +24,15 @@
 - [[#feature-flags][Feature Flags]]
   - [[#with-evil][=+with-evil=]]
   - [[#with-icons][=+with-icons=]]
-- [[#defaults-1][Defaults]]
+- [[#general][General]]
   - [[#emacs][emacs]]
   - [[#compile][compile]]
   - [[#ansi-color][ansi-color]]
   - [[#time][time]]
   - [[#calendar][calendar]]
-- [[#gc][GC]]
-- [[#async][Async]]
-- [[#server][Server]]
+  - [[#gcmh][gcmh]]
+  - [[#async][async]]
+  - [[#server][server]]
 - [[#keybindings][Keybindings]]
   - [[#repeat][repeat]]
   - [[#which-key][which-key]]
@@ -43,7 +43,7 @@
   - [[#evil-org][evil-org]]
   - [[#evil-mc][evil-mc]]
   - [[#evil-terminal-cursor-changer][evil-terminal-cursor-changer]]
-  - [[#general][general]]
+  - [[#general-1][general]]
   - [[#mule][mule]]
   - [[#char-fold][char-fold]]
   - [[#reverse-im][reverse-im]]
@@ -97,11 +97,12 @@
   - [[#nerd-icons-ibuffer][nerd-icons-ibuffer]]
   - [[#persistent-scratch][persistent-scratch]]
 - [[#history][History]]
+  - [[#desktop][desktop]]
   - [[#savehist][savehist]]
   - [[#saveplace][saveplace]]
   - [[#recentf][recentf]]
-- [[#session-manager][Session Manager]]
-  - [[#desktop][desktop]]
+  - [[#undo-fu-session][undo-fu-session]]
+  - [[#vundo][vundo]]
 - [[#completion][Completion]]
   - [[#emacs-1][emacs]]
   - [[#mouse][mouse]]
@@ -156,10 +157,9 @@
   - [[#hungry-delete][hungry-delete]]
   - [[#elec-pair][elec-pair]]
   - [[#focus][focus]]
-- [[#ediff][Ediff]]
-- [[#undoredo][Undo/Redo]]
-  - [[#undo-fu-session][undo-fu-session]]
-  - [[#vundo][vundo]]
+  - [[#display-line-numbers][display-line-numbers]]
+  - [[#hideshow][hideshow]]
+  - [[#apheleia][apheleia]]
 - [[#highlighting][Highlighting]]
   - [[#hl-line][hl-line]]
   - [[#paren][paren]]
@@ -168,23 +168,15 @@
   - [[#page-break-lines][page-break-lines]]
   - [[#highlight-indent-guides][highlight-indent-guides]]
   - [[#hl-todo][hl-todo]]
-- [[#line-numbers][Line Numbers]]
-  - [[#display-line-numbers][display-line-numbers]]
+  - [[#eros][eros]]
 - [[#search][Search]]
   - [[#anzu][anzu]]
   - [[#evil-anzu][evil-anzu]]
-- [[#folding][Folding]]
-  - [[#hideshow][hideshow]]
-- [[#spell-checking][Spell Checking]]
+- [[#checkers][Checkers]]
   - [[#jinx][jinx]]
-- [[#syntax-checking][Syntax Checking]]
   - [[#flymake][flymake]]
   - [[#sideline][sideline]]
   - [[#sideline-flymake][sideline-flymake]]
-- [[#eval][Eval]]
-  - [[#eros][eros]]
-- [[#format][Format]]
-  - [[#apheleia][apheleia]]
 - [[#goto][Goto]]
   - [[#xref][xref]]
   - [[#avy][avy]]
@@ -194,6 +186,7 @@
   - [[#evil-ghostel][evil-ghostel]]
 - [[#git][Git]]
   - [[#vc][vc]]
+  - [[#ediff][ediff]]
   - [[#magit][magit]]
   - [[#git-modes][git-modes]]
   - [[#diff-hl][diff-hl]]
@@ -462,7 +455,7 @@ If you'd like to test a different font, evaluate the following block:
   :group '+feature-flags)
 #+end_src
 
-* Defaults
+* General
 ** emacs
 #+begin_src emacs-lisp
 (use-package emacs
@@ -515,7 +508,7 @@ If you'd like to test a different font, evaluate the following block:
   (setq calendar-week-start-day 1))
 #+end_src
 
-* GC
+** gcmh
 #+begin_src emacs-lisp
 (use-package gcmh
   :unless (fboundp 'igc-info) ;; Emacs 32?
@@ -527,7 +520,7 @@ If you'd like to test a different font, evaluate the following block:
   (emacs-startup-hook . gcmh-mode))
 #+end_src
 
-* Async
+** async
 #+begin_src emacs-lisp
 (use-package async
   :hook
@@ -535,7 +528,7 @@ If you'd like to test a different font, evaluate the following block:
   (dired-mode-hook . dired-async-mode))
 #+end_src
 
-* Server
+** server
 #+begin_src emacs-lisp
 (use-package server
   :ensure nil
@@ -644,8 +637,8 @@ If you'd like to test a different font, evaluate the following block:
 #+begin_src emacs-lisp
 (use-package evil-org-agenda
   :if +with-evil
-  :demand
   :ensure evil-org
+  :demand
   :after org-agenda
   :config
   (evil-org-agenda-set-keys))
@@ -1443,6 +1436,17 @@ If you'd like to test a different font, evaluate the following block:
 #+end_src
 
 * History
+** desktop
+#+begin_src emacs-lisp
+(use-package desktop
+  :ensure nil
+  :init
+  (setq desktop-path `(,user-emacs-directory))
+  :config
+  (dolist (mode '(git-commit-mode))
+    (add-to-list 'desktop-modes-not-to-save mode)))
+#+end_src
+
 ** savehist
 #+begin_src emacs-lisp
 (use-package savehist
@@ -1469,16 +1473,23 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . recentf-mode))
 #+end_src
 
-* Session Manager
-** desktop
+** undo-fu-session
 #+begin_src emacs-lisp
-(use-package desktop
-  :ensure nil
+(use-package undo-fu-session
   :init
-  (setq desktop-path `(,user-emacs-directory))
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  :hook
+  (after-init-hook . undo-fu-session-global-mode))
+#+end_src
+
+** vundo
+#+begin_src emacs-lisp
+(use-package vundo
+  :general
+  ("C-x u" 'vundo)
   :config
-  (dolist (mode '(git-commit-mode))
-    (add-to-list 'desktop-modes-not-to-save mode)))
+  (setq vundo-compact-display t)
+  (setq vundo-glyph-alist vundo-unicode-symbols))
 #+end_src
 
 * Completion
@@ -2201,37 +2212,32 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 (use-package focus)
 #+end_src
 
-* Ediff
+** display-line-numbers
 #+begin_src emacs-lisp
-(use-package ediff
+(use-package display-line-numbers
   :ensure nil
   :init
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-  (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-merge-split-window-function 'split-window-horizontally)
-  :hook
-  (ediff-prepare-buffer-hook . outline-show-all)
-  (ediff-quit-hook . tab-bar-history-back))
+  (setq display-line-numbers-width-start t))
 #+end_src
 
-* Undo/Redo
-** undo-fu-session
+** hideshow
 #+begin_src emacs-lisp
-(use-package undo-fu-session
+(use-package hideshow
+  :ensure nil
   :init
-  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  (setq hs-show-indicators t)
+  (setq hs-allow-nesting t)
   :hook
-  (after-init-hook . undo-fu-session-global-mode))
+  (prog-mode-hook . hs-minor-mode)
+  (conf-mode-hook . hs-minor-mode)
+  (yaml-ts-mode-hook . hs-minor-mode))
 #+end_src
 
-** vundo
+** apheleia
 #+begin_src emacs-lisp
-(use-package vundo
-  :general
-  ("C-x u" 'vundo)
-  :config
-  (setq vundo-compact-display t)
-  (setq vundo-glyph-alist vundo-unicode-symbols))
+(use-package apheleia
+  :hook
+  (after-init-hook . apheleia-global-mode))
 #+end_src
 
 * Highlighting
@@ -2312,13 +2318,11 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (after-init-hook . global-hl-todo-mode))
 #+end_src
 
-* Line Numbers
-** display-line-numbers
+** eros
 #+begin_src emacs-lisp
-(use-package display-line-numbers
-  :ensure nil
-  :init
-  (setq display-line-numbers-width-start t))
+(use-package eros
+  :hook
+  (emacs-lisp-mode-hook . eros-mode))
 #+end_src
 
 * Search
@@ -2339,21 +2343,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :after evil anzu)
 #+end_src
 
-* Folding
-** hideshow
-#+begin_src emacs-lisp
-(use-package hideshow
-  :ensure nil
-  :init
-  (setq hs-show-indicators t)
-  (setq hs-allow-nesting t)
-  :hook
-  (prog-mode-hook . hs-minor-mode)
-  (conf-mode-hook . hs-minor-mode)
-  (yaml-ts-mode-hook . hs-minor-mode))
-#+end_src
-
-* Spell Checking
+* Checkers
 ** COMMENT ispell
 #+begin_src emacs-lisp
 (use-package ispell
@@ -2418,7 +2408,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (git-commit-mode-hook . jinx-mode))
 #+end_src
 
-* Syntax Checking
 ** flymake
 #+begin_src emacs-lisp
 (use-package flymake
@@ -2451,22 +2440,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq sideline-flymake-display-mode 'point)
   :hook
   (flymake-mode-hook . sideline-mode))
-#+end_src
-
-* Eval
-** eros
-#+begin_src emacs-lisp
-(use-package eros
-  :hook
-  (emacs-lisp-mode-hook . eros-mode))
-#+end_src
-
-* Format
-** apheleia
-#+begin_src emacs-lisp
-(use-package apheleia
-  :hook
-  (after-init-hook . apheleia-global-mode))
 #+end_src
 
 * Goto
@@ -2553,6 +2526,19 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   (setq vc-async-checkin t)
   (setq vc-allow-async-diff t)
   (setq vc-display-status 'no-backend))
+#+end_src
+
+** ediff
+#+begin_src emacs-lisp
+(use-package ediff
+  :ensure nil
+  :init
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-merge-split-window-function 'split-window-horizontally)
+  :hook
+  (ediff-prepare-buffer-hook . outline-show-all)
+  (ediff-quit-hook . tab-bar-history-back))
 #+end_src
 
 ** magit
