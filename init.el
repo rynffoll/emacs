@@ -2257,6 +2257,9 @@ Covers both working-tree faces and reference-revision faces."
     (start-process "rebased" nil "open" "-na" "Rebased" "--args" root)
     (message "Opening Rebased in %s…" root)))
 
+(use-package package-report
+  :ensure nil)
+
 (use-package gptel
   :general
   (+local-leader-def :keymaps 'gptel-mode-map

@@ -246,6 +246,7 @@
   - [[#flamegraph][flamegraph]]
   - [[#review][review]]
   - [[#rebased][rebased]]
+  - [[#package-report][package-report]]
 - [[#llm][LLM]]
   - [[#gptel][gptel]]
   - [[#gptel-magit][gptel-magit]]
@@ -3448,6 +3449,12 @@ go install github.com/go-delve/delve/cmd/dlv@latest
                  default-directory))))
     (start-process "rebased" nil "open" "-na" "Rebased" "--args" root)
     (message "Opening Rebased in %s…" root)))
+#+end_src
+
+** package-report
+#+begin_src emacs-lisp
+(use-package package-report
+  :ensure nil)
 #+end_src
 
 * LLM
