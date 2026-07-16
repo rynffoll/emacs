@@ -3346,6 +3346,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 
 #+begin_src emacs-lisp
 (use-package ansible-vault-with-editor
+  :disabled
   :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
   :general
   (+local-leader-def :keymaps 'yaml-ts-mode-map

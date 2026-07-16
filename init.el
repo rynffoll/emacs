@@ -2178,6 +2178,7 @@ Covers both working-tree faces and reference-revision faces."
   :mode "\\.j2\\'")
 
 (use-package ansible-vault-with-editor
+  :disabled
   :vc (:url "https://github.com/rynffoll/ansible-vault-with-editor" :rev :newest)
   :general
   (+local-leader-def :keymaps 'yaml-ts-mode-map
