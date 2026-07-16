@@ -35,82 +35,82 @@
   "Tab Bar Theme."
   :group 'tab-bar)
 
-(defface tab-group-active-1
+(defface tab-bar-theme-tab-group-active-1
   '((t (:inherit (outline-1 tab-bar-tab-group-current))))
   "Active face for tab group 1."
   :group 'tab-bar-theme)
 
-(defface tab-group-active-2
+(defface tab-bar-theme-tab-group-active-2
   '((t (:inherit (outline-2 tab-bar-tab-group-current))))
   "Active face for tab group 2."
   :group 'tab-bar-theme)
 
-(defface tab-group-active-3
+(defface tab-bar-theme-tab-group-active-3
   '((t (:inherit (outline-3 tab-bar-tab-group-current))))
   "Active face for tab group 3."
   :group 'tab-bar-theme)
 
-(defface tab-group-active-4
+(defface tab-bar-theme-tab-group-active-4
   '((t (:inherit (outline-4 tab-bar-tab-group-current))))
   "Active face for tab group 4."
   :group 'tab-bar-theme)
 
-(defface tab-group-active-5
+(defface tab-bar-theme-tab-group-active-5
   '((t (:inherit (outline-5 tab-bar-tab-group-current))))
   "Active face for tab group 5."
   :group 'tab-bar-theme)
 
-(defface tab-group-active-6
+(defface tab-bar-theme-tab-group-active-6
   '((t (:inherit (outline-6 tab-bar-tab-group-current))))
   "Active face for tab group 6."
   :group 'tab-bar-theme)
 
-(defface tab-group-active-7
+(defface tab-bar-theme-tab-group-active-7
   '((t (:inherit (outline-7 tab-bar-tab-group-current))))
   "Active face for tab group 7."
   :group 'tab-bar-theme)
 
-(defface tab-group-active-8
+(defface tab-bar-theme-tab-group-active-8
   '((t (:inherit (outline-8 tab-bar-tab-group-current))))
   "Active face for tab group 8."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-1
+(defface tab-bar-theme-tab-group-inactive-1
   '((t (:inherit (outline-1 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 1."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-2
+(defface tab-bar-theme-tab-group-inactive-2
   '((t (:inherit (outline-2 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 2."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-3
+(defface tab-bar-theme-tab-group-inactive-3
   '((t (:inherit (outline-3 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 3."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-4
+(defface tab-bar-theme-tab-group-inactive-4
   '((t (:inherit (outline-4 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 4."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-5
+(defface tab-bar-theme-tab-group-inactive-5
   '((t (:inherit (outline-5 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 5."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-6
+(defface tab-bar-theme-tab-group-inactive-6
   '((t (:inherit (outline-6 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 6."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-7
+(defface tab-bar-theme-tab-group-inactive-7
   '((t (:inherit (outline-7 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 7."
   :group 'tab-bar-theme)
 
-(defface tab-group-inactive-8
+(defface tab-bar-theme-tab-group-inactive-8
   '((t (:inherit (outline-8 tab-bar-tab-group-inactive))))
   "Inactive face for tab group 8."
   :group 'tab-bar-theme)
@@ -134,15 +134,15 @@ When nil, height is not set."
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-group-active-faces
-  '( tab-group-active-1 tab-group-active-2 tab-group-active-3 tab-group-active-4
-     tab-group-active-5 tab-group-active-6 tab-group-active-7 tab-group-active-8)
+  '( tab-bar-theme-tab-group-active-1 tab-bar-theme-tab-group-active-2 tab-bar-theme-tab-group-active-3 tab-bar-theme-tab-group-active-4
+     tab-bar-theme-tab-group-active-5 tab-bar-theme-tab-group-active-6 tab-bar-theme-tab-group-active-7 tab-bar-theme-tab-group-active-8)
   "Available active faces for `tab-group' coloring."
   :type '(repeat face)
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-group-inactive-faces
-  '( tab-group-inactive-1 tab-group-inactive-2 tab-group-inactive-3 tab-group-inactive-4
-     tab-group-inactive-5 tab-group-inactive-6 tab-group-inactive-7 tab-group-inactive-8)
+  '( tab-bar-theme-tab-group-inactive-1 tab-bar-theme-tab-group-inactive-2 tab-bar-theme-tab-group-inactive-3 tab-bar-theme-tab-group-inactive-4
+     tab-bar-theme-tab-group-inactive-5 tab-bar-theme-tab-group-inactive-6 tab-bar-theme-tab-group-inactive-7 tab-bar-theme-tab-group-inactive-8)
   "Available inactive faces for `tab-group' coloring."
   :type '(repeat face)
   :group 'tab-bar-theme)
