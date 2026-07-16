@@ -1481,8 +1481,6 @@
   (prog-mode-hook . flymake-mode))
 
 (use-package sideline
-  ;; TODO: https://github.com/emacs-sideline/sideline/pull/42
-  :vc (:url "https://github.com/rynffoll/sideline" :rev :newest)
   :init
   (setq sideline-backends-right '(sideline-flymake))
   (setq sideline-display-backend-name t))
