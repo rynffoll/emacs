@@ -30,7 +30,7 @@
   "Directory holding this file and its sibling `template.html'.")
 
 (defconst package-report--file
-  (locate-user-emacs-file ".cache/package-report.html")
+  (expand-file-name (locate-user-emacs-file ".cache/package-report.html"))
   "Path of the generated report HTML.
 An inspection artifact for opening in a normal browser — the display
 path in `package-report' uses a data: URI, not this file.")
@@ -191,7 +191,7 @@ Unknown tokens are left as-is; inserted values are not re-scanned."
 Builds the matrix and injects the JSON payload and theme into the sibling
 `template.html'.  Reports on the live session as it is — run
 `package-refresh-contents' first for fresh archive data.  Return a plist
-(:html HTML :summary TEXT)."
+(:summary TEXT)."
   (let* ((data (package-report-data))
          (packages (plist-get data :packages))
          ;; One JSON payload: archive order and the self-contained package
@@ -207,21 +207,18 @@ Builds the matrix and injects the JSON payload and theme into the sibling
                            ("__DATE__"  . ,(format-time-string "%Y-%m-%d %H:%M"))))))
     (make-directory (file-name-directory package-report--file) t)
     (with-temp-file package-report--file (insert html))
-    (list :html html :summary (package-report--summary packages))))
+    (list :summary (package-report--summary packages))))
 
 ;;;###autoload
 (defun package-report ()
-  "Build the package × archive report and show it in an `xwidget-webkit' buffer.
-The page is passed as a `data:' URI rather than a `file://' one so it renders
-everywhere (WebKit shows a blank page for `file://' local files on macOS)."
+  "Build the package × archive report and show it in a browser.
+Uses `xwidget-webkit' when available, otherwise the system browser."
   (interactive)
-  (unless (and (display-graphic-p) (featurep 'xwidget-internal))
-    (user-error "package-report requires a graphical Emacs with xwidget support"))
-  (let ((url (concat "data:text/html;charset=utf-8;base64,"
-                     (base64-encode-string
-                      (encode-coding-string (plist-get (package-report--build) :html) 'utf-8)
-                      t))))
-    (xwidget-webkit-browse-url url)))
+  (package-report--build)
+  (if (and (display-graphic-p) (featurep 'xwidget-internal))
+      (let ((browse-url-browser-function #'xwidget-webkit-browse-url))
+        (browse-url-of-file package-report--file))
+    (browse-url-of-file package-report--file)))
 
 (provide 'package-report)
 ;;; package-report.el ends here
