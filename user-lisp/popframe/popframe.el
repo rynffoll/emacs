@@ -23,24 +23,24 @@
 
 ;;; Commentary:
 
-;; Toggle any buffer in a centered, focused child frame, built on posframe.
+;; Toggle a centered, focused child frame, built on posframe.
 ;;
-;; Which buffer to pop is chosen by `popframe-buffer-function': a buffer,
-;; a buffer name, or a function returning one.  A function is called inside
-;; `save-window-excursion', so buffer providers with window side effects
-;; (e.g. `ghostel-project') can be used as-is:
+;; The frame is created lazily on the first `popframe-toggle' from
+;; `popframe-buffer-function' (a buffer, a buffer name, or a function
+;; returning one; a function is called inside `save-window-excursion', so
+;; providers with window side effects like `ghostel-project' work as-is):
 ;;
 ;;   (setq popframe-buffer-function #'ghostel-project)
 ;;
-;; Then bind the single command `popframe-toggle'.  Toggling while visible
-;; hides the frame; toggling a different buffer replaces it.
+;; The frame is then reused: each time it is shown `popframe-buffer-function'
+;; is re-resolved and its buffer swapped into the frame's window, while the
+;; frame itself persists.  Bind the single command `popframe-toggle' to a key.
 
 ;;; Code:
 
 ;; posframe is required lazily in `popframe--show' so byte-compilation does
 ;; not depend on the ELPA package being on `load-path' yet.
 (declare-function posframe-show "posframe" (buffer-or-name &rest args))
-(declare-function posframe-hide "posframe" (buffer-or-name))
 (declare-function posframe-poshandler-frame-center "posframe" (info))
 
 
@@ -69,8 +69,14 @@ Passed verbatim to posframe's :override-parameters.  For example,
   :type '(alist :key-type symbol :value-type sexp))
 
 
-(defvar popframe--buffer nil
-  "Buffer currently shown in the popframe, if any.")
+(defvar popframe--frame nil
+  "The child frame created by `popframe-toggle', or nil when none.")
+
+(defun popframe--live-frame ()
+  "Return `popframe--frame' if it is live, clearing a stale reference."
+  (if (frame-live-p popframe--frame)
+      popframe--frame
+    (setq popframe--frame nil)))
 
 (defun popframe--resolve (spec)
   "Resolve SPEC to a live buffer, or nil.
@@ -81,28 +87,28 @@ is called inside `save-window-excursion'."
        (save-window-excursion (funcall spec))
      spec)))
 
-(defun popframe--frame (buffer)
-  "Return the child frame BUFFER is displayed in, or nil.
-Reads posframe's buffer-local `posframe--frame': posframe exposes no
-public accessor, so this is the de-facto seam its own code uses too."
-  (buffer-local-value 'posframe--frame buffer))
-
-(defun popframe--visible-p (buffer)
-  "Non-nil when BUFFER's child frame is live and visible."
-  (when-let* ((frame (popframe--frame buffer)))
-    (and (frame-live-p frame) (frame-visible-p frame))))
-
-(defun popframe--hide (buffer)
-  "Hide BUFFER's child frame and return focus to its parent frame."
-  (let* ((frame  (popframe--frame buffer))
-         (parent (and (frame-live-p frame)
-                      (frame-parameter frame 'parent-frame))))
-    (posframe-hide buffer)
+(defun popframe--hide (frame)
+  "Make FRAME invisible and return focus to its parent frame."
+  (let ((parent (frame-parameter frame 'parent-frame)))
+    (make-frame-invisible frame)
     (when (frame-live-p parent)
       (select-frame-set-input-focus parent))))
 
-(defun popframe--show (buffer)
-  "Show BUFFER in a centered, focused child frame."
+(defun popframe--reveal (frame buffer)
+  "Show BUFFER in FRAME, make it visible, and give it input focus.
+Reuses FRAME's window (only its buffer changes).  The window is dedicated
+\(so killing its buffer deletes the frame), so dedication is lifted around
+the buffer swap and restored afterwards."
+  (let ((win (frame-root-window frame)))
+    (set-window-dedicated-p win nil)
+    (set-window-buffer win buffer)
+    (set-window-dedicated-p win t)
+    (make-frame-visible frame)
+    (select-frame-set-input-focus frame)))
+
+(defun popframe--create (buffer)
+  "Create and show a centered child frame displaying BUFFER.
+Store it in `popframe--frame' and focus it."
   (posframe-show buffer
                  :poshandler #'posframe-poshandler-frame-center
                  :width  (round (* (frame-width)  popframe-width-ratio))
@@ -117,27 +123,34 @@ public accessor, so this is the de-facto seam its own code uses too."
                  :accept-focus t
                  :cursor t
                  :window-point (with-current-buffer buffer (point)))
-  (select-frame-set-input-focus (popframe--frame buffer)))
+  (let ((frame (buffer-local-value 'posframe--frame buffer)))
+    (setq popframe--frame frame)
+    ;; posframe marks BUFFER as its own via a buffer-local `posframe--frame',
+    ;; and `posframe-delete-all' kills every buffer so marked.  We display
+    ;; real buffers we must not kill and track the frame ourselves, so drop
+    ;; the mark.  posframe still finds the frame by its `posframe-buffer'
+    ;; frame parameter, so `posframe-hide' etc. keep working.
+    (with-current-buffer buffer (kill-local-variable 'posframe--frame))
+    (select-frame-set-input-focus frame)))
 
 
 ;;;###autoload
 (defun popframe-toggle ()
-  "Toggle a centered child frame showing `popframe-buffer-function'."
+  "Toggle the popframe child frame.
+The frame is created lazily on first use and reused afterwards: each
+time it is shown, `popframe-buffer-function' is re-resolved and its
+buffer swapped into the frame's window, while the frame itself persists."
   (interactive)
   (require 'posframe)
-  (let ((buffer (popframe--resolve popframe-buffer-function)))
-    (unless (buffer-live-p buffer)
-      (user-error "popframe: `popframe-buffer-function' yielded no buffer"))
-    (cond
-     ((popframe--visible-p buffer)
-      (popframe--hide buffer))
-     (t
-      (when (and popframe--buffer
-                 (buffer-live-p popframe--buffer)
-                 (not (eq popframe--buffer buffer)))
-        (posframe-hide popframe--buffer))
-      (popframe--show buffer)
-      (setq popframe--buffer buffer)))))
+  (let ((frame (popframe--live-frame)))
+    (if (and frame (frame-visible-p frame))
+        (popframe--hide frame)
+      (let ((buffer (popframe--resolve popframe-buffer-function)))
+        (unless (buffer-live-p buffer)
+          (user-error "popframe: `popframe-buffer-function' yielded no buffer"))
+        (if frame
+            (popframe--reveal frame buffer)
+          (popframe--create buffer))))))
 
 (provide 'popframe)
 ;;; popframe.el ends here
