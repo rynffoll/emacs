@@ -2545,34 +2545,16 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+begin_src emacs-lisp
 (use-package magit
   :preface
-  (defun +magit-worktree-switch-project (worktree)
-    "Create .dir-locals.el with `project-vc-name' in WORKTREE.
-Sets project-vc-name to \"project[worktree]\" so that `project.el'
-can distinguish worktrees from the main checkout."
-    (interactive
-     (list (or (magit-section-value-if 'worktree)
-               (magit-completing-read
-                "Switch project in worktree"
-                (magit-list-worktrees)
-                nil t))))
-    (let* ((path (if (listp worktree) (car worktree) worktree))
-           (proj-orig (caar (magit-list-worktrees))))
-      ;; Skip .dir-locals.el for primary worktree — it already has the
-      ;; correct project name from its directory.
-      (unless (string= (file-truename path) (file-truename proj-orig))
-        (let* ((wt-name (file-name-nondirectory (directory-file-name path)))
-               (proj-name (format "%s[%s]"
-                                  (file-name-nondirectory (directory-file-name proj-orig))
-                                  wt-name))
-               (proj-new (project-current nil path)))
-          (unless (and proj-new (equal (project-name proj-new) proj-name))
-            (save-window-excursion
-              (modify-dir-local-variable nil 'project-vc-name proj-name 'add-or-replace
-                                         (expand-file-name ".dir-locals.el" path))
-              (save-buffer)
-              (kill-buffer)))))
-      (project-remember-project (project-current nil path))
-      (project-switch-project path)))
+  (defun +magit-worktree-register (directory &rest _)
+    "Remember a newly created worktree DIRECTORY as a project.
+Advises Magit's worktree-creation commands."
+    (when-let* ((project (project-current nil directory)))
+      (project-remember-project project)))
+  (defun +magit-worktree-status (worktree)
+    "Show WORKTREE's Magit status, switching to it as its project.
+Overrides `magit-worktree-status', inheriting its interactive spec."
+    (let ((project-switch-commands #'magit-project-status))
+      (project-switch-project worktree)))
   :init
   (setq magit-define-global-key-bindings 'recommended)
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
@@ -2584,8 +2566,9 @@ can distinguish worktrees from the main checkout."
   (when +with-icons
     (setq magit-format-file-function #'magit-format-file-nerd-icons))
   :config
-  (transient-append-suffix 'magit-worktree "g"
-    '("p" "Switch project" +magit-worktree-switch-project))
+  (advice-add 'magit-worktree-checkout :after #'+magit-worktree-register)
+  (advice-add 'magit-worktree-branch   :after #'+magit-worktree-register)
+  (advice-add 'magit-worktree-status :override #'+magit-worktree-status)
   ;; https://github.com/magit/magit/issues/3230#issuecomment-339900039
   (magit-add-section-hook 'magit-status-sections-hook
                           'magit-insert-unpushed-to-upstream
