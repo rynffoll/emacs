@@ -1625,7 +1625,9 @@ can distinguish worktrees from the main checkout."
   (magit-add-section-hook 'magit-status-sections-hook
                           'magit-insert-unpushed-to-upstream
                           'magit-insert-unpushed-to-upstream-or-recent
-                          'replace))
+                          'replace)
+  (magit-add-section-hook 'magit-status-sections-hook
+                          'magit-insert-worktrees nil t))
 
 (use-package magit-blame
   :ensure magit
