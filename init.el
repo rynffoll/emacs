@@ -1002,6 +1002,12 @@
   :hook
   (corfu-mode-hook . corfu-history-mode))
 
+(use-package corfu-mouse
+  :ensure corfu
+  :if (display-graphic-p)
+  :hook
+  (corfu-mode-hook . corfu-mouse-mode))
+
 (use-package kind-icon
   :unless +with-icons
   :after corfu

@@ -1682,6 +1682,14 @@ If you'd like to test a different font, evaluate the following block:
   (corfu-mode-hook . corfu-history-mode))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package corfu-mouse
+  :ensure corfu
+  :if (display-graphic-p)
+  :hook
+  (corfu-mode-hook . corfu-mouse-mode))
+#+end_src
+
 ** kind-icon
 #+begin_src emacs-lisp
 (use-package kind-icon
