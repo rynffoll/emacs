@@ -94,6 +94,11 @@ is called inside `save-window-excursion'."
     (when (frame-live-p parent)
       (select-frame-set-input-focus parent))))
 
+(defun popframe--parent-fullscreen (frame)
+  "Return the `fullscreen' parameter of FRAME's parent frame, or nil."
+  (let ((parent (frame-parameter frame 'parent-frame)))
+    (and (frame-live-p parent) (frame-parameter parent 'fullscreen))))
+
 (defun popframe--fit (frame)
   "Resize FRAME to the configured ratios of its parent and re-center it.
 Resizes only when the target character size differs from the current one,
@@ -150,6 +155,12 @@ Store it in `popframe--frame' and focus it."
     ;; the mark.  posframe still finds the frame by its `posframe-buffer'
     ;; frame parameter, so `posframe-hide' etc. keep working.
     (with-current-buffer buffer (kill-local-variable 'posframe--frame))
+    ;; Remember the parent's fullscreen state at creation.  A child frame is
+    ;; bound to the macOS Space it was born on; if the parent later enters or
+    ;; leaves native fullscreen (a different Space), reusing this frame would
+    ;; drag focus back to the old Space, so `popframe-toggle' recreates it.
+    (set-frame-parameter frame 'popframe-created-fullscreen
+                         (popframe--parent-fullscreen frame))
     (select-frame-set-input-focus frame)))
 
 
@@ -167,6 +178,14 @@ buffer swapped into the frame's window, while the frame itself persists."
       (let ((buffer (popframe--resolve popframe-buffer-function)))
         (unless (buffer-live-p buffer)
           (user-error "popframe: `popframe-buffer-function' yielded no buffer"))
+        ;; If the parent changed fullscreen state (hence macOS Space) since the
+        ;; frame was created, a reused child frame would yank focus to its
+        ;; original Space; recreate it in the current one instead.
+        (when (and frame
+                   (not (equal (popframe--parent-fullscreen frame)
+                               (frame-parameter frame 'popframe-created-fullscreen))))
+          (delete-frame frame)
+          (setq frame nil popframe--frame nil))
         (if frame
             (popframe--reveal frame buffer)
           (popframe--create buffer))))))
