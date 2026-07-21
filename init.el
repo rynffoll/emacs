@@ -650,7 +650,9 @@
   :general
   ("C-`" 'popframe-toggle)
   :init
-  (setq popframe-override-parameters '((alpha . 95)))
+  (setq popframe-override-parameters '((alpha . 95)
+                                       (undecorated . nil)
+                                       (undecorated-round . t)))
   (setq popframe-buffer-function #'+popframe-ghostel))
 
 (use-package tab-bar

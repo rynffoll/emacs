@@ -116,8 +116,8 @@ Store it in `popframe--frame' and focus it."
                  :override-parameters popframe-override-parameters
                  :left-fringe 8
                  :right-fringe 8
-                 :internal-border-width 3
-                 :internal-border-color (face-background 'region nil t)
+                 ;; :internal-border-width 3
+                 ;; :internal-border-color (face-background 'region nil t)
                  :respect-mode-line t
                  :respect-header-line t
                  :accept-focus t
