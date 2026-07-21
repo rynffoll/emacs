@@ -94,15 +94,34 @@ is called inside `save-window-excursion'."
     (when (frame-live-p parent)
       (select-frame-set-input-focus parent))))
 
+(defun popframe--fit (frame)
+  "Resize FRAME to the configured ratios of its parent and re-center it.
+Resizes only when the target character size differs from the current one,
+then always re-centers, so a parent resized while FRAME was hidden (for
+example toggling fullscreen) does not leave FRAME oversized or off-center."
+  (let* ((parent (frame-parameter frame 'parent-frame))
+         (parent (if (frame-live-p parent) parent (selected-frame)))
+         (cols  (round (* (frame-width  parent) popframe-width-ratio)))
+         (lines (round (* (frame-height parent) popframe-height-ratio))))
+    (unless (and (= cols  (frame-width  frame))
+                 (= lines (frame-height frame)))
+      (set-frame-size frame cols lines))
+    (set-frame-position
+     frame
+     (max 0 (/ (- (frame-pixel-width  parent) (frame-pixel-width  frame)) 2))
+     (max 0 (/ (- (frame-pixel-height parent) (frame-pixel-height frame)) 2)))))
+
 (defun popframe--reveal (frame buffer)
   "Show BUFFER in FRAME, make it visible, and give it input focus.
 Reuses FRAME's window (only its buffer changes).  The window is dedicated
 \(so killing its buffer deletes the frame), so dedication is lifted around
-the buffer swap and restored afterwards."
+the buffer swap and restored afterwards.  FRAME is refit to its parent
+first, in case the parent was resized while FRAME was hidden."
   (let ((win (frame-root-window frame)))
     (set-window-dedicated-p win nil)
     (set-window-buffer win buffer)
     (set-window-dedicated-p win t)
+    (popframe--fit frame)
     (make-frame-visible frame)
     (select-frame-set-input-focus frame)))
 
