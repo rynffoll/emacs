@@ -1939,6 +1939,7 @@ Covers both working-tree faces and reference-revision faces."
   :init
   (setq eglot-autoshutdown t)
   (setq eglot-sync-connect nil)
+  (setq eglot-extend-to-xref t)
   (setq eglot-events-buffer-config '(:size 0 :format full))
   :config
   ;; https://github.com/doomemacs/doomemacs/blob/master/modules/tools/lsp/%2Beglot.el
