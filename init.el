@@ -2287,7 +2287,9 @@ Covers both working-tree faces and reference-revision faces."
   (gptel-post-stream-hook . gptel-auto-scroll)
   (gptel-post-response-functions . gptel-end-of-response))
 
+;; https://github.com/doomemacs/modules/blob/main/modules/tools/llm/packages.el
 (use-package gptel-magit
+  :vc (:url "https://github.com/ArthurHeymans/gptel-magit" :rev :newest)
   :hook
   (magit-mode-hook . gptel-magit-install))
 

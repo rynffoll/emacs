@@ -3516,7 +3516,9 @@ machine api.openai.com login apikey password TOKEN
 
 ** gptel-magit
 #+begin_src emacs-lisp
+;; https://github.com/doomemacs/modules/blob/main/modules/tools/llm/packages.el
 (use-package gptel-magit
+  :vc (:url "https://github.com/ArthurHeymans/gptel-magit" :rev :newest)
   :hook
   (magit-mode-hook . gptel-magit-install))
 #+end_src
