@@ -788,7 +788,9 @@
           ("\\*docker-compose .*\\*" :regexp t :align below)
           (comint-mode :align below)
           ("*compilation*" :align below)
-          (ghostel-compile-view-mode :align below)))
+          (ghostel-compile-view-mode :align below)
+          (world-clock-mode :align below)
+          ))
   :hook
   (after-init-hook . shackle-mode))
 
