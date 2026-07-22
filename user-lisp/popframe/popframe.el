@@ -97,6 +97,15 @@ is called inside `save-window-excursion'."
     (when (frame-live-p parent)
       (select-frame-set-input-focus parent))))
 
+(defun popframe--auto-hide ()
+  "Hide the popframe frame, keeping it for reuse.
+Installed as the child frame's `auto-hide-function' parameter so that
+`quit-window', `bury-buffer' and friends dismiss the popframe instead of
+falling back to `frame-auto-hide-function' (whose default `iconify-frame'
+is a no-op on a child frame).  Emacs calls this with no arguments."
+  (when (frame-live-p popframe--frame)
+    (popframe--hide popframe--frame)))
+
 (defun popframe--parent-fullscreen (frame)
   "Return the `fullscreen' parameter of FRAME's parent frame, or nil."
   (let ((parent (frame-parameter frame 'parent-frame)))
@@ -158,6 +167,9 @@ Store it in `popframe--frame' and focus it."
     ;; the mark.  posframe still finds the frame by its `posframe-buffer'
     ;; frame parameter, so `posframe-hide' etc. keep working.
     (with-current-buffer buffer (kill-local-variable 'posframe--frame))
+    ;; Dismiss via `quit-window'/`bury-buffer': Emacs auto-hides a buffer's
+    ;; separate frame through this parameter, so route it to `popframe--hide'.
+    (set-frame-parameter frame 'auto-hide-function #'popframe--auto-hide)
     ;; Remember the parent's fullscreen state at creation.  A child frame is
     ;; bound to the macOS Space it was born on; if the parent later enters or
     ;; leaves native fullscreen (a different Space), reusing this frame would
