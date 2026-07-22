@@ -306,6 +306,7 @@
     "or"  '+rebased
     "oa"  'org-agenda
     "ox"  'org-capture
+    "ow"  '+popframe-world-clock
 
     "p"   '(:keymap project-prefix-map :package project :wk "project")
 
@@ -647,13 +648,17 @@
     (if (project-current)
         (ghostel-project)
       (ghostel)))
+  (defun +popframe-world-clock ()
+    "Toggle the world clock in a popframe."
+    (interactive)
+    (popframe (lambda () (world-clock) world-clock-buffer-name)))
   :general
-  ("C-`" 'popframe-toggle)
+  ("C-`" 'popframe)
   :init
   (setq popframe-override-parameters '((alpha . 95)
                                        (undecorated . nil)
                                        (undecorated-round . t)))
-  (setq popframe-buffer-function #'+popframe-ghostel))
+  (setq popframe-default-buffer #'+popframe-ghostel))
 
 (use-package tab-bar
   :ensure nil

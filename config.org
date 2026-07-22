@@ -1214,12 +1214,12 @@ If you'd like to test a different font, evaluate the following block:
         (ghostel-project)
       (ghostel)))
   :general
-  ("C-`" 'popframe-toggle)
+  ("C-`" 'popframe)
   :init
   (setq popframe-override-parameters '((alpha . 95)
                                        (undecorated . nil)
                                        (undecorated-round . t)))
-  (setq popframe-buffer-function #'+popframe-ghostel))
+  (setq popframe-default-buffer #'+popframe-ghostel))
 #+end_src
 
 * Tabs

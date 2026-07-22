@@ -25,16 +25,19 @@
 
 ;; Toggle a centered, focused child frame, built on posframe.
 ;;
-;; The frame is created lazily on the first `popframe-toggle' from
-;; `popframe-buffer-function' (a buffer, a buffer name, or a function
-;; returning one; a function is called inside `save-window-excursion', so
-;; providers with window side effects like `ghostel-project' work as-is):
+;; The frame is created lazily on the first `popframe' call from a buffer
+;; spec (a buffer, a buffer name, or a function returning one; a function is
+;; called inside `save-window-excursion', so providers with window side
+;; effects like `ghostel-project' work as-is).  `popframe' takes the spec as
+;; an optional argument, defaulting to `popframe-default-buffer':
 ;;
-;;   (setq popframe-buffer-function #'ghostel-project)
+;;   (setq popframe-default-buffer #'ghostel-project)
+;;   (popframe)                      ; toggle the default buffer
+;;   (popframe #'world-clock-spec)   ; toggle some other buffer
 ;;
-;; The frame is then reused: each time it is shown `popframe-buffer-function'
-;; is re-resolved and its buffer swapped into the frame's window, while the
-;; frame itself persists.  Bind the single command `popframe-toggle' to a key.
+;; A single frame is shared and reused: showing a new spec swaps its buffer
+;; into the frame's window, while the frame itself persists.  Calling
+;; `popframe' for the buffer already shown hides the frame.
 
 ;;; Code:
 
@@ -42,14 +45,14 @@
 ;; not depend on the ELPA package being on `load-path' yet.
 (declare-function posframe-show "posframe" (buffer-or-name &rest args))
 (declare-function posframe-poshandler-frame-center "posframe" (info))
-
 
+
 (defgroup popframe nil
   "Toggle any buffer in a centered child frame."
   :group 'convenience)
 
-(defcustom popframe-buffer-function nil
-  "Buffer shown by `popframe-toggle'.
+(defcustom popframe-default-buffer nil
+  "Default buffer spec shown by `popframe' when called with no argument.
 A buffer, a buffer name, or a function returning one.  A function is
 called inside `save-window-excursion'."
   :type '(choice (const :tag "None" nil) function string))
@@ -67,10 +70,10 @@ called inside `save-window-excursion'."
 Passed verbatim to posframe's :override-parameters.  For example,
 `((alpha . 90))' sets the frame opacity."
   :type '(alist :key-type symbol :value-type sexp))
-
 
+
 (defvar popframe--frame nil
-  "The child frame created by `popframe-toggle', or nil when none.")
+  "The child frame created by `popframe', or nil when none.")
 
 (defun popframe--live-frame ()
   "Return `popframe--frame' if it is live, clearing a stale reference."
@@ -158,37 +161,51 @@ Store it in `popframe--frame' and focus it."
     ;; Remember the parent's fullscreen state at creation.  A child frame is
     ;; bound to the macOS Space it was born on; if the parent later enters or
     ;; leaves native fullscreen (a different Space), reusing this frame would
-    ;; drag focus back to the old Space, so `popframe-toggle' recreates it.
+    ;; drag focus back to the old Space, so `popframe' recreates it.
     (set-frame-parameter frame 'popframe-created-fullscreen
                          (popframe--parent-fullscreen frame))
     (select-frame-set-input-focus frame)))
 
 
 ;;;###autoload
-(defun popframe-toggle ()
-  "Toggle the popframe child frame.
-The frame is created lazily on first use and reused afterwards: each
-time it is shown, `popframe-buffer-function' is re-resolved and its
-buffer swapped into the frame's window, while the frame itself persists."
+(defun popframe (&optional spec)
+  "Toggle the popframe child frame showing SPEC.
+SPEC is a buffer, a buffer name, or a function returning one; it defaults
+to `popframe-default-buffer'.  A function is called inside
+`save-window-excursion'.
+
+A single child frame is shared and reused: the frame is created lazily on
+first use, and showing a different SPEC swaps its buffer into the frame's
+window while the frame itself persists.  Calling this command for the
+buffer already shown hides the frame, so each spec toggles independently."
   (interactive)
   (require 'posframe)
-  (let ((frame (popframe--live-frame)))
-    (if (and frame (frame-visible-p frame))
+  (let* ((spec (or spec popframe-default-buffer))
+         (frame (popframe--live-frame))
+         (parent (and frame (frame-parameter frame 'parent-frame)))
+         ;; Resolve with the parent frame selected so a provider's window side
+         ;; effects (buffer display, tab-bar) land on the real frame, not on
+         ;; the floating child — whose frame parameters `save-window-excursion'
+         ;; inside `popframe--resolve' would not restore.
+         (buffer (with-selected-frame (if (frame-live-p parent) parent (selected-frame))
+                   (popframe--resolve spec))))
+    (unless (buffer-live-p buffer)
+      (user-error "popframe: spec yielded no buffer"))
+    (if (and frame
+             (frame-visible-p frame)
+             (eq (window-buffer (frame-root-window frame)) buffer))
         (popframe--hide frame)
-      (let ((buffer (popframe--resolve popframe-buffer-function)))
-        (unless (buffer-live-p buffer)
-          (user-error "popframe: `popframe-buffer-function' yielded no buffer"))
-        ;; If the parent changed fullscreen state (hence macOS Space) since the
-        ;; frame was created, a reused child frame would yank focus to its
-        ;; original Space; recreate it in the current one instead.
-        (when (and frame
-                   (not (equal (popframe--parent-fullscreen frame)
-                               (frame-parameter frame 'popframe-created-fullscreen))))
-          (delete-frame frame)
-          (setq frame nil popframe--frame nil))
-        (if frame
-            (popframe--reveal frame buffer)
-          (popframe--create buffer))))))
+      ;; If the parent changed fullscreen state (hence macOS Space) since the
+      ;; frame was created, a reused child frame would yank focus to its
+      ;; original Space; recreate it in the current one instead.
+      (when (and frame
+                 (not (equal (popframe--parent-fullscreen frame)
+                             (frame-parameter frame 'popframe-created-fullscreen))))
+        (delete-frame frame)
+        (setq frame nil popframe--frame nil))
+      (if frame
+          (popframe--reveal frame buffer)
+        (popframe--create buffer)))))
 
 (provide 'popframe)
 ;;; popframe.el ends here
