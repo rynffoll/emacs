@@ -306,7 +306,6 @@
     "or"  '+rebased
     "oa"  'org-agenda
     "ox"  'org-capture
-    "ow"  '+popframe-world-clock
 
     "p"   '(:keymap project-prefix-map :package project :wk "project")
 
@@ -648,10 +647,6 @@
     (if (project-current)
         (ghostel-project)
       (ghostel)))
-  (defun +popframe-world-clock ()
-    "Toggle the world clock in a popframe."
-    (interactive)
-    (popframe (lambda () (world-clock) world-clock-buffer-name)))
   :general
   ("C-`" 'popframe)
   :init
