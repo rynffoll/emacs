@@ -30,7 +30,9 @@
 
 (add-hook 'emacs-startup-hook
           #'(lambda ()
-              (setq file-name-handler-alist +file-name-handler-alist)))
+              (setq file-name-handler-alist
+                    (delete-dups (append file-name-handler-alist
+                                         +file-name-handler-alist)))))
 
 (setq inhibit-startup-screen t)
 (setq inhibit-startup-message t)

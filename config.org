@@ -308,7 +308,9 @@
 
 (add-hook 'emacs-startup-hook
           #'(lambda ()
-              (setq file-name-handler-alist +file-name-handler-alist)))
+              (setq file-name-handler-alist
+                    (delete-dups (append file-name-handler-alist
+                                         +file-name-handler-alist)))))
 #+end_src
 
 ** UI
