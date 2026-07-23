@@ -219,6 +219,7 @@
   - [[#treesit][treesit]]
   - [[#elisp][elisp]]
   - [[#clojure][clojure]]
+  - [[#java][java]]
   - [[#golang][golang]]
   - [[#makefile][makefile]]
   - [[#plantuml][plantuml]]
@@ -3168,6 +3169,19 @@ Upgrade eglot to the latest version
     "R" '(hydra-cljr-help-menu/body :wk "refactor"))
   :hook
   (clojure-ts-mode-hook . clj-refactor-mode))
+#+end_src
+
+** java
+#+begin_src emacs-lisp
+(use-package eglot-java
+  :hook
+  (java-ts-mode-hook . eglot-java-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package jarchive
+  :hook
+  (after-init-hook . jarchive-mode))
 #+end_src
 
 ** golang

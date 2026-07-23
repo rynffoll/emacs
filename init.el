@@ -2061,6 +2061,14 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (clojure-ts-mode-hook . clj-refactor-mode))
 
+(use-package eglot-java
+  :hook
+  (java-ts-mode-hook . eglot-java-mode))
+
+(use-package jarchive
+  :hook
+  (after-init-hook . jarchive-mode))
+
 (use-package go-ts-mode
   :ensure nil
   :init
