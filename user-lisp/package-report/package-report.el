@@ -189,9 +189,8 @@ Unknown tokens are left as-is; inserted values are not re-scanned."
 (defun package-report--build ()
   "Collect data, render the report HTML, and write it to `package-report--file'.
 Builds the matrix and injects the JSON payload and theme into the sibling
-`template.html'.  Reports on the live session as it is — run
-`package-refresh-contents' first for fresh archive data.  Return a plist
-(:summary TEXT)."
+`template.html'.  Reports on the live session's archive data as it is.
+Return a plist (:summary TEXT)."
   (let* ((data (package-report-data))
          (packages (plist-get data :packages))
          ;; One JSON payload: archive order and the self-contained package
@@ -212,8 +211,10 @@ Builds the matrix and injects the JSON payload and theme into the sibling
 ;;;###autoload
 (defun package-report ()
   "Build the package × archive report and show it in a browser.
+Refreshes archive contents first so the report reflects the latest data.
 Uses `xwidget-webkit' when available, otherwise the system browser."
   (interactive)
+  (package-refresh-contents)
   (package-report--build)
   (if (and (display-graphic-p) (featurep 'xwidget-internal))
       (let ((browse-url-browser-function #'xwidget-webkit-browse-url))
