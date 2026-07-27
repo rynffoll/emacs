@@ -1589,19 +1589,6 @@
   (ediff-quit-hook . tab-bar-history-back))
 
 (use-package magit
-  :preface
-  (defun +magit-diff-visit-directory (orig-fn directory &optional other-window)
-    "Switch to DIRECTORY as its own project when visited via a worktree
-command, instead of merely showing its status inline.
-Advises `magit-diff-visit-directory'."
-    (if (and (memq this-command '(magit-worktree-checkout
-                                  magit-worktree-branch
-                                  magit-worktree-move
-                                  magit-worktree-status))
-             (not (equal (magit-toplevel directory) (magit-toplevel))))
-        (let ((project-switch-commands #'magit-project-status))
-          (project-switch-project directory))
-      (funcall orig-fn directory other-window)))
   :init
   (setq magit-define-global-key-bindings 'recommended)
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
@@ -1613,14 +1600,11 @@ Advises `magit-diff-visit-directory'."
   (when +with-icons
     (setq magit-format-file-function #'magit-format-file-nerd-icons))
   :config
-  (advice-add 'magit-diff-visit-directory :around #'+magit-diff-visit-directory)
   ;; https://github.com/magit/magit/issues/3230#issuecomment-339900039
   (magit-add-section-hook 'magit-status-sections-hook
                           'magit-insert-unpushed-to-upstream
                           'magit-insert-unpushed-to-upstream-or-recent
-                          'replace)
-  (magit-add-section-hook 'magit-status-sections-hook
-                          'magit-insert-worktrees nil t))
+                          'replace))
 
 (use-package magit-blame
   :ensure magit
@@ -1634,6 +1618,26 @@ Advises `magit-diff-visit-directory'."
      (margin-face      . magit-blame-margin)
      (margin-body-face . (magit-blame-dimmed))
      (show-message     . t))))
+
+(use-package magit-worktree
+  :ensure magit
+  :preface
+  (defun +magit-diff-visit-directory (orig-fn directory &optional other-window)
+    "Switch to DIRECTORY as its own project when visited via a worktree
+command, instead of merely showing its status inline.
+Advises `magit-diff-visit-directory'."
+    (if (and (memq this-command '(magit-worktree-checkout
+                                  magit-worktree-branch
+                                  magit-worktree-move
+                                  magit-worktree-status))
+             (not (equal (magit-toplevel directory) (magit-toplevel))))
+        (let ((project-switch-commands #'magit-project-status))
+          (project-switch-project directory))
+      (funcall orig-fn directory other-window)))
+  :config
+  (advice-add 'magit-diff-visit-directory :around #'+magit-diff-visit-directory)
+  (magit-add-section-hook 'magit-status-sections-hook
+                          'magit-insert-worktrees nil t))
 
 (use-package git-modes
   :mode ("/.dockerignore\\'" . gitignore-mode))
