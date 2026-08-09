@@ -409,8 +409,6 @@
 
 (use-package ultra-scroll
   :if (display-graphic-p)
-  :init
-  (setq scroll-margin 0) ;; important: scroll-margin>0 not yet supported
   :hook
   (after-init-hook . ultra-scroll-mode))
 
