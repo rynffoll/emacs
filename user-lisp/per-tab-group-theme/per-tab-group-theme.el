@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'tab-bar)
+(require 'subr-x)                       ; `string-pad'
 
 
 
@@ -63,10 +64,8 @@ Example: ((\"Work\" . modus-vivendi) (\"Play\" . catppuccin-latte))."
 
 (defun per-tab-group-theme--get-group-theme (group)
   "Get theme for GROUP or default if no mapping exists."
-  (if group
-      (or (alist-get group per-tab-group-theme-alist nil nil #'string=)
-          (per-tab-group-theme--get-default-theme))
-    (per-tab-group-theme--get-default-theme)))
+  (or (and group (alist-get group per-tab-group-theme-alist nil nil #'string=))
+      (per-tab-group-theme--get-default-theme)))
 
 (defun per-tab-group-theme--set-group-theme (group theme)
   "Set THEME for GROUP, or set default theme if GROUP is nil."
@@ -105,8 +104,10 @@ Example: ((\"Work\" . modus-vivendi) (\"Play\" . catppuccin-latte))."
 When called interactively, uses current group."
   (interactive (list (per-tab-group-theme--current-group)))
   (when group
+    ;; Keys are strings, so `equal' (`assoc-delete-all's default test) — the
+    ;; same test `per-tab-group-theme--set-group-theme' installs them with.
     (setq per-tab-group-theme-alist
-          (assq-delete-all group per-tab-group-theme-alist)))
+          (assoc-delete-all group per-tab-group-theme-alist)))
   (per-tab-group-theme--apply-for-group))
 
 ;;;###autoload
@@ -120,39 +121,34 @@ When called interactively, uses current group."
 (defun per-tab-group-theme-show-mappings ()
   "Show current theme mappings."
   (interactive)
-  (let ((current-group (per-tab-group-theme--current-group)))
+  (let ((current-group (per-tab-group-theme--current-group))
+        (width (apply #'max 0 (mapcar (lambda (pair) (length (car pair)))
+                                      per-tab-group-theme-alist))))
     (message "Default theme: %s\nGroups:\n%s"
              (or per-tab-group-theme--default-theme "none")
              (if per-tab-group-theme-alist
-                 (let ((max-width (apply #'max (mapcar (lambda (pair) (length (car pair)))
-                                                       per-tab-group-theme-alist))))
-                   (mapconcat (lambda (pair)
-                                (let ((format-string (format "  %%-%ds → %%s" max-width))
-                                      (group (car pair))
-                                      (theme (cdr pair)))
-                                  (format "%s%s"
-                                          (if (and current-group (string= group current-group)) "•" " ")
-                                          (format format-string group theme))))
-                              per-tab-group-theme-alist "\n"))
+                 (mapconcat (lambda (pair)
+                              (format "%s  %s → %s"
+                                      (if (equal (car pair) current-group) "•" " ")
+                                      (string-pad (car pair) width)
+                                      (cdr pair)))
+                            per-tab-group-theme-alist "\n")
                "  none"))))
 
-(defun per-tab-group-theme--activate ()
-  "Activate hooks and advice used by `per-tab-group-theme-mode'."
-  (add-hook 'tab-bar-tab-post-select-functions #'per-tab-group-theme--apply-for-group)
-  (add-hook 'tab-bar-tab-post-open-functions #'per-tab-group-theme--apply-for-group)
-  (add-hook 'tab-bar-tab-post-change-group-functions #'per-tab-group-theme--apply-for-group)
-  (add-hook 'after-make-frame-functions #'per-tab-group-theme--apply-for-group)
+(defconst per-tab-group-theme--hooks
+  '((tab-bar-tab-post-select-functions       . per-tab-group-theme--apply-for-group)
+    (tab-bar-tab-post-open-functions         . per-tab-group-theme--apply-for-group)
+    (tab-bar-tab-post-change-group-functions . per-tab-group-theme--apply-for-group)
+    (after-make-frame-functions              . per-tab-group-theme--apply-for-group)
+    (enable-theme-functions                  . per-tab-group-theme--on-enable-theme))
+  "Hooks `per-tab-group-theme-mode' installs, as (HOOK . FUNCTION).
+One table drives both directions, so a hook cannot be added without
+being removed again when the mode is turned off.")
 
-  (add-hook 'enable-theme-functions #'per-tab-group-theme--on-enable-theme))
-
-(defun per-tab-group-theme--deactivate ()
-  "Deactivate hooks and advice used by `per-tab-group-theme-mode'."
-  (remove-hook 'tab-bar-tab-post-select-functions #'per-tab-group-theme--apply-for-group)
-  (remove-hook 'tab-bar-tab-post-open-functions #'per-tab-group-theme--apply-for-group)
-  (remove-hook 'tab-bar-tab-post-change-group-functions #'per-tab-group-theme--apply-for-group)
-  (remove-hook 'after-make-frame-functions #'per-tab-group-theme--apply-for-group)
-
-  (remove-hook 'enable-theme-functions #'per-tab-group-theme--on-enable-theme))
+(defun per-tab-group-theme--install-hooks (install)
+  "Run INSTALL (`add-hook' or `remove-hook') over `per-tab-group-theme--hooks'."
+  (pcase-dolist (`(,hook . ,fn) per-tab-group-theme--hooks)
+    (funcall install hook fn)))
 
 ;;;###autoload
 (define-minor-mode per-tab-group-theme-mode
@@ -170,13 +166,12 @@ Usage:
 - Use `per-tab-group-theme-show-mappings' to view mappings (* marks active group)"
   :global t
   :group 'per-tab-group-theme
-  (if per-tab-group-theme-mode
-      (progn
-        (per-tab-group-theme--activate)
-        (unless per-tab-group-theme--default-theme
-          (setq per-tab-group-theme--default-theme (car custom-enabled-themes)))
-        (per-tab-group-theme--apply-for-group))
-    (per-tab-group-theme--deactivate)))
+  (per-tab-group-theme--install-hooks
+   (if per-tab-group-theme-mode #'add-hook #'remove-hook))
+  (when per-tab-group-theme-mode
+    (unless per-tab-group-theme--default-theme
+      (setq per-tab-group-theme--default-theme (car custom-enabled-themes)))
+    (per-tab-group-theme--apply-for-group)))
 
 (provide 'per-tab-group-theme)
 ;;; per-tab-group-theme.el ends here

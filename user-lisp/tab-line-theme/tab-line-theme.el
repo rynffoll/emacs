@@ -53,15 +53,11 @@ When nil, height is not set."
   :group 'tab-line-theme)
 
 
-(defun tab-line-theme--tab-name-format-padding (fn tab tabs)
-  "Add padding around tab name via FN."
-  (let ((orig tab-line-tab-name-function))
-    (cl-letf (((symbol-value 'tab-line-tab-name-function)
-               (lambda (buf &optional bufs)
-                 (concat tab-line-theme-tab-name-padding
-                         (funcall orig buf bufs)
-                         tab-line-theme-tab-name-padding))))
-      (funcall fn tab tabs))))
+(defun tab-line-theme--pad-tab-name (name)
+  "Pad NAME with `tab-line-theme-tab-name-padding' on both sides."
+  (concat tab-line-theme-tab-name-padding
+          name
+          tab-line-theme-tab-name-padding))
 
 (defun tab-line-theme--box-style (line-width color)
   "Return box style for LINE-WIDTH and COLOR."
@@ -125,12 +121,17 @@ When nil, height is not set."
    (tab-line-theme-mode
     (tab-line-theme--apply)
     (add-hook 'enable-theme-functions #'tab-line-theme--apply)
-    (advice-add #'tab-line-tab-name-format-default :around
-                #'tab-line-theme--tab-name-format-padding))
+    ;; Pad the tab *name*, not the formatter: padding then sits inside the
+    ;; propertized name, so the tab face's background and box cover it, and
+    ;; whatever `tab-line-tab-name-format-function' is in use keeps working
+    ;; (no advice stacked on `tab-line-tab-name-format-default', which
+    ;; tab-line-nerd-icons also advises).
+    (add-function :filter-return (var tab-line-tab-name-function)
+                  #'tab-line-theme--pad-tab-name))
    (t
     (remove-hook 'enable-theme-functions #'tab-line-theme--apply)
-    (advice-remove #'tab-line-tab-name-format-default
-                   #'tab-line-theme--tab-name-format-padding))))
+    (remove-function (var tab-line-tab-name-function)
+                     #'tab-line-theme--pad-tab-name))))
 
 (provide 'tab-line-theme)
 ;;; tab-line-theme.el ends here

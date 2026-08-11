@@ -47,6 +47,7 @@
 (declare-function org-element-map "org-element" (data types fun &optional info first-match no-recursion with-affiliated))
 (declare-function org-element-property "org-element" (property node))
 (declare-function flymake-make-diagnostic "flymake" (locus beg end type text &optional data overlay-properties))
+(declare-function flymake-diag-region "flymake" (buffer line &optional col))
 (defvar org-capture-initial)
 
 (defgroup review nil
@@ -141,15 +142,12 @@ review.org's directory, so the link is relative to where it is inserted.")
 (defun review--relativize-link (link)
   "Rewrite the file path in LINK (\"[[file:PATH::…]]\") relative to review.org's dir."
   (let ((base (file-name-directory (review-file))))
-    (if (string-match (rx "[[file:" (group (+? nonl)) (group (or "::" "]"))) link)
-        ;; capture match positions BEFORE expand/relative clobber the match data
-        (let ((start (match-beginning 1))
-              (raw   (match-string 1 link))
-              (tail  (substring link (match-beginning 2))))
-          (concat (substring link 0 start)
-                  (file-relative-name (expand-file-name raw) base)
-                  tail))
-      link)))
+    ;; SUBEXP 1 rewrites just the path, so the surrounding "[[file:" and the
+    ;; "::LINE]]" tail are carried through untouched.
+    (replace-regexp-in-string
+     (rx "[[file:" (group (+? nonl)) (or "::" "]"))
+     (lambda (m) (file-relative-name (expand-file-name (match-string 1 m)) base))
+     link t t 1)))
 
 (defun review--link ()
   "Single-line backlink: path relative to review.org's dir + line number.
@@ -164,27 +162,31 @@ also rewritten relative to review.org's directory."
       (review--relativize-link
        (or (and (fboundp 'org-capture-get) (org-capture-get :annotation)) "")))))
 
-(defcustom review-file-template
-  (with-temp-buffer
-    (insert-file-contents (expand-file-name "template.org" review--dir))
-    (buffer-string))
+(defcustom review-file-template nil
   "Content inserted into a freshly created review.org.
-Defaults to the bundled template.org, read when the package loads.  It
-carries the `-*-' cookie (buffer-local save/revert hooks that re-push
-notes to code buffers; whitelist them in `safe-local-variable-values'),
-the `#+TODO:' status keywords, and a `* COMMENT Agent instructions'
-heading — a real heading so it folds away, and \"COMMENT\" keeps
-`review--parse' (which only matches headlines with a file: link) and
-Org export from touching it.  Edit template.org before creating new
-review.org files, not after."
-  :type 'string)
+When nil, the bundled template.org is read on first use — only when a
+review.org is actually created, not at load time.  It carries the `-*-'
+cookie (buffer-local save/revert hooks that re-push notes to code
+buffers; whitelist them in `safe-local-variable-values'), the `#+TODO:'
+status keywords, and a `* COMMENT Agent instructions' heading — a real
+heading so it folds away, and \"COMMENT\" keeps `review--parse' (which
+only matches headlines with a file: link) and Org export from touching
+it.  Edit template.org before creating new review.org files, not after."
+  :type '(choice (const :tag "Bundled template.org" nil) string))
+
+(defun review--template ()
+  "Return `review-file-template', falling back to the bundled template.org."
+  (or review-file-template
+      (with-temp-buffer
+        (insert-file-contents (expand-file-name "template.org" review--dir))
+        (buffer-string))))
 
 (defun review--ensure-template ()
   "Set up review.org from the template when the current buffer is empty.
-Insert `review-file-template', activate its `#+TODO:' keywords, and apply
-the `-*-' hook cookie, so a freshly created (or empty) review.org wires up."
+Insert the template, activate its `#+TODO:' keywords, and apply the
+`-*-' hook cookie, so a freshly created (or empty) review.org wires up."
   (when (= (point-min) (point-max))
-    (insert review-file-template)
+    (insert (review--template))
     (org-set-regexps-and-options)        ; activate #+TODO
     (hack-local-variables)))             ; apply the -*- save/revert hooks
 
@@ -244,8 +246,12 @@ The selection (or line) is captured into the entry's `#+begin_src' block."
 TABLE maps a target file's truename to a list of (LINE STATUS NOTE).")
 
 (defun review--signal (review)
-  "Change signal for REVIEW: buffer modification tick when visited, else mtime."
-  (if-let* ((buf (find-buffer-visiting review)))
+  "Change signal for REVIEW: buffer modification tick when visited, else mtime.
+Runs on every Flymake check in every buffer, so this uses the cheap
+name-keyed `get-file-buffer' rather than `find-buffer-visiting' (which
+stats the file and scans `buffer-list' three times).  REVIEW always comes
+from `review-file', so the exact-name lookup is the one that matches."
+  (if-let* ((buf (get-file-buffer review)))
       (buffer-chars-modified-tick buf)
     (file-attribute-modification-time (file-attributes review))))
 
@@ -303,17 +309,17 @@ Replaces this backend's diagnostics (the :region covers the whole buffer)."
       (when review--report-fn
         (let ((file buffer-file-name) diags)
           (when (and file (not (review--review-file-p file)))
-            (save-excursion
-              (dolist (a (review-annotations file))
-                (unless (equal (nth 1 a) "DONE")          ; ignore DONE
-                  (let ((note (nth 2 a)))
-                    (goto-char (point-min))
-                    (forward-line (1- (max 1 (nth 0 a))))  ; clamp line >= 1
-                    (push (flymake-make-diagnostic
-                           buffer (pos-bol) (pos-eol)
-                           :note (concat review-note-prefix
-                                         (if (string-empty-p note) "(no note)" note)))
-                          diags))))))
+            (dolist (a (review-annotations file))
+              (unless (equal (nth 1 a) "DONE")            ; ignore DONE
+                ;; `flymake-diag-region' clamps the line into the buffer and
+                ;; returns nil for a line it cannot place at all.
+                (when-let* ((region (flymake-diag-region buffer (nth 0 a)))
+                            (note (nth 2 a)))
+                  (push (flymake-make-diagnostic
+                         buffer (car region) (cdr region)
+                         :note (concat review-note-prefix
+                                       (if (string-empty-p note) "(no note)" note)))
+                        diags)))))
           (funcall review--report-fn diags
                    :region (cons (point-min) (point-max))))))))
 

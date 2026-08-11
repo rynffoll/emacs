@@ -31,9 +31,7 @@
 
 (defconst package-report--file
   (expand-file-name (locate-user-emacs-file ".cache/package-report.html"))
-  "Path of the generated report HTML.
-An inspection artifact for opening in a normal browser — the display
-path in `package-report' uses a data: URI, not this file.")
+  "Path of the generated report HTML, which `package-report' then opens.")
 
 ;;; Theme — derive the report palette from the active Emacs theme
 
@@ -216,9 +214,10 @@ Uses `xwidget-webkit' when available, otherwise the system browser."
   (interactive)
   (package-refresh-contents)
   (package-report--build)
-  (if (and (display-graphic-p) (featurep 'xwidget-internal))
-      (let ((browse-url-browser-function #'xwidget-webkit-browse-url))
-        (browse-url-of-file package-report--file))
+  (let ((browse-url-browser-function
+         (if (and (display-graphic-p) (featurep 'xwidget-internal))
+             #'xwidget-webkit-browse-url
+           browse-url-browser-function)))
     (browse-url-of-file package-report--file)))
 
 (provide 'package-report)

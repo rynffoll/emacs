@@ -28,6 +28,7 @@
 ;;; Code:
 
 (require 'tab-bar)
+(require 'seq)
 
 
 (defgroup tab-bar-theme
@@ -165,37 +166,29 @@ When nil, height is not set."
           tab-bar-theme-tab-name-padding))
 
 (defun tab-bar-theme--setup-tab-name-format-functions ()
-  "Set up `tab-bar-tab-name-format-functions' for `tab-bar-theme-mode'."
+  "Set up `tab-bar-tab-name-format-functions' for `tab-bar-theme-mode'.
+Pad before `tab-bar-tab-name-format-face', so the face's background and
+box cover the padding too."
   (let* ((format-fn 'tab-bar-theme--tab-name-format-spaces)
-         (functions (delq format-fn (copy-sequence tab-bar-tab-name-format-functions))))
+         (fns (remq format-fn tab-bar-tab-name-format-functions))
+         (i (seq-position fns 'tab-bar-tab-name-format-face)))
+    (unless i
+      (message "%s not found in %s; adding at end instead"
+               'tab-bar-tab-name-format-face 'tab-bar-tab-name-format-functions))
     (setq tab-bar-tab-name-format-functions
-          (let ((result nil)
-                (inserted nil))
-            (dolist (element functions)
-              ;; insert padding before `tab-bar-tab-name-format-face'
-              (when (and (not inserted)
-                         (eq element 'tab-bar-tab-name-format-face))
-                (push format-fn result)
-                (setq inserted t))
-              (push element result))
-            (setq result (nreverse result))
-            (unless inserted
-              (message "%s not found in %s; adding at end instead"
-                       'tab-bar-tab-name-format-face 'tab-bar-tab-name-format-functions)
-              (setq result (append result (list format-fn))))
-            result))))
+          (if i
+              (append (take i fns) (list format-fn) (nthcdr i fns))
+            (append fns (list format-fn))))))
 
 (defun tab-bar-theme--setup-auto-width-faces ()
   "Sync inactive `tab-group' faces with `tab-bar-auto-width-faces'."
-  (dolist (face tab-bar-theme-tab-group-inactive-faces)
-    (setq tab-bar-auto-width-faces (delq face tab-bar-auto-width-faces)))
+  (setq tab-bar-auto-width-faces
+        (seq-difference tab-bar-auto-width-faces
+                        tab-bar-theme-tab-group-inactive-faces))
   (when tab-bar-theme-tab-group-colors-enabled
-    (dolist (face tab-bar-theme-tab-group-inactive-faces)
-      (add-to-list 'tab-bar-auto-width-faces face))))
-
-(defun tab-bar-theme--setup-tab-group-format-function ()
-  "Set `tab-bar-tab-group-format-function' for `tab-bar-theme'."
-  (setq tab-bar-tab-group-format-function #'tab-bar-theme-tab-group-format-color))
+    (setq tab-bar-auto-width-faces
+          (seq-union tab-bar-auto-width-faces
+                     tab-bar-theme-tab-group-inactive-faces))))
 
 (defun tab-bar-theme--face-at-index (faces i)
   "Return face from FACES for tab index I."
@@ -273,7 +266,7 @@ When nil, height is not set."
 (defun tab-bar-theme--apply (&optional _theme)
   "Apply `tab-bar-theme' settings."
   (tab-bar-theme--setup-tab-name-format-functions)
-  (tab-bar-theme--setup-tab-group-format-function)
+  (setq tab-bar-tab-group-format-function #'tab-bar-theme-tab-group-format-color)
   (tab-bar-theme--setup-auto-width-faces)
   (tab-bar-theme--setup-base-faces))
 

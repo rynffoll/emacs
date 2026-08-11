@@ -80,12 +80,13 @@ When nil, `dired-side-follow-file' only shows the sidebar."
   (let* ((name (dired-side--buffer-name dir))
          (buf (get-buffer name)))
     (or buf
-        ;; Create fresh buffer; hide from future `dired-find-buffer-nocreate'
+        ;; Let-binding `dired-buffers' keeps the registration `dired-noselect'
+        ;; pushes onto it local to this call, so the sidebar stays hidden from
+        ;; future `dired-find-buffer-nocreate' lookups.
         (let ((dired-buffers nil))
           (with-current-buffer (dired-noselect dir)
             (rename-buffer name)
             (dired-side-mode 1)
-            (setq dired-buffers (rassq-delete-all (current-buffer) dired-buffers))
             (current-buffer))))))
 
 (defun dired-side--show (buffer)
@@ -97,10 +98,10 @@ When nil, `dired-side-follow-file' only shows the sidebar."
     (window-preserve-size window t t) ; preserve width during resize operations
     window))
 
-(defun dired-side--hide (window)
-  "Hide the sidebar WINDOW."
-  (when (window-live-p window)
-    (delete-window window)))
+(defun dired-side--open ()
+  "Show the sidebar for the current root and return its window."
+  (dired-side--show
+   (dired-side--get-or-create-buffer (funcall dired-side-root-function))))
 
 (defun dired-side--display-buffer-condition (buf _action)
   (and (window-parameter (selected-window) 'dired-side)
@@ -129,20 +130,14 @@ When nil, `dired-side-follow-file' only shows the sidebar."
   "Toggle the Dired sidebar."
   (interactive)
   (if-let* ((win (dired-side-get-window)))
-      (dired-side--hide win)
-    (let* ((dir (funcall dired-side-root-function))
-           (buf (dired-side--get-or-create-buffer dir)))
-      (dired-side--show buf))))
+      (delete-window win)
+    (dired-side--open)))
 
 ;;;###autoload
 (defun dired-side-jump ()
   "Jump to the sidebar window.  Open it if hidden."
   (interactive)
-  (if-let* ((win (dired-side-get-window)))
-      (select-window win)
-    (dired-side-toggle)
-    (when-let* ((win (dired-side-get-window)))
-      (select-window win))))
+  (select-window (or (dired-side-get-window) (dired-side--open))))
 
 ;;;###autoload
 (defun dired-side-follow-file ()
@@ -150,16 +145,14 @@ When nil, `dired-side-follow-file' only shows the sidebar."
 When `dired-side-follow-file-function' is set, call it with the
 file path to reveal the file in the sidebar."
   (interactive)
-  (let* ((file (buffer-file-name))
-         (dir (funcall dired-side-root-function))
-         (buf (dired-side--get-or-create-buffer dir))
-         (win (dired-side--show buf)))
+  (let ((file (buffer-file-name))
+        (win (dired-side--open)))
     (when (and file dired-side-follow-file-function)
-      (with-current-buffer buf
+      ;; Selecting the window makes its buffer current and keeps window point
+      ;; in step with point, so revealing and recentring need no extra sync.
+      (with-selected-window win
         (funcall dired-side-follow-file-function file)
-        (set-window-point win (point))
-        (with-selected-window win
-          (recenter))))
+        (recenter)))
     (select-window win)))
 
 (provide 'dired-side)
