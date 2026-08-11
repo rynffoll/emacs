@@ -474,6 +474,7 @@
   :init
   (setq-default mode-line-format
                 '("%e"
+                  modeline-x-popframe-pin
                   " "
                   ;; (winum-mode modeline-x-winum)
                   (winum-mode modeline-x-winum-icon)
@@ -646,7 +647,8 @@
         (ghostel-project)
       (ghostel)))
   :general
-  ("C-`" 'popframe)
+  ("C-`" 'popframe
+   "C-~" 'popframe-pin)
   :init
   (setq popframe-override-parameters '((alpha . 95)
                                        (undecorated . nil)

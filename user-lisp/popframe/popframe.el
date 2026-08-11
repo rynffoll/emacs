@@ -38,6 +38,11 @@
 ;; A single frame is shared and reused: showing a new spec swaps its buffer
 ;; into the frame's window, while the frame itself persists.  Calling
 ;; `popframe' for the buffer already shown hides the frame.
+;;
+;; `popframe-pin' pins the current buffer to the current project, so that
+;; `popframe' with no argument shows it instead of `popframe-default-buffer'
+;; while visiting that project.  One pin per project; the command toggles,
+;; so calling it in a pinned buffer unpins it.
 
 ;;; Code:
 
@@ -45,6 +50,11 @@
 ;; not depend on the ELPA package being on `load-path' yet.
 (declare-function posframe-show "posframe" (buffer-or-name &rest args))
 (declare-function posframe-poshandler-frame-center "posframe" (info))
+
+;; project.el is built in and `project-current' is autoloaded; a non-nil
+;; return means project.el is loaded, so `project-root' is available too.
+(declare-function project-current "project" (&optional maybe-prompt directory))
+(declare-function project-root "project" (project))
 
 
 (defgroup popframe nil
@@ -75,11 +85,47 @@ Passed verbatim to posframe's :override-parameters.  For example,
 (defvar popframe--frame nil
   "The child frame created by `popframe', or nil when none.")
 
+(defvar-local popframe--pin nil
+  "Pin key this buffer is pinned to, or nil when it is not pinned.
+See `popframe--pin-key'.  Pins deliberately live on the buffers
+themselves rather than in a central table: there is no global state to
+prune, and a pin dies with its buffer.")
+
+;; A pin is a user's decision about a buffer, not state derived from its major
+;; mode, so it must survive `kill-all-local-variables' — which every mode
+;; re-run calls, be it `normal-mode', `revert-buffer', a mode changed by hand,
+;; or a package that re-runs its own mode on each setup (invoking
+;; `magit-status' on an already open status buffer does).
+(put 'popframe--pin 'permanent-local t)
+
+(defun popframe--pin-key ()
+  "Return the pin key for the current buffer's context.
+The current project's root, or t when outside a project.  Never nil, so
+it cannot match the nil default of `popframe--pin'."
+  (if-let* ((project (project-current)))
+      (project-root project)
+    t))
+
+(defun popframe--pinned-buffer ()
+  "Return the buffer pinned to the current buffer's context, or nil.
+Scans `buffer-list', which only holds live buffers, so a killed pinned
+buffer simply stops being found."
+  (let ((key (popframe--pin-key)))
+    (seq-find (lambda (buffer)
+                (equal key (buffer-local-value 'popframe--pin buffer)))
+              (buffer-list))))
+
 (defun popframe--live-frame ()
   "Return `popframe--frame' if it is live, clearing a stale reference."
   (if (frame-live-p popframe--frame)
       popframe--frame
     (setq popframe--frame nil)))
+
+(defun popframe--showing-p (frame buffer)
+  "Return non-nil if FRAME is live, visible and currently displays BUFFER."
+  (and (frame-live-p frame)
+       (frame-visible-p frame)
+       (eq (window-buffer (frame-root-window frame)) buffer)))
 
 (defun popframe--resolve (spec)
   "Resolve SPEC to a live buffer, or nil.
@@ -96,6 +142,12 @@ is called inside `save-window-excursion'."
     (make-frame-invisible frame)
     (when (frame-live-p parent)
       (select-frame-set-input-focus parent))))
+
+(defun popframe--dismiss (buffer)
+  "Hide the popframe frame if it is currently showing BUFFER."
+  (let ((frame (popframe--live-frame)))
+    (when (popframe--showing-p frame buffer)
+      (popframe--hide frame))))
 
 (defun popframe--auto-hide ()
   "Hide the popframe frame, keeping it for reuse.
@@ -180,10 +232,49 @@ Store it in `popframe--frame' and focus it."
 
 
 ;;;###autoload
+(defun popframe-pinned-p ()
+  "Return non-nil if the current buffer is pinned by `popframe-pin'.
+Meant for mode-line constructs and the like, so that callers need not
+reach into popframe's internals."
+  (and popframe--pin t))
+
+;;;###autoload
+(defun popframe-pin ()
+  "Pin the current buffer as the popframe buffer for the current project.
+`popframe' called with no argument then shows this buffer instead of
+`popframe-default-buffer' while visiting that project.
+
+There is one pin per project: pinning replaces the project's previous
+pin.  Called in an already pinned buffer, this unpins it, dismissing the
+popframe when it is the buffer on show.  Pins last for the session only
+and are dropped when the buffer is killed."
+  (interactive)
+  ;; Captured up front: dismissing reselects the parent frame's window, which
+  ;; makes that window's buffer current, so `buffer-name' would no longer name
+  ;; the buffer being unpinned by the time we report it.
+  (let ((name (buffer-name)))
+    (if popframe--pin
+        (progn
+          (kill-local-variable 'popframe--pin)
+          ;; Dismiss before messaging, so the message lands in the echo area
+          ;; of the parent frame that dismissing focuses.
+          (popframe--dismiss (current-buffer))
+          (message "popframe: unpinned buffer `%s'" name))
+      (let ((previous (popframe--pinned-buffer)))
+        (when previous
+          (with-current-buffer previous (kill-local-variable 'popframe--pin)))
+        (setq popframe--pin (popframe--pin-key))
+        (if previous
+            (message "popframe: pinned buffer `%s' → `%s'"
+                     (buffer-name previous) name)
+          (message "popframe: pinned buffer `%s'" name))))))
+
+;;;###autoload
 (defun popframe (&optional spec)
   "Toggle the popframe child frame showing SPEC.
-SPEC is a buffer, a buffer name, or a function returning one; it defaults
-to `popframe-default-buffer'.  A function is called inside
+SPEC is a buffer, a buffer name, or a function returning one.  It
+defaults to the buffer pinned to the current project by `popframe-pin',
+falling back to `popframe-default-buffer'.  A function is called inside
 `save-window-excursion'.
 
 A single child frame is shared and reused: the frame is created lazily on
@@ -192,7 +283,7 @@ window while the frame itself persists.  Calling this command for the
 buffer already shown hides the frame, so each spec toggles independently."
   (interactive)
   (require 'posframe)
-  (let* ((spec (or spec popframe-default-buffer))
+  (let* ((spec (or spec (popframe--pinned-buffer) popframe-default-buffer))
          (frame (popframe--live-frame))
          (parent (and frame (frame-parameter frame 'parent-frame)))
          ;; Resolve with the parent frame selected so a provider's window side
@@ -203,9 +294,7 @@ buffer already shown hides the frame, so each spec toggles independently."
                    (popframe--resolve spec))))
     (unless (buffer-live-p buffer)
       (user-error "popframe: spec yielded no buffer"))
-    (if (and frame
-             (frame-visible-p frame)
-             (eq (window-buffer (frame-root-window frame)) buffer))
+    (if (popframe--showing-p frame buffer)
         (popframe--hide frame)
       ;; If the parent changed fullscreen state (hence macOS Space) since the
       ;; frame was created, a reused child frame would yank focus to its

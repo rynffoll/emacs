@@ -987,9 +987,9 @@ If you'd like to test a different font, evaluate the following block:
 
 ** modeline-x
 #+begin_example
-┌───────┬──────┬────────┬─────┬───────────────┬───────┬──────┬─────────┬────┬──────┬───────┐
-│ winum │ evil │ buffer │ pos │       →       │ debug │ misc │ flymake │ vc │ icon │ modes │
-└───────┴──────┴────────┴─────┴───────────────┴───────┴──────┴─────────┴────┴──────┴───────┘
+┌─────┬───────┬──────┬────────┬─────┬───────────────┬───────┬──────┬─────────┬────┬──────┬───────┐
+│ pin │ winum │ evil │ buffer │ pos │       →       │ debug │ misc │ flymake │ vc │ icon │ modes │
+└─────┴───────┴──────┴────────┴─────┴───────────────┴───────┴──────┴─────────┴────┴──────┴───────┘
 #+end_example
 
 #+begin_src emacs-lisp
@@ -999,6 +999,7 @@ If you'd like to test a different font, evaluate the following block:
   :init
   (setq-default mode-line-format
                 '("%e"
+                  modeline-x-popframe-pin
                   " "
                   ;; (winum-mode modeline-x-winum)
                   (winum-mode modeline-x-winum-icon)
@@ -1217,7 +1218,8 @@ If you'd like to test a different font, evaluate the following block:
         (ghostel-project)
       (ghostel)))
   :general
-  ("C-`" 'popframe)
+  ("C-`" 'popframe
+   "C-~" 'popframe-pin)
   :init
   (setq popframe-override-parameters '((alpha . 95)
                                        (undecorated . nil)
