@@ -4,18 +4,21 @@
 #+startup: overview
 
 * COMMENT Agent instructions
-This file (~review.org~) is a code review. Entries look like:
-
+#+name: format
 #+begin_example
-,* TODO|DONE [[file:...]] (link to the file)
-  ,#+begin_src LANG
-  (code by region)
-  ,#+end_src
+,* TODO|DONE [[file:...]]
+   ,#+begin_src LANG
+   (selected code)
+   ,#+end_src
 
-  (comment by user)
+   (user comment)
+
+   ,#+begin_quote
+   (agent answer)
+   ,#+end_quote
 #+end_example
 
-To-Do:
-- Skip ~DONE~ items.
-- Fix ~TODO~ items.
-- After fixing, switch ~TODO~ -> ~DONE~.
+#+name: rules
+- skip ~DONE~ items
+- fix ~TODO~ items, then switch to ~DONE~
+- answer in a ~#+begin_quote~ block, don't touch the comment
