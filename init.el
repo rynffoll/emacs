@@ -587,8 +587,8 @@
   :config
   (doom-themes-org-config))
 
-(setq +theme-alist '((default . modus-operandi)
-                     (light   . modus-operandi)
+(setq +theme-alist '((default . modus-operandi-tinted)
+                     (light   . modus-operandi-tinted)
                      (dark    . ef-dream)))
 
 (defun +theme-change (appearance)

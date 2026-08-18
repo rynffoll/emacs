@@ -1145,8 +1145,8 @@ If you'd like to test a different font, evaluate the following block:
 
 ** load-theme
 #+begin_src emacs-lisp
-(setq +theme-alist '((default . modus-operandi)
-                     (light   . modus-operandi)
+(setq +theme-alist '((default . modus-operandi-tinted)
+                     (light   . modus-operandi-tinted)
                      (dark    . ef-dream)))
 
 (defun +theme-change (appearance)
