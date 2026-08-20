@@ -162,6 +162,7 @@
   - [[#apheleia][apheleia]]
 - [[#highlighting][Highlighting]]
   - [[#hl-line][hl-line]]
+  - [[#pulsar][pulsar]]
   - [[#paren][paren]]
   - [[#paren-face][paren-face]]
   - [[#colorful-mode][colorful-mode]]
@@ -2264,6 +2265,13 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
   :ensure nil
   :hook
   (after-init-hook . global-hl-line-mode))
+#+end_src
+
+** pulsar
+#+begin_src emacs-lisp
+(use-package pulsar
+  :hook
+  (after-init-hook . pulsar-global-mode))
 #+end_src
 
 ** paren

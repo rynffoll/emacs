@@ -1411,6 +1411,10 @@
   :hook
   (after-init-hook . global-hl-line-mode))
 
+(use-package pulsar
+  :hook
+  (after-init-hook . pulsar-global-mode))
+
 (use-package paren
   :ensure nil
   :init
