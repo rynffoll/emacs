@@ -320,8 +320,10 @@ Replaces this backend's diagnostics (the :region covers the whole buffer)."
                          :note (concat review-note-prefix
                                        (if (string-empty-p note) "(no note)" note)))
                         diags)))))
+          ;; :force t -- notes come from review.org, so no run token can stale them
           (funcall review--report-fn diags
-                   :region (cons (point-min) (point-max))))))))
+                   :region (cons (point-min) (point-max))
+                   :force t))))))
 
 (defun review-flymake (report-fn &rest _)
   "Flymake backend: stash REPORT-FN and report current review notes.
