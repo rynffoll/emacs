@@ -1566,7 +1566,8 @@
   :hook
   (ghostel-mode-hook . +ghostel-setup)
   (after-init-hook . ghostel-compile-global-mode)
-  (after-init-hook . ghostel-comint-global-mode))
+  (after-init-hook . ghostel-comint-global-mode)
+  (eshell-load-hook . ghostel-eshell-visual-command-mode))
 
 (use-package evil-ghostel
   :init
