@@ -2317,6 +2317,32 @@ Covers both working-tree faces and reference-revision faces."
   :general
   (project-prefix-map
    "a" 'claude-code-ide-menu)
+  :preface
+  (defvar +claude-code-ide-consult-buffer
+    `( :name     "Claude Code"
+       :narrow   (?c . "Claude Code")
+       :hidden   t
+       :category buffer
+       :face     consult-buffer
+       :history  buffer-name-history
+       :state    ,#'consult--buffer-state
+       :items
+       ,(lambda () (consult--buffer-query
+                    :sort 'visibility
+                    :predicate #'claude-code-ide--session-buffer-p
+                    :as #'consult--buffer-pair)))
+    "Claude Code agent buffers, for `consult-buffer'.")
+  (defvar +claude-code-ide-consult-project-buffer
+    `( :name   "Project Claude Code"
+       :narrow (?C . "Project Claude Code")
+       :items
+       ,(lambda () (consult--buffer-query
+                    :sort 'visibility
+                    :directory 'project
+                    :predicate #'claude-code-ide--session-buffer-p
+                    :as #'consult--buffer-pair))
+       ,@+claude-code-ide-consult-buffer)
+    "Like `+claude-code-ide-consult-buffer' but only this project's agents.")
   :init
   (setq claude-code-ide-terminal-backend 'ghostel)
   (setq claude-code-ide-use-side-window nil)
@@ -2325,7 +2351,10 @@ Covers both working-tree faces and reference-revision faces."
   (setq claude-code-ide-use-ide-diff nil) ;; it's not useful in my config, switch back doesn't work
   (setq claude-code-ide-enable-execute-code t)
   :config
-  (claude-code-ide-emacs-tools-setup))
+  (claude-code-ide-emacs-tools-setup)
+  (with-eval-after-load 'consult
+    (add-to-list 'consult-buffer-sources '+claude-code-ide-consult-buffer t)
+    (add-to-list 'consult-buffer-sources '+claude-code-ide-consult-project-buffer t)))
 
 (use-package copilot
   :general
