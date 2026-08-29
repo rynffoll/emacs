@@ -1423,7 +1423,8 @@ If you'd like to test a different font, evaluate the following block:
   :general
   ([remap list-buffers] 'ibuffer)
   :init
-  (setq ibuffer-human-readable-size t))
+  (setq ibuffer-human-readable-size t)
+  (setq ibuffer-default-sorting-mode 'major-mode))
 #+end_src
 
 ** nerd-icons-ibuffer

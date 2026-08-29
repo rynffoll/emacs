@@ -806,7 +806,8 @@
   :general
   ([remap list-buffers] 'ibuffer)
   :init
-  (setq ibuffer-human-readable-size t))
+  (setq ibuffer-human-readable-size t)
+  (setq ibuffer-default-sorting-mode 'major-mode))
 
 (use-package nerd-icons-ibuffer
   :if +with-icons
