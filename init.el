@@ -1120,7 +1120,8 @@
   :general
   (project-prefix-map
    "m" 'magit-project-status
-   "b" 'consult-project-buffer)
+   "b" 'consult-project-buffer
+   "B" 'project-list-buffers)
   :init
   (setq project-buffers-viewer 'project-list-buffers-ibuffer)
   (setq project-kill-buffers-display-buffer-list t)
