@@ -700,13 +700,34 @@
   (after-init-hook . tab-bar-history-mode))
 
 (use-package project-tab-groups
+  :disabled ;; replaced by otpp
   :hook
   (after-init-hook . project-tab-groups-mode))
 
-(use-package tab-bar-theme
+(use-package otpp
+  :init
+  (setq otpp-rename-the-initial-tab nil)
+  :hook
+  (after-init-hook . otpp-mode)
+  (after-init-hook . otpp-override-mode))
+
+(use-package tab-bar-mark
   :ensure nil
   :init
+  (setq tab-bar-mark-tab-root-function #'otpp-get-tab-root-dir)
+  :hook
+  (after-init-hook . tab-bar-mark-mode))
+
+(use-package tab-bar-theme
+  :ensure nil
+  :preface
+  (defun +tab-bar-theme-project-face (tab)
+    "Return the face for TAB when it is bound to a project."
+    (when (otpp-get-tab-root-dir tab) 'bold))
+  :init
   (setq tab-bar-theme-height 0.9)
+  (setq tab-bar-theme-tab-colors t)
+  (setq tab-bar-theme-tab-extra-face-function #'+tab-bar-theme-project-face)
   :hook
   (after-init-hook . tab-bar-theme-mode))
 
@@ -1100,7 +1121,6 @@
 
 (use-package iqa
   :preface
-  ;; for integration with project-tab-groups
   (defun +iqa-find-file-project (file)
     (let* ((dir (file-name-directory file))
            (default-directory dir))
@@ -1535,8 +1555,8 @@
 (use-package ghostel
   :preface
   (defun +ghostel-notify (title body)
-    (let* ((proj (when-let* ((p (project-current)))
-                   (project-name p)))
+    (let* ((p (project-current))
+           (proj (when p (project-name p)))
            (summary (if (or (null title) (string-empty-p title))
                         (buffer-name)
                       title))
@@ -1548,7 +1568,9 @@
            (format "display notification \"%s\" with title \"%s\"" body summary))
         (message "%s: %s" summary body))
       (when (fboundp 'system-taskbar-attention)
-        (system-taskbar-attention 'critical))))
+        (system-taskbar-attention 'critical))
+      (when (and p (fboundp 'tab-bar-mark))
+        (tab-bar-mark (project-root p)))))
   (defun +ghostel-setup ()
     (setq-local nobreak-char-display nil) ;; don't render as `_'
     )
