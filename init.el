@@ -713,8 +713,6 @@
 
 (use-package tab-bar-mark
   :ensure nil
-  :init
-  (setq tab-bar-mark-tab-root-function #'otpp-get-tab-root-dir)
   :hook
   (after-init-hook . tab-bar-mark-mode))
 
@@ -1554,23 +1552,30 @@
 
 (use-package ghostel
   :preface
+  (defun +ghostel-notify-macos (title body)
+    (when (fboundp 'do-applescript)
+      (let* ((title (if (seq-empty-p title) (buffer-name) title))
+             (p (project-current))
+             (summary (if p (concat (project-name p) ": " title) title)))
+        (do-applescript
+         (format "display notification \"%s\" with title \"%s\"" body summary)))))
+  (defun +ghostel-notify-taskbar (_title _body)
+    (when (fboundp 'system-taskbar-attention)
+      (system-taskbar-attention 'critical)))
+  (defun +ghostel-notify-tab (_title _body)
+    (when-let* (((bound-and-true-p tab-bar-mark-mode))
+                ((fboundp 'otpp-get-tab-root-dir))
+                (p (project-current))
+                (root (thread-last p project-root expand-file-name file-name-as-directory)))
+      (tab-bar-mark-if
+       (lambda (tab)
+         (when-let* ((dir (otpp-get-tab-root-dir tab)))
+           (equal root (thread-last dir expand-file-name file-name-as-directory)))))))
   (defun +ghostel-notify (title body)
-    (let* ((p (project-current))
-           (proj (when p (project-name p)))
-           (summary (if (or (null title) (string-empty-p title))
-                        (buffer-name)
-                      title))
-           (summary (if (or (null proj) (string-empty-p proj))
-                        summary
-                      (format "%s: %s" proj summary))))
-      (if (fboundp 'do-applescript)
-          (do-applescript
-           (format "display notification \"%s\" with title \"%s\"" body summary))
-        (message "%s: %s" summary body))
-      (when (fboundp 'system-taskbar-attention)
-        (system-taskbar-attention 'critical))
-      (when (and p (fboundp 'tab-bar-mark))
-        (tab-bar-mark (project-root p)))))
+    (dolist (fn '(+ghostel-notify-tab
+                  +ghostel-notify-taskbar
+                  +ghostel-notify-macos))
+      (funcall fn title body)))
   (defun +ghostel-setup ()
     (setq-local nobreak-char-display nil) ;; don't render as `_'
     )

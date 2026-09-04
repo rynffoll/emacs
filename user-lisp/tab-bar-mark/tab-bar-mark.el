@@ -23,23 +23,16 @@
 
 ;;; Commentary:
 
-;; Marks a tab-bar tab as needing attention with a colored symbol prefixed
-;; to its name.  Any notifier (ghostel, compile, a custom hook) calls
-;; `tab-bar-mark' with a directory, and
-;; `tab-bar-mark-tab-root-function' says which directory a given tab
-;; stands for, which is how that directory is resolved to the tabs to
-;; mark.
+;; Marks a tab-bar tab as needing attention with a colored symbol after
+;; its name.  A notifier picks the tabs it means with `tab-bar-mark-if'
+;; and a predicate: what makes a tab the right one is the caller's
+;; business.
 ;;
-;; The mark lives in a `tab-bar-mark' tab parameter, so it belongs to
-;; the tab itself: it rides along through tab switches, and it is gone
-;; the moment the tab is closed, with no bookkeeping to leak.
-;;
-;; A mark clears once its tab comes into view on a focused frame —
-;; whether you select the tab, the frame regains input focus, or the
-;; mark lands on a tab already in front of you.  All three run the one
-;; countdown: `tab-bar-mark-unmark-delay' keeps the symbol on screen for
-;; a moment first, so a mark always gets a chance to register before
-;; it goes.
+;; The mark is a tab parameter, so it dies with the tab, leaving no
+;; bookkeeping behind.  It stays up until its tab comes into view — the
+;; selected tab of a frame holding input focus — and goes the moment it
+;; does.  Which is also why marking a tab already in view does nothing:
+;; it has been seen.
 
 ;;; Code:
 
@@ -50,165 +43,117 @@
   :group 'tab-bar
   :prefix "tab-bar-mark-")
 
-(defcustom tab-bar-mark-tab-root-function nil
-  "Function that returns the directory a tab-bar tab represents, or nil.
-Called with a single TAB argument.  Left unset by default, which
-disables the indicator: nothing to mark without a way to resolve a
-tab to a directory."
-  :type '(choice function (const nil))
-  :group 'tab-bar-mark)
-
 (defcustom tab-bar-mark-symbol "●"
   "Symbol shown after a marked tab's name."
   :type 'string
   :group 'tab-bar-mark)
 
-(defcustom tab-bar-mark-face 'warning
-  "Face applied to `tab-bar-mark-symbol'.
-Defaults to `warning' so the symbol follows the active theme's own
-attention color instead of a hardcoded one."
-  :type 'face
+(defface tab-bar-mark '((t :inherit warning))
+  "Face for `tab-bar-mark-symbol'."
   :group 'tab-bar-mark)
 
-(defcustom tab-bar-mark-unmark-delay 3
-  "Seconds a mark stays up once its tab comes into view.
-Gives the symbol a moment to register before it disappears.  Set to nil
-to clear immediately instead."
-  :type '(choice (const :tag "Immediately" nil) number)
-  :group 'tab-bar-mark)
-
-(defun tab-bar-mark--set (tab marked)
-  "Set TAB's mark parameter to MARKED.
-Return non-nil when that actually changed something, so callers can
-skip a redisplay nobody needs."
+(defun tab-bar-mark--set (tab state)
+  "Set TAB's mark parameter to STATE, non-nil for a mark.
+Return non-nil if that changed anything: a redisplay forced for nothing
+costs a full pass over every window of every frame."
   (let ((cell (assq 'tab-bar-mark tab)))
-    (cond ((null cell)
-           (when marked
-             (nconc tab (list (cons 'tab-bar-mark marked)))
-             t))
-          ((not (eq (cdr cell) marked))
-           (setcdr cell marked)
-           t))))
+    (cond (cell  (unless (eq (cdr cell) state)
+                   (setcdr cell state)
+                   t))
+          (state (nconc tab (list (cons 'tab-bar-mark state)))
+                 t))))
 
-(defun tab-bar-mark--tab-root (tab)
-  "Return the directory TAB represents, via `tab-bar-mark-tab-root-function'."
-  (and tab-bar-mark-tab-root-function (funcall tab-bar-mark-tab-root-function tab)))
+(defun tab-bar-mark--in-view-p (tab frame)
+  "Whether TAB is FRAME's selected tab and FRAME holds input focus.
+Cheap test first: `frame-focus-state' reads a frame parameter, and that
+copies the frame's whole parameter list.  Its `unknown' counts as focus,
+so on a terminal that reports none a mark never shows rather than never
+goes."
+  (and (eq (car tab) 'current-tab)
+       (frame-focus-state frame)))
 
-(defun tab-bar-mark--normalize-dir (dir)
-  "Return DIR in the canonical form tab roots are compared in."
-  (and dir (file-name-as-directory (expand-file-name dir))))
+(defun tab-bar-mark--map-tabs (fn)
+  "Call FN with the frame and tab of every tab on every frame.
+Child frames are skipped: no tab bar there, so no mark to see."
+  (dolist (frame (frame-list))
+    (unless (frame-parent frame)
+      (dolist (tab (frame-parameter frame 'tabs))
+        (funcall fn frame tab)))))
 
-(defun tab-bar-mark--map-tabs-for-dir (dir fn)
-  "Call FN with the frame and tab of every tab representing DIR.
-Walks every frame, since the tab wanted may well be on one the user
-is not looking at — that is the whole point of the indicator.  DIR is
-normalized once here rather than again for every tab visited."
-  (when-let* ((dir (tab-bar-mark--normalize-dir dir)))
-    (dolist (frame (frame-list))
-      (dolist (tab (funcall tab-bar-tabs-function frame))
-        (when (equal dir (tab-bar-mark--normalize-dir
-                          (tab-bar-mark--tab-root tab)))
-          (funcall fn frame tab))))))
+;;;###autoload
+(defun tab-bar-mark-p (tab)
+  "Whether TAB carries an attention mark."
+  (alist-get 'tab-bar-mark tab))
 
-(defun tab-bar-mark--apply (dir marked)
-  "Set the mark on every tab representing DIR to MARKED.
-When MARKED, a tab that is already the selected tab of a focused frame
-starts its countdown right away: the user is looking at it, and no
-later select or focus event would arrive to clear it."
-  (let (changed)
-    (tab-bar-mark--map-tabs-for-dir
-     dir
+;;;###autoload
+(defun tab-bar-mark-if (predicate)
+  "Mark every tab PREDICATE returns non-nil for, on every frame.
+PREDICATE is called with one argument, the tab, which is only valid for
+the duration of the call.  A tab in view is left alone: it has been
+seen.  Return the number of tabs left marked."
+  (let ((marked 0) changed)
+    (tab-bar-mark--map-tabs
      (lambda (frame tab)
-       (when (tab-bar-mark--set tab marked)
-         (setq changed t))
-       (when (and marked (eq (car tab) 'current-tab))
-         (tab-bar-mark--schedule-unmark frame))))
-    (when changed (force-mode-line-update t))))
-
-;;;###autoload
-(defun tab-bar-mark (dir)
-  "Mark every tab representing DIR as needing attention."
-  (tab-bar-mark--apply dir t))
-
-;;;###autoload
-(defun tab-bar-unmark (dir)
-  "Clear the attention mark on every tab representing DIR."
-  (tab-bar-mark--apply dir nil))
+       (when (and (funcall predicate tab)
+                  (not (tab-bar-mark--in-view-p tab frame)))
+         (setq marked (1+ marked))
+         (when (tab-bar-mark--set tab t)
+           (setq changed t)))))
+    (when changed (force-mode-line-update t))
+    marked))
 
 (defun tab-bar-mark--tab-name-format (name tab _i)
-  "Suffix NAME with `tab-bar-mark-symbol' when TAB is marked.
-Not parenthesized: that notation reads as \"optional part\" and this
-is neither.  Runs ahead of `tab-bar-tab-name-format-hints' in the
-chain, so the hint number ends up in front of NAME rather than
-between it and the symbol."
-  (if (alist-get 'tab-bar-mark tab)
-      (concat name " " (propertize tab-bar-mark-symbol 'face tab-bar-mark-face))
+  "Suffix NAME with `tab-bar-mark-symbol' when TAB is marked."
+  (if (tab-bar-mark-p tab)
+      (concat name " " (propertize tab-bar-mark-symbol 'face 'tab-bar-mark))
     name))
 
-(defvar tab-bar-mark--unmark-timers (make-hash-table :test 'eq)
-  "Frame to its pending unmark timer.
-Keyed by frame so two frames counting down at once cannot clobber
-each other's pending clear.")
+(defun tab-bar-mark--add-name-format ()
+  "Put the name formatter after `tab-bar-tab-name-format-truncated'.
+Ahead of it the symbol is truncated away along with the name; behind the
+rest, so a hint number lands in front of the name and the tab's own face
+and padding cover the symbol."
+  (let* ((fns (remq #'tab-bar-mark--tab-name-format
+                    tab-bar-tab-name-format-functions))
+         (i (seq-position fns 'tab-bar-tab-name-format-truncated)))
+    (setq tab-bar-tab-name-format-functions
+          (if i
+              (append (take (1+ i) fns)
+                      (list #'tab-bar-mark--tab-name-format)
+                      (nthcdr (1+ i) fns))
+            (cons #'tab-bar-mark--tab-name-format fns)))))
 
-(defun tab-bar-mark--cancel-unmark-timer (frame)
-  "Cancel FRAME's pending unmark timer, if any."
-  (when-let* ((timer (gethash frame tab-bar-mark--unmark-timers)))
-    (cancel-timer timer)
-    (remhash frame tab-bar-mark--unmark-timers)))
-
-(defun tab-bar-mark--cancel-all-unmark-timers ()
-  "Cancel every pending unmark timer, across all frames."
-  (maphash (lambda (_frame timer) (cancel-timer timer)) tab-bar-mark--unmark-timers)
-  (clrhash tab-bar-mark--unmark-timers))
-
-(defun tab-bar-mark--unmark-current-tab (frame)
-  "Clear the mark on FRAME's selected tab, once its countdown is up.
-Whatever tab is selected by now is the one the user has been looking
-at, which is exactly the one that has earned its mark cleared."
-  (remhash frame tab-bar-mark--unmark-timers)
-  (when (and (frame-live-p frame)
-             (tab-bar-mark--set (tab-bar--current-tab-find nil frame) nil))
-    (force-mode-line-update t)))
-
-(defun tab-bar-mark--schedule-unmark (frame)
-  "Start FRAME's countdown to clear its selected tab's mark.
-Only while FRAME holds input focus — an unfocused frame's tab is not
-really in view, and its mark should wait for the user to come back.
-Restarts a countdown already running, so the symbol always gets its full
-`tab-bar-mark-unmark-delay' on screen."
-  (tab-bar-mark--cancel-unmark-timer frame)
-  (when (frame-focus-state frame)
-    (if tab-bar-mark-unmark-delay
-        (puthash frame
-                 (run-with-timer tab-bar-mark-unmark-delay nil
-                                 #'tab-bar-mark--unmark-current-tab frame)
-                 tab-bar-mark--unmark-timers)
-      (tab-bar-mark--unmark-current-tab frame))))
-
-(defun tab-bar-mark--unmark-on-view (&rest _)
-  "Start the countdown for whatever tab is now in view.
-Serves both events that can bring a tab into view, hence the ignored
-arguments — the two hooks call with different signatures.  Both are
-needed: selecting a tab does not fire a focus change, and coming back
-from another application does not fire a tab selection, so either one
-alone would leave a mark stranded in plain sight."
-  (tab-bar-mark--schedule-unmark (selected-frame)))
+(defun tab-bar-mark--clear-on-view (&rest _)
+  "Clear the mark on every tab that is now in view.
+Serves both hooks: selecting a tab fires no focus change, and coming
+back from another application fires no tab selection.  Every frame,
+since `after-focus-change-function' does not promise that the focused
+frame is the selected one."
+  (let (cleared)
+    (tab-bar-mark--map-tabs
+     (lambda (frame tab)
+       (when (and (tab-bar-mark-p tab)
+                  (tab-bar-mark--in-view-p tab frame)
+                  (tab-bar-mark--set tab nil))
+         (setq cleared t))))
+    (when cleared (force-mode-line-update t))))
 
 ;;;###autoload
 (define-minor-mode tab-bar-mark-mode
-  "Show a colored attention symbol on tab-bar tabs marked via `tab-bar-mark'."
+  "Show a colored attention symbol on tab-bar tabs marked via `tab-bar-mark-if'."
   :group 'tab-bar-mark
   :global t
   (if tab-bar-mark-mode
       (progn
-        (add-to-list 'tab-bar-tab-name-format-functions #'tab-bar-mark--tab-name-format)
-        (add-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--unmark-on-view)
-        (add-function :after after-focus-change-function #'tab-bar-mark--unmark-on-view))
-    (setq tab-bar-tab-name-format-functions
-          (delq #'tab-bar-mark--tab-name-format tab-bar-tab-name-format-functions))
-    (remove-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--unmark-on-view)
-    (remove-function after-focus-change-function #'tab-bar-mark--unmark-on-view)
-    (tab-bar-mark--cancel-all-unmark-timers)))
+        (tab-bar-mark--add-name-format)
+        (add-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--clear-on-view)
+        (add-function :after after-focus-change-function #'tab-bar-mark--clear-on-view)
+        ;; Marks outlive the mode, and one may sit on the tab in view.
+        (tab-bar-mark--clear-on-view))
+    (remove-hook 'tab-bar-tab-name-format-functions #'tab-bar-mark--tab-name-format)
+    (remove-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--clear-on-view)
+    (remove-function after-focus-change-function #'tab-bar-mark--clear-on-view))
+  (force-mode-line-update t))
 
 (provide 'tab-bar-mark)
 ;;; tab-bar-mark.el ends here
