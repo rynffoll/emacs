@@ -1583,15 +1583,13 @@
     )
   :general
   (project-prefix-map
-   "t" 'ghostel-project
-   "T" 'ghostel-project-list-buffers)
+   "t" 'ghostel-project)
   :init
   (setq ghostel-shell "/opt/homebrew/bin/fish")
   (setq ghostel-macos-login-shell nil)
   (setq ghostel-notification-function #'+ghostel-notify)
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
-  (add-to-list 'project-switch-commands '(ghostel-project-list-buffers "Ghostel buffers") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
   (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer))
   :hook
@@ -1605,6 +1603,17 @@
   (setq evil-ghostel-escape 'evil)
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
+
+;; Not yet on MELPA, install straight from the ghostel repo's extension dir.
+(use-package consult-ghostel
+  :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "extensions/consult-ghostel" :rev :newest)
+  :after (ghostel consult)
+  :demand t
+  :general
+  (project-prefix-map
+   "T" 'consult-ghostel-project)
+  (ghostel-semi-char-mode-map
+   "C-c h" 'consult-ghostel-history))
 
 (use-package vc
   :ensure nil
