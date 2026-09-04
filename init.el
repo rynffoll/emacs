@@ -934,9 +934,7 @@
   (advice-add #'register-preview :override #'consult-register-window)
   :config
   ;; In a project, `consult-buffer' opens narrowed to project buffers.
-  (consult-customize consult-buffer :initial-narrow (and (project-current) ?p))
-  :hook
-  (completion-list-mode-hook . consult-preview-at-point-mode))
+  (consult-customize consult-buffer :initial-narrow (and (project-current) ?p)))
 
 (use-package consult-xref
   :ensure consult
@@ -1082,9 +1080,7 @@
                  nil
                  (window-parameters (mode-line-format . none)))))
 
-(use-package embark-consult
-  :hook
-  (embark-collect-mode-hook . consult-preview-at-point-mode))
+(use-package embark-consult)
 
 (use-package tempel
   :preface
