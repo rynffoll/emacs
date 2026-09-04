@@ -690,6 +690,7 @@
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
   (setq tab-bar-tab-hints t)
+  (setq tab-bar-tab-name-truncated-max 30)
   (setq tab-bar-separator " ")
   (setq tab-bar-auto-width nil)
   :config
@@ -741,6 +742,7 @@
   (setq tab-line-close-button-show nil)
   (setq tab-line-new-button-show nil)
   (setq tab-line-tab-name-function #'tab-line-tab-name-truncated-buffer)
+  (setq tab-line-tab-name-truncated-max 30)
   (setq tab-line-tabs-buffer-group-function #'tab-line-tabs-buffer-group-by-project)
   (setq tab-line-separator " ")
   ;; :hook
