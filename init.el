@@ -974,9 +974,12 @@
   :ensure vertico
   :general
   (vertico-map
-   "DEL" 'vertico-directory-delete-char)
+   "DEL" 'vertico-directory-delete-char))
+
+(use-package vertico-mouse
+  :ensure vertico
   :hook
-  (rfn-eshadow-update-overlay-hook . vertico-directory-tidy))
+  (after-init-hook . vertico-mouse-mode))
 
 (use-package orderless
   :init

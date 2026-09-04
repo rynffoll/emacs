@@ -1654,9 +1654,14 @@ If you'd like to test a different font, evaluate the following block:
   :ensure vertico
   :general
   (vertico-map
-   "DEL" 'vertico-directory-delete-char)
+   "DEL" 'vertico-directory-delete-char))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package vertico-mouse
+  :ensure vertico
   :hook
-  (rfn-eshadow-update-overlay-hook . vertico-directory-tidy))
+  (after-init-hook . vertico-mouse-mode))
 #+end_src
 
 ** orderless
