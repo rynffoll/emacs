@@ -278,7 +278,6 @@
     "gf"  'magit-file-dispatch
     "gg"  'magit-status
     "gL"  'git-link-dispatch
-    "gj"  'consult-git-log-grep
     "gt"  'git-timemachine
 
     "h"   '(:keymap help-map :package help :wk "help")
@@ -297,7 +296,6 @@
     "l"   '(:ignore t :wk "llm")
     "lg"  'gptel
     "lc"  'claude-code-ide-menu
-    "la"  'agent-shell
 
     "o"   '(:ignore t :wk "open")
     "oc"  'customize-group
@@ -312,7 +310,6 @@
     "s"   '(:ignore t :wk "search") ;; TODO: search-map (M-s)
     "sb"  'consult-line
     "sg"  'consult-ripgrep
-    "st"  'consult-todo
 
     "S"   '(:ignore t :wk "session")
     "Ss"  'desktop-save-in-desktop-dir
