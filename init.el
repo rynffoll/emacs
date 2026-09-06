@@ -453,6 +453,7 @@
   )
 
 (use-package doom-modeline
+  :disabled ;; replaced by modeline-x
   :init
   (setq doom-modeline-icon +with-icons)
   (setq doom-modeline-modal-icon +with-icons)

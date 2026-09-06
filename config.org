@@ -975,6 +975,7 @@ If you'd like to test a different font, evaluate the following block:
 ** doom-modeline
 #+begin_src emacs-lisp
 (use-package doom-modeline
+  :disabled ;; replaced by modeline-x
   :init
   (setq doom-modeline-icon +with-icons)
   (setq doom-modeline-modal-icon +with-icons)
