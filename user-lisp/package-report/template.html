@@ -71,8 +71,11 @@
           padding: 8px 14px; border-right: 1px solid var(--line-strong);
           font-variant-numeric: tabular-nums;
       }
-      td.inst.new { color: var(--warn); font-weight: 650; }
+      td.inst.new, td.inst.lag-severe { color: var(--warn); font-weight: 650; }
       td.inst.cur { color: var(--ink-soft); }
+      /* tag-lag severity ladder, by days since the release: cur (up to date)
+         < default text (mild) < lag-warn < lag-severe */
+      td.inst.lag-warn { color: var(--warn); }
       .pkglink { color: inherit; text-decoration: none; }
       .pkglink:hover { color: var(--accent); text-decoration: underline; }
       tbody td { border-bottom: 1px solid var(--line); }
@@ -120,6 +123,7 @@
             <tr id="head">
               <th class="pkg sortable" data-sort="name">package<span class="arrow"></span></th>
               <th class="ver-h sortable" data-sort="installed" title="Installed version">version<span class="arrow"></span></th>
+              <th class="ver-h sortable" data-sort="taglag" title="Commits and days the latest tag trails the tracked branch (vc packages only)">tag lag<span class="arrow"></span></th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -178,16 +182,27 @@
 
       let sortKey = null, sortDir = 1;
 
+      // shared by both comparators below: missing values (null/undefined)
+      // always sort last, whichever direction sortDir is.
+      function nullsLast(av, bv) {
+          return av == null || bv == null ? (av != null ? 0 : 1) - (bv != null ? 0 : 1) : null;
+      }
+
       // comparator for a th's data-sort key; archive columns ("col:NAME")
       // keep empty cells last in both directions
       function comparator(key) {
           if (key === "name") return (a, b) => sortDir * a.name.localeCompare(b.name);
           if (key === "installed") return (a, b) => sortDir * a.installed.localeCompare(b.installed, undefined, {numeric: true});
+          if (key === "taglag") return (a, b) => {
+              const ad = a.taglag.days, bd = b.taglag.days;
+              const ord = nullsLast(ad, bd);
+              return ord !== null ? ord : sortDir * (ad - bd);
+          };
           const col = key.slice(4);
           return (a, b) => {
               const av = a.ver[col], bv = b.ver[col];
-              if (!av || !bv) return (av ? 0 : 1) - (bv ? 0 : 1);
-              return sortDir * baseOf(av).localeCompare(baseOf(bv), undefined, {numeric: true});
+              const ord = nullsLast(av, bv);
+              return ord !== null ? ord : sortDir * baseOf(av).localeCompare(baseOf(bv), undefined, {numeric: true});
           };
       }
 
@@ -214,7 +229,21 @@
                     ? `<a class="pkglink" href="${r.url}" target="_blank" rel="noopener">${r.name}</a>`
                     : r.name;
               const instCell = `<td class="inst ${r.outdated ? "new" : "cur"}" title="${r.outdated ? "a newer archive version is available" : ""}">${r.installed || "·"}</td>`;
-              return `<tr><td class="pkg" title="${r.name}">${nameHtml}${badge}</td>${instCell}${cells}</tr>`;
+              // `taglag' is {} (no data at all) or has `commits'/`dayshuman'
+              // always set, with `tag' either a name or null (no tags —
+              // lag is against origin/HEAD instead; see package-report.el).
+              const lag = r.taglag;
+              const hasLag = typeof lag.commits === "number";
+              const refTitle = lag.tag ? `latest tag: ${lag.tag}` : "no tags — vs origin/HEAD";
+              const lagCell = !hasLag
+                    ? `<td class="inst empty" title="no tags, or not a vc package">·</td>`
+                    : lag.commits > 0
+                    // severity ladder by days since the release: the longer
+                    // it's sat unreleased, the more it should stand out —
+                    // default text (<90d) < lag-warn (<365d) < lag-severe (1y+).
+                    ? `<td class="inst ${lag.days < 90 ? "" : lag.days < 365 ? "lag-warn" : "lag-severe"}" title="${refTitle}, ${lag.dayshuman} ago">+${lag.commits} / ${lag.dayshuman}</td>`
+                    : `<td class="inst cur" title="${refTitle} — HEAD is exactly there">up to date</td>`;
+              return `<tr><td class="pkg" title="${r.name}">${nameHtml}${badge}</td>${instCell}${lagCell}${cells}</tr>`;
           }).join("");
           $noResults.hidden = filtered.length > 0;
           $head.querySelectorAll("th.sortable").forEach(th =>
