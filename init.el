@@ -705,6 +705,7 @@
 (use-package otpp
   :init
   (setq otpp-rename-the-initial-tab nil)
+  (setq otpp-reconnect-tab nil)
   :hook
   (after-init-hook . otpp-mode)
   (after-init-hook . otpp-override-mode))
