@@ -83,6 +83,7 @@
   - [[#otpp][otpp]]
   - [[#tab-bar-mark][tab-bar-mark]]
   - [[#tab-bar-theme][tab-bar-theme]]
+  - [[#tab-bar-indicator][tab-bar-indicator]]
   - [[#per-tab-group-theme][per-tab-group-theme]]
   - [[#tab-line][tab-line]]
   - [[#tab-line-theme][tab-line-theme]]
@@ -1258,20 +1259,39 @@ If you'd like to test a different font, evaluate the following block:
    "u" 'tab-bar-history-back
    "U" 'tab-bar-history-forward)
   :init
-  (setq tab-bar-format '(tab-bar-separator
-                         tab-bar-format-menu-bar
+  (setq tab-bar-format '(;; tab-bar-separator
+                         ;; tab-bar-format-menu-bar
+                         tab-bar-theme-separator
                          tab-bar-format-tabs-groups
+                         tab-bar-indicator-separator
                          tab-bar-format-align-right
                          tab-bar-format-global))
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
   (setq tab-bar-tab-hints t)
-  (setq tab-bar-tab-name-truncated-max 30)
-  (setq tab-bar-separator " ")
+  (setq tab-bar-tab-name-truncated-max 26)
+  ;; (setq tab-bar-separator " ")
+  (setq tab-bar-separator "")
   (setq tab-bar-auto-width nil)
-  :config
-  (add-to-list 'tab-bar-tab-name-format-functions
-               #'tab-bar-tab-name-format-truncated)
+  ;; Each formatter below is a no-op unless its own mode says otherwise,
+  ;; so this list is set once, here, regardless of which of those modes
+  ;; is actually on.
+  (setq tab-bar-tab-name-format-functions
+        '(;; Ahead of everything: a name is cut to length before
+          ;; anything else is added to it.
+          tab-bar-tab-name-format-truncated
+          ;; After truncated, so the mark survives a name cut down to
+          ;; size, and ahead of the hint, so it reads as part of the name.
+          tab-bar-mark-tab-name-format
+          tab-bar-tab-name-format-hints
+          tab-bar-tab-name-format-close-button
+          ;; Padding, then the bar ahead of it: the bar ends up at the
+          ;; tab's left edge, and both ahead of face, so the tab's own
+          ;; face covers them too.
+          tab-bar-theme-tab-name-format-padding
+          tab-bar-indicator-tab-name-format
+          tab-bar-tab-name-format-face
+          tab-bar-tab-name-format-mouse-face))
   :hook
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
@@ -1310,14 +1330,35 @@ If you'd like to test a different font, evaluate the following block:
   :ensure nil
   :preface
   (defun +tab-bar-theme-project-face (tab)
-    "Return the face for TAB when it is bound to a project."
     (when (otpp-get-tab-root-dir tab) 'bold))
+  (defun +tab-bar-theme-project-color (tab)
+    (when-let* ((dir (otpp-get-tab-root-dir tab)))
+      ;; (tab-bar-theme-color-from-worktrees-family dir)
+      (tab-bar-theme-color-from-key dir)
+      ))
+  (defun +tab-bar-group-format (tab i &optional current-p)
+    (let ((face (tab-bar-theme-tab-group-face current-p)))
+      (concat (tab-bar-indicator-build
+               (tab-bar-theme-tab-group-indicator-color current-p) nil face)
+              (tab-bar-theme-tab-group-format-color tab i current-p))))
   :init
   (setq tab-bar-theme-height 0.9)
   (setq tab-bar-theme-tab-colors t)
-  (setq tab-bar-theme-tab-extra-face-function #'+tab-bar-theme-project-face)
+  (setq tab-bar-theme-tab-group-format-function #'+tab-bar-group-format)
+  (setq tab-bar-theme-tab-color-face-function #'+tab-bar-theme-project-color)
+  ;; (setq tab-bar-theme-tab-extra-face-function #'+tab-bar-theme-project-face)
   :hook
   (after-init-hook . tab-bar-theme-mode))
+#+end_src
+
+** tab-bar-indicator
+#+begin_src emacs-lisp
+(use-package tab-bar-indicator
+  :ensure nil
+  :init
+  (setq tab-bar-indicator-color-function #'tab-bar-theme-tab-indicator-color)
+  :hook
+  (after-init-hook . tab-bar-indicator-mode))
 #+end_src
 
 ** per-tab-group-theme
@@ -1337,7 +1378,6 @@ If you'd like to test a different font, evaluate the following block:
   (setq tab-line-close-button-show nil)
   (setq tab-line-new-button-show nil)
   (setq tab-line-tab-name-function #'tab-line-tab-name-truncated-buffer)
-  (setq tab-line-tab-name-truncated-max 30)
   (setq tab-line-tabs-buffer-group-function #'tab-line-tabs-buffer-group-by-project)
   (setq tab-line-separator " ")
   ;; :hook

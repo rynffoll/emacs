@@ -63,11 +63,26 @@ When nil, height is not set."
   "Return box style for LINE-WIDTH and COLOR."
   (when (and (display-graphic-p)
              (> line-width 0))
-    ;; `unspecified' is not a valid box color and would poison the face
-    ;; spec saved by `custom-set-faces'; omit :color instead (the box
-    ;; then uses the face's foreground).
+    ;; `unspecified' is not a valid box color; omit :color instead (the
+    ;; box then uses the face's foreground).
     `(:line-width ,line-width :style nil
       ,@(when (stringp color) (list :color color)))))
+
+(defvar tab-line-theme--overridden-faces nil
+  "Faces this mode has given an override spec, to drop again.
+Recorded as they are set rather than listed by hand, so a face added to
+the setup cannot be forgotten in the teardown.")
+
+(defun tab-line-theme--set-face (face spec)
+  "Give FACE the override SPEC, and record it for the teardown."
+  (face-spec-set face spec)
+  (push face tab-line-theme--overridden-faces))
+
+(defun tab-line-theme--drop-faces ()
+  "Drop every override spec this mode set, and forget them."
+  (dolist (face tab-line-theme--overridden-faces)
+    (face-spec-set face nil 'face-override-spec))
+  (setq tab-line-theme--overridden-faces nil))
 
 (defun tab-line-theme--setup-base-faces ()
   "Apply base `tab-line' faces."
@@ -75,41 +90,44 @@ When nil, height is not set."
          (fg-inactive (face-attribute 'mode-line-inactive :foreground nil 'default))
          (bg-active   (face-attribute 'default :background))
          (fg-active   (face-attribute 'default :foreground))
-         (line-width  tab-line-theme-line-width))
-    (custom-set-faces
-     `(tab-line
-       ((t ( :inherit unspecified
-             ,@(when tab-line-theme-height (list :height tab-line-theme-height))
-             :background ,bg-inactive
-             :foreground ,fg-inactive
-             :box ,(tab-line-theme--box-style line-width bg-inactive)))))
-     `(tab-line-tab
-       ((t ( :inherit tab-line
-             :background ,bg-inactive
-             :foreground ,fg-inactive
-             :box ,(tab-line-theme--box-style line-width bg-inactive)))))
-     `(tab-line-tab-current
-       ((t ( :inherit tab-line-tab
-             :background ,bg-active
-             :foreground ,fg-active
-             :box ,(tab-line-theme--box-style line-width bg-active)))))
-     `(tab-line-tab-inactive
-       ((t ( :inherit tab-line-tab
-             :background ,bg-inactive
-             :foreground ,fg-inactive
-             :box ,(tab-line-theme--box-style line-width bg-inactive)))))
-     `(tab-line-tab-group
-       ((t ( :inherit tab-line-tab
-             :background ,bg-inactive
-             :foreground ,fg-inactive
-             :weight bold
-             :box nil))))
-     `(tab-line-highlight
-       ((t ( :inherit tab-line-tab
-             :box t)))))))
+         (box-inactive (tab-line-theme--box-style
+                        tab-line-theme-line-width bg-inactive))
+         (box-active (tab-line-theme--box-style
+                      tab-line-theme-line-width bg-active))
+         (common `( :inherit unspecified
+                    ,@(when tab-line-theme-height
+                        (list :height tab-line-theme-height))))
+         (dim `(,@common :background ,bg-inactive
+                         :foreground ,fg-inactive)))
+    ;; Override specs rather than `custom-set-faces': these values are
+    ;; computed from the current theme, so they have no business in a
+    ;; custom file, and an override is what `tab-line-theme--drop-faces'
+    ;; can drop again.
+    ;;
+    ;; Every value is named on every face, and no face here inherits
+    ;; another of them.  doric-themes has `tab-line-tab' inherit
+    ;; `tab-line-tab-current', and `face-spec-set' recalculates one face
+    ;; at a time: the moment `tab-line-tab' has lost its override and
+    ;; `tab-line-tab-current' still has one saying `:inherit
+    ;; tab-line-tab', that is an inheritance cycle.  It signals, which
+    ;; leaves the teardown half done and takes `load-theme' down with
+    ;; it.
+    (dolist (face '(tab-line tab-line-tab tab-line-tab-inactive))
+      (tab-line-theme--set-face face `((t (,@dim :box ,box-inactive)))))
+    (pcase-dolist (`(,face ,spec)
+                   `((tab-line-tab-group ((t (,@dim :weight bold :box nil))))
+                     (tab-line-highlight ((t (,@dim :box t))))
+                     (tab-line-tab-current
+                      ((t (,@common :background ,bg-active
+                                    :foreground ,fg-active
+                                    :box ,box-active))))))
+      (tab-line-theme--set-face face spec))))
 
 (defun tab-line-theme--apply (&optional _theme)
   "Apply `tab-line-theme' settings."
+  ;; Drop what a previous pass set first: a face dropped from the setup
+  ;; between two theme loads would otherwise keep its override.
+  (tab-line-theme--drop-faces)
   (tab-line-theme--setup-base-faces))
 
 
@@ -131,7 +149,13 @@ When nil, height is not set."
    (t
     (remove-hook 'enable-theme-functions #'tab-line-theme--apply)
     (remove-function (var tab-line-tab-name-function)
-                     #'tab-line-theme--pad-tab-name))))
+                     #'tab-line-theme--pad-tab-name)
+    (tab-line-theme--drop-faces)))
+  ;; A row already drawn lives in its window's `tab-line-cache', under a
+  ;; key that says nothing about the name function or the faces, so
+  ;; without this it keeps the old look until the window's tabs change
+  ;; on their own.
+  (tab-line-force-update t))
 
 (provide 'tab-line-theme)
 ;;; tab-line-theme.el ends here

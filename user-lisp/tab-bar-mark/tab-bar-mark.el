@@ -32,7 +32,14 @@
 ;; bookkeeping behind.  It stays up until its tab comes into view — the
 ;; selected tab of a frame holding input focus — and goes the moment it
 ;; does.  Which is also why marking a tab already in view does nothing:
-;; it has been seen.
+;; it has been seen.  `tab-bar-mark-toggle' is the one exception: a mark
+;; put on the current tab by hand stays until the tab is next viewed.
+;;
+;; Add `tab-bar-mark-tab-name-format' to
+;; `tab-bar-tab-name-format-functions' yourself, after
+;; `tab-bar-tab-name-format-truncated' — see its docstring for why
+;; there.  This mode only owns the mark's own lifecycle, not where it
+;; is shown.
 
 ;;; Code:
 
@@ -86,6 +93,14 @@ Child frames are skipped: no tab bar there, so no mark to see."
   (alist-get 'tab-bar-mark tab))
 
 ;;;###autoload
+(defun tab-bar-mark-toggle ()
+  "Toggle the attention mark on the current tab."
+  (interactive)
+  (let ((tab (tab-bar--current-tab-find)))
+    (when (tab-bar-mark--set tab (not (tab-bar-mark-p tab)))
+      (force-mode-line-update t))))
+
+;;;###autoload
 (defun tab-bar-mark-if (predicate)
   "Mark every tab PREDICATE returns non-nil for, on every frame.
 PREDICATE is called with one argument, the tab, which is only valid for
@@ -101,27 +116,6 @@ seen.  Return the number of tabs left marked."
            (setq changed t)))))
     (when changed (force-mode-line-update t))
     marked))
-
-(defun tab-bar-mark--tab-name-format (name tab _i)
-  "Suffix NAME with `tab-bar-mark-symbol' when TAB is marked."
-  (if (tab-bar-mark-p tab)
-      (concat name " " (propertize tab-bar-mark-symbol 'face 'tab-bar-mark))
-    name))
-
-(defun tab-bar-mark--add-name-format ()
-  "Put the name formatter after `tab-bar-tab-name-format-truncated'.
-Ahead of it the symbol is truncated away along with the name; behind the
-rest, so a hint number lands in front of the name and the tab's own face
-and padding cover the symbol."
-  (let* ((fns (remq #'tab-bar-mark--tab-name-format
-                    tab-bar-tab-name-format-functions))
-         (i (seq-position fns 'tab-bar-tab-name-format-truncated)))
-    (setq tab-bar-tab-name-format-functions
-          (if i
-              (append (take (1+ i) fns)
-                      (list #'tab-bar-mark--tab-name-format)
-                      (nthcdr (1+ i) fns))
-            (cons #'tab-bar-mark--tab-name-format fns)))))
 
 (defun tab-bar-mark--clear-on-view (&rest _)
   "Clear the mark on every tab that is now in view.
@@ -140,20 +134,34 @@ frame is the selected one."
 
 ;;;###autoload
 (define-minor-mode tab-bar-mark-mode
-  "Show a colored attention symbol on tab-bar tabs marked via `tab-bar-mark-if'."
+  "Show a colored attention symbol on tab-bar tabs marked via `tab-bar-mark-if'.
+Does not place the symbol itself — add `tab-bar-mark-tab-name-format'
+to `tab-bar-tab-name-format-functions' where it belongs; this mode only
+owns the mark's own lifecycle."
   :group 'tab-bar-mark
   :global t
   (if tab-bar-mark-mode
       (progn
-        (tab-bar-mark--add-name-format)
         (add-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--clear-on-view)
         (add-function :after after-focus-change-function #'tab-bar-mark--clear-on-view)
         ;; Marks outlive the mode, and one may sit on the tab in view.
         (tab-bar-mark--clear-on-view))
-    (remove-hook 'tab-bar-tab-name-format-functions #'tab-bar-mark--tab-name-format)
     (remove-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--clear-on-view)
     (remove-function after-focus-change-function #'tab-bar-mark--clear-on-view))
   (force-mode-line-update t))
+
+;;;###autoload
+(defun tab-bar-mark-tab-name-format (name tab _i)
+  "Suffix NAME with `tab-bar-mark-symbol' when TAB is marked.
+A no-op with `tab-bar-mark-mode' off, so callers may list this in
+`tab-bar-tab-name-format-functions' unconditionally: it belongs after
+`tab-bar-tab-name-format-truncated' — ahead of it the symbol would be
+truncated away along with the name — and ahead of the hint and face
+formatters, so a hint number lands in front of the name and the tab's
+own face and padding cover the symbol."
+  (if (and tab-bar-mark-mode (tab-bar-mark-p tab))
+      (concat name " " (propertize tab-bar-mark-symbol 'face 'tab-bar-mark))
+    name))
 
 (provide 'tab-bar-mark)
 ;;; tab-bar-mark.el ends here
