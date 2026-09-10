@@ -167,6 +167,21 @@ option existed."
                  color)
   :group 'tab-bar-theme)
 
+(defcustom tab-bar-theme-tab-group-background-shift nil
+  "How far the current group's label sits off the active tab's background.
+The two share a background by default, so a group and the tab of it you
+are on read as one block — which also leaves a group whose name matches
+that tab's looking like the same thing twice.
+
+A number shifts the label's background off the tab's by that fraction
+of its own lightness, via `tab-bar-theme--shift-color': negative is
+toward the tab bar, positive is toward content.  A color string is used
+as is.  nil matches the active tab, as before this option existed."
+  :type '(choice (const :tag "Match the active tab" nil)
+                 (float :tag "Shift fraction off the active tab")
+                 color)
+  :group 'tab-bar-theme)
+
 (defcustom tab-bar-theme-tab-colors 'groups
   "What to color out of `tab-bar-theme-color-faces'.
 
@@ -412,8 +427,9 @@ lives exactly as long as the tab."
 It is read from a file, and this runs for every tab of every
 redisplay.")
 
-(defun tab-bar-theme--worktrees-family (root)
-  "Return the repository ROOT was cut from, or ROOT itself.
+;;;###autoload
+(defun tab-bar-theme-worktrees-family (root)
+  "Return the directory of the repository ROOT was cut from, or ROOT itself.
 A git worktree keeps a `.git' file naming the repository it came from,
 so every worktree of one project answers with one directory.  Read from
 that file rather than asked of git: `magit-list-worktrees' answers the
@@ -459,7 +475,7 @@ versions."
   "Return the face the repository DIR was cut from always answers with."
   (when dir
     (tab-bar-theme-color-from-key
-     (tab-bar-theme--worktrees-family dir))))
+     (tab-bar-theme-worktrees-family dir))))
 
 (defvar tab-bar-theme--last-color nil
   "The last answer of `tab-bar-theme--tab-color-face', as (TAB I WHAT FACE).
@@ -763,6 +779,15 @@ the rest of the session."
     (face-spec-set face nil 'face-override-spec))
   (setq tab-bar-theme--overridden-faces nil))
 
+(defun tab-bar-theme--shifted (color spec)
+  "Return COLOR shifted per SPEC, the shape both shift options take.
+A number is a fraction to shift COLOR's own lightness by, a string is a
+color to use as it is, and nil is COLOR itself."
+  (pcase spec
+    ((and (pred numberp) shift) (tab-bar-theme--shift-color color shift))
+    ((and (pred stringp) literal) literal)
+    (_ color)))
+
 (defun tab-bar-theme--setup-base-faces ()
   "Apply base `tab-bar' faces."
   (let* ((bg-inactive (face-attribute 'mode-line-inactive :background nil 'default))
@@ -776,11 +801,11 @@ the rest of the session."
          ;; against the other half of ours put the loudest block of the
          ;; row on the tabs nobody is looking at.
          (bg-tab-inactive
-          (pcase tab-bar-theme-tab-inactive-background-shift
-            ((and (pred numberp) shift)
-             (tab-bar-theme--shift-color bg-inactive shift))
-            ((and (pred stringp) color) color)
-            (_ bg-inactive)))
+          (tab-bar-theme--shifted bg-inactive
+                                  tab-bar-theme-tab-inactive-background-shift))
+         (bg-group-current
+          (tab-bar-theme--shifted bg-active
+                                  tab-bar-theme-tab-group-background-shift))
          ;; The room a box used to make above and below a label now
          ;; comes from the height of the indicator bar, which a box
          ;; would only stack on top of — so it is off on every face.
@@ -808,7 +833,7 @@ the rest of the session."
                                     :foreground ,fg-active))))
                      (tab-bar-tab-group-inactive ((t (,@dim :weight bold))))
                      (tab-bar-tab-group-current
-                      ((t (,@common :background ,bg-active
+                      ((t (,@common :background ,bg-group-current
                                     :foreground ,fg-active
                                     :weight bold))))))
       (tab-bar-theme--set-face face spec))))

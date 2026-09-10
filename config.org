@@ -1308,18 +1308,36 @@ If you'd like to test a different font, evaluate the following block:
 ** otpp
 #+begin_src emacs-lisp
 (use-package otpp
+  :preface
+  (defun +otpp-tab-group-worktrees-family ()
+    "Return the name of the repository the current tab's root was cut from.
+A group per repository, then, and a tab per checkout of it: the
+worktrees of one project sit together under its own name."
+    (when-let* ((dir (otpp-get-tab-root-dir))
+                (name (file-name-nondirectory
+                       (directory-file-name
+                        (tab-bar-theme-worktrees-family dir)))))
+      ;; A bare repository is named `proj.git'; the group is the project.
+      (if (string-suffix-p ".git" name)
+          (substring name 0 (- (length ".git")))
+        name)))
   :init
   (setq otpp-rename-the-initial-tab nil)
   (setq otpp-reconnect-tab nil)
   :hook
   (after-init-hook . otpp-mode)
-  (after-init-hook . otpp-override-mode))
+  (after-init-hook . otpp-override-mode)
+  (otpp-tab-group-name-hook . +otpp-tab-group-worktrees-family))
 #+end_src
 
 ** tab-bar-mark
 #+begin_src emacs-lisp
 (use-package tab-bar-mark
   :ensure nil
+  :general
+  (tab-prefix-map
+   "!" 'tab-bar-mark-switch-to-tab
+   "*" 'tab-bar-mark-toggle)
   :hook
   (after-init-hook . tab-bar-mark-mode))
 #+end_src
@@ -1337,13 +1355,26 @@ If you'd like to test a different font, evaluate the following block:
       (tab-bar-theme-color-from-key dir)
       ))
   (defun +tab-bar-group-format (tab i &optional current-p)
-    (let ((face (tab-bar-theme-tab-group-face current-p)))
+    (let* ((face (tab-bar-theme-tab-group-face current-p))
+           ;; Whatever is drawn of the group, its label answers for the
+           ;; family: a mark stays there while any tab inside carries
+           ;; one, rather than only while that tab is hidden.
+           (marked (tab-bar-mark-group-p
+                    (funcall tab-bar-tab-group-function tab))))
       (concat (tab-bar-indicator-build
                (tab-bar-theme-tab-group-indicator-color current-p) nil face)
-              (tab-bar-theme-tab-group-format-color tab i current-p))))
+              (tab-bar-theme-tab-group-format-color tab i current-p)
+              ;; The group's face behind the mark, which keeps its own
+              ;; color ahead of it, and the label's padding after it:
+              ;; drawn bare, the two would sit on the tab bar instead.
+              (and marked
+                   (propertize (concat tab-bar-mark-symbol
+                                       tab-bar-theme-tab-name-padding)
+                               'face (list 'tab-bar-mark face))))))
   :init
   (setq tab-bar-theme-height 0.9)
   (setq tab-bar-theme-tab-colors t)
+  (setq tab-bar-theme-tab-group-background-shift -0.06)
   (setq tab-bar-theme-tab-group-format-function #'+tab-bar-group-format)
   (setq tab-bar-theme-tab-color-face-function #'+tab-bar-theme-project-color)
   ;; (setq tab-bar-theme-tab-extra-face-function #'+tab-bar-theme-project-face)

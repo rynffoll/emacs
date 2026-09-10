@@ -4,7 +4,7 @@
 
 ;; Author: Ruslan Kamashev
 ;; Version: 0.1
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/rynffoll/emacs
 
@@ -44,6 +44,7 @@
 ;;; Code:
 
 (require 'tab-bar)
+(require 'seq)
 
 (defgroup tab-bar-mark nil
   "Attention indicator for tab-bar tabs."
@@ -149,6 +150,56 @@ owns the mark's own lifecycle."
     (remove-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--clear-on-view)
     (remove-function after-focus-change-function #'tab-bar-mark--clear-on-view))
   (force-mode-line-update t))
+
+;;;###autoload
+(defun tab-bar-mark-group-p (group)
+  "Whether any tab of GROUP carries an attention mark.
+Nil with `tab-bar-mark-mode' off, as the other formatting helpers here
+are no-ops then, so a label formatter may ask unconditionally: a group
+that is not the current one draws none of its tabs, and the mark inside
+it is then drawn nowhere else."
+  (and tab-bar-mark-mode
+       group
+       ;; The marked tabs and not every tab: usually none or one, where
+       ;; the group of a tab is a call to a function a config may
+       ;; replace.
+       (seq-some (lambda (tab)
+                   (equal (funcall tab-bar-tab-group-function tab) group))
+                 (tab-bar-mark-marked-tabs))))
+
+;;;###autoload
+(defun tab-bar-mark-marked-tabs (&optional frame)
+  "Return the tabs of FRAME that carry an attention mark."
+  (seq-filter #'tab-bar-mark-p (funcall tab-bar-tabs-function frame)))
+
+(defun tab-bar-mark--switch-names ()
+  "Return the marked tabs' names, the most recently visited one first.
+Ordered by `tab-bar--tabs-recent', which is asked only once there is
+something to sort: an empty list is nothing it can tell from no list at
+all, and it answers with every tab of the frame."
+  (when-let* ((marked (tab-bar-mark-marked-tabs)))
+    (mapcar (lambda (tab) (alist-get 'name tab))
+            (tab-bar--tabs-recent marked))))
+
+;;;###autoload
+(defun tab-bar-mark-switch-to-tab (name)
+  "Switch to the marked tab by NAME.
+Shaped after `tab-bar-switch-to-tab', and switching through it: the
+default values are the marked tabs sorted by recency, so
+\<minibuffer-local-map>\[next-history-element] answers with the most
+recently visited one, the second most recent, and so on.  Selecting a
+tab is also what takes its mark off."
+  (interactive
+   (let ((names (tab-bar-mark--switch-names)))
+     (unless names (user-error "No marked tabs"))
+     (list (completing-read
+            (format-prompt "Switch to marked tab" (car names))
+            ;; The table says what its candidates are, so a front end
+            ;; annotates them without being told: `tab' is a category
+            ;; marginalia ships an annotator for.
+            (completion-table-with-metadata names '((category . tab)))
+            nil t nil nil names))))
+  (tab-bar-switch-to-tab name))
 
 ;;;###autoload
 (defun tab-bar-mark-tab-name-format (name tab _i)
