@@ -1540,6 +1540,7 @@ worktrees of one project sit together under its own name."
   (after-init-hook . global-hl-line-mode))
 
 (use-package pulsar
+  :disabled
   :hook
   (after-init-hook . pulsar-global-mode))
 

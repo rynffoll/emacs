@@ -2417,6 +2417,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 ** pulsar
 #+begin_src emacs-lisp
 (use-package pulsar
+  :disabled
   :hook
   (after-init-hook . pulsar-global-mode))
 #+end_src
