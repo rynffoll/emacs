@@ -815,6 +815,29 @@ worktrees of one project sit together under its own name."
   :hook
   (after-init-hook . tab-bar-indicator-mode))
 
+(use-package tab-bar-tree
+  :ensure nil
+  :commands (global-tab-bar-tree-mode)
+  :preface
+  (defun +tab-bar-tree-hide-cursor ()
+    "Keep evil from drawing a cursor in a buffer nothing is edited in."
+    (setq-local evil-normal-state-cursor '(nil)
+                evil-motion-state-cursor '(nil)
+                evil-emacs-state-cursor  '(nil)))
+  :general
+  ( :keymaps 'tab-bar-tree-mode-map :states 'normal
+    "RET" 'tab-bar-tree-select
+    "TAB" 'tab-bar-tree-select
+    "gr" 'tab-bar-tree-refresh)
+  :config
+  ;; A number of its own, like `dired-side' answers to 0.
+  (with-eval-after-load 'winum
+    (defun +winum-assign-9-to-tab-bar-tree ()
+      (when (derived-mode-p 'tab-bar-tree-mode) 9))
+    (add-to-list 'winum-assign-functions #'+winum-assign-9-to-tab-bar-tree))
+  :hook
+  (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor))
+
 (use-package per-tab-group-theme
   :disabled
   :ensure nil
