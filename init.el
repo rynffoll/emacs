@@ -764,6 +764,10 @@ worktrees of one project sit together under its own name."
       ))
   (defun +tab-bar-group-format (tab i &optional current-p)
     (let* ((face (tab-bar-theme-tab-group-face current-p))
+           ;; The row holds the tabs of the group you are in and folds
+           ;; every other one away, so which way this group is folded is
+           ;; the one thing about it the row does not already show.
+           (expanded (or current-p tab-bar-show-inactive-group-tabs))
            ;; Whatever is drawn of the group, its label answers for the
            ;; family: a mark stays there while any tab inside carries
            ;; one, rather than only while that tab is hidden.
@@ -771,6 +775,21 @@ worktrees of one project sit together under its own name."
                     (funcall tab-bar-tab-group-function tab))))
       (concat (tab-bar-indicator-build
                (tab-bar-theme-tab-group-indicator-color current-p) nil face)
+              ;; Ahead of the label, whose own padding is the gap
+              ;; behind the mark, and in `shadow', so the mark stays
+              ;; under the name, which carries the group's own color.
+              ;; The gap ahead of it is a graphic frame's alone, where
+              ;; the indicator is three pixels with one of them painted
+              ;; and leaves the mark nothing to stand off from; a
+              ;; terminal spends a whole cell on the indicator and sets
+              ;; the mark off by itself:
+              ;;
+              ;;   graphic    |_›_7 protos_     3px 7px 7px … 7px
+              ;;   terminal   |›_7 protos_      a cell apiece
+              (propertize (concat (and (display-graphic-p)
+                                       tab-bar-theme-tab-name-padding)
+                                  (if expanded "⌵" "›"))
+                          'face (list 'shadow face))
               (tab-bar-theme-tab-group-format-color tab i current-p)
               ;; The group's face behind the mark, which keeps its own
               ;; color ahead of it, and the label's padding after it:
