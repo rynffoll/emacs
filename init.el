@@ -1794,6 +1794,17 @@ Advises `magit-diff-visit-directory'."
   (magit-add-section-hook 'magit-status-sections-hook
                           'magit-insert-worktrees nil t))
 
+(use-package magit-clone
+  :ensure magit
+  :preface
+  (defun +magit-clone-switch-project ()
+    "Switch to the freshly cloned repository as its own project.
+`default-directory' is let-bound to it by `magit-post-clone-hook'."
+    (let ((project-switch-commands #'magit-project-status))
+      (project-switch-project default-directory)))
+  :hook
+  (magit-post-clone-hook . +magit-clone-switch-project))
+
 (use-package git-modes
   :mode ("/.dockerignore\\'" . gitignore-mode))
 
