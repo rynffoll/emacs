@@ -75,7 +75,6 @@
 - [[#frames][Frames]]
   - [[#frame][frame]]
   - [[#fringe][fringe]]
-  - [[#posframe][posframe]]
   - [[#popframe][popframe]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
@@ -1206,11 +1205,6 @@ If you'd like to test a different font, evaluate the following block:
         ))
 #+end_src
 
-** posframe
-#+begin_src emacs-lisp
-(use-package posframe)
-#+end_src
-
 ** popframe
 #+begin_src emacs-lisp
 (use-package popframe
@@ -1226,9 +1220,6 @@ If you'd like to test a different font, evaluate the following block:
   ("C-`" 'popframe
    "C-~" 'popframe-pin)
   :init
-  (setq popframe-override-parameters '((alpha . 95)
-                                       (undecorated . nil)
-                                       (undecorated-round . t)))
   (setq popframe-default-buffer #'+popframe-ghostel))
 #+end_src
 

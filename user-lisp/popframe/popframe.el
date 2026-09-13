@@ -4,7 +4,7 @@
 
 ;; Author: Ruslan Kamashev
 ;; Version: 0.1
-;; Package-Requires: ((emacs "30.1") (posframe "1.4.0"))
+;; Package-Requires: ((emacs "30.1"))
 ;; Keywords: convenience, frames
 ;; URL: https://github.com/rynffoll/emacs
 
@@ -23,21 +23,23 @@
 
 ;;; Commentary:
 
-;; Toggle a centered, focused child frame, built on posframe.
+;; Toggle a centered, focused child frame, built directly on Emacs's core
+;; child-frame support (`make-frame' with a `parent-frame' parameter).
 ;;
-;; The frame is created lazily on the first `popframe' call from a buffer
-;; spec (a buffer, a buffer name, or a function returning one; a function is
-;; called inside `save-window-excursion', so providers with window side
-;; effects like `ghostel-project' work as-is).  `popframe' takes the spec as
-;; an optional argument, defaulting to `popframe-default-buffer':
+;; The child frame is created lazily on the first `popframe' call from a
+;; buffer spec (a buffer, a buffer name, or a function returning one; a
+;; function is called inside `save-window-excursion', so providers with
+;; window side effects like `ghostel-project' work as-is).  `popframe' takes
+;; the spec as an optional argument, defaulting to `popframe-default-buffer':
 ;;
 ;;   (setq popframe-default-buffer #'ghostel-project)
-;;   (popframe)                      ; toggle the default buffer
-;;   (popframe #'world-clock-spec)   ; toggle some other buffer
+;;   (popframe)             ; toggle the default buffer
+;;   (popframe #'ghostel)   ; toggle some other buffer
 ;;
-;; A single frame is shared and reused: showing a new spec swaps its buffer
-;; into the frame's window, while the frame itself persists.  Calling
-;; `popframe' for the buffer already shown hides the frame.
+;; A single child frame is shared and reused: showing a new spec swaps its
+;; buffer into the child frame's window, while the child frame itself
+;; persists.  Calling `popframe' for the buffer already shown hides the
+;; child frame.
 ;;
 ;; `popframe-pin' pins the current buffer to the current project, so that
 ;; `popframe' with no argument shows it instead of `popframe-default-buffer'
@@ -45,11 +47,6 @@
 ;; so calling it in a pinned buffer unpins it.
 
 ;;; Code:
-
-;; posframe is required lazily in `popframe--show' so byte-compilation does
-;; not depend on the ELPA package being on `load-path' yet.
-(declare-function posframe-show "posframe" (buffer-or-name &rest args))
-(declare-function posframe-poshandler-frame-center "posframe" (info))
 
 ;; project.el is built in and `project-current' is autoloaded; a non-nil
 ;; return means project.el is loaded, so `project-root' is available too.
@@ -75,15 +72,25 @@ called inside `save-window-excursion'."
   "Child frame height as a fraction of the parent frame height."
   :type 'number)
 
-(defcustom popframe-override-parameters nil
+(defcustom popframe-override-parameters '((alpha . 95)
+                                          (undecorated . nil)
+                                          (undecorated-round . t))
   "Extra frame parameters for the child frame, as an alist.
-Passed verbatim to posframe's :override-parameters.  For example,
-`((alpha . 90))' sets the frame opacity."
+Passed verbatim to `make-frame', taking precedence over popframe's own
+parameters."
   :type '(alist :key-type symbol :value-type sexp))
 
 
-(defvar popframe--frame nil
+(defvar popframe--child-frame nil
   "The child frame created by `popframe', or nil when none.")
+
+(defvar popframe--child-frame-created-fullscreen nil
+  "The parent frame's `fullscreen' state when the child frame was created.
+A child frame is bound to the macOS Space it was created on; if the
+parent frame later enters or leaves native fullscreen (a different
+Space), reusing `popframe--child-frame' would move focus back to the old
+Space.  `popframe' compares this against the parent frame's current state
+to detect that and recreate the child frame instead.")
 
 (defvar-local popframe--pin nil
   "Pin key this buffer is pinned to, or nil when it is not pinned.
@@ -106,26 +113,43 @@ it cannot match the nil default of `popframe--pin'."
       (project-root project)
     t))
 
-(defun popframe--pinned-buffer ()
-  "Return the buffer pinned to the current buffer's context, or nil.
-Scans `buffer-list', which only holds live buffers, so a killed pinned
-buffer simply stops being found."
-  (let ((key (popframe--pin-key)))
-    (seq-find (lambda (buffer)
-                (equal key (buffer-local-value 'popframe--pin buffer)))
-              (buffer-list))))
+(defun popframe--pinned-buffer (key)
+  "Return the buffer pinned to KEY, or nil.
+KEY is a pin key; see `popframe--pin-key'.  Scans `buffer-list', which
+only holds live buffers, so a killed pinned buffer simply stops being
+found."
+  (seq-find (lambda (buffer)
+              (equal key (buffer-local-value 'popframe--pin buffer)))
+            (buffer-list)))
 
-(defun popframe--live-frame ()
-  "Return `popframe--frame' if it is live, clearing a stale reference."
-  (if (frame-live-p popframe--frame)
-      popframe--frame
-    (setq popframe--frame nil)))
+(defun popframe--live-child-frame ()
+  "Return `popframe--child-frame' if it is live, or nil."
+  (and (frame-live-p popframe--child-frame) popframe--child-frame))
 
-(defun popframe--showing-p (frame buffer)
-  "Return non-nil if FRAME is live, visible and currently displays BUFFER."
-  (and (frame-live-p frame)
-       (frame-visible-p frame)
-       (eq (window-buffer (frame-root-window frame)) buffer)))
+(defun popframe--delete-child-frame ()
+  "Delete `popframe--child-frame' if it is live, and clear it.
+Focus is restored via `popframe--restore-parent-focus' on
+`delete-frame-functions', left unsuppressed here: this frame is created
+normally, so other packages' frame bookkeeping expects normal cleanup too."
+  (when (frame-live-p popframe--child-frame)
+    (delete-frame popframe--child-frame))
+  (setq popframe--child-frame nil))
+
+(defun popframe--live-parent-frame ()
+  "Return `popframe--child-frame's parent frame if both are live, or nil."
+  (when-let* ((child-frame (popframe--live-child-frame))
+              (parent-frame (frame-parent child-frame)))
+    (and (frame-live-p parent-frame) parent-frame)))
+
+(defun popframe--effective-parent-frame ()
+  "Return `popframe--child-frame's live parent frame, or the selected frame."
+  (or (popframe--live-parent-frame) (selected-frame)))
+
+(defun popframe--showing-p (buffer)
+  "Return non-nil if the child frame is live, visible, and shows BUFFER."
+  (when-let* ((child-frame (popframe--live-child-frame)))
+    (and (frame-visible-p child-frame)
+         (get-buffer-window buffer child-frame))))
 
 (defun popframe--resolve (spec)
   "Resolve SPEC to a live buffer, or nil.
@@ -136,99 +160,129 @@ is called inside `save-window-excursion'."
        (save-window-excursion (funcall spec))
      spec)))
 
-(defun popframe--hide (frame)
-  "Make FRAME invisible and return focus to its parent frame."
-  (let ((parent (frame-parameter frame 'parent-frame)))
-    (make-frame-invisible frame)
-    (when (frame-live-p parent)
-      (select-frame-set-input-focus parent))))
+(defun popframe--focus-parent-frame ()
+  "Give input focus to the child frame's live parent frame, if any."
+  (when-let* ((parent-frame (popframe--live-parent-frame)))
+    (select-frame-set-input-focus parent-frame)))
+
+(defun popframe--hide ()
+  "Make the child frame invisible and return focus to its parent frame."
+  (make-frame-invisible popframe--child-frame)
+  (popframe--focus-parent-frame))
 
 (defun popframe--dismiss (buffer)
-  "Hide the popframe frame if it is currently showing BUFFER."
-  (let ((frame (popframe--live-frame)))
-    (when (popframe--showing-p frame buffer)
-      (popframe--hide frame))))
+  "Hide the child frame if it is currently showing BUFFER."
+  (when (popframe--showing-p buffer)
+    (popframe--hide)))
 
 (defun popframe--auto-hide ()
-  "Hide the popframe frame, keeping it for reuse.
+  "Hide the child frame, keeping it for reuse.
 Installed as the child frame's `auto-hide-function' parameter so that
-`quit-window', `bury-buffer' and friends dismiss the popframe instead of
-falling back to `frame-auto-hide-function' (whose default `iconify-frame'
-is a no-op on a child frame).  Emacs calls this with no arguments."
-  (when (frame-live-p popframe--frame)
-    (popframe--hide popframe--frame)))
+`quit-window', `bury-buffer' and similar commands dismiss the popframe
+instead of falling back to `frame-auto-hide-function' (whose default
+`iconify-frame' is a no-op on a child frame)."
+  (when (popframe--live-child-frame)
+    (popframe--hide)))
 
-(defun popframe--parent-fullscreen (frame)
-  "Return the `fullscreen' parameter of FRAME's parent frame, or nil."
-  (let ((parent (frame-parameter frame 'parent-frame)))
-    (and (frame-live-p parent) (frame-parameter parent 'fullscreen))))
+(defun popframe--restore-parent-focus (deleted-frame)
+  "Focus the popframe's parent frame when DELETED-FRAME is the child frame.
+Added to `delete-frame-functions' by `popframe--create'; removes itself
+once it fires.  Covers what `auto-hide-function' (`popframe--auto-hide')
+cannot: `window--delete' skips it when Emacs auto-deletes the frame
+because its last buffer was killed (e.g. a shell exiting on its own)."
+  (when (eq deleted-frame popframe--child-frame)
+    (remove-hook 'delete-frame-functions #'popframe--restore-parent-focus)
+    (popframe--focus-parent-frame)))
 
-(defun popframe--fit (frame)
-  "Resize FRAME to the configured ratios of its parent and re-center it.
-Resizes only when the target character size differs from the current one,
-then always re-centers, so a parent resized while FRAME was hidden (for
-example toggling fullscreen) does not leave FRAME oversized or off-center."
-  (let* ((parent (frame-parameter frame 'parent-frame))
-         (parent (if (frame-live-p parent) parent (selected-frame)))
-         (cols  (round (* (frame-width  parent) popframe-width-ratio)))
-         (lines (round (* (frame-height parent) popframe-height-ratio))))
-    (unless (and (= cols  (frame-width  frame))
-                 (= lines (frame-height frame)))
-      (set-frame-size frame cols lines))
+(defun popframe--target-size (parent-frame)
+  "Return the child frame's target size as (WIDTH . HEIGHT).
+Sized as the configured ratios of PARENT-FRAME's dimensions."
+  (cons (round (* (frame-width  parent-frame) popframe-width-ratio))
+        (round (* (frame-height parent-frame) popframe-height-ratio))))
+
+(defun popframe--fit (child-frame)
+  "Resize CHILD-FRAME to the configured ratios of its parent frame and
+re-center it.  Resizes only when the target character size differs from
+the current one, then always re-centers, so a parent frame resized while
+CHILD-FRAME was hidden (for example toggling fullscreen) does not leave
+CHILD-FRAME oversized or off-center."
+  (pcase-let* ((parent-frame (popframe--effective-parent-frame))
+               (`(,width . ,height) (popframe--target-size parent-frame)))
+    (unless (and (= width  (frame-width  child-frame))
+                 (= height (frame-height child-frame)))
+      (set-frame-size child-frame width height))
     (set-frame-position
-     frame
-     (max 0 (/ (- (frame-pixel-width  parent) (frame-pixel-width  frame)) 2))
-     (max 0 (/ (- (frame-pixel-height parent) (frame-pixel-height frame)) 2)))))
+     child-frame
+     (max 0 (/ (- (frame-pixel-width  parent-frame)
+                  (frame-pixel-width  child-frame))
+               2))
+     (max 0 (/ (- (frame-pixel-height parent-frame)
+                  (frame-pixel-height child-frame))
+               2)))))
 
-(defun popframe--reveal (frame buffer)
-  "Show BUFFER in FRAME, make it visible, and give it input focus.
-Reuses FRAME's window (only its buffer changes).  The window is dedicated
-\(so killing its buffer deletes the frame), so dedication is lifted around
-the buffer swap and restored afterwards.  FRAME is refit to its parent
-first, in case the parent was resized while FRAME was hidden."
-  (let ((win (frame-root-window frame)))
-    (set-window-dedicated-p win nil)
-    (set-window-buffer win buffer)
-    (set-window-dedicated-p win t)
-    (popframe--fit frame)
-    (make-frame-visible frame)
-    (select-frame-set-input-focus frame)))
+(defun popframe--reveal (child-frame buffer)
+  "Show BUFFER in CHILD-FRAME, make it visible, and give it input focus.
+Reuses CHILD-FRAME's window (only its buffer changes).  The window is
+dedicated (so killing its buffer deletes the child frame), so dedication is
+lifted around the buffer swap and restored afterwards.  CHILD-FRAME is
+refit to its parent frame first, in case the parent frame was resized
+while CHILD-FRAME was hidden."
+  (let ((window (frame-root-window child-frame)))
+    (set-window-dedicated-p window nil)
+    (set-window-buffer window buffer)
+    (set-window-dedicated-p window t)
+    (popframe--fit child-frame)
+    (make-frame-visible child-frame)
+    (select-frame-set-input-focus child-frame)))
 
 (defun popframe--create (buffer)
   "Create and show a centered child frame displaying BUFFER.
-Store it in `popframe--frame' and focus it."
-  (posframe-show buffer
-                 :poshandler #'posframe-poshandler-frame-center
-                 :width  (round (* (frame-width)  popframe-width-ratio))
-                 :height (round (* (frame-height) popframe-height-ratio))
-                 :override-parameters popframe-override-parameters
-                 :left-fringe 8
-                 :right-fringe 8
-                 ;; :internal-border-width 3
-                 ;; :internal-border-color (face-background 'region nil t)
-                 :respect-mode-line t
-                 :respect-header-line t
-                 :accept-focus t
-                 :cursor t
-                 :window-point (with-current-buffer buffer (point)))
-  (let ((frame (buffer-local-value 'posframe--frame buffer)))
-    (setq popframe--frame frame)
-    ;; posframe marks BUFFER as its own via a buffer-local `posframe--frame',
-    ;; and `posframe-delete-all' kills every buffer so marked.  We display
-    ;; real buffers we must not kill and track the frame ourselves, so drop
-    ;; the mark.  posframe still finds the frame by its `posframe-buffer'
-    ;; frame parameter, so `posframe-hide' etc. keep working.
-    (with-current-buffer buffer (kill-local-variable 'posframe--frame))
-    ;; Dismiss via `quit-window'/`bury-buffer': Emacs auto-hides a buffer's
-    ;; separate frame through this parameter, so route it to `popframe--hide'.
-    (set-frame-parameter frame 'auto-hide-function #'popframe--auto-hide)
-    ;; Remember the parent's fullscreen state at creation.  A child frame is
-    ;; bound to the macOS Space it was born on; if the parent later enters or
-    ;; leaves native fullscreen (a different Space), reusing this frame would
-    ;; drag focus back to the old Space, so `popframe' recreates it.
-    (set-frame-parameter frame 'popframe-created-fullscreen
-                         (popframe--parent-fullscreen frame))
-    (select-frame-set-input-focus frame)))
+Store it in `popframe--child-frame' and focus it."
+  (pcase-let* ((parent-frame (selected-frame))
+               (`(,width . ,height) (popframe--target-size parent-frame))
+               (minibuffer (minibuffer-window parent-frame))
+               (defaults `((parent-frame . ,parent-frame)
+                           (minibuffer . ,minibuffer)
+                           (title . "popframe")
+                           (width . ,width)
+                           (height . ,height)
+                           (min-width . 0)
+                           (min-height . 0)
+                           (menu-bar-lines . 0)
+                           (tool-bar-lines . 0)
+                           (tab-bar-lines . 0)
+                           (vertical-scroll-bars . nil)
+                           (horizontal-scroll-bars . nil)
+                           (unsplittable . t)
+                           (no-other-frame . t)
+                           (no-special-glyphs . t)
+                           (undecorated . t)
+                           (visibility . nil)
+                           (desktop-dont-save . t)
+                           (auto-hide-function . popframe--auto-hide)))
+               ;; `make-frame' resolves duplicate parameters the same way
+               ;; `default-frame-alist' does: first match wins, so prepending lets
+               ;; POPFRAME-OVERRIDE-PARAMETERS take precedence over our defaults.
+               (params (append popframe-override-parameters defaults))
+               (child-frame (make-frame params)))
+    (setq popframe--child-frame child-frame
+          popframe--child-frame-created-fullscreen
+          (frame-parameter parent-frame 'fullscreen))
+    (add-hook 'delete-frame-functions #'popframe--restore-parent-focus)
+    (popframe--reveal child-frame buffer)))
+
+(defun popframe--delete-stale-child-frame (child-frame parent-frame)
+  "Delete CHILD-FRAME unless it is live and fresh relative to PARENT-FRAME.
+Return CHILD-FRAME unchanged if so, else nil.
+See `popframe--child-frame-created-fullscreen' for what makes it stale."
+  (if (and child-frame
+           (frame-live-p child-frame)
+           (equal (frame-parameter parent-frame 'fullscreen)
+                  popframe--child-frame-created-fullscreen))
+      child-frame
+    (when child-frame
+      (popframe--delete-child-frame))
+    nil))
 
 
 ;;;###autoload
@@ -249,25 +303,35 @@ pin.  Called in an already pinned buffer, this unpins it, dismissing the
 popframe when it is the buffer on show.  Pins last for the session only
 and are dropped when the buffer is killed."
   (interactive)
-  ;; Captured up front: dismissing reselects the parent frame's window, which
-  ;; makes that window's buffer current, so `buffer-name' would no longer name
-  ;; the buffer being unpinned by the time we report it.
+  ;; Captured before dismissing: dismissing reselects the parent frame's
+  ;; window, which makes that window's buffer current, so `buffer-name'
+  ;; would no longer name the buffer being unpinned by the time we report it.
   (let ((name (buffer-name)))
     (if popframe--pin
         (progn
           (kill-local-variable 'popframe--pin)
-          ;; Dismiss before messaging, so the message lands in the echo area
-          ;; of the parent frame that dismissing focuses.
+          ;; Dismiss before messaging, so the message appears in the echo
+          ;; area of the parent frame that dismissing focuses.
           (popframe--dismiss (current-buffer))
           (message "popframe: unpinned buffer `%s'" name))
-      (let ((previous (popframe--pinned-buffer)))
+      (let* ((key (popframe--pin-key))
+             (previous (popframe--pinned-buffer key)))
         (when previous
           (with-current-buffer previous (kill-local-variable 'popframe--pin)))
-        (setq popframe--pin (popframe--pin-key))
+        (setq popframe--pin key)
         (if previous
             (message "popframe: pinned buffer `%s' → `%s'"
                      (buffer-name previous) name)
           (message "popframe: pinned buffer `%s'" name))))))
+
+;;;###autoload
+(defun popframe-delete ()
+  "Delete the popframe child frame instead of merely hiding it.
+Unlike `popframe', which toggles visibility and reuses the child frame,
+this deletes it immediately — useful if the child frame stops responding
+or looks broken.  `popframe' recreates it lazily on its next call."
+  (interactive)
+  (popframe--delete-child-frame))
 
 ;;;###autoload
 (defun popframe (&optional spec)
@@ -277,35 +341,32 @@ defaults to the buffer pinned to the current project by `popframe-pin',
 falling back to `popframe-default-buffer'.  A function is called inside
 `save-window-excursion'.
 
-A single child frame is shared and reused: the frame is created lazily on
-first use, and showing a different SPEC swaps its buffer into the frame's
-window while the frame itself persists.  Calling this command for the
-buffer already shown hides the frame, so each spec toggles independently."
+A single child frame is shared and reused: the child frame is created
+lazily on first use, and showing a different SPEC swaps its buffer into
+the child frame's window while the child frame itself persists.  Calling
+this command for the buffer already shown hides the child frame, so each
+spec toggles independently."
   (interactive)
-  (require 'posframe)
-  (let* ((spec (or spec (popframe--pinned-buffer) popframe-default-buffer))
-         (frame (popframe--live-frame))
-         (parent (and frame (frame-parameter frame 'parent-frame)))
+  (let* ((spec (or spec
+                   (popframe--pinned-buffer (popframe--pin-key))
+                   popframe-default-buffer))
+         (child-frame (popframe--live-child-frame))
+         (parent-frame (popframe--effective-parent-frame))
          ;; Resolve with the parent frame selected so a provider's window side
-         ;; effects (buffer display, tab-bar) land on the real frame, not on
-         ;; the floating child — whose frame parameters `save-window-excursion'
-         ;; inside `popframe--resolve' would not restore.
-         (buffer (with-selected-frame (if (frame-live-p parent) parent (selected-frame))
+         ;; effects (buffer display, tab-bar) land on the real parent frame,
+         ;; not on the floating child frame — whose frame parameters
+         ;; `save-window-excursion' inside `popframe--resolve' would not
+         ;; restore.
+         (buffer (with-selected-frame parent-frame
                    (popframe--resolve spec))))
     (unless (buffer-live-p buffer)
       (user-error "popframe: spec yielded no buffer"))
-    (if (popframe--showing-p frame buffer)
-        (popframe--hide frame)
-      ;; If the parent changed fullscreen state (hence macOS Space) since the
-      ;; frame was created, a reused child frame would yank focus to its
-      ;; original Space; recreate it in the current one instead.
-      (when (and frame
-                 (not (equal (popframe--parent-fullscreen frame)
-                             (frame-parameter frame 'popframe-created-fullscreen))))
-        (delete-frame frame)
-        (setq frame nil popframe--frame nil))
-      (if frame
-          (popframe--reveal frame buffer)
+    (if (popframe--showing-p buffer)
+        (popframe--hide)
+      (setq child-frame
+            (popframe--delete-stale-child-frame child-frame parent-frame))
+      (if child-frame
+          (popframe--reveal child-frame buffer)
         (popframe--create buffer)))))
 
 (provide 'popframe)

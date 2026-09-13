@@ -633,8 +633,6 @@
         ;; '(left-curly-arrow right-curly-arrow) ;; default
         ))
 
-(use-package posframe)
-
 (use-package popframe
   :ensure nil
   :demand t
@@ -648,9 +646,6 @@
   ("C-`" 'popframe
    "C-~" 'popframe-pin)
   :init
-  (setq popframe-override-parameters '((alpha . 95)
-                                       (undecorated . nil)
-                                       (undecorated-round . t)))
   (setq popframe-default-buffer #'+popframe-ghostel))
 
 (use-package tab-bar
