@@ -982,9 +982,7 @@ worktrees of one project sit together under its own name."
   ("C-x u" 'vundo)
   :config
   (setq vundo-compact-display t)
-  (setq vundo-glyph-alist vundo-unicode-symbols)
-  :hook
-  (after-init-hook . vundo-popup-mode))
+  (setq vundo-glyph-alist vundo-unicode-symbols))
 
 (use-package emacs
   :ensure nil
