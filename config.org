@@ -91,7 +91,6 @@
 - [[#windows][Windows]]
   - [[#window][window]]
   - [[#winum][winum]]
-  - [[#zoom][zoom]]
   - [[#shackle][shackle]]
 - [[#buffers][Buffers]]
   - [[#uniquify][uniquify]]
@@ -1498,19 +1497,6 @@ worktrees of one project sit together under its own name."
   (setq winum-auto-setup-mode-line nil)
   :hook
   (after-init-hook . winum-mode))
-#+end_src
-
-** zoom
-#+begin_src emacs-lisp
-(use-package zoom
-  :general
-  (evil-window-map
-   "z" 'zoom-mode)
-  :init
-  (setq zoom-size '(0.618 . 0.618)) ;; golden ratio
-  (setq zoom-ignored-major-modes '(vundo-mode vundo-diff-mode))
-  (setq zoom-ignored-buffer-names '("COMMIT_EDITMSG" " *vundo tree*"))
-  (setq zoom-ignored-buffer-name-regexps '("^magit.*" "^\\*dape.*")))
 #+end_src
 
 ** shackle

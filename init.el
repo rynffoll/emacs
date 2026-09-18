@@ -884,16 +884,6 @@ worktrees of one project sit together under its own name."
   :hook
   (after-init-hook . winum-mode))
 
-(use-package zoom
-  :general
-  (evil-window-map
-   "z" 'zoom-mode)
-  :init
-  (setq zoom-size '(0.618 . 0.618)) ;; golden ratio
-  (setq zoom-ignored-major-modes '(vundo-mode vundo-diff-mode))
-  (setq zoom-ignored-buffer-names '("COMMIT_EDITMSG" " *vundo tree*"))
-  (setq zoom-ignored-buffer-name-regexps '("^magit.*" "^\\*dape.*")))
-
 (use-package shackle
   :init
   (setq shackle-default-size 0.4)
