@@ -1427,6 +1427,8 @@ worktrees of one project sit together under its own name."
     (defun +winum-assign-9-to-tab-bar-tree ()
       (when (derived-mode-p 'tab-bar-tree-mode) 9))
     (add-to-list 'winum-assign-functions #'+winum-assign-9-to-tab-bar-tree))
+  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-toggle)
+  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-if)
   :hook
   (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor))
 #+end_src
