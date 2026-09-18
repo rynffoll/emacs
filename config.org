@@ -1416,6 +1416,8 @@ worktrees of one project sit together under its own name."
     (setq-local evil-normal-state-cursor '(nil)
                 evil-motion-state-cursor '(nil)
                 evil-emacs-state-cursor  '(nil)))
+  (defun +tab-bar-tree-custom-face ()
+    (face-remap-add-relative 'default :height 0.9))
   :general
   ( :keymaps 'tab-bar-tree-mode-map :states 'normal
     "RET" 'tab-bar-tree-select
@@ -1430,7 +1432,8 @@ worktrees of one project sit together under its own name."
   (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-toggle)
   (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-if)
   :hook
-  (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor))
+  (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor)
+  (tab-bar-tree-mode-hook . +tab-bar-tree-custom-face))
 #+end_src
 
 ** per-tab-group-theme
