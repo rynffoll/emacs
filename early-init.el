@@ -12,7 +12,7 @@
 
 (prefer-coding-system 'utf-8)
 
-(setq package-enable-at-startup nil)
+(setq package-quickstart t)
 
 (setq gc-cons-threshold most-positive-fixnum)
 

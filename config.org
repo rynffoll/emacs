@@ -289,9 +289,9 @@
 (prefer-coding-system 'utf-8)
 #+end_src
 
-** Disable early package initialization
+** Package quickstart
 #+begin_src emacs-lisp
-(setq package-enable-at-startup nil)
+(setq package-quickstart t)
 #+end_src
 
 ** GC tweaks
@@ -427,9 +427,7 @@ If you'd like to test a different font, evaluate the following block:
           ("melpa-releases"  . "https://releases.melpa.org/packages/")
           ("gnu-devel"       . "https://elpa.gnu.org/devel/")
           ("nongnu-devel"    . "https://elpa.nongnu.org/nongnu-devel/")
-          ("melpa-snapshots" . "https://snapshots.melpa.org/packages/")))
-  :config
-  (package-initialize))
+          ("melpa-snapshots" . "https://snapshots.melpa.org/packages/"))))
 #+end_src
 
 ** gnu-elpa-keyring-update

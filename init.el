@@ -25,9 +25,7 @@
           ("melpa-releases"  . "https://releases.melpa.org/packages/")
           ("gnu-devel"       . "https://elpa.gnu.org/devel/")
           ("nongnu-devel"    . "https://elpa.nongnu.org/nongnu-devel/")
-          ("melpa-snapshots" . "https://snapshots.melpa.org/packages/")))
-  :config
-  (package-initialize))
+          ("melpa-snapshots" . "https://snapshots.melpa.org/packages/"))))
 
 (use-package gnu-elpa-keyring-update)
 

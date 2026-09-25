@@ -28,6 +28,8 @@
 /persistent-scratch/
 /reverse-im-cache.el
 /custom.el
+/package-quickstart.el
+/package-quickstart.elc
 /undo-fu-session/
 /.emacs*.desktop
 /.emacs*.desktop.lock
