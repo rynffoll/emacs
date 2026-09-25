@@ -4,6 +4,7 @@ help:
 	@echo "  make config         - Tangle config.org into init.el and early-init.el"
 	@echo "  make test           - Test that config loads without errors"
 	@echo "  make check          - Run config and test targets"
+	@echo "  make quickstart     - Regenerate package-quickstart.el from installed packages"
 	@echo "  make check-server   - Check that emacsclient can connect to running Emacs server"
 
 .PHONY: config
@@ -17,6 +18,10 @@ test:
 .PHONY: check
 check: config test
 	@echo "All checks passed!"
+
+.PHONY: quickstart
+quickstart:
+	emacs --batch -l package -f package-quickstart-refresh
 
 .PHONY: check-server
 check-server:
