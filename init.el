@@ -114,87 +114,6 @@
   :hook
   (after-init-hook . which-key-mode))
 
-(use-package evil
-  :if +with-evil
-  :demand
-  :preface
-  (defun +save-and-kill-buffer ()
-    (interactive)
-    (save-buffer)
-    (kill-buffer))
-  :init
-  (setq evil-want-keybinding nil)
-  (setq evil-motion-state-cursor 'box)  ;; █
-  (setq evil-visual-state-cursor 'box)  ;; █
-  (setq evil-normal-state-cursor 'box)  ;; █
-  (setq evil-insert-state-cursor 'bar)  ;; ⎸
-  (setq evil-emacs-state-cursor  'hbar) ;; _
-  (setq evil-symbol-word-search t)
-  ;; (setq evil-move-beyond-eol nil)
-  ;; (setq evil-move-cursor-back t)
-  (setq evil-undo-system 'undo-redo)
-  :config
-  (evil-ex-define-cmd "q"  'kill-current-buffer)
-  (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
-  (evil-mode t))
-
-(use-package evil-collection
-  :if +with-evil
-  :demand
-  :after evil
-  :init
-  (setq evil-collection-repl-submit-state 'insert)
-  (setq evil-collection-magit-want-horizontal-movement t)
-  :config
-  (evil-collection-init)
-  ;; add diff-hl hunk navigation to unimpaired
-  (evil-collection-define-key 'normal 'evil-collection-unimpaired-mode-map
-    "[d" 'diff-hl-previous-hunk
-    "]d" 'diff-hl-next-hunk)
-  ;; add tab-bar navigation to unimpaired
-  (evil-collection-define-key 'normal 'evil-collection-unimpaired-mode-map
-    (kbd "[ TAB") 'tab-previous
-    (kbd "] TAB") 'tab-next))
-
-(use-package evil-commentary
-  :if +with-evil
-  :hook
-  (after-init-hook . evil-commentary-mode))
-
-(use-package evil-surround
-  :if +with-evil
-  :hook
-  (after-init-hook . global-evil-surround-mode))
-
-(use-package evil-org
-  :if +with-evil
-  :init
-  (setq evil-org-key-theme '(todo textobjects insert navigation heading))
-  :hook
-  (org-mode-hook . evil-org-mode))
-
-(use-package evil-org-agenda
-  :if +with-evil
-  :ensure evil-org
-  :demand
-  :after org-agenda
-  :config
-  (evil-org-agenda-set-keys))
-
-(use-package evil-mc
-  :if +with-evil
-  :hook
-  (after-init-hook . global-evil-mc-mode))
-
-(use-package evil-terminal-cursor-changer
-  :if +with-evil
-  :unless (display-graphic-p)
-  :init
-  (setq etcc-use-color t)
-  (setq etcc-use-blink nil)
-  :hook
-  (after-init-hook . evil-terminal-cursor-changer-activate))
-
 (use-package general
   :config
   (general-create-definer +leader-def
@@ -328,6 +247,85 @@
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
+
+(use-package evil
+  :if +with-evil
+  :demand
+  :preface
+  (defun +save-and-kill-buffer ()
+    (interactive)
+    (save-buffer)
+    (kill-buffer))
+  :init
+  (setq evil-want-keybinding nil)
+  (setq evil-motion-state-cursor 'box)  ;; █
+  (setq evil-visual-state-cursor 'box)  ;; █
+  (setq evil-normal-state-cursor 'box)  ;; █
+  (setq evil-insert-state-cursor 'bar)  ;; ⎸
+  (setq evil-emacs-state-cursor  'hbar) ;; _
+  (setq evil-symbol-word-search t)
+  ;; (setq evil-move-beyond-eol nil)
+  ;; (setq evil-move-cursor-back t)
+  (setq evil-undo-system 'undo-redo)
+  :config
+  (evil-ex-define-cmd "q"  'kill-current-buffer)
+  (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
+  (evil-mode t))
+
+(use-package evil-collection
+  :if +with-evil
+  :demand
+  :after evil
+  :general
+  ( :keymaps 'evil-collection-unimpaired-mode-map :states 'normal
+    "[d"    'diff-hl-previous-hunk
+    "]d"    'diff-hl-next-hunk
+    "[ TAB" 'tab-previous
+    "] TAB" 'tab-next)
+  :init
+  (setq evil-collection-repl-submit-state 'insert)
+  (setq evil-collection-magit-want-horizontal-movement t)
+  :config
+  (evil-collection-init))
+
+(use-package evil-commentary
+  :if +with-evil
+  :hook
+  (after-init-hook . evil-commentary-mode))
+
+(use-package evil-surround
+  :if +with-evil
+  :hook
+  (after-init-hook . global-evil-surround-mode))
+
+(use-package evil-org
+  :if +with-evil
+  :init
+  (setq evil-org-key-theme '(todo textobjects insert navigation heading))
+  :hook
+  (org-mode-hook . evil-org-mode))
+
+(use-package evil-org-agenda
+  :if +with-evil
+  :ensure evil-org
+  :demand
+  :after org-agenda
+  :config
+  (evil-org-agenda-set-keys))
+
+(use-package evil-mc
+  :if +with-evil
+  :hook
+  (after-init-hook . global-evil-mc-mode))
+
+(use-package evil-terminal-cursor-changer
+  :if +with-evil
+  :unless (display-graphic-p)
+  :init
+  (setq etcc-use-color t)
+  (setq etcc-use-blink nil)
+  :hook
+  (after-init-hook . evil-terminal-cursor-changer-activate))
 
 (use-package mule
   :ensure nil
