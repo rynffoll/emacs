@@ -6,9 +6,9 @@
 - [[#early-initialization][Early Initialization]]
   - [[#defaults][Defaults]]
   - [[#utf-8][UTF-8]]
-  - [[#disable-early-package-initialization][Disable early package initialization]]
+  - [[#package-quickstart][Package quickstart]]
   - [[#gc-tweaks][GC tweaks]]
-  - [[#file-handler-tweaks][File handler tweaks]]
+  - [[#load-path-filter][Load path filter]]
   - [[#ui][UI]]
     - [[#common][common]]
     - [[#font][font]]
@@ -308,16 +308,10 @@
                          init-time packages gc-time gc-count))))
 #+end_src
 
-** File handler tweaks
+** Load path filter
 #+begin_src emacs-lisp
-(defvar +file-name-handler-alist file-name-handler-alist)
-(setq file-name-handler-alist nil)
-
-(add-hook 'emacs-startup-hook
-          #'(lambda ()
-              (setq file-name-handler-alist
-                    (delete-dups (append file-name-handler-alist
-                                         +file-name-handler-alist)))))
+(when (boundp 'load-path-filter-function)
+  (setq load-path-filter-function #'load-path-filter-cache-directory-files))
 #+end_src
 
 ** UI

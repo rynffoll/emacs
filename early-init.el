@@ -25,14 +25,8 @@
                 (message "Emacs ready (init time = %.2fs, packages = %d, gc time = %.2fs, gc count = %d)."
                          init-time packages gc-time gc-count))))
 
-(defvar +file-name-handler-alist file-name-handler-alist)
-(setq file-name-handler-alist nil)
-
-(add-hook 'emacs-startup-hook
-          #'(lambda ()
-              (setq file-name-handler-alist
-                    (delete-dups (append file-name-handler-alist
-                                         +file-name-handler-alist)))))
+(when (boundp 'load-path-filter-function)
+  (setq load-path-filter-function #'load-path-filter-cache-directory-files))
 
 (setq inhibit-startup-screen t)
 (setq inhibit-startup-message t)
