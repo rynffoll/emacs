@@ -1689,8 +1689,6 @@ worktrees of one project sit together under its own name."
   (eshell-load-hook . ghostel-eshell-visual-command-mode))
 
 (use-package evil-ghostel
-  :init
-  (setq evil-ghostel-escape 'evil)
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 

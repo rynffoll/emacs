@@ -2661,8 +2661,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 ** evil-ghostel
 #+begin_src emacs-lisp
 (use-package evil-ghostel
-  :init
-  (setq evil-ghostel-escape 'evil)
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 #+end_src
