@@ -114,6 +114,30 @@
   :hook
   (after-init-hook . which-key-mode))
 
+(use-package evil
+  :if +with-evil
+  :demand
+  :preface
+  (defun +save-and-kill-buffer ()
+    (interactive)
+    (save-buffer)
+    (kill-buffer))
+  :init
+  (setq evil-want-keybinding nil)
+  (setq evil-motion-state-cursor 'box)  ;; █
+  (setq evil-visual-state-cursor 'box)  ;; █
+  (setq evil-normal-state-cursor 'box)  ;; █
+  (setq evil-insert-state-cursor 'bar)  ;; ⎸
+  (setq evil-emacs-state-cursor  'hbar) ;; _
+  (setq evil-symbol-word-search t)
+  ;; (setq evil-move-beyond-eol nil)
+  ;; (setq evil-move-cursor-back t)
+  (setq evil-undo-system 'undo-redo)
+  :config
+  (evil-ex-define-cmd "q"  'kill-current-buffer)
+  (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
+  (evil-mode t))
+
 (use-package general
   :config
   (general-create-definer +leader-def
@@ -247,30 +271,6 @@
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
-
-(use-package evil
-  :if +with-evil
-  :demand
-  :preface
-  (defun +save-and-kill-buffer ()
-    (interactive)
-    (save-buffer)
-    (kill-buffer))
-  :init
-  (setq evil-want-keybinding nil)
-  (setq evil-motion-state-cursor 'box)  ;; █
-  (setq evil-visual-state-cursor 'box)  ;; █
-  (setq evil-normal-state-cursor 'box)  ;; █
-  (setq evil-insert-state-cursor 'bar)  ;; ⎸
-  (setq evil-emacs-state-cursor  'hbar) ;; _
-  (setq evil-symbol-word-search t)
-  ;; (setq evil-move-beyond-eol nil)
-  ;; (setq evil-move-cursor-back t)
-  (setq evil-undo-system 'undo-redo)
-  :config
-  (evil-ex-define-cmd "q"  'kill-current-buffer)
-  (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
-  (evil-mode t))
 
 (use-package evil-collection
   :if +with-evil

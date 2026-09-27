@@ -36,8 +36,8 @@
 - [[#keybindings][Keybindings]]
   - [[#repeat][repeat]]
   - [[#which-key][which-key]]
-  - [[#general-1][general]]
   - [[#evil][evil]]
+  - [[#general-1][general]]
   - [[#evil-collection][evil-collection]]
   - [[#evil-commentary][evil-commentary]]
   - [[#evil-surround][evil-surround]]
@@ -558,6 +558,33 @@ If you'd like to test a different font, evaluate the following block:
   (after-init-hook . which-key-mode))
 #+end_src
 
+** evil
+#+begin_src emacs-lisp
+(use-package evil
+  :if +with-evil
+  :demand
+  :preface
+  (defun +save-and-kill-buffer ()
+    (interactive)
+    (save-buffer)
+    (kill-buffer))
+  :init
+  (setq evil-want-keybinding nil)
+  (setq evil-motion-state-cursor 'box)  ;; █
+  (setq evil-visual-state-cursor 'box)  ;; █
+  (setq evil-normal-state-cursor 'box)  ;; █
+  (setq evil-insert-state-cursor 'bar)  ;; ⎸
+  (setq evil-emacs-state-cursor  'hbar) ;; _
+  (setq evil-symbol-word-search t)
+  ;; (setq evil-move-beyond-eol nil)
+  ;; (setq evil-move-cursor-back t)
+  (setq evil-undo-system 'undo-redo)
+  :config
+  (evil-ex-define-cmd "q"  'kill-current-buffer)
+  (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
+  (evil-mode t))
+#+end_src
+
 ** general
 #+begin_src emacs-lisp
 (use-package general
@@ -693,33 +720,6 @@ If you'd like to test a different font, evaluate the following block:
     )
   (+local-leader-def
     ""    '(nil :wk "local leader")))
-#+end_src
-
-** evil
-#+begin_src emacs-lisp
-(use-package evil
-  :if +with-evil
-  :demand
-  :preface
-  (defun +save-and-kill-buffer ()
-    (interactive)
-    (save-buffer)
-    (kill-buffer))
-  :init
-  (setq evil-want-keybinding nil)
-  (setq evil-motion-state-cursor 'box)  ;; █
-  (setq evil-visual-state-cursor 'box)  ;; █
-  (setq evil-normal-state-cursor 'box)  ;; █
-  (setq evil-insert-state-cursor 'bar)  ;; ⎸
-  (setq evil-emacs-state-cursor  'hbar) ;; _
-  (setq evil-symbol-word-search t)
-  ;; (setq evil-move-beyond-eol nil)
-  ;; (setq evil-move-cursor-back t)
-  (setq evil-undo-system 'undo-redo)
-  :config
-  (evil-ex-define-cmd "q"  'kill-current-buffer)
-  (evil-ex-define-cmd "wq" '+save-and-kill-buffer)
-  (evil-mode t))
 #+end_src
 
 ** evil-collection
