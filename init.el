@@ -283,7 +283,9 @@
     "[ TAB" 'tab-previous
     "] TAB" 'tab-next)
   :init
-  (setq evil-collection-repl-submit-state 'insert)
+  (setq evil-collection-binding-overrides
+        '((repl-submit  :state insert)
+          (repl-newline :state normal)))
   (setq evil-collection-magit-want-horizontal-movement t)
   :config
   (evil-collection-init))
@@ -1692,7 +1694,7 @@ worktrees of one project sit together under its own name."
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 
-;; Not yet on MELPA, install straight from the ghostel repo's extension dir.
+;; On melpa.org, but not yet on snapshots/releases.melpa.org.
 (use-package consult-ghostel
   :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "extensions/consult-ghostel" :rev :newest)
   :after (ghostel consult)
@@ -1701,7 +1703,9 @@ worktrees of one project sit together under its own name."
   (project-prefix-map
    "T" 'consult-ghostel-project)
   (ghostel-semi-char-mode-map
-   "C-c h" 'consult-ghostel-history))
+   "C-c h" 'consult-ghostel-history)
+  :config
+  (consult-ghostel-mode))
 
 (use-package vc
   :ensure nil
@@ -2033,7 +2037,7 @@ Covers both working-tree faces and reference-revision faces."
           (plantuml   . t)))
   (setq org-babel-results-keyword "results")
   :hook
-  (org-babel-after-execute-hook . org-redisplay-inline-images))
+  (org-babel-after-execute-hook . org-link-preview-refresh))
 
 (use-package ob-tangle
   :ensure org
@@ -2128,8 +2132,6 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package dape
   :init
-  (setq dape-key-prefix (kbd "C-x C-a"))
-  (setq dape-inlay-hints t)
   (setq dape-buffer-window-arrangement 'gud)
   (setq dape-breakpoint-margin-string "●")
   :config
