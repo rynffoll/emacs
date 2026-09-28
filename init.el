@@ -1694,9 +1694,7 @@ worktrees of one project sit together under its own name."
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 
-;; On melpa.org, but not yet on snapshots/releases.melpa.org.
 (use-package consult-ghostel
-  :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "extensions/consult-ghostel" :rev :newest)
   :after (ghostel consult)
   :demand t
   :general

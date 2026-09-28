@@ -2669,9 +2669,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 
 ** consult-ghostel
 #+begin_src emacs-lisp
-;; On melpa.org, but not yet on snapshots/releases.melpa.org.
 (use-package consult-ghostel
-  :vc (:url "https://github.com/dakra/ghostel" :lisp-dir "extensions/consult-ghostel" :rev :newest)
   :after (ghostel consult)
   :demand t
   :general
