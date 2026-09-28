@@ -3751,6 +3751,7 @@ machine api.openai.com login apikey password TOKEN
   ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names)
   (setq claude-code-ide-use-ide-diff nil) ;; it's not useful in my config, switch back doesn't work
   (setq claude-code-ide-enable-execute-code t)
+  (setq claude-code-ide-share-opened-file nil)
   :config
   (claude-code-ide-emacs-tools-setup)
   (with-eval-after-load 'consult
