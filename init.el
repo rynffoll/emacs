@@ -1695,7 +1695,7 @@ worktrees of one project sit together under its own name."
   (ghostel-mode-hook . evil-ghostel-mode))
 
 (use-package consult-ghostel
-  :after (ghostel consult)
+  :after ghostel consult
   :demand t
   :general
   (project-prefix-map
