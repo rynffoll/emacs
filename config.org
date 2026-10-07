@@ -1368,9 +1368,9 @@ worktrees of one project sit together under its own name."
               ;; color ahead of it, and the label's padding after it:
               ;; drawn bare, the two would sit on the tab bar instead.
               (and marked
-                   (propertize (concat tab-bar-mark-symbol
-                                       tab-bar-theme-tab-name-padding)
-                               'face (list 'tab-bar-mark face))))))
+                   (concat (tab-bar-mark-string marked face)
+                           (propertize tab-bar-theme-tab-name-padding
+                                       'face face))))))
   :init
   (setq tab-bar-theme-height 0.9)
   (setq tab-bar-theme-tab-colors t)
@@ -1417,7 +1417,8 @@ worktrees of one project sit together under its own name."
       (when (derived-mode-p 'tab-bar-tree-mode) 9))
     (add-to-list 'winum-assign-functions #'+winum-assign-9-to-tab-bar-tree))
   (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-toggle)
-  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-if)
+  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-set-if)
+  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-unset-if)
   :hook
   (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor)
   (tab-bar-tree-mode-hook . +tab-bar-tree-custom-face))
@@ -2630,7 +2631,7 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
                 ((fboundp 'otpp-get-tab-root-dir))
                 (p (project-current))
                 (root (thread-last p project-root expand-file-name file-name-as-directory)))
-      (tab-bar-mark-if
+      (tab-bar-mark-set-if
        (lambda (tab)
          (when-let* ((dir (otpp-get-tab-root-dir tab)))
            (equal root (thread-last dir expand-file-name file-name-as-directory)))))))
