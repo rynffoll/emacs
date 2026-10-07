@@ -810,7 +810,7 @@ worktrees of one project sit together under its own name."
   :commands (global-tab-bar-tree-mode)
   :preface
   (defun +tab-bar-tree-hide-cursor ()
-    "Keep evil from drawing a cursor in a buffer nothing is edited in."
+    "Hide evil cursors in the read-only tree buffer."
     (setq-local evil-normal-state-cursor '(nil)
                 evil-motion-state-cursor '(nil)
                 evil-emacs-state-cursor  '(nil)))
@@ -822,7 +822,7 @@ worktrees of one project sit together under its own name."
     "TAB" 'tab-bar-tree-select
     "gr" 'tab-bar-tree-refresh)
   :config
-  ;; A number of its own, like `dired-side' answers to 0.
+  ;; Fixed winum number, as `dired-side' has 0.
   (with-eval-after-load 'winum
     (defun +winum-assign-9-to-tab-bar-tree ()
       (when (derived-mode-p 'tab-bar-tree-mode) 9))
@@ -830,6 +830,8 @@ worktrees of one project sit together under its own name."
   (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-toggle)
   (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-set-if)
   (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-unset-if)
+  ;; Sets tab names directly, bypassing `tab-bar-rename-tab'.
+  (add-to-list 'tab-bar-tree-refresh-commands 'otpp--update-all-tabs)
   :hook
   (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor)
   (tab-bar-tree-mode-hook . +tab-bar-tree-custom-face))
