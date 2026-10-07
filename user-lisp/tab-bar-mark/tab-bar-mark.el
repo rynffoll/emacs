@@ -23,25 +23,19 @@
 
 ;;; Commentary:
 
-;; Marks a tab-bar tab as needing attention with a colored symbol after
-;; its name.  A notifier picks the tabs it means with
-;; `tab-bar-mark-set-if' and a predicate: what makes a tab the right one
-;; is the caller's business.  A tab carries any number of marks, one per
-;; type of `tab-bar-mark-type-alist', each with its own symbol.
+;; Attention marks for tab-bar tabs: colored symbols after the tab name.
+;; Callers select tabs with `tab-bar-mark-set-if' and a predicate.  A tab
+;; can carry several marks, one per type in `tab-bar-mark-type-alist'.
 ;;
-;; The marks are a tab parameter, so they die with the tab, leaving no
-;; bookkeeping behind.  A mark stays up until its tab comes into view —
-;; the selected tab of a frame holding input focus — and goes the moment
-;; it does, unless its type is persistent.  Which is also why setting a
-;; mark that is not persistent on a tab already in view does nothing:
-;; it has been seen.  `tab-bar-mark-toggle' is the one exception: a mark put on the
-;; current tab by hand stays until the tab is next viewed.
+;; Marks are stored as a tab parameter and disappear with the tab.  A
+;; mark is removed when its tab comes into view (the selected tab of a
+;; focused frame), unless its type is persistent; for the same reason a
+;; non-persistent mark is not set on a tab in view.  A mark set with
+;; `tab-bar-mark-toggle' stays until the tab is viewed again.
 ;;
-;; Add `tab-bar-mark-tab-name-format' to
-;; `tab-bar-tab-name-format-functions' yourself, after
-;; `tab-bar-tab-name-format-truncated' — see its docstring for why
-;; there.  This mode only owns the mark's own lifecycle, not where it
-;; is shown.
+;; The mode only manages marks.  To display them, add
+;; `tab-bar-mark-tab-name-format' to `tab-bar-tab-name-format-functions'
+;; after `tab-bar-tab-name-format-truncated'.
 
 ;;; Code:
 
@@ -76,10 +70,9 @@ A type missing here is drawn as `:warning'."
       (alist-get :warning tab-bar-mark-type-alist)))
 
 (defun tab-bar-mark--set (tab type state)
-  "Put TYPE's mark on TAB if STATE is non-nil, else take it off.
-TYPE t with STATE nil takes every mark off.  Return non-nil if that
-changed anything: a redisplay forced for nothing costs a full pass over
-every window of every frame."
+  "Set TYPE's mark on TAB if STATE is non-nil, else remove it.
+TYPE t with STATE nil removes all marks.  Return non-nil if TAB changed,
+so callers force a redisplay only when needed."
   (let* ((types (tab-bar-mark-p tab))
          (new (cond (state (if (memq type types)
                                types
@@ -87,22 +80,21 @@ every window of every frame."
                     ((eq type t) nil)
                     (t (remq type types)))))
     (unless (equal new types)
-      ;; On the cdr, so a new entry goes in behind the tab's own type.
+      ;; On the cdr: a new entry goes after the tab's type symbol.
       (setf (alist-get 'tab-bar-mark (cdr tab)) new)
       t)))
 
 (defun tab-bar-mark--in-view-p (tab frame)
-  "Whether TAB is FRAME's selected tab and FRAME holds input focus.
-Cheap test first: `frame-focus-state' reads a frame parameter, and that
-copies the frame's whole parameter list.  Its `unknown' counts as focus,
-so on a terminal that reports none a mark never shows rather than never
-goes."
+  "Return non-nil if TAB is FRAME's selected tab and FRAME has focus.
+The tab type is checked first: `frame-focus-state' copies the frame's
+parameter list.  Its `unknown' value counts as focus, so on a terminal
+without focus reports marks are not shown rather than never removed."
   (and (eq (car tab) 'current-tab)
        (frame-focus-state frame)))
 
 (defun tab-bar-mark--map-tabs (fn)
-  "Call FN with the frame and tab of every tab on every frame.
-Child frames are skipped: no tab bar there, so no mark to see."
+  "Call FN with the frame and tab for every tab of every frame.
+Child frames, which have no tab bar, are skipped."
   (dolist (frame (frame-list))
     (unless (frame-parent frame)
       (dolist (tab (frame-parameter frame 'tabs))
@@ -126,15 +118,15 @@ whose marks changed, or nil if none did."
 (defun tab-bar-mark-p (tab &optional type)
   "Return the types of TAB's marks, or non-nil if one is TYPE."
   (let ((types (alist-get 'tab-bar-mark tab)))
-    ;; A lone t is a mark from before there were types, restored by desktop.
+    ;; Value t: a mark saved before mark types existed (desktop).
     (when (and types (atom types))
       (setq types (list :warning)))
     (if type (memq type types) types)))
 
 (defun tab-bar-mark--annotate (candidate)
-  "Return the mark of the type named CANDIDATE, and whether it persists."
+  "Return the annotation for mark type CANDIDATE: its symbol and persistence."
   (let ((type (intern candidate))
-        ;; A column past the longest name, as marginalia lines them up.
+        ;; Align to a column after the longest name, as marginalia does.
         (width (+ 4 (seq-max
                      (mapcar (lambda (entry) (length (symbol-name (car entry))))
                              tab-bar-mark-type-alist)))))
@@ -152,11 +144,10 @@ Interactively, ask for TYPE when `tab-bar-mark-type-alist' has more than one."
               (let ((set (tab-bar-mark-p (tab-bar--current-tab-find))))
                 (intern (completing-read
                          "Toggle mark: "
-                         ;; A category of its own, or the types pass for
-                         ;; Lisp symbols and get annotated as such.
+                         ;; Own category; otherwise completion frameworks
+                         ;; annotate the candidates as Lisp symbols.
                          (completion-table-with-metadata
-                          ;; In bold, the types the tab carries; dimmed,
-                          ;; the rest.
+                          ;; Types set on the tab in bold, others dimmed.
                           (mapcar (lambda (entry)
                                     (propertize (symbol-name (car entry))
                                                 'face (if (memq (car entry) set)
@@ -174,11 +165,10 @@ Interactively, ask for TYPE when `tab-bar-mark-type-alist' has more than one."
 
 ;;;###autoload
 (defun tab-bar-mark-set-if (predicate &optional type)
-  "Put TYPE's mark on every tab PREDICATE returns non-nil for, on every frame.
-TYPE defaults to `:warning'.  PREDICATE is called with the tab, valid
-only for the duration of the call.  Unless TYPE is persistent, a tab in
-view is left alone: it has been seen.  Return the number of tabs whose
-marks changed, or nil if none did."
+  "Set TYPE's mark on every tab of every frame that satisfies PREDICATE.
+TYPE defaults to `:warning'.  PREDICATE is called with the tab, which is
+valid only during the call.  Unless TYPE is persistent, tabs in view are
+skipped.  Return the number of changed tabs, or nil if none changed."
   (let* ((type (or type :warning))
          (persistent (plist-get (tab-bar-mark--type type) :persistent)))
     (tab-bar-mark--set-where
@@ -189,18 +179,17 @@ marks changed, or nil if none did."
 
 ;;;###autoload
 (defun tab-bar-mark-unset-if (predicate &optional type)
-  "Take TYPE's mark off every tab PREDICATE returns non-nil for, on every frame.
-TYPE defaults to `:warning'; t takes every mark off.  Return the number
-of tabs whose marks changed, or nil if none did."
+  "Remove TYPE's mark from every tab of every frame that satisfies PREDICATE.
+TYPE defaults to `:warning'; t removes all marks.  Return the number of
+changed tabs, or nil if none changed."
   (tab-bar-mark--set-where (or type :warning) nil
                            (lambda (_frame tab) (funcall predicate tab))))
 
 (defun tab-bar-mark--clear-on-view (&rest _)
-  "Take the marks that are not persistent off every tab now in view.
-Serves both hooks: selecting a tab fires no focus change, and coming
-back from another application fires no tab selection.  Every frame,
-since `after-focus-change-function' does not promise that the focused
-frame is the selected one."
+  "Remove non-persistent marks from every tab in view.
+Runs on tab selection and on focus change; neither covers the other.
+Checks every frame: `after-focus-change-function' does not guarantee
+that the focused frame is the selected one."
   (let (seen types)
     (tab-bar-mark--map-tabs
      (lambda (frame tab)
@@ -208,8 +197,8 @@ frame is the selected one."
                    ((tab-bar-mark--in-view-p tab frame)))
          (push tab seen)
          (setq types (seq-union types marks)))))
-    ;; Only through `tab-bar-mark-unset-if', and only for a mark there
-    ;; is, so whatever follows it runs when a mark actually goes.
+    ;; Via `tab-bar-mark-unset-if', and only for marks that are set, so
+    ;; advice on it runs only when a mark is removed.
     (dolist (type types)
       (unless (plist-get (tab-bar-mark--type type) :persistent)
         (tab-bar-mark-unset-if (lambda (tab) (memq tab seen)) type)))))
@@ -217,16 +206,15 @@ frame is the selected one."
 ;;;###autoload
 (define-minor-mode tab-bar-mark-mode
   "Show colored attention symbols on tabs marked by `tab-bar-mark-set-if'.
-Does not place the symbol itself — add `tab-bar-mark-tab-name-format'
-to `tab-bar-tab-name-format-functions' where it belongs; this mode only
-owns the mark's own lifecycle."
+Manages mark removal only; to display marks, add
+`tab-bar-mark-tab-name-format' to `tab-bar-tab-name-format-functions'."
   :group 'tab-bar-mark
   :global t
   (if tab-bar-mark-mode
       (progn
         (add-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--clear-on-view)
         (add-function :after after-focus-change-function #'tab-bar-mark--clear-on-view)
-        ;; Marks outlive the mode, and one may sit on the tab in view.
+        ;; Marks persist while the mode is off; clear the tab in view.
         (tab-bar-mark--clear-on-view))
     (remove-hook 'tab-bar-tab-post-select-functions #'tab-bar-mark--clear-on-view)
     (remove-function after-focus-change-function #'tab-bar-mark--clear-on-view))
@@ -234,16 +222,12 @@ owns the mark's own lifecycle."
 
 ;;;###autoload
 (defun tab-bar-mark-group-p (group)
-  "Return the types of the marks the tabs of GROUP carry, in drawing order.
-Nil with `tab-bar-mark-mode' off, as the other formatting helpers here
-are no-ops then, so a label formatter may ask unconditionally: a group
-that is not the current one draws none of its tabs, and the mark inside
-it is then drawn nowhere else."
+  "Return the mark types of GROUP's tabs, in drawing order.
+Return nil if `tab-bar-mark-mode' is off, like the other display
+helpers, so group label formatters can call it unconditionally."
   (and tab-bar-mark-mode
        group
-       ;; The marked tabs and not every tab: usually none or one, where
-       ;; the group of a tab is a call to a function a config may
-       ;; replace.
+       ;; Only marked tabs: computing a tab's group calls a function.
        (tab-bar-mark--sort
         (seq-uniq
          (seq-mapcat (lambda (tab)
@@ -253,15 +237,15 @@ it is then drawn nowhere else."
                      (tab-bar-mark-marked-tabs))))))
 
 (defun tab-bar-mark--sort (types)
-  "Return TYPES in the order of `tab-bar-mark-type-alist', unknown ones last."
+  "Return TYPES sorted by `tab-bar-mark-type-alist', unknown types last."
   (let ((order (mapcar #'car tab-bar-mark-type-alist)))
     (seq-sort-by (lambda (type) (or (seq-position order type) (length order)))
                  #'< types)))
 
 ;;;###autoload
 (defun tab-bar-mark-string (types &optional face)
-  "Return the symbols of the marks of TYPES, side by side, in drawing order.
-FACE, if non-nil, goes under each symbol's own face."
+  "Return the symbols of mark TYPES, concatenated in drawing order.
+FACE, if non-nil, is added under each symbol's own face."
   (mapconcat (lambda (type)
                (let ((spec (tab-bar-mark--type type)))
                  (propertize (plist-get spec :symbol)
@@ -273,47 +257,42 @@ FACE, if non-nil, goes under each symbol's own face."
 
 ;;;###autoload
 (defun tab-bar-mark-marked-tabs (&optional frame)
-  "Return the tabs of FRAME that carry an attention mark."
+  "Return FRAME's tabs that have a mark."
   (seq-filter #'tab-bar-mark-p (funcall tab-bar-tabs-function frame)))
 
 (defun tab-bar-mark--switch-names ()
-  "Return the marked tabs' names, the most recently visited one first.
-Ordered by `tab-bar--tabs-recent', which is asked only once there is
-something to sort: an empty list is nothing it can tell from no list at
-all, and it answers with every tab of the frame."
+  "Return the names of marked tabs, most recently visited first.
+`tab-bar--tabs-recent' is not called with an empty list: it treats nil
+as \"all tabs of the frame\"."
   (when-let* ((marked (tab-bar-mark-marked-tabs)))
     (mapcar (lambda (tab) (alist-get 'name tab))
             (tab-bar--tabs-recent marked))))
 
 ;;;###autoload
 (defun tab-bar-mark-switch-to-tab (name)
-  "Switch to the marked tab by NAME.
-Shaped after `tab-bar-switch-to-tab', and switching through it: the
-default values are the marked tabs sorted by recency, so
-\<minibuffer-local-map>\[next-history-element] answers with the most
-recently visited one, the second most recent, and so on.  Selecting a
-tab is also what takes off its marks that clear on view."
+  "Switch to the marked tab NAME.
+Like `tab-bar-switch-to-tab', which it calls.  The default values are
+the marked tabs, most recent first, available via
+\<minibuffer-local-map>\[next-history-element].  Selecting the tab
+removes its non-persistent marks."
   (interactive
    (let ((names (tab-bar-mark--switch-names)))
      (unless names (user-error "No marked tabs"))
      (list (completing-read
             (format-prompt "Switch to marked tab" (car names))
-            ;; The table says what its candidates are, so a front end
-            ;; annotates them without being told: `tab' is a category
-            ;; marginalia ships an annotator for.
+            ;; Category `tab': marginalia has an annotator for it.
             (completion-table-with-metadata names '((category . tab)))
             nil t nil nil names))))
   (tab-bar-switch-to-tab name))
 
 ;;;###autoload
 (defun tab-bar-mark-tab-name-format (name tab _i)
-  "Suffix NAME with the symbols of TAB's marks.
-A no-op with `tab-bar-mark-mode' off, so callers may list this in
-`tab-bar-tab-name-format-functions' unconditionally: it belongs after
-`tab-bar-tab-name-format-truncated' — ahead of it the symbol would be
-truncated away along with the name — and ahead of the hint and face
-formatters, so a hint number lands in front of the name and the tab's
-own face and padding cover the symbol."
+  "Append the symbols of TAB's marks to NAME.
+No-op if `tab-bar-mark-mode' is off.  In
+`tab-bar-tab-name-format-functions', put it after
+`tab-bar-tab-name-format-truncated', so truncation does not cut the
+symbols, and before the hint and face formatters, so the hint precedes
+the name and the tab face covers the symbols."
   (if-let* ((types (and tab-bar-mark-mode (tab-bar-mark-p tab))))
       (concat name " " (tab-bar-mark-string types))
     name))

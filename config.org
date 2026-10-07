@@ -1337,25 +1337,17 @@ worktrees of one project sit together under its own name."
       ))
   (defun +tab-bar-group-format (tab i &optional current-p)
     (let* ((face (tab-bar-theme-tab-group-face current-p))
-           ;; The row holds the tabs of the group you are in and folds
-           ;; every other one away, so which way this group is folded is
-           ;; the one thing about it the row does not already show.
+           ;; Fold state: the only thing the row does not show itself.
            (expanded (or current-p tab-bar-show-inactive-group-tabs))
-           ;; Whatever is drawn of the group, its label answers for the
-           ;; family: a mark stays there while any tab inside carries
-           ;; one, rather than only while that tab is hidden.
+           ;; Marks of all tabs in the group, folded or not.
            (marked (tab-bar-mark-group-p
                     (funcall tab-bar-tab-group-function tab))))
       (concat (tab-bar-indicator-build
                (tab-bar-theme-tab-group-indicator-color current-p) nil face)
-              ;; Ahead of the label, whose own padding is the gap
-              ;; behind the mark, and in `shadow', so the mark stays
-              ;; under the name, which carries the group's own color.
-              ;; The gap ahead of it is a graphic frame's alone, where
-              ;; the indicator is three pixels with one of them painted
-              ;; and leaves the mark nothing to stand off from; a
-              ;; terminal spends a whole cell on the indicator and sets
-              ;; the mark off by itself:
+              ;; Fold marker before the label, in `shadow' so the
+              ;; group's color stays on the name.  Leading padding on
+              ;; graphic frames only: there the indicator is 3px wide,
+              ;; on a terminal it takes a whole cell.
               ;;
               ;;   graphic    |_›_7 protos_     3px 7px 7px … 7px
               ;;   terminal   |›_7 protos_      a cell apiece
@@ -1364,9 +1356,8 @@ worktrees of one project sit together under its own name."
                                   (if expanded "⌵" "›"))
                           'face (list 'shadow face))
               (tab-bar-theme-tab-group-format-color tab i current-p)
-              ;; The group's face behind the mark, which keeps its own
-              ;; color ahead of it, and the label's padding after it:
-              ;; drawn bare, the two would sit on the tab bar instead.
+              ;; Group face under the marks and the trailing padding;
+              ;; otherwise they get the tab bar background.
               (and marked
                    (concat (tab-bar-mark-string marked face)
                            (propertize tab-bar-theme-tab-name-padding
