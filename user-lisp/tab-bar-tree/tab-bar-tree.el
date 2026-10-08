@@ -43,8 +43,8 @@ e.g. \\[tab-bar-tree-refresh]."
 
 (defcustom tab-bar-tree-width 32
   "Width of the tree window, in columns.
-Fixed, so long labels do not widen the window.  Used when the window is
-created; a frame narrower than twice this value gets no tree."
+Applied on every render; a frame narrower than twice this value gets no
+tree."
   :type 'natnum
   :group 'tab-bar-tree)
 
@@ -229,6 +229,7 @@ Called on every render; remaps only when the target background changes."
   ;; As in `speedbar-window-mode': no horizontal scrolling in a narrow
   ;; window.
   (setq-local auto-hscroll-mode nil)
+  (setq-local window-size-fixed 'width)
   ;; `tab-bar-tree--delete-window' refuses while the mode is on, which
   ;; would leave the side window showing another buffer.
   (add-hook 'kill-buffer-hook #'tab-bar-tree--kill-buffer nil t))
@@ -251,22 +252,26 @@ from a window configuration saved while the mode was on be deleted."
 
 (defun tab-bar-tree--window (buffer)
   "Show BUFFER in the selected frame's tree window and return the window.
-Reuses an existing window, re-applying its parameters and dedication:
-a window restored from a desktop file or a tab's `ws' has no
+Reuses an existing window, re-applying its width, parameters and
+dedication: a window restored from a desktop file or a tab's `ws' has no
 parameters, and `quit-restore-window' may un-dedicate it."
   (when-let* ((window (display-buffer-in-side-window
                        buffer
                        `((side . ,tab-bar-tree-side)
                          (slot . 0)
                          (window-width . ,tab-bar-tree-width)
-                         (preserve-size . (t . nil))
-                         ;; `side', not t: `quit-restore-window' deletes a
-                         ;; window dedicated with t outright.
+                         ;; `side', not t: `quit-restore-window' deletes
+                         ;; a window dedicated with t outright.
                          (dedicated . side)
                          (window-parameters
-                          . ,tab-bar-tree--window-parameters)))))
-    ;; `preserve-size' is applied to a new window only.
-    (window-preserve-size window t t)
+                          . ,tab-bar-tree--window-parameters))))
+              ;; Pixelwise: a tab's window configuration may restore a
+              ;; width off by less than a column.
+              (delta (- (* tab-bar-tree-width (frame-char-width))
+                        (window-pixel-width window))))
+    (unless (zerop delta)
+      ;; IGNORE = WINDOW: skip its own `window-size-fixed'.
+      (window-resize window delta t window t))
     window))
 
 (defvar tab-bar-tree--updating nil
@@ -399,8 +404,7 @@ The current tabs keep it; killing the tree buffer deletes it there."
       (progn
         ;; Value t: kept in window states (e.g. by
         ;; `window-toggle-side-windows'), not in desktop files.
-        (dolist (parameter (cons 'window-preserved-size
-                                 (mapcar #'car tab-bar-tree--window-parameters)))
+        (dolist (parameter (mapcar #'car tab-bar-tree--window-parameters))
           (unless (assq parameter window-persistent-parameters)
             (push (cons parameter t) window-persistent-parameters)
             (push parameter tab-bar-tree--persistent-parameters)))
