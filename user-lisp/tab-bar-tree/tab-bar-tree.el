@@ -153,8 +153,8 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
   "Render the selected frame's tabs into the tree buffer and return it."
   (let* ((buf (tab-bar-tree--buffer))
          (tabs (funcall tab-bar-tabs-function))
-         (current-group (funcall tab-bar-tab-group-function
-                                 (assq 'current-tab tabs))))
+         (tab (assq 'current-tab tabs))
+         (current-group (funcall tab-bar-tab-group-function tab)))
     (with-current-buffer buf
       (let* ((inhibit-read-only t)
              ;; Saved as line numbers: `erase-buffer' resets every
@@ -198,28 +198,27 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
           (set-window-start window (tab-bar-tree--goto-line start) t)
           (set-window-point window (tab-bar-tree--goto-line point)))
         (tab-bar-tree--goto-line line))
-      ;; Above the first tab, so an ungrouped one does not read as a
-      ;; group label.
-      (let* ((tab (assq 'current-tab tabs))
-             (right (or (funcall tab-bar-tree-header-right-function tab) ""))
-             (left (funcall tab-bar-tree-header-left-function tab)))
+      ;; Spaces: a leading one, a gap before RIGHT and a trailing one.
+      (let* ((right (tab-bar-tree--header-face
+                     (concat " " (funcall tab-bar-tree-header-right-function tab)
+                             " ")))
+             (left (tab-bar-tree--header-face
+                    (concat " " (funcall tab-bar-tree-header-left-function tab))))
+             ;; Header text area: the pinned window minus the fringe.
+             (right-edge (- (tab-bar-tree--pixel-width) left-fringe-width
+                            (string-pixel-width right buf))))
+        ;; Overflowing LEFT would push RIGHT off the window.
+        (when (> (string-pixel-width left buf) right-edge)
+          (setq left (truncate-string-pixelwise
+                      left right-edge buf (truncate-string-ellipsis))))
+        ;; The header line is a mode line construct: `%' is escaped.
         (setq header-line-format
-              (list
-               " "
-               ;; `%' escaped: the header line is a mode line construct.
-               (string-replace
-                "%" "%%"
-                ;; The window is pinned to `tab-bar-tree-width' columns;
-                ;; its text area loses the fringe and the rest.
-                (tab-bar-tree--header-fit
-                 left
-                 (- (* tab-bar-tree-width (frame-char-width))
-                    left-fringe-width
-                    (tab-bar-tree--header-width
-                     (if (string-empty-p right) "  " (concat "  " right " "))))))
-               'mode-line-format-right-align
-               right
-               " ")))
+              (list (string-replace "%" "%%" left)
+                    ;; Not `mode-line-format-right-align': it measures
+                    ;; what follows it in `mode-line-format' only.
+                    (propertize " " 'display
+                                `(space :align-to (,right-edge)))
+                    (string-replace "%" "%%" right))))
       (tab-bar-tree--remap-faces))
     buf))
 
@@ -229,18 +228,15 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
       (propertize group 'face 'bold)
     (propertize "—" 'face 'shadow)))
 
-(defun tab-bar-tree--header-width (string)
-  "Return STRING's pixel width in the tree's header line."
+(defun tab-bar-tree--header-face (string)
+  "Return a copy of STRING with the `header-line' face added."
   (let ((string (copy-sequence string)))
     (add-face-text-property 0 (length string) 'header-line t string)
-    (string-pixel-width string (tab-bar-tree--buffer))))
+    string))
 
-(defun tab-bar-tree--header-fit (string pixels)
-  "Return STRING cut with an ellipsis to PIXELS in the tree's header line."
-  (let ((string (copy-sequence string)))
-    (add-face-text-property 0 (length string) 'header-line t string)
-    (truncate-string-pixelwise string pixels (tab-bar-tree--buffer)
-                               (truncate-string-ellipsis))))
+(defun tab-bar-tree--pixel-width ()
+  "Return the tree window's pinned pixel width."
+  (* tab-bar-tree-width (frame-char-width)))
 
 (defvar-local tab-bar-tree--remap-cookies nil
   "Face remapping cookies added by `tab-bar-tree--remap-faces'.")
@@ -320,7 +316,7 @@ parameters, and `quit-restore-window' may un-dedicate it."
                           . ,tab-bar-tree--window-parameters))))
               ;; Pixelwise: a tab's window configuration may restore a
               ;; width off by less than a column.
-              (delta (- (* tab-bar-tree-width (frame-char-width))
+              (delta (- (tab-bar-tree--pixel-width)
                         (window-pixel-width window))))
     (unless (zerop delta)
       ;; IGNORE = WINDOW: skip its own `window-size-fixed'.
