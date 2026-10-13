@@ -823,6 +823,16 @@ worktrees of one project sit together under its own name."
   (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-unset-if)
   ;; Sets tab names directly, bypassing `tab-bar-rename-tab'.
   (add-to-list 'tab-bar-tree-refresh-commands 'otpp--update-all-tabs)
+  (defun +tab-bar-tree-header-left (tab)
+    "Return TAB's group after a tab icon."
+    (require 'nerd-icons)
+    (concat (nerd-icons-mdicon "nf-md-tab") " " (tab-bar-tree-header-group tab)))
+  (defun +tab-bar-tree-header-right (tab)
+    "Return the marks of TAB's group."
+    (tab-bar-mark-string
+     (tab-bar-mark-group-p (funcall tab-bar-tab-group-function tab))))
+  (setq tab-bar-tree-header-left-function #'+tab-bar-tree-header-left
+        tab-bar-tree-header-right-function #'+tab-bar-tree-header-right)
   :hook
   (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor)
   (tab-bar-tree-mode-hook . +tab-bar-tree-custom-face))

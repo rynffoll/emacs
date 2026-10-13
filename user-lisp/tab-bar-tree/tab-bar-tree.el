@@ -48,6 +48,18 @@ tree."
   :type 'natnum
   :group 'tab-bar-tree)
 
+(defcustom tab-bar-tree-header-left-function #'tab-bar-tree-header-group
+  "Function of the current tab returning the header's left part.
+The result is cut to fit the window."
+  :type 'function
+  :group 'tab-bar-tree)
+
+(defcustom tab-bar-tree-header-right-function #'ignore
+  "Function of the current tab returning the header's right part.
+The part is flush right; nil means none."
+  :type 'function
+  :group 'tab-bar-tree)
+
 (defcustom tab-bar-tree-refresh-commands
   '(tab-bar-rename-tab)
   "Commands that modify a tab in place; the tree is refreshed after each.
@@ -186,8 +198,49 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
           (set-window-start window (tab-bar-tree--goto-line start) t)
           (set-window-point window (tab-bar-tree--goto-line point)))
         (tab-bar-tree--goto-line line))
+      ;; Above the first tab, so an ungrouped one does not read as a
+      ;; group label.
+      (let* ((tab (assq 'current-tab tabs))
+             (right (or (funcall tab-bar-tree-header-right-function tab) ""))
+             (left (funcall tab-bar-tree-header-left-function tab)))
+        (setq header-line-format
+              (list
+               " "
+               ;; `%' escaped: the header line is a mode line construct.
+               (string-replace
+                "%" "%%"
+                ;; The window is pinned to `tab-bar-tree-width' columns;
+                ;; its text area loses the fringe and the rest.
+                (tab-bar-tree--header-fit
+                 left
+                 (- (* tab-bar-tree-width (frame-char-width))
+                    left-fringe-width
+                    (tab-bar-tree--header-width
+                     (if (string-empty-p right) "  " (concat "  " right " "))))))
+               'mode-line-format-right-align
+               right
+               " ")))
       (tab-bar-tree--remap-faces))
     buf))
+
+(defun tab-bar-tree-header-group (tab)
+  "Return TAB's group in bold, or a dash if none."
+  (if-let* ((group (funcall tab-bar-tab-group-function tab)))
+      (propertize group 'face 'bold)
+    (propertize "—" 'face 'shadow)))
+
+(defun tab-bar-tree--header-width (string)
+  "Return STRING's pixel width in the tree's header line."
+  (let ((string (copy-sequence string)))
+    (add-face-text-property 0 (length string) 'header-line t string)
+    (string-pixel-width string (tab-bar-tree--buffer))))
+
+(defun tab-bar-tree--header-fit (string pixels)
+  "Return STRING cut with an ellipsis to PIXELS in the tree's header line."
+  (let ((string (copy-sequence string)))
+    (add-face-text-property 0 (length string) 'header-line t string)
+    (truncate-string-pixelwise string pixels (tab-bar-tree--buffer)
+                               (truncate-string-ellipsis))))
 
 (defvar-local tab-bar-tree--remap-cookies nil
   "Face remapping cookies added by `tab-bar-tree--remap-faces'.")
