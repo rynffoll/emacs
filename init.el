@@ -860,6 +860,18 @@ worktrees of one project sit together under its own name."
 
 (use-package window
   :ensure nil
+  :init
+  (setq display-buffer-alist
+        '(((or (derived-mode . help-mode)
+               (derived-mode . helpful-mode)
+               (derived-mode . compilation-mode)
+               (derived-mode . comint-mode)
+               "\\`\\*Man "
+               "\\`\\*wclock\\*\\'"
+               "\\`\\*compilation\\*\\'"
+               "\\`\\* docker")
+           (display-buffer-reuse-window display-buffer-at-bottom)
+           (window-height . 0.4))))
   :general
   (evil-window-map
    "m" 'maximize-window
@@ -871,30 +883,6 @@ worktrees of one project sit together under its own name."
   (setq winum-auto-setup-mode-line nil)
   :hook
   (after-init-hook . winum-mode))
-
-(use-package shackle
-  :init
-  (setq shackle-default-size 0.4)
-  (setq shackle-rules
-        '((help-mode :align below :select t)
-          (helpful-mode :align below)
-          (cider-repl-mode :align below)
-          (ansible-doc-module-mode :align below)
-          ("\\*Async Shell Command\\*.*" :regexp t :ignore t)
-          (Man-mode :align below :select t)
-          ("\\*Man.*\\*" :regexp t :align below :select t)
-          ;; ("*Warnings*" :align below)
-          ("*Compile-Log*" :align below)
-          (compilation-mode :align below)
-          ("\\*vc-git :.*" :regexp t :align below :ignore t :select t)
-          ("\\*docker-compose .*\\*" :regexp t :align below)
-          (comint-mode :align below)
-          ("*compilation*" :align below)
-          (ghostel-compile-view-mode :align below)
-          (world-clock-mode :align below)
-          ))
-  :hook
-  (after-init-hook . shackle-mode))
 
 (use-package uniquify
   :ensure nil
