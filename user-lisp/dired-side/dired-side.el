@@ -60,7 +60,8 @@ When nil, `dired-side-follow-file' only shows the sidebar."
 (define-minor-mode dired-side-mode
   "Minor mode for Dired sidebar buffers."
   :lighter ""
-  :keymap dired-side-mode-map)
+  :keymap dired-side-mode-map
+  (setq-local window-size-fixed (and dired-side-mode 'width)))
 
 
 
@@ -97,7 +98,6 @@ When nil, `dired-side-follow-file' only shows the sidebar."
                                                  (window-parameters
                                                   . ((no-other-window . t)))))))
     (set-window-parameter window 'dired-side t)
-    (window-preserve-size window t t) ; preserve width during resize operations
     window))
 
 (defun dired-side--open ()
