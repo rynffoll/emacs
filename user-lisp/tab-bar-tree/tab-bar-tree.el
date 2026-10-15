@@ -422,9 +422,11 @@ Clicks in the tree do not select its window; this command does."
     windows))
 
 (defun tab-bar-tree--kill-buffer ()
-  "Delete the windows showing the current buffer, which is being killed."
-  (mapc #'tab-bar-tree--forget-window
-        (get-buffer-window-list (current-buffer) nil t)))
+  "Delete the side windows showing the current buffer, which is being killed.
+Other windows, e.g. a child frame's sole one, are left to `kill-buffer'."
+  (dolist (window (get-buffer-window-list (current-buffer) nil t))
+    (when (window-parameter window 'window-side)
+      (tab-bar-tree--forget-window window))))
 
 (defun tab-bar-tree--strip-tab (tab)
   "Remove the tree window from TAB's window configuration and state.
