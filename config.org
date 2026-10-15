@@ -167,7 +167,6 @@
   - [[#paren][paren]]
   - [[#paren-face][paren-face]]
   - [[#colorful-mode][colorful-mode]]
-  - [[#page-break-lines][page-break-lines]]
   - [[#highlight-indent-guides][highlight-indent-guides]]
   - [[#hl-todo][hl-todo]]
   - [[#eros][eros]]
@@ -2403,13 +2402,6 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 ** colorful-mode
 #+begin_src emacs-lisp
 (use-package colorful-mode)
-#+end_src
-
-** page-break-lines
-#+begin_src emacs-lisp
-(use-package page-break-lines
-  :hook
-  (after-init-hook . global-page-break-lines-mode))
 #+end_src
 
 ** highlight-indent-guides

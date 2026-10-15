@@ -1535,10 +1535,6 @@ worktrees of one project sit together under its own name."
 
 (use-package colorful-mode)
 
-(use-package page-break-lines
-  :hook
-  (after-init-hook . global-page-break-lines-mode))
-
 (use-package highlight-indent-guides
   :init
   (setq highlight-indent-guides-method 'character)
