@@ -136,25 +136,34 @@ EVENT is the mouse event, if any."
          ;; Read the property at line start, wherever point is.
          (line (with-selected-window window
                  (when position (goto-char (posn-point position)))
-                 (get-text-property (line-beginning-position) 'tab-bar-tree))))
-    ;; Leave the tree window before selecting a tab, so it is not saved
-    ;; as the selected window of the old tab.  Toggling a group from the
-    ;; keyboard keeps focus.  `get-mru-window' skips the tree window: it
-    ;; is dedicated, `no-other-window' and selected.
-    (when (and (eq window (selected-window))
-               (or position (eq (car-safe line) 'tab)))
+                 (get-text-property (line-beginning-position) 'tab-bar-tree)))
+         (tab-p (eq (car-safe line) 'tab))
+         (frame (buffer-local-value 'tab-bar-tree--frame (window-buffer window))))
+    (cond
+     ;; Tree in a child frame, e.g. a popup: dismissed on tab selection.
+     ((frame-parent (window-frame window))
+      (when tab-p
+        (quit-window nil window)
+        (select-frame-set-input-focus frame)))
+     ;; Leave the tree window before selecting a tab, so it is not saved
+     ;; as the selected window of the old tab.  Toggling a group from the
+     ;; keyboard keeps focus.  `get-mru-window' skips the tree window: it
+     ;; is dedicated, `no-other-window' and selected.
+     ((and (eq window (selected-window)) (or position tab-p))
       (when-let* ((other (get-mru-window nil nil t t)))
-        (select-window other)))
-    (pcase line
-      (`(tab . ,i) (tab-bar-select-tab i))
-      (`(group . ,group)
-       ;; A click leaves another buffer current.
-       (with-current-buffer (window-buffer window)
-         (setq tab-bar-tree-collapsed
-               (if (member group tab-bar-tree-collapsed)
-                   (delete group tab-bar-tree-collapsed)
-                 (cons group tab-bar-tree-collapsed))))
-       (tab-bar-tree--update)))))
+        (select-window other))))
+    (with-selected-frame frame
+      (pcase line
+        (`(tab . ,i) (tab-bar-select-tab i))
+        (`(group . ,group)
+         ;; A click leaves another buffer current.
+         (with-current-buffer (window-buffer window)
+           (setq tab-bar-tree-collapsed
+                 (if (member group tab-bar-tree-collapsed)
+                     (delete group tab-bar-tree-collapsed)
+                   (cons group tab-bar-tree-collapsed))))
+         ;; Updates every window on the buffer.
+         (tab-bar-tree-render))))))
 
 (defun tab-bar-tree--group-string (tab i current-p open-p)
   "Return the group label of TAB at index I.
@@ -169,8 +178,10 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
   (forward-line (1- line))
   (point))
 
-(defun tab-bar-tree--render ()
-  "Render the selected frame's tabs into the tree buffer and return it."
+;;;###autoload
+(defun tab-bar-tree-render ()
+  "Render the selected frame's tree; return its buffer.
+Also for display outside the side window, e.g. in a child frame."
   (let* ((buf (tab-bar-tree--buffer))
          (tabs (funcall tab-bar-tabs-function))
          (tab (assq 'current-tab tabs))
@@ -224,11 +235,12 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
                              " ")))
              (left (tab-bar-tree--header-face
                     (concat " " (funcall tab-bar-tree-header-left-function tab))))
+             (right-width (string-pixel-width right buf))
              ;; Header text area: the pinned window minus the fringe
              ;; and the divider.
              (right-edge (- (tab-bar-tree--pixel-width) left-fringe-width
                             (frame-right-divider-width)
-                            (string-pixel-width right buf))))
+                            right-width)))
         ;; Overflowing LEFT would push RIGHT off the window.
         (when (> (string-pixel-width left buf) right-edge)
           (setq left (truncate-string-pixelwise
@@ -238,8 +250,13 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
               (list (string-replace "%" "%%" left)
                     ;; Not `mode-line-format-right-align': it measures
                     ;; what follows it in `mode-line-format' only.
-                    (propertize " " 'display
-                                `(space :align-to (,right-edge)))
+                    (propertize
+                     " " 'display
+                     ;; `right': any window width; broken on a terminal
+                     ;; beside another window (bug#59620).
+                     `(space :align-to ,(if (display-graphic-p)
+                                            `(- right (,right-width))
+                                          `(,right-edge))))
                     (string-replace "%" "%%" right))))
       (tab-bar-tree--remap-faces))
     buf))
@@ -363,7 +380,7 @@ They may show another frame's tree buffer, e.g. after `clone-frame'."
   "Render the tree and show it in the selected frame; return the window."
   (unless tab-bar-tree--updating
     (let ((tab-bar-tree--updating t))
-      (tab-bar-tree--window (tab-bar-tree--render)))))
+      (tab-bar-tree--window (tab-bar-tree-render)))))
 
 (defun tab-bar-tree--show (&rest _)
   "Render the tree and show it in the selected frame; return the window.
@@ -415,12 +432,6 @@ Clicks in the tree do not select its window; this command does."
   (let ((ignore-window-parameters t))
     (delete-window window)))
 
-(defun tab-bar-tree--forget-windows ()
-  "Delete the selected frame's tree windows; return non-nil if any."
-  (let ((windows (tab-bar-tree--windows)))
-    (mapc #'tab-bar-tree--forget-window windows)
-    windows))
-
 (defun tab-bar-tree--kill-buffer ()
   "Delete the side windows showing the current buffer, which is being killed.
 Other windows, e.g. a child frame's sole one, are left to `kill-buffer'."
@@ -428,48 +439,24 @@ Other windows, e.g. a child frame's sole one, are left to `kill-buffer'."
     (when (window-parameter window 'window-side)
       (tab-bar-tree--forget-window window))))
 
-(defun tab-bar-tree--strip-tab (tab)
-  "Remove the tree window from TAB's window configuration and state.
-Installs TAB's windows in the selected frame; the caller restores them."
-  (let ((wc (alist-get 'wc tab))
-        (ws (alist-get 'ws tab))
-        ;; Same binding as in `tab-bar-select-tab'.
-        (window-restore-killed-buffer-windows
-         (or tab-bar-select-restore-windows
-             window-restore-killed-buffer-windows)))
-    (cond
-     ((and (window-configuration-p wc)
-           (eq (window-configuration-frame wc) (selected-frame)))
-      (set-window-configuration wc nil t))
-     (ws
-      (window-state-put ws (frame-root-window) 'safe)))
-    (when (tab-bar-tree--forget-windows)
-      ;; Update both: desktop and `tab-bar-move-tab-to-frame' use `ws'.
-      (when-let* ((cell (assq 'wc tab)))
-        (setcdr cell (current-window-configuration)))
-      (when-let* ((cell (assq 'ws tab)))
-        (setcdr cell (window-state-get (frame-root-window) 'writable))))))
-
-(defun tab-bar-tree--strip-tabs ()
-  "Remove the tree window from the other tabs of all frames and closed tabs.
-The current tabs keep it; killing the tree buffers deletes it there."
-  ;; Without `tab-bar-select-tab', which would run
-  ;; `tab-bar-tab-post-select-functions' (e.g. a theme switch) per tab.
-  (dolist (frame (frame-list))
-    (unless (frame-parent frame)
-      (with-selected-frame frame
-        (when (frame-parameter frame 'tabs)
-          (save-excursion
-            (let ((restore (current-window-configuration)))
-              (unwind-protect
-                  (progn
-                    (dolist (tab (funcall tab-bar-tabs-function))
-                      (unless (eq (car tab) 'current-tab)
-                        (tab-bar-tree--strip-tab tab)))
-                    (dolist (closed tab-bar-closed-tabs)
-                      (when (eq (alist-get 'frame closed) frame)
-                        (tab-bar-tree--strip-tab (alist-get 'tab closed)))))
-                (set-window-configuration restore nil t)))))))))
+(defun tab-bar-tree--restore-windows (function frame windows type)
+  "Delete tree windows among WINDOWS; pass the rest to FUNCTION.
+Advice for `tab-bar-select-restore-windows': tabs saved with the mode
+on show tree buffers killed by turning it off.  Only its default value
+is covered.  Matched by name: a killed buffer has no mode, a window
+restored from `ws' no parameters."
+  (funcall function frame
+           (seq-remove
+            (pcase-lambda (`(,window ,buffer))
+              (when (string-prefix-p tab-bar-tree-buffer
+                                     (if (bufferp buffer)
+                                         (buffer-last-name buffer)
+                                       buffer))
+                (when (window-live-p window)
+                  (tab-bar-tree--forget-window window))
+                t))
+            windows)
+           type))
 
 ;;;###autoload
 (define-minor-mode global-tab-bar-tree-mode
@@ -494,16 +481,17 @@ The current tabs keep it; killing the tree buffers deletes it there."
           (unless (assq parameter window-persistent-parameters)
             (push (cons parameter t) window-persistent-parameters)
             (push parameter tab-bar-tree--persistent-parameters)))
+        ;; Not removed with the mode: killed tree buffers appear after it.
+        (advice-add 'tab-bar-select-restore-windows :around
+                    #'tab-bar-tree--restore-windows)
         (tab-bar-tree--show))
     (dolist (parameter tab-bar-tree--persistent-parameters)
       (setq window-persistent-parameters
             (assq-delete-all parameter window-persistent-parameters)))
     (setq tab-bar-tree--persistent-parameters nil)
-    ;; Strip the window from all tabs before killing the buffers;
-    ;; otherwise saved configurations restore an "Old buffer" window.
-    (when-let* ((buffers (tab-bar-tree--buffers)))
-      (tab-bar-tree--strip-tabs)
-      (mapc #'kill-buffer buffers))))
+    ;; Other tabs drop the window on selection:
+    ;; `tab-bar-tree--restore-windows'.
+    (mapc #'kill-buffer (tab-bar-tree--buffers))))
 
 (provide 'tab-bar-tree)
 ;;; tab-bar-tree.el ends here
