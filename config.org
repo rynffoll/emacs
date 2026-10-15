@@ -1389,7 +1389,13 @@ worktrees of one project sit together under its own name."
                 evil-emacs-state-cursor  '(nil)))
   (defun +tab-bar-tree-custom-face ()
     (face-remap-add-relative 'default :height 0.9))
+  (defun +tab-bar-tree-popframe ()
+    "Toggle the tab tree in a `popframe'."
+    (interactive)
+    (popframe #'tab-bar-tree-render '((width . 48))))
   :general
+  (tab-prefix-map
+   "SPC" '+tab-bar-tree-popframe)
   ( :keymaps 'tab-bar-tree-mode-map :states 'normal
     "RET" 'tab-bar-tree-select
     "TAB" 'tab-bar-tree-select
