@@ -64,20 +64,28 @@ A buffer, a buffer name, or a function returning one.  A function is
 called inside `save-window-excursion'."
   :type '(choice (const :tag "None" nil) function string))
 
-(defcustom popframe-width-ratio 0.8
-  "Child frame width as a fraction of the parent frame width."
-  :type 'number)
-
-(defcustom popframe-height-ratio 0.7
-  "Child frame height as a fraction of the parent frame height."
-  :type 'number)
-
-(defcustom popframe-override-parameters '((alpha . 95)
-                                          (undecorated . nil)
-                                          (undecorated-round . t))
-  "Extra frame parameters for the child frame, as an alist.
-Passed verbatim to `make-frame', taking precedence over popframe's own
-parameters."
+(defcustom popframe-frame-parameters
+  '((width . 0.8)
+    (height . 0.7)
+    (title . "popframe")
+    (min-width . 0)
+    (min-height . 0)
+    (menu-bar-lines . 0)
+    (tool-bar-lines . 0)
+    (tab-bar-lines . 0)
+    (vertical-scroll-bars . nil)
+    (horizontal-scroll-bars . nil)
+    (unsplittable . t)
+    (no-other-frame . t)
+    (no-special-glyphs . t)
+    (undecorated . nil)
+    (undecorated-round . t)
+    (alpha . 95)
+    (desktop-dont-save . t))
+  "Frame parameters of the child frame.
+`width', `height': columns or lines if an integer, a fraction of the
+parent frame if a float; applied on every showing.  `parent-frame',
+`minibuffer', `visibility' and `auto-hide-function' are reserved."
   :type '(alist :key-type symbol :value-type sexp))
 
 
@@ -194,20 +202,34 @@ because its last buffer was killed (e.g. a shell exiting on its own)."
     (remove-hook 'delete-frame-functions #'popframe--restore-parent-focus)
     (popframe--focus-parent-frame)))
 
-(defun popframe--target-size (parent-frame)
-  "Return the child frame's target size as (WIDTH . HEIGHT).
-Sized as the configured ratios of PARENT-FRAME's dimensions."
-  (cons (round (* (frame-width  parent-frame) popframe-width-ratio))
-        (round (* (frame-height parent-frame) popframe-height-ratio))))
+(defun popframe--dimension (value total)
+  "Return VALUE as a size out of TOTAL: a float is a fraction of TOTAL."
+  (if (floatp value) (round (* total value)) value))
 
-(defun popframe--fit (child-frame)
-  "Resize CHILD-FRAME to the configured ratios of its parent frame and
-re-center it.  Resizes only when the target character size differs from
-the current one, then always re-centers, so a parent frame resized while
-CHILD-FRAME was hidden (for example toggling fullscreen) does not leave
-CHILD-FRAME oversized or off-center."
+(defun popframe--target-size (parent-frame parameters)
+  "Return (WIDTH . HEIGHT) from PARAMETERS, relative to PARENT-FRAME."
+  (cons (popframe--dimension (alist-get 'width parameters)
+                             (frame-width parent-frame))
+        (popframe--dimension (alist-get 'height parameters)
+                             (frame-height parent-frame))))
+
+(defun popframe--fit (child-frame parameters)
+  "Apply PARAMETERS to CHILD-FRAME, resize and center it.
+Sets only changed parameters, and resizes only on a size change.
+Runs on every showing: the parent may have been resized meanwhile."
+  (modify-frame-parameters
+   child-frame
+   (seq-remove (lambda (parameter)
+                 ;; Size: set below.  The rest: reserved.
+                 (or (memq (car parameter)
+                           '(width height parent-frame minibuffer visibility
+                             auto-hide-function))
+                     (equal (frame-parameter child-frame (car parameter))
+                            (cdr parameter))))
+               (seq-uniq parameters (lambda (a b) (eq (car a) (car b))))))
   (pcase-let* ((parent-frame (popframe--effective-parent-frame))
-               (`(,width . ,height) (popframe--target-size parent-frame)))
+               (`(,width . ,height)
+                (popframe--target-size parent-frame parameters)))
     (unless (and (= width  (frame-width  child-frame))
                  (= height (frame-height child-frame)))
       (set-frame-size child-frame width height))
@@ -220,8 +242,9 @@ CHILD-FRAME oversized or off-center."
                   (frame-pixel-height child-frame))
                2)))))
 
-(defun popframe--reveal (child-frame buffer)
+(defun popframe--reveal (child-frame buffer parameters)
   "Show BUFFER in CHILD-FRAME, make it visible, and give it input focus.
+PARAMETERS are applied first; see `popframe--fit'.
 Reuses CHILD-FRAME's window (only its buffer changes).  The window is
 dedicated (so killing its buffer deletes the child frame), so dedication is
 lifted around the buffer swap and restored afterwards.  CHILD-FRAME is
@@ -231,45 +254,30 @@ while CHILD-FRAME was hidden."
     (set-window-dedicated-p window nil)
     (set-window-buffer window buffer)
     (set-window-dedicated-p window t)
-    (popframe--fit child-frame)
+    (popframe--fit child-frame parameters)
     (make-frame-visible child-frame)
     (select-frame-set-input-focus child-frame)))
 
-(defun popframe--create (buffer)
-  "Create and show a centered child frame displaying BUFFER.
-Store it in `popframe--child-frame' and focus it."
+(defun popframe--create (buffer parameters)
+  "Create a child frame with PARAMETERS, show BUFFER in it and focus it."
   (pcase-let* ((parent-frame (selected-frame))
-               (`(,width . ,height) (popframe--target-size parent-frame))
-               (minibuffer (minibuffer-window parent-frame))
-               (defaults `((parent-frame . ,parent-frame)
-                           (minibuffer . ,minibuffer)
-                           (title . "popframe")
-                           (width . ,width)
-                           (height . ,height)
-                           (min-width . 0)
-                           (min-height . 0)
-                           (menu-bar-lines . 0)
-                           (tool-bar-lines . 0)
-                           (tab-bar-lines . 0)
-                           (vertical-scroll-bars . nil)
-                           (horizontal-scroll-bars . nil)
-                           (unsplittable . t)
-                           (no-other-frame . t)
-                           (no-special-glyphs . t)
-                           (undecorated . t)
-                           (visibility . nil)
-                           (desktop-dont-save . t)
-                           (auto-hide-function . popframe--auto-hide)))
-               ;; `make-frame' resolves duplicate parameters the same way
-               ;; `default-frame-alist' does: first match wins, so prepending lets
-               ;; POPFRAME-OVERRIDE-PARAMETERS take precedence over our defaults.
-               (params (append popframe-override-parameters defaults))
-               (child-frame (make-frame params)))
+               (`(,width . ,height)
+                (popframe--target-size parent-frame parameters))
+               ;; First match wins: reserved parameters go first.
+               (child-frame
+                (make-frame
+                 `((parent-frame . ,parent-frame)
+                   (minibuffer . ,(minibuffer-window parent-frame))
+                   (visibility . nil)
+                   (auto-hide-function . popframe--auto-hide)
+                   (width . ,width)
+                   (height . ,height)
+                   ,@parameters))))
     (setq popframe--child-frame child-frame
           popframe--child-frame-created-fullscreen
           (frame-parameter parent-frame 'fullscreen))
     (add-hook 'delete-frame-functions #'popframe--restore-parent-focus)
-    (popframe--reveal child-frame buffer)))
+    (popframe--reveal child-frame buffer parameters)))
 
 (defun popframe--delete-stale-child-frame (child-frame parent-frame)
   "Delete CHILD-FRAME unless it is live and fresh relative to PARENT-FRAME.
@@ -334,7 +342,7 @@ or looks broken.  `popframe' recreates it lazily on its next call."
   (popframe--delete-child-frame))
 
 ;;;###autoload
-(defun popframe (&optional spec)
+(defun popframe (&optional spec parameters)
   "Toggle the popframe child frame showing SPEC.
 SPEC is a buffer, a buffer name, or a function returning one.  It
 defaults to the buffer pinned to the current project by `popframe-pin',
@@ -345,11 +353,14 @@ A single child frame is shared and reused: the child frame is created
 lazily on first use, and showing a different SPEC swaps its buffer into
 the child frame's window while the child frame itself persists.  Calling
 this command for the buffer already shown hides the child frame, so each
-spec toggles independently."
+spec toggles independently.
+
+PARAMETERS override `popframe-frame-parameters' for this call."
   (interactive)
   (let* ((spec (or spec
                    (popframe--pinned-buffer (popframe--pin-key))
                    popframe-default-buffer))
+         (parameters (append parameters popframe-frame-parameters))
          (child-frame (popframe--live-child-frame))
          (parent-frame (popframe--effective-parent-frame))
          ;; Resolve with the parent frame selected so a provider's window side
@@ -366,8 +377,8 @@ spec toggles independently."
       (setq child-frame
             (popframe--delete-stale-child-frame child-frame parent-frame))
       (if child-frame
-          (popframe--reveal child-frame buffer)
-        (popframe--create buffer)))))
+          (popframe--reveal child-frame buffer parameters)
+        (popframe--create buffer parameters)))))
 
 (provide 'popframe)
 ;;; popframe.el ends here
