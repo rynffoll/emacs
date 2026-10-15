@@ -604,8 +604,12 @@
      (seq-filter (lambda (param)
                    (memq (car param) '(left top width height)))
                  default-frame-alist)))
+  :init
+  (setq window-divider-default-right-width 1)
   :config
-  (blink-cursor-mode -1))
+  (blink-cursor-mode -1)
+  :hook
+  (after-init-hook . window-divider-mode))
 
 (use-package fringe
   :if (display-graphic-p)
