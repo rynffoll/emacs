@@ -245,10 +245,11 @@ CURRENT-P is passed to the formatter; OPEN-P is passed via
     buf))
 
 (defun tab-bar-tree-header-group (tab)
-  "Return TAB's group in bold, or a dash if none."
-  (if-let* ((group (funcall tab-bar-tab-group-function tab)))
-      (propertize group 'face 'bold)
-    (propertize "—" 'face 'shadow)))
+  "Return TAB's group as \"group:NAME\", or \"group:none\" if it has none."
+  ;; As in `marginalia-annotate-tab'.
+  (propertize (format "group:%s" (or (funcall tab-bar-tab-group-function tab)
+                                     'none))
+              'face 'shadow))
 
 (defun tab-bar-tree--header-face (string)
   "Return a copy of STRING with the `header-line' face added."
