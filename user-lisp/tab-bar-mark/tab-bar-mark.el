@@ -95,10 +95,9 @@ without focus reports marks are not shown rather than never removed."
 (defun tab-bar-mark--map-tabs (fn)
   "Call FN with the frame and tab for every tab of every frame.
 Child frames, which have no tab bar, are skipped."
-  (dolist (frame (frame-list))
-    (unless (frame-parent frame)
-      (dolist (tab (frame-parameter frame 'tabs))
-        (funcall fn frame tab)))))
+  (dolist (frame (get-mru-frames t t))
+    (dolist (tab (frame-parameter frame 'tabs))
+      (funcall fn frame tab))))
 
 (defun tab-bar-mark--set-where (type state test)
   "Set TYPE's mark to STATE on every tab TEST returns non-nil for.
