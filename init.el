@@ -362,11 +362,15 @@
   (after-init-hook . xterm-mouse-mode))
 
 (use-package disp-table
-  :unless (display-graphic-p)
   :ensure nil
-  :demand t
   :config
   (standard-display-unicode-special-glyphs)
+  ;; Invisible lines indicator (ellipsis): ... -> …
+  (set-display-table-slot standard-display-table
+                          'selective-display (vector (make-glyph-code ?… 'shadow)))
+  ;; Page delimiter (form feed): ^L -> ─, `whitespace-line-column' wide.
+  (aset standard-display-table
+        ?\f (make-vector 80 (make-glyph-code ?─ 'shadow)))
   :hook
   (after-init-hook . prettify-special-glyphs-mode))
 
@@ -531,11 +535,9 @@
    '(eros-result-overlay-face       ((t (:inherit shadow :box t))))
    '(cider-result-overlay-face      ((t (:inherit shadow :box t))))
    '(org-tag                        ((t (:inherit shadow :foreground unspecified :background unspecified :bold nil))))
-   ;; '(org-ellipsis                   ((t (:underline nil))))
    ;; '(org-block-begin-line           ((t (:underline nil))))
    ;; '(org-block-end-line             ((t (:overline nil))))
    '(dape-breakpoint-face           ((t (:inherit error))))
-   '(hs-ellipsis                    ((t (:inherit shadow))))
    ))
 
 (add-hook 'enable-theme-functions #'+custom-faces)
@@ -1888,8 +1890,6 @@ Covers both working-tree faces and reference-revision faces."
   (setq org-auto-align-tags nil)
   (setq org-tags-column 0)
 
-  (setq org-ellipsis "…")
-  ;; (setq org-ellipsis " ⌄ ")
   (setq org-pretty-entities t)
   ;; (setq org-hide-emphasis-markers t)
   (setq org-use-sub-superscripts '{}) ;; allow _ and ^ characters to sub/super-script strings but only when string is wrapped in braces
@@ -2267,7 +2267,6 @@ Covers both working-tree faces and reference-revision faces."
 (use-package markdown-ts-mode
   :ensure nil
   :init
-  (setq markdown-ts-ellipsis "…")
   (setq markdown-ts-inline-images t))
 
 (use-package markdown-ts-mode-x
