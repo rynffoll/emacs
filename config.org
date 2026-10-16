@@ -2561,6 +2561,8 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-margin-indicator-position 'right-margin)
   (setq flymake-suppress-zero-counters t)
+  (setq flymake-inline-diagnostics '((current-line . fancy)
+                                     (t . short)))
   :hook
   (text-mode-hook . flymake-mode)
   (conf-mode-hook . flymake-mode)
@@ -2570,6 +2572,7 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
 ** sideline
 #+begin_src emacs-lisp
 (use-package sideline
+  :if (< emacs-major-version 32)
   :init
   (setq sideline-backends-right '(sideline-flymake))
   (setq sideline-display-backend-name t))
@@ -2578,6 +2581,7 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
 ** sideline-flymake
 #+begin_src emacs-lisp
 (use-package sideline-flymake
+  :if (< emacs-major-version 32)
   :init
   (setq sideline-flymake-display-mode 'point)
   :hook

@@ -1617,17 +1617,21 @@ The strut makes the header as tall as the tab bar row it stands in for."
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-margin-indicator-position 'right-margin)
   (setq flymake-suppress-zero-counters t)
+  (setq flymake-inline-diagnostics '((current-line . fancy)
+                                     (t . short)))
   :hook
   (text-mode-hook . flymake-mode)
   (conf-mode-hook . flymake-mode)
   (prog-mode-hook . flymake-mode))
 
 (use-package sideline
+  :if (< emacs-major-version 32)
   :init
   (setq sideline-backends-right '(sideline-flymake))
   (setq sideline-display-backend-name t))
 
 (use-package sideline-flymake
+  :if (< emacs-major-version 32)
   :init
   (setq sideline-flymake-display-mode 'point)
   :hook
