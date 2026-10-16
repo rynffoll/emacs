@@ -100,12 +100,33 @@ encode it."
   "Return non-nil where an indicator is drawn at all."
   (and (numberp tab-bar-indicator-width) (> tab-bar-indicator-width 0)))
 
+(defun tab-bar-indicator--image-p ()
+  "Return non-nil where the indicator is drawn as an image."
+  (and (display-graphic-p) (image-type-available-p 'pbm)))
+
 (defun tab-bar-indicator--height ()
   "Return the height in pixels of an indicator, and so of the row."
   (or tab-bar-indicator-height
       ;; A fifth of a line of room around the label, which is what a box
       ;; around a tab used to add.
       (round (* (frame-char-height) 1.2))))
+
+;;;###autoload
+(defun tab-bar-indicator-strut ()
+  "Return an empty string as tall as the tab bar row, placed as an indicator.
+Empty where no indicator image is drawn."
+  (if (not (and (tab-bar-indicator--drawn-p) (tab-bar-indicator--image-p)))
+      ""
+    (let* ((height (tab-bar-indicator--height))
+           (font (font-info (face-font 'tab-bar)))
+           (ascent (aref font 8))
+           (descent (aref font 9)))
+      ;; As the indicator's `:ascent center', on the text's middle; a
+      ;; `space' takes the ascent as a percentage of its height.
+      (propertize " " 'display
+                  `(space :width (0) :height (,height)
+                          :ascent ,(round (+ 50 (/ (* 50.0 (- ascent descent))
+                                                   height))))))))
 
 (defun tab-bar-indicator--width ()
   "Return the width in pixels of an indicator.
@@ -170,11 +191,11 @@ your own."
          ;; instead of needing its own reminder to check COLOR at all.
          ((not (color-defined-p color))
           (tab-bar-indicator--append-face
-           (if (and (display-graphic-p) (image-type-available-p 'pbm))
+           (if (tab-bar-indicator--image-p)
                (propertize " " 'display `(space :width (,width)))
              (copy-sequence " "))
            face))
-         ((and (display-graphic-p) (image-type-available-p 'pbm))
+         ((tab-bar-indicator--image-p)
           ;; The painted part is its own image, exactly as wide as it is
           ;; painted; the rest, when CURRENT-P leaves any, is a `space'
           ;; — unlike a PBM's unpainted "0" bits, plain white by the

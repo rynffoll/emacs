@@ -61,7 +61,8 @@ The part is flush right; nil means none."
   :group 'tab-bar-tree)
 
 (defcustom tab-bar-tree-button "≡"
-  "Label of the tab bar button made by `tab-bar-tree-format-button'."
+  "Label of the mode toggle button.
+Shown by `tab-bar-tree-format-button' and `tab-bar-tree-header-button'."
   :type 'string
   :group 'tab-bar-tree)
 
@@ -293,8 +294,8 @@ Also for display outside the side window, e.g. in a child frame."
 (defvar-local tab-bar-tree--remap-cookies nil
   "Face remapping cookies added by `tab-bar-tree--remap-faces'.")
 
-(defvar-local tab-bar-tree--remap-background nil
-  "Background the label faces are remapped to, or nil.")
+(defvar-local tab-bar-tree--remap-key nil
+  "Remapped attributes, as (LABELS-BACKGROUND HEADER-BACKGROUND HEADER-HEIGHT).")
 
 (defvar tab-bar-tree--faces
   '(tab-bar tab-bar-tab tab-bar-tab-inactive tab-bar-tab-ungrouped
@@ -303,16 +304,27 @@ Also for display outside the side window, e.g. in a child frame."
 
 (defun tab-bar-tree--remap-faces ()
   "Remap label backgrounds according to `tab-bar-tree-tab-background'.
-Called on every render; remaps only when the target background changes."
-  (let ((background (unless tab-bar-tree-tab-background
-                      (face-background 'default nil 'default))))
-    (unless (equal background tab-bar-tree--remap-background)
+The header line takes the tab bar's background and height: it stands
+in for the tab bar.  Called on every render; remaps only on a change."
+  (let* ((labels (unless tab-bar-tree-tab-background
+                   (face-background 'default nil 'default)))
+         ;; Copied, not inherited: `tab-bar' is remapped here too.
+         (header (face-background 'tab-bar nil 'default))
+         (height (face-attribute 'tab-bar :height nil 'default))
+         (key (list labels header height)))
+    (unless (equal key tab-bar-tree--remap-key)
       (mapc #'face-remap-remove-relative tab-bar-tree--remap-cookies)
-      (setq tab-bar-tree--remap-cookies nil
-            tab-bar-tree--remap-background background)
-      (when background
+      (setq tab-bar-tree--remap-cookies
+            ;; All three: themes style the active and inactive header line
+            ;; on their own, not always by inheritance.
+            (mapcar (lambda (face)
+                      (face-remap-add-relative face :background header
+                                               :height height))
+                    '(header-line header-line-active header-line-inactive))
+            tab-bar-tree--remap-key key)
+      (when labels
         (dolist (face tab-bar-tree--faces)
-          (push (face-remap-add-relative face :background background)
+          (push (face-remap-add-relative face :background labels)
                 tab-bar-tree--remap-cookies))))))
 
 (define-derived-mode tab-bar-tree-mode special-mode "TabTree"
@@ -474,16 +486,22 @@ restored from `ws' no parameters."
 (defun tab-bar-tree-format-button ()
   "Produce the tab bar button toggling `global-tab-bar-tree-mode'.
 An item for `tab-bar-format'."
-  `((tab-bar-tree menu-item ,tab-bar-tree-button
+  `((tab-bar-tree menu-item ,(concat " " tab-bar-tree-button)
                   global-tab-bar-tree-mode :help "Toggle the tab tree")))
 
-(defvar-keymap tab-bar-tree-toggle-map
-  :doc "Keymap toggling the mode from a header line text, e.g. an icon.
-Put as its `keymap' property."
+(defvar-keymap tab-bar-tree--toggle-map
+  :doc "Keymap of `tab-bar-tree-header-button'."
   ;; On press, as `tab-bar-tree-format-button': the layout shifts under
   ;; the mouse, so the release lands on the other button.
   "<header-line> <down-mouse-1>" #'global-tab-bar-tree-mode
   "<header-line> <mouse-1>" #'ignore)
+
+(defun tab-bar-tree-header-button ()
+  "Return the header line button toggling `global-tab-bar-tree-mode'.
+For `tab-bar-tree-header-left-function'."
+  (propertize tab-bar-tree-button
+              'keymap tab-bar-tree--toggle-map
+              'help-echo "Toggle the tab tree"))
 
 (defvar tab-bar-tree--tab-bar-show nil
   "`tab-bar-show' saved by `tab-bar-tree-hide-tab-bar', as a list.")
