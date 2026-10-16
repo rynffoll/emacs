@@ -60,6 +60,18 @@ The part is flush right; nil means none."
   :type 'function
   :group 'tab-bar-tree)
 
+(defcustom tab-bar-tree-button "≡"
+  "Label of the tab bar button made by `tab-bar-tree-format-button'."
+  :type 'string
+  :group 'tab-bar-tree)
+
+(defcustom tab-bar-tree-hide-tab-bar nil
+  "Non-nil means hide the tab bar while the mode is on.
+The tabs are then shown only in the tree; `tab-bar-show' is restored
+when the mode is turned off."
+  :type 'boolean
+  :group 'tab-bar-tree)
+
 (defcustom tab-bar-tree-refresh-commands
   '(tab-bar-rename-tab)
   "Commands that modify a tab in place; the tree is refreshed after each.
@@ -459,6 +471,35 @@ restored from `ws' no parameters."
            type))
 
 ;;;###autoload
+(defun tab-bar-tree-format-button ()
+  "Produce the tab bar button toggling `global-tab-bar-tree-mode'.
+An item for `tab-bar-format'."
+  `((tab-bar-tree menu-item ,tab-bar-tree-button
+                  global-tab-bar-tree-mode :help "Toggle the tab tree")))
+
+(defvar-keymap tab-bar-tree-toggle-map
+  :doc "Keymap toggling the mode from a header line text, e.g. an icon.
+Put as its `keymap' property."
+  ;; On press, as `tab-bar-tree-format-button': the layout shifts under
+  ;; the mouse, so the release lands on the other button.
+  "<header-line> <down-mouse-1>" #'global-tab-bar-tree-mode
+  "<header-line> <mouse-1>" #'ignore)
+
+(defvar tab-bar-tree--tab-bar-show nil
+  "`tab-bar-show' saved by `tab-bar-tree-hide-tab-bar', as a list.")
+
+(defun tab-bar-tree--hide-tab-bar (hide)
+  "Hide the tab bar if HIDE is non-nil, else restore it."
+  ;; `setopt': the :set of `tab-bar-show' applies it to every frame.
+  (cond
+   ((and hide tab-bar-tree-hide-tab-bar)
+    (setq tab-bar-tree--tab-bar-show (list tab-bar-show))
+    (setopt tab-bar-show nil))
+   ((and (not hide) tab-bar-tree--tab-bar-show)
+    (setopt tab-bar-show (car tab-bar-tree--tab-bar-show))
+    (setq tab-bar-tree--tab-bar-show nil))))
+
+;;;###autoload
 (define-minor-mode global-tab-bar-tree-mode
   "Show the tabs of the tab bar as a tree in a side window."
   :global t
@@ -484,6 +525,7 @@ restored from `ws' no parameters."
         ;; Not removed with the mode: killed tree buffers appear after it.
         (advice-add 'tab-bar-select-restore-windows :around
                     #'tab-bar-tree--restore-windows)
+        (tab-bar-tree--hide-tab-bar t)
         (tab-bar-tree--show))
     (dolist (parameter tab-bar-tree--persistent-parameters)
       (setq window-persistent-parameters
@@ -491,7 +533,8 @@ restored from `ws' no parameters."
     (setq tab-bar-tree--persistent-parameters nil)
     ;; Other tabs drop the window on selection:
     ;; `tab-bar-tree--restore-windows'.
-    (mapc #'kill-buffer (tab-bar-tree--buffers))))
+    (mapc #'kill-buffer (tab-bar-tree--buffers))
+    (tab-bar-tree--hide-tab-bar nil)))
 
 (provide 'tab-bar-tree)
 ;;; tab-bar-tree.el ends here

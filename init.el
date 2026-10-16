@@ -806,6 +806,9 @@ worktrees of one project sit together under its own name."
     "Toggle the tab tree in a `popframe'."
     (interactive)
     (popframe #'tab-bar-tree-render '((width . 48))))
+  :init
+  (setq tab-bar-tree-hide-tab-bar t)
+  (add-to-list 'tab-bar-format #'tab-bar-tree-format-button)
   :general
   (tab-prefix-map
    "SPC" '+tab-bar-tree-popframe)
@@ -825,13 +828,18 @@ worktrees of one project sit together under its own name."
   ;; Sets tab names directly, bypassing `tab-bar-rename-tab'.
   (add-to-list 'tab-bar-tree-refresh-commands 'otpp--update-all-tabs)
   (defun +tab-bar-tree-header-left (tab)
-    "Return TAB's group after a tab icon."
+    "Return TAB's group after a tab icon that turns the tree off."
     (require 'nerd-icons)
-    (concat (nerd-icons-mdicon "nf-md-tab") " " (tab-bar-tree-header-group tab)))
+    (concat (propertize (nerd-icons-mdicon "nf-md-tab")
+                        'keymap tab-bar-tree-toggle-map
+                        'help-echo "Toggle the tab tree")
+            " " (tab-bar-tree-header-group tab)))
   (defun +tab-bar-tree-header-right (tab)
     "Return the marks of TAB's group."
     (tab-bar-mark-string
      (tab-bar-mark-group-p (funcall tab-bar-tab-group-function tab))))
+  (require 'nerd-icons)
+  (setq tab-bar-tree-button (concat " " (nerd-icons-mdicon "nf-md-tab")))
   (setq tab-bar-tree-header-left-function #'+tab-bar-tree-header-left
         tab-bar-tree-header-right-function #'+tab-bar-tree-header-right)
   :hook
