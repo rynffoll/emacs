@@ -334,6 +334,9 @@ not on buffer edits."
   (setq review--report-fn report-fn)
   (review--report (current-buffer)))
 
+;; Safe with untrusted content: reads review.org only.
+(put 'review-flymake 'flymake-always-safe t)
+
 (defun review--propagate (root)
   "Re-push review notes to every Flymake buffer under ROOT."
   (dolist (buf (buffer-list))

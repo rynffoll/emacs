@@ -2548,6 +2548,9 @@ Use the ~emacsclient~ as the ~$EDITOR~ of child processes
 #+end_src
 
 ** flymake
+Backends aren't enabled in buffers with untrusted content (~trusted-content~) unless marked as safe (~flymake-always-safe~).
+See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:emacs#Host Security][(emacs)Host Security]].
+
 #+begin_src emacs-lisp
 (use-package flymake
   :ensure nil
@@ -3615,6 +3618,11 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 (use-package review
   :ensure nil
   :demand t
+  :preface
+  (defun +review-flymake-in-eglot ()
+    "Add `review-flymake' to Eglot's buffer-local Flymake backends."
+    (when (eglot-managed-p)
+      (add-hook 'flymake-diagnostic-functions #'review-flymake nil t)))
   :general
   (+leader-def
     "r"  '(:ignore t :wk "review")
@@ -3639,7 +3647,9 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   (add-to-list 'safe-local-variable-values
                '(after-save-hook . review--after-review-change))
   (add-to-list 'safe-local-variable-values
-               '(after-revert-hook . review--after-review-change)))
+               '(after-revert-hook . review--after-review-change))
+  :hook
+  (eglot-managed-mode-hook . +review-flymake-in-eglot))
 #+end_src
 
 ** rebased

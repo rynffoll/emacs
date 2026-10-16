@@ -2387,6 +2387,11 @@ Covers both working-tree faces and reference-revision faces."
 (use-package review
   :ensure nil
   :demand t
+  :preface
+  (defun +review-flymake-in-eglot ()
+    "Add `review-flymake' to Eglot's buffer-local Flymake backends."
+    (when (eglot-managed-p)
+      (add-hook 'flymake-diagnostic-functions #'review-flymake nil t)))
   :general
   (+leader-def
     "r"  '(:ignore t :wk "review")
@@ -2411,7 +2416,9 @@ Covers both working-tree faces and reference-revision faces."
   (add-to-list 'safe-local-variable-values
                '(after-save-hook . review--after-review-change))
   (add-to-list 'safe-local-variable-values
-               '(after-revert-hook . review--after-review-change)))
+               '(after-revert-hook . review--after-review-change))
+  :hook
+  (eglot-managed-mode-hook . +review-flymake-in-eglot))
 
 (defun +rebased ()
   "Open the current project root in the Rebased Git client."
