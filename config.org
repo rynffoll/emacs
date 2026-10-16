@@ -3485,12 +3485,6 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package flymake-shellcheck
-  :hook
-  (sh-mode-hook . flymake-shellcheck-load))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package fish-mode)
 #+end_src
 

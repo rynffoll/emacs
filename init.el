@@ -2312,10 +2312,6 @@ Covers both working-tree faces and reference-revision faces."
   :hook
   (after-save-hook . executable-make-buffer-file-executable-if-script-p))
 
-(use-package flymake-shellcheck
-  :hook
-  (sh-mode-hook . flymake-shellcheck-load))
-
 (use-package fish-mode)
 
 (use-package vimrc-mode)
