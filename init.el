@@ -1274,8 +1274,7 @@ The strut makes the header as tall as the tab bar row it stands in for."
    "RET" 'projection-multi-compile))
 
 (use-package projection-multi-embark
-  :after embark
-  :after projection-multi
+  :after embark projection-multi
   :demand t
   :config
   (projection-multi-embark-setup-command-map))
@@ -2063,6 +2062,8 @@ Covers both working-tree faces and reference-revision faces."
 
 (use-package org-crypt
   :ensure org
+  :after org
+  :demand t
   :init
   (setq org-tags-exclude-from-inheritance '("crypt"))
   ;; GPG key to use for encryption
@@ -2129,6 +2130,8 @@ Covers both working-tree faces and reference-revision faces."
     "fs" 'consult-eglot-symbols))
 
 (use-package consult-eglot-embark
+  :after consult-eglot embark
+  :demand t
   :config
   (consult-eglot-embark-mode))
 

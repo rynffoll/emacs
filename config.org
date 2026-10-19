@@ -2011,8 +2011,7 @@ The strut makes the header as tall as the tab bar row it stands in for."
 
 #+begin_src emacs-lisp
 (use-package projection-multi-embark
-  :after embark
-  :after projection-multi
+  :after embark projection-multi
   :demand t
   :config
   (projection-multi-embark-setup-command-map))
@@ -3144,6 +3143,8 @@ get https://github.com/status
 #+begin_src emacs-lisp
 (use-package org-crypt
   :ensure org
+  :after org
+  :demand t
   :init
   (setq org-tags-exclude-from-inheritance '("crypt"))
   ;; GPG key to use for encryption
@@ -3225,6 +3226,8 @@ Upgrade eglot to the latest version
     "fs" 'consult-eglot-symbols))
 
 (use-package consult-eglot-embark
+  :after consult-eglot embark
+  :demand t
   :config
   (consult-eglot-embark-mode))
 #+end_src
