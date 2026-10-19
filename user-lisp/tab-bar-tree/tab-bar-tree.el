@@ -23,9 +23,12 @@
   "The tab bar's tabs as a tree in a side window."
   :group 'tab-bar)
 
-(defcustom tab-bar-tree-side 'left
-  "Side of the frame to show the tree on."
-  :type '(choice (const left) (const right))
+(defcustom tab-bar-tree-display-alist
+  '((side . left) (slot . -100) (window-width . 32))
+  "Display parameters for `display-buffer-in-side-window'.
+`window-width', in columns, is applied on every render; a frame narrower
+than twice it gets no tree."
+  :type 'alist
   :group 'tab-bar-tree)
 
 (defcustom tab-bar-tree-indent 3
@@ -39,13 +42,6 @@ By default the tree draws labels on the default background; the
 current tab is told by its indicator.  Takes effect on the next render,
 e.g. \\[tab-bar-tree-refresh]."
   :type 'boolean
-  :group 'tab-bar-tree)
-
-(defcustom tab-bar-tree-width 32
-  "Width of the tree window, in columns.
-Applied on every render; a frame narrower than twice this value gets no
-tree."
-  :type 'natnum
   :group 'tab-bar-tree)
 
 (defcustom tab-bar-tree-header-left-function #'tab-bar-tree-header-group
@@ -287,9 +283,13 @@ Also for display outside the side window, e.g. in a child frame."
     (add-face-text-property 0 (length string) 'header-line t string)
     string))
 
+(defun tab-bar-tree--width ()
+  "Return the tree window's width in columns."
+  (alist-get 'window-width tab-bar-tree-display-alist))
+
 (defun tab-bar-tree--pixel-width ()
   "Return the tree window's pinned pixel width."
-  (* tab-bar-tree-width (frame-char-width)))
+  (* (tab-bar-tree--width) (frame-char-width)))
 
 (defvar-local tab-bar-tree--remap-cookies nil
   "Face remapping cookies added by `tab-bar-tree--remap-faces'.")
@@ -370,9 +370,7 @@ dedication: a window restored from a desktop file or a tab's `ws' has no
 parameters, and `quit-restore-window' may un-dedicate it."
   (when-let* ((window (display-buffer-in-side-window
                        buffer
-                       `((side . ,tab-bar-tree-side)
-                         (slot . -100)
-                         (window-width . ,tab-bar-tree-width)
+                       `(,@tab-bar-tree-display-alist
                          ;; `side', not t: `quit-restore-window' deletes
                          ;; a window dedicated with t outright.
                          (dedicated . side)
@@ -414,7 +412,7 @@ Return nil on a child, minibuffer-only, unsplittable or narrow frame."
                 (eq (frame-parameter frame 'minibuffer) 'only)
                 (frame-parameter frame 'unsplittable)
                 (and (not (tab-bar-tree--windows))
-                     (< (frame-width frame) (* 2 tab-bar-tree-width))))
+                     (< (frame-width frame) (* 2 (tab-bar-tree--width)))))
       (tab-bar-tree--draw))))
 
 (defun tab-bar-tree--update (&rest _)
