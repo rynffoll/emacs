@@ -242,6 +242,10 @@ Runs on every showing: the parent may have been resized meanwhile."
                   (frame-pixel-height child-frame))
                2)))))
 
+(defun popframe--refuse-split (&rest _)
+  "Refuse to split a child frame's window.  A `split-window' parameter."
+  (user-error "Cannot split a popframe window"))
+
 (defun popframe--reveal (child-frame buffer parameters)
   "Show BUFFER in CHILD-FRAME, make it visible, and give it input focus.
 PARAMETERS are applied first; see `popframe--fit'.
@@ -276,6 +280,9 @@ while CHILD-FRAME was hidden."
     (setq popframe--child-frame child-frame
           popframe--child-frame-created-fullscreen
           (frame-parameter parent-frame 'fullscreen))
+    ;; `unsplittable' only stops `display-buffer'; this stops `split-window'.
+    (set-window-parameter (frame-root-window child-frame)
+                          'split-window #'popframe--refuse-split)
     (add-hook 'delete-frame-functions #'popframe--restore-parent-focus)
     (popframe--reveal child-frame buffer parameters)))
 
