@@ -754,9 +754,10 @@ worktrees of one project sit together under its own name."
     (let* ((face (tab-bar-theme-tab-group-face current-p))
            ;; Fold state: the only thing the row does not show itself.
            (expanded (or current-p tab-bar-show-inactive-group-tabs))
-           ;; Marks of all tabs in the group, folded or not.
-           (marked (tab-bar-mark-group-tabs
-                    (funcall tab-bar-tab-group-function tab))))
+           ;; Marks of a folded group; an open one shows them on its tabs.
+           (marked (unless expanded
+                     (tab-bar-mark-group-tabs
+                      (funcall tab-bar-tab-group-function tab)))))
       (concat (tab-bar-indicator-build
                (tab-bar-theme-tab-group-indicator-color current-p) nil face)
               ;; Fold marker before the label, in `shadow' so the
