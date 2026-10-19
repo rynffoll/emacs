@@ -381,8 +381,9 @@ parameters, and `quit-restore-window' may un-dedicate it."
               (delta (- (tab-bar-tree--pixel-width)
                         (window-pixel-width window))))
     (unless (zerop delta)
-      ;; IGNORE = WINDOW: skip its own `window-size-fixed'.
-      (window-resize window delta t window t))
+      ;; IGNORE t: a side window sharing the column, e.g. `dired-side',
+      ;; also fixes its width; the tree sets the column's.
+      (window-resize window delta t t t))
     window))
 
 (defvar tab-bar-tree--updating nil
