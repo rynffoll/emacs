@@ -824,7 +824,6 @@ The strut makes the header as tall as the tab bar row it stands in for."
     "Return the mark summary of the frame's tabs."
     (tab-bar-mark-summary (tab-bar-mark-marked-tabs)))
   :init
-  (setq tab-bar-tree-hide-tab-bar t)
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button)
   :general
   (tab-prefix-map

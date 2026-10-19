@@ -62,13 +62,6 @@ Shown by `tab-bar-tree-format-button' and `tab-bar-tree-header-button'."
   :type 'string
   :group 'tab-bar-tree)
 
-(defcustom tab-bar-tree-hide-tab-bar nil
-  "Non-nil means hide the tab bar while the mode is on.
-The tabs are then shown only in the tree; `tab-bar-show' is restored
-when the mode is turned off."
-  :type 'boolean
-  :group 'tab-bar-tree)
-
 (defcustom tab-bar-tree-refresh-commands
   '(tab-bar-rename-tab)
   "Commands that modify a tab in place; the tree is refreshed after each.
@@ -502,23 +495,10 @@ For `tab-bar-tree-header-left-function'."
               'keymap tab-bar-tree--toggle-map
               'help-echo "Toggle the tab tree"))
 
-(defvar tab-bar-tree--tab-bar-show nil
-  "`tab-bar-show' saved by `tab-bar-tree-hide-tab-bar', as a list.")
-
-(defun tab-bar-tree--hide-tab-bar (hide)
-  "Hide the tab bar if HIDE is non-nil, else restore it."
-  ;; `setopt': the :set of `tab-bar-show' applies it to every frame.
-  (cond
-   ((and hide tab-bar-tree-hide-tab-bar)
-    (setq tab-bar-tree--tab-bar-show (list tab-bar-show))
-    (setopt tab-bar-show nil))
-   ((and (not hide) tab-bar-tree--tab-bar-show)
-    (setopt tab-bar-show (car tab-bar-tree--tab-bar-show))
-    (setq tab-bar-tree--tab-bar-show nil))))
-
 ;;;###autoload
 (define-minor-mode global-tab-bar-tree-mode
-  "Show the tabs of the tab bar as a tree in a side window."
+  "Show the tabs of the tab bar as a tree in a side window.
+The tab bar is hidden while the mode is on."
   :global t
   ;; Depth 90: run after the hooks' other functions, e.g.
   ;; `tab-bar-move-tab-to-group' or a mark being cleared.
@@ -542,7 +522,8 @@ For `tab-bar-tree-header-left-function'."
         ;; Not removed with the mode: killed tree buffers appear after it.
         (advice-add 'tab-bar-select-restore-windows :around
                     #'tab-bar-tree--restore-windows)
-        (tab-bar-tree--hide-tab-bar t)
+        ;; `setopt': the :set of `tab-bar-show' applies it to every frame.
+        (setopt tab-bar-show nil)
         (tab-bar-tree--show))
     (dolist (parameter tab-bar-tree--persistent-parameters)
       (setq window-persistent-parameters
@@ -551,7 +532,7 @@ For `tab-bar-tree-header-left-function'."
     ;; Other tabs drop the window on selection:
     ;; `tab-bar-tree--restore-windows'.
     (mapc #'kill-buffer (tab-bar-tree--buffers))
-    (tab-bar-tree--hide-tab-bar nil)))
+    (setopt tab-bar-show t)))
 
 (provide 'tab-bar-tree)
 ;;; tab-bar-tree.el ends here
