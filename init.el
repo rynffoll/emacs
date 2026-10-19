@@ -672,6 +672,7 @@
                          tab-bar-format-tabs-groups
                          tab-bar-indicator-separator
                          tab-bar-format-align-right
+                         tab-bar-mark-format-summary
                          tab-bar-format-global))
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
@@ -754,7 +755,7 @@ worktrees of one project sit together under its own name."
            ;; Fold state: the only thing the row does not show itself.
            (expanded (or current-p tab-bar-show-inactive-group-tabs))
            ;; Marks of all tabs in the group, folded or not.
-           (marked (tab-bar-mark-group-p
+           (marked (tab-bar-mark-group-tabs
                     (funcall tab-bar-tab-group-function tab))))
       (concat (tab-bar-indicator-build
                (tab-bar-theme-tab-group-indicator-color current-p) nil face)
@@ -773,7 +774,7 @@ worktrees of one project sit together under its own name."
               ;; Group face under the marks and the trailing padding;
               ;; otherwise they get the tab bar background.
               (and marked
-                   (concat (tab-bar-mark-string marked face)
+                   (concat (tab-bar-mark-summary marked face)
                            (propertize tab-bar-theme-tab-name-padding
                                        'face face))))))
   :init
@@ -819,10 +820,9 @@ worktrees of one project sit together under its own name."
 The strut makes the header as tall as the tab bar row it stands in for."
     (concat (tab-bar-indicator-strut)
             (tab-bar-tree-header-button) " " (tab-bar-tree-header-group tab)))
-  (defun +tab-bar-tree-header-right (tab)
-    "Return the marks of TAB's group."
-    (tab-bar-mark-string
-     (tab-bar-mark-group-p (funcall tab-bar-tab-group-function tab))))
+  (defun +tab-bar-tree-header-right (_tab)
+    "Return the mark summary of the frame's tabs."
+    (tab-bar-mark-summary (tab-bar-mark-marked-tabs)))
   :init
   (setq tab-bar-tree-hide-tab-bar t)
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button)

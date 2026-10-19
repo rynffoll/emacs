@@ -64,7 +64,7 @@ A type missing here is drawn as `:warning'."
                                              (:persistent boolean))))
   :group 'tab-bar-mark)
 
-(defun tab-bar-mark--type (type)
+(defun tab-bar-mark--type-properties (type)
   "Return the properties `tab-bar-mark-type-alist' has for TYPE."
   (or (alist-get type tab-bar-mark-type-alist)
       (alist-get :warning tab-bar-mark-type-alist)))
@@ -99,7 +99,7 @@ Child frames, which have no tab bar, are skipped."
     (dolist (tab (frame-parameter frame 'tabs))
       (funcall fn frame tab))))
 
-(defun tab-bar-mark--set-where (type state test)
+(defun tab-bar-mark--set-if (type state test)
   "Set TYPE's mark to STATE on every tab TEST returns non-nil for.
 TEST is called with the frame and the tab.  Return the number of tabs
 whose marks changed, or nil if none did."
@@ -130,8 +130,8 @@ whose marks changed, or nil if none did."
                      (mapcar (lambda (entry) (length (symbol-name (car entry))))
                              tab-bar-mark-type-alist)))))
     (concat (make-string (max 1 (- width (length candidate))) ?\s)
-            (tab-bar-mark-string (list type))
-            (and (plist-get (tab-bar-mark--type type) :persistent)
+            (tab-bar-mark--format-type type)
+            (and (plist-get (tab-bar-mark--type-properties type) :persistent)
                  (propertize "   persistent" 'face 'completions-annotations)))))
 
 ;;;###autoload
@@ -169,8 +169,9 @@ TYPE defaults to `:warning'.  PREDICATE is called with the tab, which is
 valid only during the call.  Unless TYPE is persistent, tabs in view are
 skipped.  Return the number of changed tabs, or nil if none changed."
   (let* ((type (or type :warning))
-         (persistent (plist-get (tab-bar-mark--type type) :persistent)))
-    (tab-bar-mark--set-where
+         (persistent (plist-get (tab-bar-mark--type-properties type)
+                                :persistent)))
+    (tab-bar-mark--set-if
      type t (lambda (frame tab)
               (and (funcall predicate tab)
                    (or persistent
@@ -181,7 +182,7 @@ skipped.  Return the number of changed tabs, or nil if none changed."
   "Remove TYPE's mark from every tab of every frame that satisfies PREDICATE.
 TYPE defaults to `:warning'; t removes all marks.  Return the number of
 changed tabs, or nil if none changed."
-  (tab-bar-mark--set-where (or type :warning) nil
+  (tab-bar-mark--set-if (or type :warning) nil
                            (lambda (_frame tab) (funcall predicate tab))))
 
 (defun tab-bar-mark--clear-on-view (&rest _)
@@ -199,7 +200,7 @@ that the focused frame is the selected one."
     ;; Via `tab-bar-mark-unset-if', and only for marks that are set, so
     ;; advice on it runs only when a mark is removed.
     (dolist (type types)
-      (unless (plist-get (tab-bar-mark--type type) :persistent)
+      (unless (plist-get (tab-bar-mark--type-properties type) :persistent)
         (tab-bar-mark-unset-if (lambda (tab) (memq tab seen)) type)))))
 
 ;;;###autoload
@@ -220,20 +221,14 @@ Manages mark removal only; to display marks, add
   (force-mode-line-update t))
 
 ;;;###autoload
-(defun tab-bar-mark-group-p (group)
-  "Return the mark types of GROUP's tabs, in drawing order.
-Return nil if `tab-bar-mark-mode' is off, like the other display
-helpers, so group label formatters can call it unconditionally."
+(defun tab-bar-mark-group-tabs (group)
+  "Return the marked tabs of GROUP, or nil if `tab-bar-mark-mode' is off."
   (and tab-bar-mark-mode
        group
        ;; Only marked tabs: computing a tab's group calls a function.
-       (tab-bar-mark--sort
-        (seq-uniq
-         (seq-mapcat (lambda (tab)
-                       (and (equal (funcall tab-bar-tab-group-function tab)
-                                   group)
-                            (tab-bar-mark-p tab)))
-                     (tab-bar-mark-marked-tabs))))))
+       (seq-filter (lambda (tab)
+                     (equal (funcall tab-bar-tab-group-function tab) group))
+                   (tab-bar-mark-marked-tabs))))
 
 (defun tab-bar-mark--sort (types)
   "Return TYPES sorted by `tab-bar-mark-type-alist', unknown types last."
@@ -241,25 +236,57 @@ helpers, so group label formatters can call it unconditionally."
     (seq-sort-by (lambda (type) (or (seq-position order type) (length order)))
                  #'< types)))
 
-;;;###autoload
-(defun tab-bar-mark-string (types &optional face)
-  "Return the symbols of mark TYPES, concatenated in drawing order.
-FACE, if non-nil, is added under each symbol's own face."
-  (mapconcat (lambda (type)
-               (let ((spec (tab-bar-mark--type type)))
-                 (propertize (plist-get spec :symbol)
-                             'face (if face
-                                       (list (plist-get spec :face) face)
-                                     (plist-get spec :face)))))
-             (tab-bar-mark--sort types)
-             ""))
+(defun tab-bar-mark--format-type (type &optional count)
+  "Return TYPE's mark symbol, with COUNT as a superscript if non-nil."
+  (let ((spec (tab-bar-mark--type-properties type)))
+    (apply #'propertize
+           (concat (plist-get spec :symbol)
+                   (and count (tab-bar-mark--superscript count)))
+           'face (plist-get spec :face)
+           (and count
+                (list 'help-echo
+                      (format "%s: %d"
+                              (string-trim-left (symbol-name type) ":")
+                              count))))))
 
 ;;;###autoload
 (defun tab-bar-mark-marked-tabs (&optional frame)
   "Return FRAME's tabs that have a mark."
   (seq-filter #'tab-bar-mark-p (funcall tab-bar-tabs-function frame)))
 
-(defun tab-bar-mark--switch-names ()
+;;;###autoload
+(defun tab-bar-mark-summary (tabs &optional face)
+  "Return each mark type of TABS with its count, as Flymake's counters.
+Empty if `tab-bar-mark-mode' is off.  FACE is added under the whole string."
+  (if (not tab-bar-mark-mode)
+      ""
+    (let (counts)
+      (dolist (tab tabs)
+        (dolist (type (tab-bar-mark-p tab))
+          (setf (alist-get type counts) (1+ (alist-get type counts 0)))))
+      (let ((summary (mapconcat (lambda (type)
+                                  (tab-bar-mark--format-type
+                                   type (alist-get type counts)))
+                                (tab-bar-mark--sort (mapcar #'car counts))
+                                " ")))
+        (when face
+          (add-face-text-property 0 (length summary) face t summary))
+        summary))))
+
+(defun tab-bar-mark--superscript (n)
+  "Return natural number N as a superscript digit, \"⁹⁺\" above 9."
+  (if (> n 9)
+      "⁹⁺"
+    (string (aref "⁰¹²³⁴⁵⁶⁷⁸⁹" n))))
+
+;;;###autoload
+(defun tab-bar-mark-format-summary ()
+  "Produce the mark summary.  An item for `tab-bar-format'."
+  `((tab-bar-mark-summary menu-item
+                          ,(tab-bar-mark-summary (tab-bar-mark-marked-tabs))
+                          ignore)))
+
+(defun tab-bar-mark--marked-tab-names ()
   "Return the names of marked tabs, most recently visited first.
 `tab-bar--tabs-recent' is not called with an empty list: it treats nil
 as \"all tabs of the frame\"."
@@ -275,7 +302,7 @@ the marked tabs, most recent first, available via
 \<minibuffer-local-map>\[next-history-element].  Selecting the tab
 removes its non-persistent marks."
   (interactive
-   (let ((names (tab-bar-mark--switch-names)))
+   (let ((names (tab-bar-mark--marked-tab-names)))
      (unless names (user-error "No marked tabs"))
      (list (completing-read
             (format-prompt "Switch to marked tab" (car names))
@@ -293,7 +320,9 @@ No-op if `tab-bar-mark-mode' is off.  In
 symbols, and before the hint and face formatters, so the hint precedes
 the name and the tab face covers the symbols."
   (if-let* ((types (and tab-bar-mark-mode (tab-bar-mark-p tab))))
-      (concat name " " (tab-bar-mark-string types))
+      (concat name " "
+              (mapconcat #'tab-bar-mark--format-type
+                         (tab-bar-mark--sort types) ""))
     name))
 
 (provide 'tab-bar-mark)
