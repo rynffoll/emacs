@@ -368,9 +368,9 @@
   ;; Invisible lines indicator (ellipsis): ... -> …
   (set-display-table-slot standard-display-table
                           'selective-display (vector (make-glyph-code ?… 'shadow)))
-  ;; Page delimiter (form feed): ^L -> ─, `whitespace-line-column' wide.
+  ;; Page delimiter (form feed): ^L -> ───
   (aset standard-display-table
-        ?\f (make-vector 80 (make-glyph-code ?─ 'shadow)))
+        ?\f (make-vector (default-value 'fill-column) (make-glyph-code ?─ 'shadow)))
   :hook
   (after-init-hook . prettify-special-glyphs-mode))
 
