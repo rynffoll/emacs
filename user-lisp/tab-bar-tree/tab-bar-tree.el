@@ -371,7 +371,7 @@ parameters, and `quit-restore-window' may un-dedicate it."
   (when-let* ((window (display-buffer-in-side-window
                        buffer
                        `((side . ,tab-bar-tree-side)
-                         (slot . 0)
+                         (slot . -100)
                          (window-width . ,tab-bar-tree-width)
                          ;; `side', not t: `quit-restore-window' deletes
                          ;; a window dedicated with t outright.
