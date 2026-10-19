@@ -212,10 +212,13 @@ Shows `debug-on-error' and `debug-on-quit' when enabled.")
 
 
 (defun modeline-x-reset ()
-  "Reset `mode-line-format' in all buffers to the current default."
+  "Reset `mode-line-format' in all buffers to the current default.
+A buffer hiding its mode line, e.g. by `mode-line-invisible-mode', keeps
+it hidden."
   (dolist (buf (buffer-list))
     (with-current-buffer buf
-      (kill-local-variable 'mode-line-format))))
+      (when mode-line-format
+        (kill-local-variable 'mode-line-format)))))
 
 
 (dolist (construct '(modeline-x-flymake
