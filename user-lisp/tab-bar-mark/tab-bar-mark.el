@@ -322,7 +322,7 @@ the name and the tab face covers the symbols."
   (if-let* ((types (and tab-bar-mark-mode (tab-bar-mark-p tab))))
       (concat name " "
               (mapconcat #'tab-bar-mark--format-type
-                         (tab-bar-mark--sort types) ""))
+                         (tab-bar-mark--sort types) " "))
     name))
 
 (provide 'tab-bar-mark)
