@@ -170,14 +170,13 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
   "Mode line misc info, shown only for the selected window.")
 
 
-(declare-function flymake-diagnostics "flymake" (&optional beg end))
-
 (defvar-local modeline-x-flymake
   '(:eval
     (when (and (mode-line-window-selected-p)
-               (flymake-diagnostics))
+               (seq-some #'flymake--mode-line-counter
+                         '(:error :warning :note)))
       flymake-mode-line-counters))
-  "Flymake counters, shown only when diagnostics are present.")
+  "Flymake counters, hidden when all are suppressed as zero.")
 
 
 (defun modeline-x--debug-icon (face help toggle)
