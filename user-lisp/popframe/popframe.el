@@ -192,6 +192,17 @@ instead of falling back to `frame-auto-hide-function' (whose default
   (when (popframe--live-child-frame)
     (popframe--hide)))
 
+(defun popframe--hide-on-leave (&rest _)
+  "Hide the visible child frame once a window outside it is selected.
+On `window-selection-change-functions'.  The minibuffer window, which is
+the parent frame's, does not count."
+  (when-let* ((child-frame (popframe--live-child-frame)))
+    (unless (or (not (frame-visible-p child-frame))
+                (eq (selected-frame) child-frame)
+                (window-minibuffer-p))
+      ;; No focus change: the user already moved it.
+      (make-frame-invisible child-frame))))
+
 (defun popframe--restore-parent-focus (deleted-frame)
   "Focus the popframe's parent frame when DELETED-FRAME is the child frame.
 Added to `delete-frame-functions' by `popframe--create'; removes itself
@@ -284,6 +295,7 @@ while CHILD-FRAME was hidden."
     (set-window-parameter (frame-root-window child-frame)
                           'split-window #'popframe--refuse-split)
     (add-hook 'delete-frame-functions #'popframe--restore-parent-focus)
+    (add-hook 'window-selection-change-functions #'popframe--hide-on-leave)
     (popframe--reveal child-frame buffer parameters)))
 
 (defun popframe--delete-stale-child-frame (child-frame parent-frame)
