@@ -76,6 +76,9 @@
   - [[#frame][frame]]
   - [[#fringe][fringe]]
   - [[#popframe][popframe]]
+  - [[#popframe-project][popframe-project]]
+  - [[#popframe-tab-line][popframe-tab-line]]
+  - [[#popframe-magit][popframe-magit]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
   - [[#project-tab-groups][project-tab-groups]]
@@ -661,6 +664,8 @@ If you'd like to test a different font, evaluate the following block:
     "g."  'magit-dispatch
     "gf"  'magit-file-dispatch
     "gg"  'magit-status
+    "g'"  'popframe-magit-status
+    "g SPC" 'popframe-magit-status
     "gL"  'git-link-dispatch
     "gt"  'git-timemachine
 
@@ -1205,6 +1210,30 @@ If you'd like to test a different font, evaluate the following block:
   (setq popframe-default-buffer #'+popframe-ghostel))
 #+end_src
 
+** popframe-project
+#+begin_src emacs-lisp
+(use-package popframe-project
+  :ensure nil
+  :init
+  (setq popframe-pin-key-function #'popframe-project-pin-key))
+#+end_src
+
+** popframe-tab-line
+#+begin_src emacs-lisp
+(use-package popframe-tab-line
+  :ensure nil
+  :init
+  (setq popframe-tabs-display-function #'popframe-tab-line-display))
+#+end_src
+
+** popframe-magit
+#+begin_src emacs-lisp
+(use-package popframe-magit
+  :ensure nil
+  :hook
+  (magit-mode-hook . popframe-magit-setup))
+#+end_src
+
 * Tabs
 ** tab-bar
 #+begin_src emacs-lisp
@@ -1415,6 +1444,7 @@ The strut makes the header as tall as the tab bar row it stands in for."
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button)
   :general
   (tab-prefix-map
+   "'" '+tab-bar-tree-popframe
    "SPC" '+tab-bar-tree-popframe)
   ( :keymaps 'tab-bar-tree-mode-map :states 'normal
     "RET" 'tab-bar-tree-select

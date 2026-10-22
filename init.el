@@ -214,6 +214,8 @@
     "g."  'magit-dispatch
     "gf"  'magit-file-dispatch
     "gg"  'magit-status
+    "g'"  'popframe-magit-status
+    "g SPC" 'popframe-magit-status
     "gL"  'git-link-dispatch
     "gt"  'git-timemachine
 
@@ -639,6 +641,21 @@
   :init
   (setq popframe-default-buffer #'+popframe-ghostel))
 
+(use-package popframe-project
+  :ensure nil
+  :init
+  (setq popframe-pin-key-function #'popframe-project-pin-key))
+
+(use-package popframe-tab-line
+  :ensure nil
+  :init
+  (setq popframe-tabs-display-function #'popframe-tab-line-display))
+
+(use-package popframe-magit
+  :ensure nil
+  :hook
+  (magit-mode-hook . popframe-magit-setup))
+
 (use-package tab-bar
   :ensure nil
   :general
@@ -828,6 +845,7 @@ The strut makes the header as tall as the tab bar row it stands in for."
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button)
   :general
   (tab-prefix-map
+   "'" '+tab-bar-tree-popframe
    "SPC" '+tab-bar-tree-popframe)
   ( :keymaps 'tab-bar-tree-mode-map :states 'normal
     "RET" 'tab-bar-tree-select
