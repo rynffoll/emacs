@@ -1518,6 +1518,17 @@ The strut makes the header as tall as the tab bar row it stands in for."
 (use-package window
   :ensure nil
   :init
+  ;; Left and right side windows occupy full frame height:
+  ;;
+  ;;   nil (default)           t
+  ;;   ┌──────────────────┐    ┌────┬─────────┬────┐
+  ;;   │       top        │    │    │   top   │    │
+  ;;   ├────┬────────┬────┤    │    ├─────────┤    │
+  ;;   │left│  main  │rght│    │left│  main   │rght│
+  ;;   ├────┴────────┴────┤    │    ├─────────┤    │
+  ;;   │      bottom      │    │    │ bottom  │    │
+  ;;   └──────────────────┘    └────┴─────────┴────┘
+  (setq window-sides-vertical t)
   (setq display-buffer-alist
         '(((or (derived-mode . help-mode)
                (derived-mode . helpful-mode)
