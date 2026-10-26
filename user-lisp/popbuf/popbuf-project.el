@@ -1,11 +1,11 @@
-;;; popside-project.el --- Per-project popside tabs -*- lexical-binding: t; -*-
+;;; popbuf-project.el --- Per-project popbuf tabs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2026  Ruslan Kamashev
 
 ;; Author: Ruslan Kamashev
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "30.1"))
-;; Keywords: convenience, windows
+;; Keywords: convenience, frames, windows
 ;; URL: https://github.com/rynffoll/emacs
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -23,9 +23,9 @@
 
 ;;; Commentary:
 
-;; Group popside tabs by project:
+;; Group popbuf tabs by project:
 ;;
-;;   (setq popside-key-function #'popside-project-key)
+;;   (setq popbuf-key-function #'popbuf-project-key)
 
 ;;; Code:
 
@@ -33,11 +33,11 @@
 
 
 ;;;###autoload
-(defun popside-project-key ()
+(defun popbuf-project-key ()
   "Return the current project's root, or nil outside a project.
-For `popside-key-function'."
+For `popbuf-key-function'."
   (when-let* ((project (project-current)))
     (project-root project)))
 
-(provide 'popside-project)
-;;; popside-project.el ends here
+(provide 'popbuf-project)
+;;; popbuf-project.el ends here

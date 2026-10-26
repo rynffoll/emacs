@@ -214,8 +214,8 @@
     "g."  'magit-dispatch
     "gf"  'magit-file-dispatch
     "gg"  'magit-status
-    "g'"  'popframe-magit-status
-    "g SPC" 'popframe-magit-status
+    "g'"  'popbuf-frame-magit-status
+    "g SPC" 'popbuf-frame-magit-status
     "gL"  'git-link-dispatch
     "gt"  'git-timemachine
 
@@ -627,49 +627,6 @@
         ;; '(left-curly-arrow right-curly-arrow) ;; default
         ))
 
-(use-package popframe
-  :ensure nil
-  :demand t
-  :preface
-  (defun +popframe-ghostel ()
-    (interactive)
-    (if (project-current)
-        (ghostel-project)
-      (ghostel)))
-  :general
-  ("C-`" 'popframe
-   "C-~" 'popframe-pin)
-  :init
-  (setq popframe-default-buffer #'+popframe-ghostel))
-
-(use-package popframe-project
-  :ensure nil
-  :init
-  (setq popframe-pin-key-function #'popframe-project-pin-key))
-
-(use-package popframe-tab-line
-  :ensure nil
-  :init
-  (setq popframe-tabs-display-function #'popframe-tab-line-display))
-
-(use-package popframe-magit
-  :ensure nil
-  :hook
-  (magit-mode-hook . popframe-magit-setup))
-
-(use-package popside
-  :ensure nil
-  :general
-  ("M-`" 'popside
-   "M-~" 'popside-pin)
-  :init
-  (setq popside-default-buffer #'+popframe-ghostel))
-
-(use-package popside-project
-  :ensure nil
-  :init
-  (setq popside-key-function #'popside-project-key))
-
 (use-package tab-bar
   :ensure nil
   :general
@@ -837,10 +794,10 @@ worktrees of one project sit together under its own name."
                 evil-emacs-state-cursor  '(nil)))
   (defun +tab-bar-tree-custom-face ()
     (face-remap-add-relative 'default :height 0.9))
-  (defun +tab-bar-tree-popframe ()
-    "Toggle the tab tree in a `popframe'."
+  (defun +tab-bar-tree-popbuf ()
+    "Toggle the tab tree in a `popbuf-frame'."
     (interactive)
-    (popframe #'tab-bar-tree-render '((width . 48))))
+    (popbuf-frame #'tab-bar-tree-render '((width . 48))))
   (defun +tab-bar-tree-icon ()
     "Return the tree toggle icon."
     (require 'nerd-icons)
@@ -859,8 +816,8 @@ The strut makes the header as tall as the tab bar row it stands in for."
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button)
   :general
   (tab-prefix-map
-   "'" '+tab-bar-tree-popframe
-   "SPC" '+tab-bar-tree-popframe)
+   "'" '+tab-bar-tree-popbuf
+   "SPC" '+tab-bar-tree-popbuf)
   ( :keymaps 'tab-bar-tree-mode-map :states 'normal
     "RET" 'tab-bar-tree-select
     "TAB" 'tab-bar-tree-select
@@ -937,11 +894,47 @@ The strut makes the header as tall as the tab bar row it stands in for."
                "\\`\\*wclock\\*\\'"
                "\\`\\*compilation\\*\\'"
                "\\`\\* docker")
-           (popside-display-buffer))))
+           (popbuf-side-display-buffer))))
   :general
   (evil-window-map
    "m" 'maximize-window
    "M" 'minimize-window))
+
+(use-package popbuf
+  :ensure nil
+  :preface
+  (defun +popbuf-ghostel ()
+    (interactive)
+    (if (project-current)
+        (ghostel-project)
+      (ghostel))))
+
+(use-package popbuf-project
+  :ensure nil
+  :init
+  (setq popbuf-key-function #'popbuf-project-key))
+
+(use-package popbuf-frame
+  :ensure nil
+  :demand t
+  :general
+  ("C-`" 'popbuf-frame
+   "C-~" 'popbuf-frame-pin)
+  :init
+  (setq popbuf-frame-default-buffer #'+popbuf-ghostel))
+
+(use-package popbuf-frame-magit
+  :ensure nil
+  :hook
+  (magit-mode-hook . popbuf-frame-magit-setup))
+
+(use-package popbuf-side
+  :ensure nil
+  :general
+  ("M-`" 'popbuf-side
+   "M-~" 'popbuf-side-pin)
+  :init
+  (setq popbuf-side-default-buffer #'+popbuf-ghostel))
 
 (use-package winum
   :init
@@ -1728,7 +1721,7 @@ The strut makes the header as tall as the tab bar row it stands in for."
   (setq ghostel-macos-login-shell nil)
   (setq ghostel-notification-function #'+ghostel-notify)
   :config
-  ;; `popside', not the terminal; `setopt' rebuilds the keymap.
+  ;; `popbuf-side', not the terminal; `setopt' rebuilds the keymap.
   (setopt ghostel-keymap-exceptions
           (append '("M-`" "M-~") ghostel-keymap-exceptions))
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)

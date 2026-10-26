@@ -1,4 +1,4 @@
-;;; popframe-magit.el --- Magit in a popframe -*- lexical-binding: t; -*-
+;;; popbuf-frame-magit.el --- Magit in a popbuf-frame -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2026  Ruslan Kamashev
 
@@ -23,44 +23,44 @@
 
 ;;; Commentary:
 
-;; Toggle the Magit status in a popframe:
+;; Toggle the Magit status in a popbuf-frame:
 ;;
-;;   (add-hook 'magit-mode-hook #'popframe-magit-setup)
-;;   (keymap-global-set "C-c g" #'popframe-magit-status)
+;;   (add-hook 'magit-mode-hook #'popbuf-frame-magit-setup)
+;;   (keymap-global-set "C-c g" #'popbuf-frame-magit-status)
 ;;
-;; A Magit buffer in a popframe, however shown there, displays the buffers
-;; it opens in the popframe too, and quitting a status buffer hides the
-;; popframe.  Elsewhere, `magit-display-buffer-function' and
+;; A Magit buffer in a popbuf-frame, however shown there, displays the buffers
+;; it opens in the popbuf-frame too, and quitting a status buffer hides the
+;; popbuf-frame.  Elsewhere, `magit-display-buffer-function' and
 ;; `magit-bury-buffer-function' apply as usual.
 
 ;;; Code:
 
 (require 'magit)
-(require 'popframe)
+(require 'popbuf-frame)
 
 
-(defcustom popframe-magit-frame-parameters '((width . 0.7) (height . 0.8))
-  "Frame parameters of the popframe for `popframe-magit-status'.
-They override `popframe-frame-parameters'."
+(defcustom popbuf-frame-magit-frame-parameters '((width . 0.7) (height . 0.8))
+  "Frame parameters of the popbuf-frame for `popbuf-frame-magit-status'.
+They override `popbuf-frame-parameters'."
   :type '(alist :key-type symbol :value-type sexp)
-  :group 'popframe)
+  :group 'popbuf-frame)
 
 
-(defun popframe-magit--setup ()
-  "Make Magit display and bury buffers from the current one in a popframe.
+(defun popbuf-frame-magit--setup ()
+  "Make Magit display and bury buffers from the current one in a popbuf-frame.
 Buffer-local, so the global values stay in effect elsewhere."
-  (setq-local magit-display-buffer-function #'popframe-magit--display-buffer
-              magit-bury-buffer-function #'popframe-magit--bury-buffer))
+  (setq-local magit-display-buffer-function #'popbuf-frame-magit--display-buffer
+              magit-bury-buffer-function #'popbuf-frame-magit--bury-buffer))
 
-(defun popframe-magit--window-buffer-change (window)
-  "Set up the current buffer for the popframe when WINDOW shows it there.
+(defun popbuf-frame-magit--window-buffer-change (window)
+  "Set up the current buffer for the popbuf-frame when WINDOW shows it there.
 On the buffer-local `window-buffer-change-functions'."
   (when (and (eq (window-buffer window) (current-buffer))
              (frame-parent (window-frame window)))
-    (popframe-magit--setup)))
+    (popbuf-frame-magit--setup)))
 
-(defun popframe-magit--display-buffer (buffer)
-  "Show BUFFER in the popframe's window.
+(defun popbuf-frame-magit--display-buffer (buffer)
+  "Show BUFFER in the popbuf-frame's window.
 Elsewhere, call the default `magit-display-buffer-function'.
 For `magit-display-buffer-function'."
   (if (frame-parent)
@@ -70,33 +70,33 @@ For `magit-display-buffer-function'."
         (display-buffer buffer '(display-buffer-same-window)))
     (funcall (default-value 'magit-display-buffer-function) buffer)))
 
-(defun popframe-magit--bury-buffer (&optional kill-buffer)
-  "Hide the popframe from a status buffer.
+(defun popbuf-frame-magit--bury-buffer (&optional kill-buffer)
+  "Hide the popbuf-frame from a status buffer.
 Elsewhere, call the default `magit-bury-buffer-function' with
 KILL-BUFFER.  For `magit-bury-buffer-function'."
   (if (and (frame-parent) (derived-mode-p 'magit-status-mode))
-      (popframe-hide)
+      (popbuf-frame-hide)
     (funcall (default-value 'magit-bury-buffer-function) kill-buffer)))
 
 
 ;;;###autoload
-(defun popframe-magit-setup ()
-  "Make Magit use the popframe from the current buffer while it is there.
+(defun popbuf-frame-magit-setup ()
+  "Make Magit use the popbuf-frame from the current buffer while it is there.
 For `magit-mode-hook'."
   (add-hook 'window-buffer-change-functions
-            #'popframe-magit--window-buffer-change nil t))
+            #'popbuf-frame-magit--window-buffer-change nil t))
 
 ;;;###autoload
-(defun popframe-magit-status ()
-  "Toggle the current repository's Magit status in a popframe."
+(defun popbuf-frame-magit-status ()
+  "Toggle the current repository's Magit status in a popbuf-frame."
   (interactive)
   ;; An existing buffer is shown as is: no git calls when hiding it.
   (let ((buffer (magit-get-mode-buffer 'magit-status-mode)))
-    (when (and (popframe (or buffer #'magit-status-setup-buffer)
-                         popframe-magit-frame-parameters)
+    (when (and (popbuf-frame (or buffer #'magit-status-setup-buffer)
+                         popbuf-frame-magit-frame-parameters)
                buffer)
       (with-current-buffer buffer
         (magit-refresh-buffer)))))
 
-(provide 'popframe-magit)
-;;; popframe-magit.el ends here
+(provide 'popbuf-frame-magit)
+;;; popbuf-frame-magit.el ends here
