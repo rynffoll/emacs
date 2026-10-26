@@ -102,6 +102,14 @@ frame is centered.  `parent-frame', `minibuffer', `visibility' and
 `auto-hide-function' are reserved."
   :type '(alist :key-type symbol :value-type sexp))
 
+(defcustom popframe-mode-line-pin "■"
+  "Mode line marker of a buffer pinned by `popframe-pin'.
+See `popframe-mode-line-format'."
+  :type 'string)
+
+(defface popframe-mode-line '((t :inherit shadow))
+  "Face of `popframe-mode-line-pin' on the mode line.")
+
 (defvar-keymap popframe-tabs-map
   :doc "Keys of the child frame while it shows tabs, as `tab-line-mode''s."
   "<remap> <next-buffer>" '(menu-item "" popframe-switch-to-next-tab
@@ -124,13 +132,14 @@ frame is centered.  `parent-frame', `minibuffer', `visibility' and
 (defvar-local popframe--pin nil
   "Pin key this buffer is pinned to, or nil; see `popframe--pin-key'.")
 
-(defvar-local popframe--default nil
-  "Non-nil in the buffer pinned from `popframe-default-buffer'.")
+(defvar-local popframe--pinned nil
+  "Non-nil in a buffer pinned by `popframe-pin'.
+Not in the buffer pinned from `popframe-default-buffer'.")
 
 ;; A user's decision, not mode state: survive `kill-all-local-variables',
 ;; run on every mode re-run (e.g. `magit-status' on its open buffer).
 (put 'popframe--pin 'permanent-local t)
-(put 'popframe--default 'permanent-local t)
+(put 'popframe--pinned 'permanent-local t)
 
 (defun popframe--pin-key ()
   "Return the current buffer's pin key; see `popframe-pin-key-function'."
@@ -143,7 +152,7 @@ KEY is a pin key; see `popframe--pin-key'."
                       (equal key (buffer-local-value 'popframe--pin buffer)))
                     (buffer-list))
         :key (lambda (buffer)
-               (list (if (buffer-local-value 'popframe--default buffer) 0 1)
+               (list (if (buffer-local-value 'popframe--pinned buffer) 1 0)
                      (buffer-name buffer)))))
 
 (defun popframe--shown-buffer ()
@@ -161,12 +170,11 @@ first if missing, e.g. after it was killed."
     ;; Pin the default unless a visible tab is toggled off or it is pinned.
     (unless (or (and (memq shown pinned) (popframe--showing-p shown))
                 (and pinned
-                     (buffer-local-value 'popframe--default (car pinned))))
+                     (not (buffer-local-value 'popframe--pinned (car pinned)))))
       (when-let* ((buffer (and popframe-default-buffer
                                (popframe--resolve popframe-default-buffer))))
         (with-current-buffer buffer
-          (setq popframe--pin key
-                popframe--default t))
+          (setq popframe--pin key))
         (push buffer pinned)))
     (if (memq shown pinned) shown (car pinned))))
 
@@ -192,7 +200,7 @@ frame, and `popframe' shows a new one.  On `kill-buffer-hook'."
            (tabs (popframe-tabs))
            (pos (seq-position tabs buffer))
            (rest (remq buffer tabs)))
-      (when (and pos rest (not popframe--default)
+      (when (and pos rest popframe--pinned
                  (eq buffer (popframe--shown-buffer)))
         (popframe-switch-to-tab (nth (min pos (1- (length rest))) rest))))
     (kill-local-variable 'popframe--pin)
@@ -356,12 +364,6 @@ The key is set by `popframe' without a spec."
   (popframe--set-buffer (popframe--window) buffer))
 
 ;;;###autoload
-(defun popframe-pinned-p ()
-  "Return non-nil if the current buffer is pinned by `popframe-pin'.
-The automatically pinned default buffer does not count."
-  (and popframe--pin (not popframe--default)))
-
-;;;###autoload
 (defun popframe-pin ()
   "Pin the current buffer as a popframe tab of its pin key.
 See `popframe-pin-key-function'.  Called in a pinned buffer, unpin it,
@@ -373,13 +375,14 @@ are dropped with their buffer."
     (if popframe--pin
         (progn
           (kill-local-variable 'popframe--pin)
-          (kill-local-variable 'popframe--default)
+          (kill-local-variable 'popframe--pinned)
           (popframe--display-tabs)
           ;; Before the message: it goes to the parent frame's echo area.
           (when (popframe--showing-p (current-buffer))
             (popframe--hide))
           (message "popframe: unpinned buffer `%s'" name))
-      (setq popframe--pin (popframe--pin-key))
+      (setq popframe--pin (popframe--pin-key)
+            popframe--pinned t)
       (popframe--display-tabs)
       (message "popframe: pinned buffer `%s'" name))))
 
@@ -448,6 +451,19 @@ PARAMETERS override `popframe-frame-parameters' for this call."
   (when-let* ((child-frame (popframe--live-child-frame))
               ((frame-visible-p child-frame)))
     (popframe--hide)))
+
+(defvar popframe-mode-line-format '(:eval (popframe-mode-line-format))
+  "Mode line construct marking a buffer pinned by `popframe-pin'.
+Put it into `mode-line-format'.")
+(put 'popframe-mode-line-format 'risky-local-variable t)
+
+(defun popframe-mode-line-format ()
+  "Return `popframe-mode-line-pin' in a pinned buffer, else nil."
+  (when popframe--pinned
+    (concat " "
+            (propertize popframe-mode-line-pin
+                        'face 'popframe-mode-line
+                        'help-echo "popframe: pinned"))))
 
 (provide 'popframe)
 ;;; popframe.el ends here

@@ -463,7 +463,8 @@
   :init
   (setq-default mode-line-format
                 '("%e"
-                  modeline-x-popframe-pin
+                  popframe-mode-line-format
+                  popside-mode-line-format
                   " "
                   ;; (winum-mode modeline-x-winum)
                   (winum-mode modeline-x-winum-icon)

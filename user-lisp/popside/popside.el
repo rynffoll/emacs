@@ -71,6 +71,14 @@ tabs."
 The default slot is -1, not 0: transient menus use the bottom slot 0."
   :type '(alist :key-type symbol :value-type sexp))
 
+(defcustom popside-mode-line-pin "⬓"
+  "Mode line marker of a buffer pinned by `popside-pin'.
+See `popside-mode-line-format'."
+  :type 'string)
+
+(defface popside-mode-line '((t :inherit shadow))
+  "Face of `popside-mode-line-pin' on the mode line.")
+
 (defvar-keymap popside-tabs-map
   :doc "Keys of the panel's window, as `tab-line-mode''s."
   "<remap> <next-buffer>" '(menu-item "" popside-switch-to-next-tab
@@ -91,9 +99,9 @@ The default slot is -1, not 0: transient menus use the bottom slot 0."
   "Key of the context this buffer was last shown in the panel from.")
 (put 'popside--key 'permanent-local t)
 
-(defvar-local popside--pin nil
+(defvar-local popside--pinned nil
   "Non-nil in a buffer pinned by `popside-pin'.")
-(put 'popside--pin 'permanent-local t)
+(put 'popside--pinned 'permanent-local t)
 
 (defun popside--current-key ()
   "Return the current buffer's panel key; see `popside-key-function'."
@@ -221,23 +229,18 @@ PARAMETERS override `popside-display-alist' for this call."
       buffer))))
 
 ;;;###autoload
-(defun popside-pinned-p ()
-  "Return non-nil if the current buffer is pinned by `popside-pin'."
-  popside--pin)
-
-;;;###autoload
 (defun popside-pin ()
   "Pin the current buffer as a panel tab under its key.
 Called in a pinned buffer, unpin it and drop it from the tabs; if the
 panel shows it, show a neighbor tab, or hide the panel without one."
   (interactive)
   (let ((buffer (current-buffer)))
-    (if popside--pin
+    (if popside--pinned
         (let* ((window (popside--window))
                (tabs (popside--tabs))
                (pos (seq-position tabs buffer))
                (rest (remq buffer tabs)))
-          (setq popside--pin nil
+          (setq popside--pinned nil
                 popside--key nil)
           (when (and pos window (eq buffer (window-buffer window)))
             (if rest
@@ -246,7 +249,7 @@ panel shows it, show a neighbor tab, or hide the panel without one."
               (popside-hide)))
           (popside--update-tab-line)
           (message "popside: unpinned buffer `%s'" (buffer-name buffer)))
-      (setq popside--pin t
+      (setq popside--pinned t
             popside--key (popside--current-key))
       (unless (memq buffer popside--buffers)
         (setq popside--buffers (append popside--buffers (list buffer))))
@@ -275,6 +278,19 @@ panel shows it, show a neighbor tab, or hide the panel without one."
   (interactive)
   (when-let* ((window (popside--window)))
     (delete-window window)))
+
+(defvar popside-mode-line-format '(:eval (popside-mode-line-format))
+  "Mode line construct marking a buffer pinned by `popside-pin'.
+Put it into `mode-line-format'.")
+(put 'popside-mode-line-format 'risky-local-variable t)
+
+(defun popside-mode-line-format ()
+  "Return `popside-mode-line-pin' in a pinned buffer, else nil."
+  (when popside--pinned
+    (concat " "
+            (propertize popside-mode-line-pin
+                        'face 'popside-mode-line
+                        'help-echo "popside: pinned"))))
 
 (provide 'popside)
 ;;; popside.el ends here

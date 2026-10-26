@@ -200,17 +200,6 @@ Clicking it with mouse-1 runs the TOGGLE command."
 Shows `debug-on-error' and `debug-on-quit' when enabled.")
 
 
-(declare-function popframe-pinned-p "popframe" ())
-
-(defvar-local modeline-x-popframe-pin
-  '(:eval
-    (when (popframe-pinned-p)
-      (if (mode-line-window-selected-p)
-          (nerd-icons-mdicon "nf-md-pin" :v-adjust 0.1 :face 'nerd-icons-red)
-        (nerd-icons-mdicon "nf-md-pin_outline" :v-adjust 0.1 :face 'shadow))))
-  "Pin marker for a buffer pinned into the popframe by `popframe-pin'.")
-
-
 (defun modeline-x-reset ()
   "Reset `mode-line-format' in all buffers to the current default.
 A buffer hiding its mode line, e.g. by `mode-line-invisible-mode', keeps
@@ -231,8 +220,7 @@ it hidden."
                      modeline-x-winum
                      modeline-x-winum-icon
                      modeline-x-evil-state-tag
-                     modeline-x-evil-state-icon
-                     modeline-x-popframe-pin))
+                     modeline-x-evil-state-icon))
   (put construct 'risky-local-variable t))
 
 
