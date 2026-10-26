@@ -129,6 +129,13 @@ Read when the mode is enabled."
   "p"       #'previous-line
   "g"       #'tab-bar-tree-refresh)
 
+(defun tab-bar-tree--leave-window ()
+  "Select the most recently used window other than the tree window.
+`get-mru-window' skips the tree window: it is dedicated,
+`no-other-window' and selected."
+  (when-let* ((other (get-mru-window nil nil t t)))
+    (select-window other)))
+
 (defun tab-bar-tree-select (&optional event)
   "Select the tab on the current line, or toggle the group on it.
 EVENT is the mouse event, if any."
@@ -149,11 +156,9 @@ EVENT is the mouse event, if any."
         (select-frame-set-input-focus frame)))
      ;; Leave the tree window before selecting a tab, so it is not saved
      ;; as the selected window of the old tab.  Toggling a group from the
-     ;; keyboard keeps focus.  `get-mru-window' skips the tree window: it
-     ;; is dedicated, `no-other-window' and selected.
+     ;; keyboard keeps focus.
      ((and (eq window (selected-window)) (or position tab-p))
-      (when-let* ((other (get-mru-window nil nil t t)))
-        (select-window other))))
+      (tab-bar-tree--leave-window)))
     (with-selected-frame frame
       (pcase line
         (`(tab . ,i) (tab-bar-select-tab i))
@@ -529,6 +534,10 @@ The tab bar is hidden while the mode is on."
       (setq window-persistent-parameters
             (assq-delete-all parameter window-persistent-parameters)))
     (setq tab-bar-tree--persistent-parameters nil)
+    ;; Advice on `kill-buffer', e.g. otpp's, may only bury the current
+    ;; buffer.
+    (when (derived-mode-p 'tab-bar-tree-mode)
+      (tab-bar-tree--leave-window))
     ;; Other tabs drop the window on selection:
     ;; `tab-bar-tree--restore-windows'.
     (mapc #'kill-buffer (tab-bar-tree--buffers))
