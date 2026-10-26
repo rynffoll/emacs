@@ -656,6 +656,19 @@
   :hook
   (magit-mode-hook . popframe-magit-setup))
 
+(use-package popside
+  :ensure nil
+  :general
+  ("M-`" 'popside
+   "M-~" 'popside-pin)
+  :init
+  (setq popside-default-buffer #'+popframe-ghostel))
+
+(use-package popside-project
+  :ensure nil
+  :init
+  (setq popside-key-function #'popside-project-key))
+
 (use-package tab-bar
   :ensure nil
   :general
@@ -923,8 +936,7 @@ The strut makes the header as tall as the tab bar row it stands in for."
                "\\`\\*wclock\\*\\'"
                "\\`\\*compilation\\*\\'"
                "\\`\\* docker")
-           (display-buffer-reuse-window display-buffer-at-bottom)
-           (window-height . 0.4))))
+           (popside-display-buffer))))
   :general
   (evil-window-map
    "m" 'maximize-window
@@ -1715,6 +1727,9 @@ The strut makes the header as tall as the tab bar row it stands in for."
   (setq ghostel-macos-login-shell nil)
   (setq ghostel-notification-function #'+ghostel-notify)
   :config
+  ;; `popside', not the terminal; `setopt' rebuilds the keymap.
+  (setopt ghostel-keymap-exceptions
+          (append '("M-`" "M-~") ghostel-keymap-exceptions))
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
   (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer))
