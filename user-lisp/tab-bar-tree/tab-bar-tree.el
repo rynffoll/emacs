@@ -44,21 +44,32 @@ e.g. \\[tab-bar-tree-refresh]."
   :type 'boolean
   :group 'tab-bar-tree)
 
-(defcustom tab-bar-tree-header-left-function #'tab-bar-tree-header-group
-  "Function of the current tab returning the header's left part.
-The result is cut to fit the window."
-  :type 'function
-  :group 'tab-bar-tree)
-
-(defcustom tab-bar-tree-header-right-function #'ignore
-  "Function of the current tab returning the header's right part.
-The part is flush right; nil means none."
-  :type 'function
+(defcustom tab-bar-tree-format '(tab-bar-tree-format-button
+                                 tab-bar-separator
+                                 tab-bar-tree-format-group
+                                 tab-bar-format-align-right
+                                 tab-bar-format-global)
+  "Template for displaying the tree's header line items.
+As `tab-bar-format': every item in the list is a function that returns
+a string, or a list of menu-item elements, or nil.  Functions are called
+in the buffer of the frame's selected window.  Items after
+`tab-bar-format-align-right' are aligned to the right.  The header line
+is rebuilt on a render and by `tab-bar-tree-update-header-line'."
+  :type 'hook
+  :options '(tab-bar-tree-format-button
+             tab-bar-tree-format-group
+             tab-bar-separator
+             tab-bar-format-align-right
+             tab-bar-format-global)
+  :initialize #'custom-initialize-default
+  :set (lambda (sym val)
+         (set-default sym val)
+         (tab-bar-tree-update-header-line))
   :group 'tab-bar-tree)
 
 (defcustom tab-bar-tree-button "≡"
   "Label of the mode toggle button.
-Shown by `tab-bar-tree-format-button' and `tab-bar-tree-header-button'."
+Shown by `tab-bar-tree-format-button'."
   :type 'string
   :group 'tab-bar-tree)
 
@@ -236,43 +247,83 @@ Also for display outside the side window, e.g. in a child frame."
           (set-window-start window (tab-bar-tree--goto-line start) t)
           (set-window-point window (tab-bar-tree--goto-line point)))
         (tab-bar-tree--goto-line line))
-      ;; Spaces: a leading one, a gap before RIGHT and a trailing one.
-      (let* ((right (tab-bar-tree--header-face
-                     (concat " " (funcall tab-bar-tree-header-right-function tab)
-                             " ")))
-             (left (tab-bar-tree--header-face
-                    (concat " " (funcall tab-bar-tree-header-left-function tab))))
-             (right-width (string-pixel-width right buf))
-             ;; Header text area: the pinned window minus the fringe
-             ;; and the divider.
-             (right-edge (- (tab-bar-tree--pixel-width) left-fringe-width
-                            (frame-right-divider-width)
-                            right-width)))
-        ;; Overflowing LEFT would push RIGHT off the window.
-        (when (> (string-pixel-width left buf) right-edge)
-          (setq left (truncate-string-pixelwise
-                      left right-edge buf (truncate-string-ellipsis))))
-        ;; The header line is a mode line construct: `%' is escaped.
-        (setq header-line-format
-              (list (string-replace "%" "%%" left)
-                    ;; Not `mode-line-format-right-align': it measures
-                    ;; what follows it in `mode-line-format' only.
-                    (propertize
-                     " " 'display
-                     ;; `right': any window width; broken on a terminal
-                     ;; beside another window (bug#59620).
-                     `(space :align-to ,(if (display-graphic-p)
-                                            `(- right (,right-width))
-                                          `(,right-edge))))
-                    (string-replace "%" "%%" right))))
+      (tab-bar-tree--set-header-line)
       (tab-bar-tree--remap-faces))
     buf))
 
-(defun tab-bar-tree-header-group (tab)
-  "Return TAB's group as \"group:NAME\", or \"group:none\" if it has none."
+(defun tab-bar-tree--format-items (items)
+  "Return ITEMS of `tab-bar-tree-format' as one string.
+Functions are called in the buffer of the frame's selected window, or,
+from the minibuffer, of the window it was entered from."
+  (let ((window (frame-selected-window)))
+    (when (window-minibuffer-p window)
+      (setq window (or (minibuffer-selected-window) window)))
+    (with-current-buffer (window-buffer window)
+      (mapconcat (lambda (item)
+                   (let ((value (funcall item)))
+                     (if (stringp value)
+                         value
+                       (mapconcat #'tab-bar-tree--menu-item value))))
+                 items))))
+
+(defun tab-bar-tree--menu-item (item)
+  "Return the label of `tab-bar' menu ITEM, a button if it binds a command."
+  (pcase-let ((`(,_ menu-item ,label ,binding . ,props) item))
+    (if (and (commandp binding) (not (eq binding 'ignore)))
+        (propertize label
+                    'keymap (define-keymap
+                              ;; On press, as `tab-bar-mouse-down-1': the
+                              ;; layout shifts under the mouse.
+                              "<header-line> <down-mouse-1>" binding
+                              "<header-line> <mouse-1>" #'ignore)
+                    'help-echo (plist-get props :help))
+      label)))
+
+(defun tab-bar-tree--set-header-line ()
+  "Set the tree buffer's header line from `tab-bar-tree-format'."
+  (let* ((buf (current-buffer))
+         (align (memq 'tab-bar-format-align-right tab-bar-tree-format))
+         (right (tab-bar-tree--header-face
+                 (concat " " (tab-bar-tree--format-items (cdr align)) " ")))
+         (left (tab-bar-tree--header-face
+                (tab-bar-tree--format-items
+                 (take (- (length tab-bar-tree-format) (length align))
+                       tab-bar-tree-format))))
+         (right-width (string-pixel-width right buf))
+         ;; Header text area: the pinned window minus the fringe and the
+         ;; divider; on a terminal, no fringe and a one-column border.
+         (right-edge (- (tab-bar-tree--pixel-width)
+                        (if (display-graphic-p)
+                            (+ left-fringe-width (frame-right-divider-width))
+                          1)
+                        right-width)))
+    ;; Overflowing LEFT would push RIGHT off the window.
+    (when (> (string-pixel-width left buf) right-edge)
+      (setq left (truncate-string-pixelwise
+                  left right-edge buf (truncate-string-ellipsis))))
+    ;; A mode line construct: `%' is escaped.
+    (setq header-line-format
+          (list (string-replace "%" "%%" left)
+                ;; Not `mode-line-format-right-align': it measures what
+                ;; follows it in `mode-line-format' only.
+                (propertize
+                 " " 'display
+                 ;; `right': any window width; broken on a terminal
+                 ;; beside another window (bug#59620).
+                 `(space :align-to ,(if (display-graphic-p)
+                                        `(- right (,right-width))
+                                      `(,right-edge))))
+                (string-replace "%" "%%" right)))))
+
+(defun tab-bar-tree-format-group ()
+  "Return the current tab's group as \"group:NAME\", or \"group:none\".
+An item for `tab-bar-tree-format'."
   ;; As in `marginalia-annotate-tab'.
-  (propertize (format "group:%s" (or (funcall tab-bar-tab-group-function tab)
-                                     'none))
+  (propertize (format "group:%s"
+                      (or (funcall tab-bar-tab-group-function
+                                   (assq 'current-tab
+                                         (funcall tab-bar-tabs-function)))
+                          'none))
               'face 'shadow))
 
 (defun tab-bar-tree--header-face (string)
@@ -435,6 +486,16 @@ Return nil on a child, minibuffer-only, unsplittable or narrow frame."
     (kill-buffer buffer)))
 
 ;;;###autoload
+(defun tab-bar-tree-update-header-line (&rest _)
+  "Rebuild the selected frame's tree header line.
+For changes of `tab-bar-tree-format' items: a hook function or
+advice; arguments are ignored."
+  (when-let* ((buffer (get-buffer (tab-bar-tree--buffer-name))))
+    (with-current-buffer buffer
+      (tab-bar-tree--set-header-line)
+      (force-mode-line-update))))
+
+;;;###autoload
 (defun tab-bar-tree-refresh ()
   "Render the tree and show it."
   (interactive)
@@ -482,23 +543,9 @@ restored from `ws' no parameters."
 ;;;###autoload
 (defun tab-bar-tree-format-button ()
   "Produce the tab bar button toggling `global-tab-bar-tree-mode'.
-An item for `tab-bar-format'."
+An item for `tab-bar-format' and `tab-bar-tree-format'."
   `((tab-bar-tree menu-item ,(concat " " tab-bar-tree-button)
                   global-tab-bar-tree-mode :help "Toggle the tab tree")))
-
-(defvar-keymap tab-bar-tree--toggle-map
-  :doc "Keymap of `tab-bar-tree-header-button'."
-  ;; On press, as `tab-bar-tree-format-button': the layout shifts under
-  ;; the mouse, so the release lands on the other button.
-  "<header-line> <down-mouse-1>" #'global-tab-bar-tree-mode
-  "<header-line> <mouse-1>" #'ignore)
-
-(defun tab-bar-tree-header-button ()
-  "Return the header line button toggling `global-tab-bar-tree-mode'.
-For `tab-bar-tree-header-left-function'."
-  (propertize tab-bar-tree-button
-              'keymap tab-bar-tree--toggle-map
-              'help-echo "Toggle the tab tree"))
 
 ;;;###autoload
 (define-minor-mode global-tab-bar-tree-mode

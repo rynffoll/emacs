@@ -1230,7 +1230,6 @@ If you'd like to test a different font, evaluate the following block:
                          tab-bar-format-tabs-groups
                          tab-bar-indicator-separator
                          tab-bar-format-align-right
-                         tab-bar-mark-format-summary
                          tab-bar-format-global))
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
@@ -1304,6 +1303,9 @@ worktrees of one project sit together under its own name."
   (tab-prefix-map
    "!" 'tab-bar-mark-switch-to-tab
    "*" 'tab-bar-mark-toggle)
+  :config
+  (add-to-list 'global-mode-string
+               '(:eval (tab-bar-mark-summary (tab-bar-mark-marked-tabs))))
   :hook
   (after-init-hook . tab-bar-mark-mode))
 #+end_src
@@ -1392,14 +1394,6 @@ worktrees of one project sit together under its own name."
     (concat (nerd-icons-mdicon "nf-md-tab")
             ;; Terminals only: the icon covers the next cell.
             (propertize " " 'display '(when (display-graphic-p) . ""))))
-  (defun +tab-bar-tree-header-left (tab)
-    "Return the mode toggle button and TAB's group.
-The strut makes the header as tall as the tab bar row it stands in for."
-    (concat (tab-bar-indicator-strut)
-            (tab-bar-tree-header-button) " " (tab-bar-tree-header-group tab)))
-  (defun +tab-bar-tree-header-right (_tab)
-    "Return the mark summary of the frame's tabs."
-    (tab-bar-mark-summary (tab-bar-mark-marked-tabs)))
   :init
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button)
   :general
@@ -1422,8 +1416,16 @@ The strut makes the header as tall as the tab bar row it stands in for."
   ;; Sets tab names directly, bypassing `tab-bar-rename-tab'.
   (add-to-list 'tab-bar-tree-refresh-commands 'otpp--update-all-tabs)
   (setq tab-bar-tree-button (+tab-bar-tree-icon))
-  (setq tab-bar-tree-header-left-function #'+tab-bar-tree-header-left
-        tab-bar-tree-header-right-function #'+tab-bar-tree-header-right)
+  (setq tab-bar-tree-format '(tab-bar-indicator-strut
+                              tab-bar-tree-format-button
+                              tab-bar-theme-separator
+                              tab-bar-tree-format-group
+                              tab-bar-format-align-right
+                              tab-bar-format-global))
+  ;; Not the input method hooks: they run before evil updates
+  ;; `evil-input-method'.
+  (advice-add 'toggle-input-method :after #'tab-bar-tree-update-header-line)
+  (advice-add 'set-input-method :after #'tab-bar-tree-update-header-line)
   :hook
   (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor)
   (tab-bar-tree-mode-hook . +tab-bar-tree-custom-face))
