@@ -11,8 +11,9 @@
 ;; `tab-bar-tab-group-format-function', so the tree shows the same
 ;; hints, marks, indicators and colors as the tab bar.
 ;;
-;; The tab bar itself is not touched: its visibility and contents stay
-;; under its own options.
+;; `global-tab-bar-tree-mode' shows the tree and hides the tab bar; the
+;; tree's header line stands in for it, built from `tab-bar-tree-format'
+;; as the tab bar is from `tab-bar-format'.
 
 ;;; Code:
 

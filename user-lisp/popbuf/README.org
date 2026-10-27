@@ -1,0 +1,79 @@
+#+title: popbuf
+#+author: Ruslan Kamashev
+
+Toggle any buffer in a popup, with tabs.
+
+Two displays share one core:
+
+- =popbuf-frame= — a centered child frame
+- =popbuf-side= — a side window panel
+
+* Files
+
+| File                    | Contents                               |
+|-------------------------+----------------------------------------|
+| =popbuf.el=             | Core: buffer specs, tab keys, tab line |
+| =popbuf-frame.el=       | Child frame display                    |
+| =popbuf-side.el=        | Side window display                    |
+| =popbuf-project.el=     | Group tabs by project                  |
+| =popbuf-frame-magit.el= | Magit status in the child frame        |
+
+* Buffer specs
+
+A display shows a buffer spec: a buffer, a buffer name, or a function
+returning one.  A function is called inside =save-window-excursion=, so
+providers with window side effects (=ghostel-project=) work as-is.
+
+#+begin_src emacs-lisp
+(popbuf-frame)             ; toggle the frame's tabs or its default buffer
+(popbuf-frame #'ghostel)   ; toggle some other buffer
+(popbuf-side)              ; the same for the side panel
+#+end_src
+
+Calling a display for the buffer it already shows hides it.
+
+* Tabs
+
+Buffers shown under one key are tabs of the display's tab line, when
+there are two or more.  The key comes from =popbuf-key-function=; by
+default there is one key for all.  On the tab line, =next-buffer= and
+=previous-buffer= switch tabs.
+
+- =popbuf-frame-pin=, =popbuf-side-pin= — toggle the current buffer as a tab
+- the tab of =popbuf-frame-default-buffer= is always present and first
+
+Pinned buffers are marked on the mode line: add
+=popbuf-frame-mode-line-format= and =popbuf-side-mode-line-format= to
+=mode-line-format=.
+
+* Configuration
+
+#+begin_src emacs-lisp
+(use-package popbuf-project
+  :init
+  (setq popbuf-key-function #'popbuf-project-key))
+
+(use-package popbuf-frame
+  :demand t
+  :bind (("C-`" . popbuf-frame)
+         ("C-~" . popbuf-frame-pin))
+  :init
+  (setq popbuf-frame-default-buffer #'ghostel-project))
+
+(use-package popbuf-frame-magit
+  :hook (magit-mode-hook . popbuf-frame-magit-setup))
+
+(use-package popbuf-side
+  :bind (("M-`" . popbuf-side)
+         ("M-~" . popbuf-side-pin))
+  :init
+  (setq popbuf-side-default-buffer #'ghostel-project))
+#+end_src
+
+=popbuf-side-display-buffer= sends buffers to the side panel from
+=display-buffer-alist=:
+
+#+begin_src emacs-lisp
+(add-to-list 'display-buffer-alist
+             '((derived-mode . help-mode) (popbuf-side-display-buffer)))
+#+end_src

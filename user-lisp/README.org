@@ -13,3 +13,7 @@ Personal Emacs packages.
 - [[file:project-x/project-x.el][project-x]] — Project extensions
 - [[file:tab-bar-mark/tab-bar-mark.el][tab-bar-mark]] — Attention indicator for tab-bar tabs
 - [[file:review/review.el][review]] — Annotate code into review.org for an AI agent
+- [[file:tab-bar-indicator/tab-bar-indicator.el][tab-bar-indicator]] — Colored bar for tab-bar tabs
+- [[file:tab-bar-tree/tab-bar-tree.el][tab-bar-tree]] — Tab-bar tabs as a tree in a side window
+- [[file:popbuf/popbuf.el][popbuf]] — Toggle any buffer in a popup frame or side window, with tabs
+- [[file:package-report/package-report.el][package-report]] — Installed packages × archives report

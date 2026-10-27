@@ -1,0 +1,60 @@
+#+title: tab-bar-mark
+#+author: Ruslan Kamashev
+
+Attention marks for tab-bar tabs: colored symbols after the tab name.
+
+* Marks
+
+A tab can carry several marks, one per type in
+=tab-bar-mark-type-alist=:
+
+| Type       | Symbol | Face      | Persistent |
+|------------+--------+-----------+------------|
+| =:warning= | ●      | =warning= |            |
+| =:error=   | ●      | =error=   |            |
+| =:success= | ●      | =success= |            |
+| =:flag=    | ⚑      | =shadow=  | yes        |
+
+Marks are stored as a tab parameter and disappear with the tab.  A
+non-persistent mark is removed when its tab comes into view (the
+selected tab of a focused frame), and is not set on a tab in view.
+
+* API
+
+- =tab-bar-mark-set-if=, =tab-bar-mark-unset-if= — set or remove a mark
+  on the tabs matching a predicate
+- =tab-bar-mark-toggle= — toggle a mark on the current tab; it stays
+  until the tab is viewed again
+- =tab-bar-mark-switch-to-tab= — switch to a marked tab
+- =tab-bar-mark-marked-tabs=, =tab-bar-mark-group-tabs= — marked tabs
+- =tab-bar-mark-summary= — mark counts as a string
+
+* Configuration
+
+=tab-bar-mark-mode= only manages marks.  To display them, add
+=tab-bar-mark-tab-name-format= to =tab-bar-tab-name-format-functions=
+after =tab-bar-tab-name-format-truncated=:
+
+#+begin_src emacs-lisp
+(use-package tab-bar-mark
+  :hook (after-init-hook . tab-bar-mark-mode)
+  :config
+  ;; Mark counts, shown on the tab bar by `tab-bar-format-global'.
+  (add-to-list 'global-mode-string
+               '(:eval (tab-bar-mark-summary (tab-bar-mark-marked-tabs)))))
+
+(setq tab-bar-tab-name-format-functions
+      '(tab-bar-tab-name-format-hints
+        tab-bar-tab-name-format-close-button
+        tab-bar-tab-name-format-truncated
+        tab-bar-mark-tab-name-format
+        tab-bar-tab-name-format-face))
+#+end_src
+
+Set a mark from a notification, e.g. on the tab of a project:
+
+#+begin_src emacs-lisp
+(tab-bar-mark-set-if
+ (lambda (tab) (equal (alist-get 'name tab) "emacs"))
+ :error)
+#+end_src
