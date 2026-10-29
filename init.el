@@ -1369,9 +1369,6 @@ worktrees of one project sit together under its own name."
   (setq dired-free-space nil)
   (setq dired-hide-details-hide-absolute-location t)
   (setq dired-create-destination-dirs-on-trailing-dirsep t)
-  :config
-  (when (eq system-type 'darwin)
-    (setq insert-directory-program "gls"))
   :hook
   (dired-mode-hook . dired-hide-details-mode))
 
@@ -1476,7 +1473,9 @@ worktrees of one project sit together under its own name."
   :init
   (setq exec-path-from-shell-arguments '("-l"))
   :config
-  (exec-path-from-shell-initialize))
+  (exec-path-from-shell-initialize)
+  ;; Reevaluate after PATH is set
+  (custom-reevaluate-setting 'insert-directory-program))
 
 (use-package with-editor
   :general
