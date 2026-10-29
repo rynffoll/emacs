@@ -1760,7 +1760,6 @@ worktrees of one project sit together under its own name."
   :init
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-merge-split-window-function 'split-window-horizontally)
   :hook
   (ediff-prepare-buffer-hook . outline-show-all)
   (ediff-quit-hook . tab-bar-history-back))
@@ -2266,7 +2265,7 @@ Covers both working-tree faces and reference-revision faces."
 (use-package go-ts-mode
   :ensure nil
   :init
-  (setq go-ts-mode-indent-offset 4)
+  (setq go-ts-indent-offset 4)
   :config
   (put 'go-ts-mode-build-tags 'safe-local-variable #'listp)
   :hook
@@ -2536,7 +2535,6 @@ Covers both working-tree faces and reference-revision faces."
   (setq claude-code-ide-show-claude-window-in-ediff nil)
   ;; (setq claude-code-ide-switch-tab-on-ediff nil) ;; it doesn't work (the same tab names)
   (setq claude-code-ide-use-ide-diff nil) ;; it's not useful in my config, switch back doesn't work
-  (setq claude-code-ide-enable-execute-code t)
   (setq claude-code-ide-share-opened-file nil)
   :config
   (claude-code-ide-emacs-tools-setup)
