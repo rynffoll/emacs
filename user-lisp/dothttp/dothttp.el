@@ -391,12 +391,19 @@ BEG, END, and LOUDLY are passed to both fontifiers."
       (treesit-indent)
     (indent-relative)))
 
+(defun dothttp--refontify-changed (ranges _parser)
+  "Mark RANGES, changed by a JSON reparse, for refontification."
+  (with-silent-modifications
+    (pcase-dolist (`(,beg . ,end) ranges)
+      (put-text-property beg end 'fontified nil))))
+
 (defun dothttp--setup-treesit ()
   "Set up tree-sitter JSON injection for body regions."
   (when (and (fboundp 'treesit-ready-p) (treesit-ready-p 'json t))
     (require 'json-ts-mode)
-    (let ((parser (treesit-parser-create 'json)))
-      (treesit-parser-add-notifier parser #'treesit--font-lock-notifier))
+    (setq-local treesit-primary-parser (treesit-parser-create 'json))
+    (treesit-parser-add-notifier treesit-primary-parser
+                                 #'dothttp--refontify-changed)
     (setq-local treesit-range-settings
                 (treesit-range-rules #'dothttp--body-ranges))
     (setq-local treesit-font-lock-settings
