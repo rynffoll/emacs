@@ -182,6 +182,8 @@
     "c"   '(:ignore t :wk "code")
     "c="  'apheleia-format-buffer
 
+    "d"   '(:keymap dape-global-map :package dape :wk "debug")
+
     "e"   '(:ignore t :wk "emacs")
     "ed"  'iqa-find-user-init-directory
     "ee"  'iqa-find-user-init-file
