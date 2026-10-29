@@ -226,6 +226,7 @@
   - [[#mason][mason]]
 - [[#languages][Languages]]
   - [[#treesit][treesit]]
+  - [[#refactor][refactor]]
   - [[#elisp][elisp]]
   - [[#clojure][clojure]]
   - [[#java][java]]
@@ -3229,8 +3230,6 @@ get https://github.com/status
   :general
   (+local-leader-def :keymaps 'eglot-mode-map
     "=" 'eglot-format
-    "a" 'eglot-code-actions
-    "R" 'eglot-rename
     "f" '(:ignore t :wk "find")
     "fd" 'eglot-find-declaration
     "ft" 'eglot-find-typeDefinition
@@ -3309,6 +3308,16 @@ Upgrade eglot to the latest version
   :init
   (setq treesit-font-lock-level 4)
   (setq treesit-enabled-modes t))
+#+end_src
+
+** refactor
+#+begin_src emacs-lisp
+(use-package refactor
+  :ensure nil
+  :general
+  (+local-leader-def :keymaps 'prog-mode-map
+    "a" 'refactor
+    "R" 'refactor-rename))
 #+end_src
 
 ** elisp

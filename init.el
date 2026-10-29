@@ -2124,8 +2124,6 @@ Covers both working-tree faces and reference-revision faces."
   :general
   (+local-leader-def :keymaps 'eglot-mode-map
     "=" 'eglot-format
-    "a" 'eglot-code-actions
-    "R" 'eglot-rename
     "f" '(:ignore t :wk "find")
     "fd" 'eglot-find-declaration
     "ft" 'eglot-find-typeDefinition
@@ -2187,6 +2185,13 @@ Covers both working-tree faces and reference-revision faces."
   :init
   (setq treesit-font-lock-level 4)
   (setq treesit-enabled-modes t))
+
+(use-package refactor
+  :ensure nil
+  :general
+  (+local-leader-def :keymaps 'prog-mode-map
+    "a" 'refactor
+    "R" 'refactor-rename))
 
 (use-package elisp-mode
   :ensure nil
