@@ -1696,7 +1696,7 @@ worktrees of one project sit together under its own name."
              (p (project-current))
              (summary (if p (concat (project-name p) ": " title) title)))
         (do-applescript
-         (format "display notification \"%s\" with title \"%s\"" body summary)))))
+         (format "display notification %S with title %S" body summary)))))
   (defun +ghostel-notify-taskbar (_title _body)
     (when (fboundp 'system-taskbar-attention)
       (system-taskbar-attention 'critical)))
