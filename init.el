@@ -392,8 +392,8 @@
   :ensure nil
   :init
   (setq scroll-preserve-screen-position t)
-  (setq scroll-conservatively 101) ;; scroll one line at a time, no recenter
-  (setq scroll-margin 4) ;; lines of context
+  (setq scroll-conservatively 10) ;; recenter past 10 lines
+  (setq hscroll-step 1)
   (setq fast-but-imprecise-scrolling t)
   (setq redisplay-skip-fontification-on-input t))
 
