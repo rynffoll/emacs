@@ -1715,13 +1715,14 @@ worktrees of one project sit together under its own name."
   :init
   (setq ghostel-shell "/opt/homebrew/bin/fish")
   (setq ghostel-macos-login-shell nil)
+  (setq ghostel-keymap-exceptions
+        '("C-c" "C-x" "C-u" "C-h" "M-x" "M-:" "C-\\" ;; default
+          "M-`" "M-~" ;; popbuf-side
+          ))
   (setq ghostel-notification-functions '(+ghostel-notify-tab
                                          +ghostel-notify-taskbar
                                          +ghostel-notify-macos))
   :config
-  ;; `popbuf-side', not the terminal; `setopt' rebuilds the keymap.
-  (setopt ghostel-keymap-exceptions
-          (append '("M-`" "M-~") ghostel-keymap-exceptions))
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
   (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer))
