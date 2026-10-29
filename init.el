@@ -2126,10 +2126,7 @@ Covers both working-tree faces and reference-revision faces."
   (+local-leader-def :keymaps 'eglot-mode-map
     "=" 'eglot-format
     "f" '(:ignore t :wk "find")
-    "fd" 'eglot-find-declaration
-    "ft" 'eglot-find-typeDefinition
-    "fr" 'eglot-find-references
-    "fi" 'eglot-find-implementation
+    "f." 'xref-find-by-kind
     "h" '(:ignore t :wk "hierarchy")
     "hc" 'eglot-show-call-hierarchy
     "ht" 'eglot-show-type-hierarchy)
