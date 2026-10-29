@@ -35,6 +35,7 @@
 (autoload 'nerd-icons-codicon "nerd-icons")
 (defvar evil-state)
 (defvar evil-mode-line-tag)
+(defvar evil-visual-selection)
 
 
 (defgroup modeline-x nil
@@ -142,7 +143,10 @@ The `vc-mode' string format is described in `vc-default-mode-line-string'.")
    (pcase evil-state
      ('normal   "nf-md-alpha_n_box")
      ('insert   "nf-md-alpha_i_box")
-     ('visual   "nf-md-alpha_v_box")
+     ('visual   (pcase evil-visual-selection
+                  ('line  "nf-md-alpha_l_box")
+                  ('block "nf-md-alpha_b_box")
+                  (_      "nf-md-alpha_v_box")))
      ('replace  "nf-md-alpha_r_box")
      ('operator "nf-md-alpha_o_box")
      ('motion   "nf-md-alpha_m_box")
