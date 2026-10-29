@@ -2707,6 +2707,7 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
   :hook
   (after-init-hook . ghostel-compile-global-mode)
   (after-init-hook . ghostel-comint-global-mode)
+  (after-init-hook . ghostel-shell-command-global-mode)
   (eshell-load-hook . ghostel-eshell-visual-command-mode))
 #+end_src
 

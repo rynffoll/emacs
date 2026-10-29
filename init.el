@@ -1726,6 +1726,7 @@ worktrees of one project sit together under its own name."
   :hook
   (after-init-hook . ghostel-compile-global-mode)
   (after-init-hook . ghostel-comint-global-mode)
+  (after-init-hook . ghostel-shell-command-global-mode)
   (eshell-load-hook . ghostel-eshell-visual-command-mode))
 
 (use-package evil-ghostel
