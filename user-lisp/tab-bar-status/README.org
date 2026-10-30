@@ -1,0 +1,144 @@
+#+title: tab-bar-status
+#+author: Ruslan Kamashev
+
+The status of tab-bar tabs, in two forms:
+
+- the *current status*, reported by a source such as a program in a
+  terminal: a state, e.g. =working=, =blocked= or =done=, and a line of
+  text, shown as status lines under the tab while the source runs;
+- *marks*, colored symbols after the tab name that keep a status until
+  the tab is viewed: a source entering =blocked=, =error= or =done=
+  marks its tabs, and =⚑= is a flag set by hand.
+
+States follow the terminal program status protocol, OSC 7501; any
+symbol works.
+
+* Layout
+
+#+begin_example
+ tab bar:
+ 1 *scratch*  2 emacs ●  3 *Proced* ⚑  4 operfeed ●²        ●³ ⚑¹
+                      │             │             │         └─┬─┘
+                      │             │             │           └ summary
+                      │             │             └ counts of a folded group
+                      │             └ flag, set by hand, permanent
+                      └ mark after the name
+
+ status lines, e.g. in a tree of tabs:
+ 2 emacs ●
+   blocked: permission       ← the current status
+#+end_example
+
+| Element      | Drawn by                                                   |
+|--------------+------------------------------------------------------------|
+| tab mark     | =tab-bar-status-tab-name-format=, a tab name formatter     |
+| group count  | =tab-bar-status-tab-group-format=, a group label formatter |
+| summary      | =tab-bar-status-summary=, e.g. in =global-mode-string=     |
+| status lines | =tab-bar-status-tab-lines=, e.g. in a tree of tabs         |
+
+* States
+
+A program in a terminal reports its status with OSC 7501: a =state=, a
+=msg= and, for =blocked=, a =kind= such as =permission=.  A terminal
+source passes the state, and the message or else the kind as the text:
+
+#+begin_example
+ source         current status    shown as
+ ───────────    ──────────────    ───────────────────────────────────────
+ a terminal ──► working, text ──► status line   working: Reading files
+            ──► working       ──► status line   working: ․ ‥ … (spinner)
+            ──► blocked, kind ──► status line   blocked: permission
+                                  mark          :warning, until viewed
+            ──► error, text   ──► status line   error: Exit 1
+                                  mark          :error, until viewed
+            ──► done          ──► mark          :success, until viewed
+            ──► idle          ──► nothing
+#+end_example
+
+The current status lives as long as its source: a buffer's status goes
+with the buffer.  A mark lives on the tab until the tab is viewed, and
+is saved with it.  So a =blocked= agent keeps its status line after you
+view the tab, and a =done= agent leaves only its mark.
+
+A status line is =STATE: TEXT=.  A spinner replaces a missing text,
+running only while a line has none.  States in
+=tab-bar-status-hidden-states= get no line; states in
+=tab-bar-status-state-mark-alist= mark the tabs on entering them.
+
+* Marks
+
+A tab can carry several marks, one per type in
+=tab-bar-status-mark-type-alist=:
+
+| Type       | Symbol | Face      | Permanent |
+|------------+--------+-----------+-----------|
+| =:warning= | ●      | =warning= |           |
+| =:error=   | ●      | =error=   |           |
+| =:success= | ●      | =success= |           |
+| =:flag=    | ⚑      | =shadow=  | yes       |
+
+Marks are stored as a tab parameter and disappear with the tab.  A
+non-permanent mark is removed when its tab comes into view (the
+selected tab of a focused frame), and is not set on a tab in view.
+
+* API
+
+- =tab-bar-status-set= — set the current status of a source, e.g. a
+  terminal buffer, with a predicate on tabs
+- =tab-bar-status-remove= — remove the current status of a source
+- =tab-bar-status-tab-lines= — the status lines of a tab, a value for
+  =tab-bar-tree-tab-status-function=
+- =tab-bar-status-mark-if=, =tab-bar-status-unmark-if= — set or remove a
+  mark on the tabs matching a predicate
+- =tab-bar-status-mark-state= — mark the tabs of a predicate per a
+  state, for events that set no current status
+- =tab-bar-status-toggle-mark= — toggle a mark on the current tab
+- =tab-bar-status-switch-to-marked-tab= — switch to a marked tab
+- =tab-bar-status-marks=, =tab-bar-status-marked-tabs=,
+  =tab-bar-status-marked-group-tabs= — marks and marked tabs
+- =tab-bar-status-summary= — mark counts as a string
+- =tab-bar-status-change-hook= — run when marks or status lines change,
+  including spinner frames; add =tab-bar-tree-update= to it
+
+#+begin_src emacs-lisp
+(tab-bar-status-set (current-buffer)
+                    (lambda (tab) (equal (alist-get 'name tab) "emacs"))
+                    'working "Reading files")
+#+end_src
+
+* Configuration
+
+=tab-bar-status-mode= sets marks on state changes and removes them on
+view; status lines do not depend on it.  To display marks, add
+=tab-bar-status-tab-name-format= to =tab-bar-tab-name-format-functions=
+after =tab-bar-tab-name-format-truncated=:
+
+#+begin_src emacs-lisp
+(use-package tab-bar-status
+  :init
+  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-lines)
+  :hook
+  (after-init-hook . tab-bar-status-mode)
+  (tab-bar-status-change-hook . tab-bar-tree-update)
+  :config
+  ;; Mark counts, shown on the tab bar by `tab-bar-format-global'.
+  (add-to-list 'global-mode-string
+               '(:eval (tab-bar-status-summary
+                        (tab-bar-status-marked-tabs)))))
+
+(setq tab-bar-tab-name-format-functions
+      '(tab-bar-tab-name-format-truncated
+        tab-bar-status-tab-name-format
+        tab-bar-tab-name-format-hints
+        tab-bar-tab-name-format-close-button
+        tab-bar-tab-name-format-face))
+#+end_src
+
+| Option                            | Meaning                               |
+|-----------------------------------+---------------------------------------|
+| =tab-bar-status-mark-type-alist=  | mark types: symbol, face, permanence  |
+| =tab-bar-status-state-mark-alist= | states and the mark types they set    |
+| =tab-bar-status-hidden-states=    | states without a status line          |
+| =tab-bar-status-spinner-frames=   | frames for a status without text      |
+| =tab-bar-status-spinner-interval= | seconds between spinner frames        |
+| =tab-bar-status-change-hook=      | run when marks or status lines change |

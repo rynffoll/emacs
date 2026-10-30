@@ -1,0 +1,45 @@
+#+title: tab-bar-ghostel
+#+author: Ruslan Kamashev
+
+Terminal status on tab-bar tabs.
+
+A program in a ghostel terminal can report its state, e.g. an agent
+working, blocked on a prompt or done.  =tab-bar-ghostel-mode= passes it
+to =tab-bar-status=, which shows it on the terminal's tab, found by
+=tab-bar-ghostel-tab-predicate=: by default the terminal's
+=tab-bar-project= tab.
+
+* Layout
+
+#+begin_example
+ program status record (OSC 7501)        tab-bar-status
+ root record, ID ""          ──────►     tab-bar-status-set: state,
+   state, msg, else kind                 text, the terminal's tab
+ root record cleared         ──────►     tab-bar-status-remove
+ other records               ──────►     tab-bar-status-mark-state: a mark
+                                         on a state change only
+ terminal killed             ──────►     status removed with the buffer
+
+ desktop notification (OSC 9, OSC 777)   tab-bar-status-mark-if: a mark,
+                                         if the terminal reports no
+                                         program status
+#+end_example
+
+The text of a status is the record's =msg=, else its =kind=, e.g.
+=permission= for a =blocked= record; without either, =tab-bar-status=
+shows a spinner.  The tab follows the terminal's directory, so a status
+moves with a =cd=.  Marks are set only with =tab-bar-status-mode= on.
+
+* Configuration
+
+#+begin_src emacs-lisp
+(use-package tab-bar-ghostel
+  :hook
+  (after-init-hook . tab-bar-ghostel-mode))
+#+end_src
+
+| Option                          | Meaning                       |
+|---------------------------------+-------------------------------|
+| =tab-bar-ghostel-tab-predicate= | whether a tab is a terminal's |
+
+Marks, status lines and the spinner are set up in =tab-bar-status=.

@@ -1,0 +1,62 @@
+#+title: tab-bar-indicator
+#+author: Ruslan Kamashev
+
+A colored indicator at the left edge of tab-bar tabs.
+
+=tab-bar-indicator-color-function= gives each tab's color; what it means
+is up to the caller.  This package only draws and places the indicator:
+an image on graphic frames, a block character on terminals.
+Indicators are drawn wherever the formatters below are listed.
+
+* Layout
+
+#+begin_example
+ ▌2 emacs  ▏3 *Proced*  ▏operfeed  ▏
+ │         │            │          │
+ │         │            │          └ closing separator
+ │         │            └ group label
+ │         └ other tab: one pixel column; ▏ on a terminal
+ └ current tab: full width; ▌ on a terminal
+#+end_example
+
+All indicators have the same width, so selecting a tab does not shift
+the row.  The indicator is the tallest element of the row, so it sets
+the tab bar height; =tab-bar-indicator-strut= gives other rows, e.g. a
+header line, the same height.
+
+* API
+
+- =tab-bar-indicator-tab-name-format= — a tab name formatter for
+  =tab-bar-tab-name-format-functions=, after the padding and before
+  =tab-bar-tab-name-format-face=
+- =tab-bar-indicator-tab-group-format= — a group label formatter, called
+  with the label, TAB, I and CURRENT-P
+- =tab-bar-indicator-separator= — a =tab-bar-format= item after
+  =tab-bar-format-tabs-groups=, closing the tab list
+- =tab-bar-indicator-strut= — an empty string as tall as the indicator
+- =tab-bar-indicator-build= — an indicator in a given color
+
+* Configuration
+
+#+begin_src emacs-lisp
+(use-package tab-bar-indicator
+  :init
+  (setq tab-bar-indicator-color-function
+        (lambda (tab _i)
+          (if (eq (car tab) 'current-tab) "royal blue" "gray"))))
+
+(setq tab-bar-tab-name-format-functions
+      '(tab-bar-tab-name-format-truncated
+        tab-bar-tab-name-format-hints
+        tab-bar-indicator-tab-name-format
+        tab-bar-tab-name-format-face))
+#+end_src
+
+| Option                                   | Meaning                                     |
+|------------------------------------------+---------------------------------------------|
+| =tab-bar-indicator-color-function=       | a tab's color, or nil for none              |
+| =tab-bar-indicator-group-color-function= | a group's color                             |
+| =tab-bar-indicator-width=                | width: pixels, or a fraction of a character |
+| =tab-bar-indicator-height=               | height in pixels                            |
+| =tab-bar-indicator-symbol=               | current tab's indicator on terminals        |
+| =tab-bar-indicator-inactive-symbol=      | other tabs' indicator on terminals          |

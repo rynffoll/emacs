@@ -122,6 +122,12 @@
     (interactive)
     (save-buffer)
     (kill-buffer))
+  (defun +evil-hide-cursor ()
+    "Hide evil's cursors in the current buffer.
+For mode hooks of buffers that do not show point."
+    (setq-local evil-normal-state-cursor '(nil)
+                evil-motion-state-cursor '(nil)
+                evil-emacs-state-cursor  '(nil)))
   :init
   (setq evil-want-keybinding nil)
   (setq evil-motion-state-cursor 'box)  ;; █
@@ -670,21 +676,14 @@
   ;; (setq tab-bar-separator " ")
   (setq tab-bar-separator "")
   (setq tab-bar-auto-width nil)
-  ;; Each formatter below is a no-op unless its own mode says otherwise,
-  ;; so this list is set once, here, regardless of which of those modes
-  ;; is actually on.
   (setq tab-bar-tab-name-format-functions
-        '(;; Ahead of everything: a name is cut to length before
-          ;; anything else is added to it.
-          tab-bar-tab-name-format-truncated
-          ;; After truncated, so the mark survives a name cut down to
-          ;; size, and ahead of the hint, so it reads as part of the name.
-          tab-bar-mark-tab-name-format
+        '(tab-bar-tab-name-format-truncated
+          ;; After truncation: marks are never cut.
+          tab-bar-status-tab-name-format
           tab-bar-tab-name-format-hints
           tab-bar-tab-name-format-close-button
-          ;; Padding, then the bar ahead of it: the bar ends up at the
-          ;; tab's left edge, and both ahead of face, so the tab's own
-          ;; face covers them too.
+          ;; Indicator after padding: at the tab's edge.  Both before
+          ;; face: the tab face covers them.
           tab-bar-theme-tab-name-format-padding
           tab-bar-indicator-tab-name-format
           tab-bar-tab-name-format-face
@@ -694,89 +693,46 @@
   (after-init-hook . tab-bar-history-mode))
 
 (use-package project-tab-groups
-  :disabled ;; replaced by otpp
+  :disabled ;; replaced by tab-bar-project
   :hook
   (after-init-hook . project-tab-groups-mode))
 
-(use-package otpp
-  :preface
-  (defun +otpp-tab-group-worktrees-family ()
-    "Return the name of the repository the current tab's root was cut from.
-A group per repository, then, and a tab per checkout of it: the
-worktrees of one project sit together under its own name."
-    (when-let* ((dir (otpp-get-tab-root-dir))
-                (name (file-name-nondirectory
-                       (directory-file-name
-                        (tab-bar-theme-worktrees-family dir)))))
-      ;; A bare repository is named `proj.git'; the group is the project.
-      (if (string-suffix-p ".git" name)
-          (substring name 0 (- (length ".git")))
-        name)))
+(use-package tab-bar-project
+  :ensure nil
   :init
-  (setq otpp-rename-the-initial-tab nil)
-  (setq otpp-reconnect-tab nil)
+  (setq tab-bar-project-group-function #'tab-bar-project-group-by-repository)
   :hook
-  (after-init-hook . otpp-mode)
-  (after-init-hook . otpp-override-mode)
-  (otpp-tab-group-name-hook . +otpp-tab-group-worktrees-family))
+  (after-init-hook . tab-bar-project-mode))
 
-(use-package tab-bar-mark
+(use-package tab-bar-status
   :ensure nil
   :general
   (tab-prefix-map
-   "!" 'tab-bar-mark-switch-to-tab
-   "*" 'tab-bar-mark-toggle)
+   "!" 'tab-bar-status-switch-to-marked-tab
+   "*" 'tab-bar-status-toggle-mark)
+  :init
+  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-lines)
   :config
   (add-to-list 'global-mode-string
-               '(:eval (tab-bar-mark-summary (tab-bar-mark-marked-tabs))))
+               '(:eval (tab-bar-status-summary (tab-bar-status-marked-tabs))))
   :hook
-  (after-init-hook . tab-bar-mark-mode))
+  (after-init-hook . tab-bar-status-mode)
+  (tab-bar-status-change-hook . tab-bar-tree-update))
 
 (use-package tab-bar-theme
   :ensure nil
-  :preface
-  (defun +tab-bar-theme-project-face (tab)
-    (when (otpp-get-tab-root-dir tab) 'bold))
-  (defun +tab-bar-theme-project-color (tab)
-    (when-let* ((dir (otpp-get-tab-root-dir tab)))
-      ;; (tab-bar-theme-color-from-worktrees-family dir)
-      (tab-bar-theme-color-from-key dir)
-      ))
-  (defun +tab-bar-group-format (tab i &optional current-p)
-    (let* ((face (tab-bar-theme-tab-group-face current-p))
-           ;; Fold state: the only thing the row does not show itself.
-           (expanded (or current-p tab-bar-show-inactive-group-tabs))
-           ;; Marks of a folded group; an open one shows them on its tabs.
-           (marked (unless expanded
-                     (tab-bar-mark-group-tabs
-                      (funcall tab-bar-tab-group-function tab)))))
-      (concat (tab-bar-indicator-build
-               (tab-bar-theme-tab-group-indicator-color current-p) nil face)
-              ;; Fold marker before the label, in `shadow' so the
-              ;; group's color stays on the name.  Leading padding on
-              ;; graphic frames only: there the indicator is 3px wide,
-              ;; on a terminal it takes a whole cell.
-              ;;
-              ;;   graphic    |_›_7 protos_     3px 7px 7px … 7px
-              ;;   terminal   |›_7 protos_      a cell apiece
-              (propertize (concat (and (display-graphic-p)
-                                       tab-bar-theme-tab-name-padding)
-                                  (if expanded "⌵" "›"))
-                          'face (list 'shadow face))
-              (tab-bar-theme-tab-group-format-color tab i current-p)
-              ;; Group face under the marks and the trailing padding;
-              ;; otherwise they get the tab bar background.
-              (and marked
-                   (concat (tab-bar-mark-summary marked face)
-                           (propertize tab-bar-theme-tab-name-padding
-                                       'face face))))))
   :init
   (setq tab-bar-theme-height 0.9)
   (setq tab-bar-theme-tab-colors t)
   (setq tab-bar-theme-tab-group-background-shift -0.06)
-  (setq tab-bar-theme-tab-group-format-function #'+tab-bar-group-format)
-  (setq tab-bar-theme-tab-color-face-function #'+tab-bar-theme-project-color)
-  ;; (setq tab-bar-theme-tab-extra-face-function #'+tab-bar-theme-project-face)
+  (setq tab-bar-theme-tab-group-format-functions
+        '(tab-bar-status-tab-group-format
+          tab-bar-theme-tab-group-format-padding
+          tab-bar-theme-tab-group-format-fold
+          tab-bar-indicator-tab-group-format
+          ;; Last: its face goes under all parts.
+          tab-bar-theme-tab-group-format-face))
+  (setq tab-bar-theme-tab-color-key-function #'tab-bar-project-root)
   :hook
   (after-init-hook . tab-bar-theme-mode))
 
@@ -784,20 +740,15 @@ worktrees of one project sit together under its own name."
   :ensure nil
   :init
   (setq tab-bar-indicator-color-function #'tab-bar-theme-tab-indicator-color)
-  :hook
-  (after-init-hook . tab-bar-indicator-mode))
+  (setq tab-bar-indicator-group-color-function
+        #'tab-bar-theme-tab-group-indicator-color))
 
 (use-package tab-bar-tree
   :ensure nil
-  :commands (global-tab-bar-tree-mode)
   :preface
-  (defun +tab-bar-tree-hide-cursor ()
-    "Hide evil cursors in the read-only tree buffer."
-    (setq-local evil-normal-state-cursor '(nil)
-                evil-motion-state-cursor '(nil)
-                evil-emacs-state-cursor  '(nil)))
-  (defun +tab-bar-tree-custom-face ()
-    (face-remap-add-relative 'default :height 0.9))
+  (defun +winum-assign-9-to-tab-bar-tree ()
+    "Return 9 in a `tab-bar-tree' window."
+    (when (derived-mode-p 'tab-bar-tree-buffer-mode) 9))
   (defun +tab-bar-tree-popbuf ()
     "Toggle the tab tree in a `popbuf-frame'."
     (interactive)
@@ -814,35 +765,27 @@ worktrees of one project sit together under its own name."
   (tab-prefix-map
    "'" '+tab-bar-tree-popbuf
    "SPC" '+tab-bar-tree-popbuf)
-  ( :keymaps 'tab-bar-tree-mode-map :states 'normal
+  ( :keymaps 'tab-bar-tree-buffer-mode-map :states 'normal
     "RET" 'tab-bar-tree-select
     "TAB" 'tab-bar-tree-select
     "gr" 'tab-bar-tree-refresh)
   :config
-  ;; Fixed winum number, as `dired-side' has 0.
   (with-eval-after-load 'winum
-    (defun +winum-assign-9-to-tab-bar-tree ()
-      (when (derived-mode-p 'tab-bar-tree-mode) 9))
     (add-to-list 'winum-assign-functions #'+winum-assign-9-to-tab-bar-tree))
-  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-toggle)
-  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-set-if)
-  (add-to-list 'tab-bar-tree-refresh-commands 'tab-bar-mark-unset-if)
-  ;; Sets tab names directly, bypassing `tab-bar-rename-tab'.
-  (add-to-list 'tab-bar-tree-refresh-commands 'otpp--update-all-tabs)
   (setq tab-bar-tree-button (+tab-bar-tree-icon))
-  (setq tab-bar-tree-format '(tab-bar-indicator-strut
-                              tab-bar-tree-format-button
-                              tab-bar-theme-separator
-                              tab-bar-tree-format-group
-                              tab-bar-format-align-right
-                              tab-bar-format-global))
+  (setq tab-bar-tree-header-format '(tab-bar-indicator-strut
+                                     tab-bar-tree-format-button
+                                     tab-bar-theme-separator
+                                     tab-bar-tree-header-format-group-truncated
+                                     tab-bar-tree-header-format-align-right
+                                     tab-bar-format-global
+                                     tab-bar-theme-separator))
   ;; Not the input method hooks: they run before evil updates
   ;; `evil-input-method'.
   (advice-add 'toggle-input-method :after #'tab-bar-tree-update-header-line)
   (advice-add 'set-input-method :after #'tab-bar-tree-update-header-line)
   :hook
-  (tab-bar-tree-mode-hook . +tab-bar-tree-hide-cursor)
-  (tab-bar-tree-mode-hook . +tab-bar-tree-custom-face))
+  (tab-bar-tree-buffer-mode-hook . +evil-hide-cursor))
 
 (use-package per-tab-group-theme
   :disabled
@@ -1258,10 +1201,8 @@ worktrees of one project sit together under its own name."
 (use-package iqa
   :preface
   (defun +iqa-find-file-project (file)
-    (let* ((dir (file-name-directory file))
-           (default-directory dir))
-      (project-current t)
-      (find-file file)))
+    (tab-bar-project-select (file-name-directory file))
+    (find-file file))
   :init
   (setq iqa-find-file-function #'+iqa-find-file-project)
   (setq iqa-user-init-file (locate-user-emacs-file "config.org")))
@@ -1453,14 +1394,15 @@ worktrees of one project sit together under its own name."
         (diff-hl-dired-update))
       (when (bound-and-true-p nerd-icons-dired-mode)
         (nerd-icons-dired--refresh))))
+  (defun +winum-assign-0-to-dired-side ()
+    "Return 0 for the `dired-side' window."
+    (when (and (bound-and-true-p dired-side-mode)
+               (window-parameter (selected-window) 'window-side))
+      0))
   :init
   (setq dired-side-follow-file-function #'+dired-side-point-at-file)
   :config
   (with-eval-after-load 'winum
-    (defun +winum-assign-0-to-dired-side ()
-      (when (and (bound-and-true-p dired-side-mode)
-                 (window-parameter (selected-window) 'window-side))
-        0))
     (add-to-list 'winum-assign-functions #'+winum-assign-0-to-dired-side))
   :hook
   (dired-side-mode-hook . dired-hide-details-mode)
@@ -1699,15 +1641,6 @@ worktrees of one project sit together under its own name."
   (defun +ghostel-notify-taskbar (_title _body)
     (when (fboundp 'system-taskbar-attention)
       (system-taskbar-attention 'critical)))
-  (defun +ghostel-notify-tab (_title _body)
-    (when-let* (((bound-and-true-p tab-bar-mark-mode))
-                ((fboundp 'otpp-get-tab-root-dir))
-                (p (project-current))
-                (root (thread-last p project-root expand-file-name file-name-as-directory)))
-      (tab-bar-mark-set-if
-       (lambda (tab)
-         (when-let* ((dir (otpp-get-tab-root-dir tab)))
-           (equal root (thread-last dir expand-file-name file-name-as-directory)))))))
   :general
   (project-prefix-map
    "t" 'ghostel-project)
@@ -1718,8 +1651,7 @@ worktrees of one project sit together under its own name."
         '("C-c" "C-x" "C-u" "C-h" "M-x" "M-:" "C-\\" ;; default
           "M-`" "M-~" ;; popbuf-side
           ))
-  (setq ghostel-notification-functions '(+ghostel-notify-tab
-                                         +ghostel-notify-taskbar
+  (setq ghostel-notification-functions '(+ghostel-notify-taskbar
                                          +ghostel-notify-macos))
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
@@ -1734,6 +1666,11 @@ worktrees of one project sit together under its own name."
 (use-package evil-ghostel
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
+
+(use-package tab-bar-ghostel
+  :ensure nil
+  :hook
+  (after-init-hook . tab-bar-ghostel-mode))
 
 (use-package consult-ghostel
   :after ghostel consult
@@ -1807,7 +1744,7 @@ Advises `magit-diff-visit-directory'."
                                   magit-worktree-status))
              (not (equal (magit-toplevel directory) (magit-toplevel))))
         (let ((project-switch-commands #'magit-project-status))
-          (project-switch-project directory))
+          (tab-bar-project-switch-project directory))
       (funcall orig-fn directory other-window)))
   :config
   (advice-add 'magit-diff-visit-directory :around #'+magit-diff-visit-directory)
@@ -1821,7 +1758,7 @@ Advises `magit-diff-visit-directory'."
     "Switch to the freshly cloned repository as its own project.
 `default-directory' is let-bound to it by `magit-post-clone-hook'."
     (let ((project-switch-commands #'magit-project-status))
-      (project-switch-project default-directory)))
+      (tab-bar-project-switch-project default-directory)))
   :hook
   (magit-post-clone-hook . +magit-clone-switch-project))
 

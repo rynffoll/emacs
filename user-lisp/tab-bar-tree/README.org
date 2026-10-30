@@ -11,9 +11,10 @@ marks, indicators and colors as the tab bar.
 
 * Usage
 
-=global-tab-bar-tree-mode= shows the tree and hides the tab bar.
+=tab-bar-tree-mode= shows the tree and hides the tab bar.
 =tab-bar-tree-format-button= in =tab-bar-format= toggles it from the tab
-bar.
+bar.  =tab-bar-tree-get-focus= selects the tree window: clicks in the
+tree do not select it.  The tree buffer is in =tab-bar-tree-buffer-mode=.
 
 | Key         | Command                                           |
 |-------------+---------------------------------------------------|
@@ -24,20 +25,50 @@ bar.
 =tab-bar-tree-render= returns the tree buffer, for display elsewhere,
 e.g. in a child frame.
 
+* Layout
+
+#+begin_example
+┌───────────────────────────────┐
+│ ≡ group:emacs                 │ ← header line    tab-bar-tree-header-format
+├───────────────────────────────┤
+│ 1 *scratch*                   │ ← tab label      tab-bar-tab-name-format-function
+│ emacs                         │ ← group label    tab-bar-tab-group-format-function
+│    2 emacs                    │ ← tab label      indented by tab-bar-tree-indent
+│      working: Reading files   │ ← status line    tab-bar-tree-tab-status-function
+│    3 *Proced*                 │ ← tab label
+│ 4 operfeed                    │ ← group label, folded
+└───────────────────────────────┘
+#+end_example
+
+Labels come from the tab bar's format functions, so whatever styles the
+tab bar styles the tree too.  A folded group shows only the current
+tab; core prefixes its label with the hint of its first tab.
+
+The tree is re-rendered on tab-bar hooks, after =tab-bar-tabs-set= and
+=tab-bar-tree-refresh-commands=, and on =tab-bar-tree-update=: call it
+when labels or status lines change, e.g. from a change hook.  When the
+selected window or its buffer changes, the tree is re-rendered only if
+the current tab's automatic name changed; tabs with an explicit name
+are skipped.
+
 * Header line
 
 The tree's header line stands in for the hidden tab bar.  It is built
-from =tab-bar-tree-format=, a list of items as in =tab-bar-format=:
+from =tab-bar-tree-header-format=, a list of items as in =tab-bar-format=:
 functions returning a string or tab-bar menu items.  Menu items that
-bind a command are buttons.  Items after =tab-bar-format-align-right=
-are aligned to the right.
+bind a command are buttons.  Items after
+=tab-bar-tree-header-format-align-right= are aligned to the right.
+Items provided: =tab-bar-tree-format-button=,
+=tab-bar-tree-header-format-group= (the current tab's group),
+=tab-bar-tree-header-format-group-truncated= (the same, truncated as a
+tab name) and =tab-bar-tree-header-format-align-right=.
 
 #+begin_src emacs-lisp
-(setq tab-bar-tree-format '(tab-bar-tree-format-button
-                            tab-bar-separator
-                            tab-bar-tree-format-group
-                            tab-bar-format-align-right
-                            tab-bar-format-global))
+(setq tab-bar-tree-header-format '(tab-bar-tree-format-button
+                                   tab-bar-separator
+                                   tab-bar-tree-header-format-group
+                                   tab-bar-tree-header-format-align-right
+                                   tab-bar-format-global))
 #+end_src
 
 The header is rebuilt on a render.  For items that change in between,
@@ -51,16 +82,16 @@ call =tab-bar-tree-update-header-line= from a hook or advice:
 
 #+begin_src emacs-lisp
 (use-package tab-bar-tree
-  :commands (global-tab-bar-tree-mode)
   :init
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button))
 #+end_src
 
-| Option                          | Meaning                                  |
-|---------------------------------+------------------------------------------|
-| =tab-bar-tree-display-alist=    | side window parameters, width in columns |
-| =tab-bar-tree-indent=           | indentation of a grouped tab             |
-| =tab-bar-tree-tab-background=   | keep the label faces' background         |
-| =tab-bar-tree-button=           | label of the toggle button               |
-| =tab-bar-tree-format=           | header line items                        |
-| =tab-bar-tree-refresh-commands= | commands that change a tab in place      |
+| Option                             | Meaning                                  |
+|------------------------------------+------------------------------------------|
+| =tab-bar-tree-display-alist=       | side window parameters, width in columns |
+| =tab-bar-tree-indent=              | indentation of a grouped tab             |
+| =tab-bar-tree-tab-background=      | keep the label faces' background         |
+| =tab-bar-tree-button=              | label of the toggle button               |
+| =tab-bar-tree-header-format=       | header line items                        |
+| =tab-bar-tree-tab-status-function= | status lines under a tab                 |
+| =tab-bar-tree-refresh-commands=    | commands that change a tab in place      |

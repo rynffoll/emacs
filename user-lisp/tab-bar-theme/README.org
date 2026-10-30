@@ -1,0 +1,90 @@
+#+title: tab-bar-theme
+#+author: Ruslan Kamashev
+
+Faces and colors for the tab bar, derived from the current theme.
+
+=tab-bar-theme-mode= sets the tab bar faces from the theme's colors on
+every theme change, colors tab groups or tabs from a palette, pads tab
+names and builds group labels.
+
+* Layout
+
+#+begin_example
+ ⌵ emacs   2 emacs   3 *Proced*   › 4 operfeed
+ │ └─┬─┘   └──┬──┘   └───┬────┘   │ └───┬────┘
+ │   │        │          │        │     └ group label, folded
+ │   │        │          │        └ fold marker, folded
+ │   │        │          └ other tab: color dimmed
+ │   │        └ current tab: full color
+ │   └ group label: its color
+ └ fold marker, open
+#+end_example
+
+* Colors
+
+A group or tab gets a face from =tab-bar-theme-color-faces=, 16 slots:
+the faces =tab-bar-theme-color-1= to =tab-bar-theme-color-16=, which
+inherit font-lock faces, so their foregrounds follow the theme.
+=tab-bar-theme-tab-colors= picks what is colored: =groups=, =tabs=, both
+or neither.  A tab's face comes from, in order:
+
+1. =M-x tab-bar-theme-set-tab-color=, kept as a tab parameter;
+2. =tab-bar-theme-tab-color-face-function=;
+3. =tab-bar-theme-tab-color-key-function=: a key, e.g. a directory,
+   hashed to a slot, so it keeps its color across sessions;
+4. its position in the row.
+
+A non-current tab keeps =tab-bar-theme-tab-inactive-blend= of its color.
+
+* Group labels
+
+=tab-bar-theme-mode= sets =tab-bar-tab-group-format-function= to
+=tab-bar-theme-tab-group-format=.  It starts from the core label and runs
+=tab-bar-theme-tab-group-format-functions=, each called with the label so
+far, TAB, I and CURRENT-P:
+
+| Formatter                                | Adds                                     |
+|------------------------------------------+------------------------------------------|
+| =tab-bar-theme-tab-group-format-padding= | padding                                  |
+| =tab-bar-theme-tab-group-format-fold=    | an open or folded marker                 |
+| =tab-bar-theme-tab-group-format-face=    | the group's color and face; keep it last |
+
+* API
+
+- =tab-bar-theme-tab-name-format-padding= — a tab name formatter for
+  =tab-bar-tab-name-format-functions=, ahead of the face formatter
+- =tab-bar-theme-separator= — a =tab-bar-format= item, the space between
+  elements
+- =tab-bar-theme-color-from-key= — the palette face of a key
+- =tab-bar-theme-tab-indicator-color=,
+  =tab-bar-theme-tab-group-indicator-color= — colors matching the tab and
+  group labels, e.g. for an indicator
+
+* Configuration
+
+#+begin_src emacs-lisp
+(use-package tab-bar-theme
+  :init
+  (setq tab-bar-theme-tab-colors t)
+  (setq tab-bar-theme-tab-group-format-functions
+        '(tab-bar-theme-tab-group-format-padding
+          tab-bar-theme-tab-group-format-fold
+          tab-bar-theme-tab-group-format-face))
+  :hook (after-init-hook . tab-bar-theme-mode))
+#+end_src
+
+| Option                                        | Meaning                                 |
+|-----------------------------------------------+-----------------------------------------|
+| =tab-bar-theme-height=                        | height of the tab bar faces             |
+| =tab-bar-theme-tab-colors=                    | what is colored                         |
+| =tab-bar-theme-color-faces=                   | the palette                             |
+| =tab-bar-theme-tab-color-face-function=       | a tab's face                            |
+| =tab-bar-theme-tab-color-key-function=        | a tab's key, hashed to a face           |
+| =tab-bar-theme-tab-inactive-blend=            | color kept by a non-current tab         |
+| =tab-bar-theme-tab-inactive-background-shift= | non-current tab background              |
+| =tab-bar-theme-tab-group-background-shift=    | current group label background          |
+| =tab-bar-theme-tab-name-padding=              | padding around a tab name               |
+| =tab-bar-theme-separator=                     | space between =tab-bar-format= elements |
+| =tab-bar-theme-tab-extra-face-function=       | an extra face for a tab                 |
+| =tab-bar-theme-tab-group-format-functions=    | group label formatters                  |
+| =tab-bar-theme-indicator-blend=               | current tab's indicator color           |

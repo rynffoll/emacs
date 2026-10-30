@@ -1,0 +1,78 @@
+#+title: tab-bar-project
+#+author: Ruslan Kamashev
+
+One tab-bar tab per project, between the built-in =project= and
+=tab-bar=.
+
+A project tab stores its root in the =tab-bar-project-root= tab
+parameter, which desktop saves.  Its name and group are set once, on
+creation, via =tab-bar-rename-tab= and =tab-bar-change-tab-group=, so
+their hooks run.  Tabs are looked up in the selected frame only.
+
+* Layout
+
+#+begin_example
+ buffer directory               tab-bar-project-root            tab name             group
+ ~/src/emacs/lisp/          →   ~/src/emacs/                    emacs                emacs
+ ~/work/app/                →   ~/work/app/                     app                  app
+ ~/work/app-feature/        →   ~/work/app-feature/             app-feature          app
+   a linked working tree of ~/work/app
+ *scratch*, no project      →   the project of its tab
+#+end_example
+
+Names come from =tab-bar-project-name-function=, groups from
+=tab-bar-project-group-function=, here
+=tab-bar-project-group-by-repository=.
+
+* Usage
+
+=tab-bar-project-mode=:
+
+- remaps =project-switch-project= and =project-kill-buffers= to the
+  commands below;
+- selects the tab of a project chosen at the =project-prompter= prompt,
+  e.g. by =project-find-file= in a tab without a project;
+- gives a buffer outside any project, such as =*scratch*=, its tab's
+  project; a buffer in another project keeps its own.
+
+| Command                          | Does                                       |
+|----------------------------------+--------------------------------------------|
+| =tab-bar-project-switch-project= | select the tab; a new tab also dispatches  |
+| =tab-bar-project-kill-buffers=   | kill the project's buffers, close its tab  |
+
+The last tab of a frame follows =tab-bar-close-last-tab-choice=.
+Remapping affects key bindings only: Lisp callers of
+=project-switch-project= get no tab.
+
+* API
+
+- =tab-bar-project-root= — the project root of a tab
+- =tab-bar-project-contains-p= — whether a directory is under a tab's
+  root, e.g. to find the tab of a buffer
+- =tab-bar-project-select= — select or create the tab of the project in
+  a directory, without dispatching; non-nil if it created the tab
+- =tab-bar-project-try-tab= — a =project-find-functions= member giving a
+  buffer outside any project its tab's project; the mode adds it
+
+* Working trees
+
+=tab-bar-project-group-by-repository= groups the git working trees of a
+repository under its name: a group per repository, a tab per working
+tree.
+
+* Configuration
+
+#+begin_src emacs-lisp
+(use-package tab-bar-project
+  :init
+  (setq tab-bar-project-group-function #'tab-bar-project-group-by-repository)
+  :hook (after-init-hook . tab-bar-project-mode))
+#+end_src
+
+| Option                           | Meaning                                  |
+|----------------------------------+------------------------------------------|
+| =tab-bar-project-name-function=  | name of a new tab; =project-name=        |
+| =tab-bar-project-group-function= | group of a new tab                       |
+
+Projects with the same name get same-named tabs; set =project-vc-name=
+in =.dir-locals.el= to distinguish them.

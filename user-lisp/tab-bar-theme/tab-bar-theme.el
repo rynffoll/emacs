@@ -1,10 +1,10 @@
-;;; tab-bar-theme.el --- Tab Bar Theme  -*- lexical-binding: t; -*-
+;;; tab-bar-theme.el --- Faces and colors for the tab bar -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024  Ruslan Kamashev
 
 ;; Author: Ruslan Kamashev
 ;; Version: 0.1
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: faces
 ;; URL: https://github.com/rynffoll/emacs
 
@@ -23,7 +23,10 @@
 
 ;;; Commentary:
 
-;; Theme for `tab-bar-mode'
+;; Faces and colors for the tab bar, derived from the current theme.
+;; `tab-bar-theme-mode' sets the tab bar faces on every theme change,
+;; colors tab groups or tabs from a palette, pads tab names and builds
+;; group labels.
 
 ;;; Code:
 
@@ -31,33 +34,24 @@
 (require 'color)
 
 
-(defgroup tab-bar-theme
-  nil
-  "Tab Bar Theme."
-  :group 'tab-bar)
+(defgroup tab-bar-theme nil
+  "Faces and colors for the tab bar."
+  :group 'tab-bar
+  :prefix "tab-bar-theme-")
 
-;; The rotation borrows its colors from font-lock rather than from
-;; `outline-N': font-lock is preloaded, so the colors are there from the
-;; first frame, where outline.el is loaded on demand and a session that
-;; has not needed it leaves every slot without a foreground.
+;; Rotation colors inherit from font-lock faces, not `outline-N':
+;; font-lock is preloaded, while outline.el is loaded on demand, so
+;; `outline-N' may have no foreground yet.
 ;;
-;; Which sixteen, and in which order, was measured rather than chosen,
-;; over the 149 modus/ef/doric/doom themes installed here: these are the
-;; font-lock faces that carry a color of their own in nearly every theme
-;; (the rest either inherit one of these or are left at the default
-;; foreground, where a slot would come out looking uncolored), and this
-;; order keeps the greatest distance between neighbours — no less than
-;; 25 ΔE2000 — which matters because the rotation wraps and the row is
-;; read left to right.
+;; These faces have a color of their own in nearly every theme; the
+;; other font-lock faces inherit from them or use the default
+;; foreground.  The order keeps neighbours far apart, since the row is
+;; read left to right and wraps.  Most themes have fewer distinguishable
+;; font-lock colors than slots, so the last slots reduce collisions
+;; rather than add colors.
 ;;
-;; Sixteen is the ceiling: no theme measured offers more than sixteen
-;; distinguishable font-lock colors, and the median offers ten.  So the
-;; slots past the tenth buy fewer collisions, not more colors a reader
-;; can tell apart: two projects on similar colors still beat two on one.
-;;
-;; One face per slot, not two: what a tab that is not current gets is
-;; the same color dimmed, and `tab-bar-theme--face-pair' derives that
-;; where it already derives the bar.
+;; One face per slot: the non-current variant is the same color dimmed,
+;; derived in `tab-bar-theme--face-pair'.
 
 (defface tab-bar-theme-color-1
   '((t (:inherit font-lock-string-face)))
@@ -139,59 +133,53 @@
   "Rotation color 16."
   :group 'tab-bar-theme)
 
+(defun tab-bar-theme--set-and-apply (symbol value)
+  "Set SYMBOL to VALUE; reapply the theme if `tab-bar-theme-mode' is on.
+For the `:set' of options read when the theme is applied."
+  (set-default symbol value)
+  (when (bound-and-true-p tab-bar-theme-mode)
+    (tab-bar-theme--apply)))
+
 (defcustom tab-bar-theme-height nil
-  "Height of tab bar face.
-When nil, height is not set."
+  "Height of the tab bar faces, or nil to leave it unset."
   :type '(choice (const :tag "Unset" nil)
                  (number :tag "Height"))
+  :set #'tab-bar-theme--set-and-apply
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-inactive-background-shift 0.3
-  "How far an inactive tab's background is shifted off the tab bar's.
+  "Shift of the non-current tab background off the tab bar background.
+Unshifted, non-current tabs share the background of the tab bar strip,
+so the last one merges with the empty space after it.
 
-At its default background, an inactive tab's own shade is identical
-to the tab-bar strip itself (visible behind the tab-bar menu icon and
-in the empty tail after the last tab), so an inactive tab —
-particularly the last one, right against that empty tail — reads as a
-continuation of the strip rather than a tab of its own.
-
-A number nudges that shared background toward the active tab's by that
-fraction of its own lightness, via `tab-bar-theme--shift-color'; a pale
-theme needs a much bigger shift than a saturated one to read as a
-different color at all, so the default is tuned by eye and worth
-adjusting per theme.
-A color string is used as is.  nil matches the strip, as before this
-option existed."
+A number shifts that background toward the current tab's by that
+fraction of its lightness, via `tab-bar-theme--shift-color'.  Pale
+themes need a larger shift than saturated ones.  A string is a color
+used as is.  nil keeps the strip background."
   :type '(choice (const :tag "Match the strip" nil)
                  (float :tag "Shift fraction toward the active tab")
                  color)
+  :set #'tab-bar-theme--set-and-apply
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-group-background-shift nil
-  "How far the current group's label sits off the active tab's background.
-The two share a background by default, so a group and the tab of it you
-are on read as one block — which also leaves a group whose name matches
-that tab's looking like the same thing twice.
+  "Shift of the current group label background off the current tab's.
+Unshifted, the label and the current tab read as one block.
 
-A number shifts the label's background off the tab's by that fraction
-of its own lightness, via `tab-bar-theme--shift-color': negative is
-toward the tab bar, positive is toward content.  A color string is used
-as is.  nil matches the active tab, as before this option existed."
+A number shifts the label background by that fraction of its lightness,
+via `tab-bar-theme--shift-color': negative is toward the tab bar,
+positive toward content.  A string is a color used as is.  nil keeps the
+current tab background."
   :type '(choice (const :tag "Match the active tab" nil)
                  (float :tag "Shift fraction off the active tab")
                  color)
+  :set #'tab-bar-theme--set-and-apply
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-colors 'groups
-  "What to color out of `tab-bar-theme-color-faces'.
-
-`groups'  each tab group's label
-`tabs'    each tab itself — for a workflow of one tab per project and
-          no groups
-t         both
-nil       neither
-
-Both draw from `tab-bar-theme-color-faces'."
+  "What to color with `tab-bar-theme-color-faces'.
+`groups' colors each tab group label, `tabs' each tab (for one tab per
+project without groups), t both, and nil neither."
   :type '(choice (const :tag "Tab groups" groups)
                  (const :tag "Tabs" tabs)
                  (const :tag "Both" t)
@@ -212,139 +200,126 @@ Both draw from `tab-bar-theme-color-faces'."
      tab-bar-theme-color-11 tab-bar-theme-color-12
      tab-bar-theme-color-13 tab-bar-theme-color-14
      tab-bar-theme-color-15 tab-bar-theme-color-16)
-  "The colors a tab can be given, one per slot.
-Only their foreground is read.  A tab that is not current takes the
-same color dimmed, per `tab-bar-theme-tab-inactive-blend'.  A tab takes one
-by its place in the row, by what `tab-bar-theme-tab-color-face-function' answers
-for it, or by hand out of this list — see
-\\[tab-bar-theme-set-tab-color]."
+  "Faces a tab can be colored with, one per slot.
+Only the foreground is used.  A non-current tab uses the same color
+dimmed per `tab-bar-theme-tab-inactive-blend'.  A tab gets a face by
+hand via \\[tab-bar-theme-set-tab-color], from
+`tab-bar-theme-tab-color-face-function', by
+`tab-bar-theme-tab-color-key-function' or by its position in the row."
   :type '(repeat face)
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-color-face-function nil
-  "Function returning the face a tab is colored with, or nil for none.
-Called with one argument, the tab.  A tab it answers nil for falls
-back to its own group's color, and is left uncolored only past that
-too.  Nil here colors every tab by its place in the row.  Either way
-`tab-bar-theme-tab-colors' has to admit tabs, whose default is groups
-alone.
+  "Function returning the face to color a tab with, or nil.
+Called with one argument, the tab.  If it returns nil, the tab takes its
+group's color, if any.  If this is nil, tabs are colored by
+`tab-bar-theme-tab-color-key-function' or by position.  Takes effect
+only when `tab-bar-theme-tab-colors' includes tabs.
 
-A face put on one tab by \\[tab-bar-theme-set-tab-color] outranks this
-function, so a policy need not keep room for exceptions.  Two helpers
-turn a key into the face it always answers with:
-
-  `tab-bar-theme-color-from-key'
-        keyed on any string that outlives the tab
-  `tab-bar-theme-color-from-worktrees-family'
-        keyed on the repository a directory was cut from, so a checkout
-        and every worktree of it share one color
-
-Which key a tab stands for is the caller's to know:
-
-  (setq tab-bar-theme-tab-color-face-function
-        (lambda (tab)
-          (when-let* ((dir (my-tab-directory tab)))
-            (tab-bar-theme-color-from-worktrees-family dir))))"
+A face set by \\[tab-bar-theme-set-tab-color] takes precedence.  To
+color tabs by a key, such as a directory, use
+`tab-bar-theme-tab-color-key-function' instead."
   :type '(choice (const :tag "None — color by position in the row" nil)
                  function)
   :group 'tab-bar-theme)
 
+(defcustom tab-bar-theme-tab-color-key-function nil
+  "Function returning the key to color a tab by, or nil.
+Called with one argument, TAB.  `tab-bar-theme-color-from-key' maps the
+key, e.g. a project directory, to a face.  Used if
+`tab-bar-theme-tab-color-face-function' is nil, instead of coloring by
+position."
+  :type '(choice (const :tag "None" nil) function)
+  :group 'tab-bar-theme)
+
 (defcustom tab-bar-theme-tab-inactive-blend 0.55
-  "How much of its color a tab that is not current keeps.
-A number is that fraction of the way from the tab's background toward
-the color the thing would have had: its label toward the color that
-names it, its bar toward the color of the label.
+  "How much of its color a non-current tab keeps.
+A number is the fraction of the way from the tab background toward the
+full color: the tab color for the label, the `tab-bar-tab-inactive'
+foreground for the indicator bar.  The bar applies the fraction twice,
+once for the non-current tab and once for being a bar rather than a
+label.  The current tab's bar uses `tab-bar-theme-indicator-blend'.
 
-The bar takes the fraction twice — it is dimmed for sitting on a tab
-that is not current, and again for being a rail rather than a name,
-which is one reason more than the label has.  The bar of the current
-tab is dimmed neither way; there it is the mark that names the tab, and
-`tab-bar-theme-indicator-blend' says how far.
-
-A string or a face is taken as it is for both; nil dims nothing.  See
+A string or a face is used as is for both; nil disables dimming.  See
 `tab-bar-theme--resolve-color'."
   :type '(choice (const :tag "No dimming" nil)
                  (float :tag "Fraction of the way from the tab's background")
                  color face)
+  :set #'tab-bar-theme--set-and-apply
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-name-padding " "
   "String used to pad each tab name on both sides."
-  :group 'tab-bar-theme
-  :type 'string)
+  :type 'string
+  :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-separator " "
-  "What spaces the elements of `tab-bar-format' apart.
-A string is used as it is; a number is that many pixels, where a string
-can only be whole characters, some seven pixels at a time.  A terminal
-gets one space whatever the value, because it draws no part of a cell —
-which is the other half of what this buys over naming a propertized
-string in the format directly.
+  "Space between the elements of `tab-bar-format'.
+A string is used as is.  A number is a width in pixels, finer than whole
+characters.  Terminal frames always get one space, since they cannot
+draw part of a cell; that fallback and pixel widths are what this adds
+over a propertized string in `tab-bar-format'.
 
-Not `tab-bar-separator', which prefixes every tab.  All the tabs come
-out of one element of the format, so what sets them apart is that
-variable, or `tab-bar-theme-tab-name-padding' inside their labels."
+This is not the variable `tab-bar-separator', which precedes every tab.
+All tabs come from one format element, so the space between tabs is that
+variable or `tab-bar-theme-tab-name-padding'."
   :type '(choice (string :tag "String")
                  (integer :tag "Pixels"))
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-tab-extra-face-function nil
-  "Function returning one more face to give a tab, or nil for none.
-Called with a single TAB, in the manner of `tab-bar-tab-face-function'.
-The face is merged ahead of the base tab face, so it has the last word
-on whatever attributes it sets — except the foreground, which the tab's
-own color keeps.
-
-What earns a tab a face of its own is none of a theme's business, so
-it is asked rather than decided here.  To embolden the tabs bound to a
-project, for instance:
+  "Function returning an extra face for a tab, or nil.
+Called with one argument, TAB, like `tab-bar-tab-face-function'.  The
+face is merged ahead of the base tab face, so its attributes win, except
+the foreground, which the tab color keeps.  For example, to embolden
+tabs bound to a project:
 
     (setq tab-bar-theme-tab-extra-face-function
           (lambda (tab) (when (my-tab-project tab) \\='bold)))"
-  :type '(choice function (const nil))
+  :type '(choice (const :tag "None" nil) function)
   :group 'tab-bar-theme)
 
-(defcustom tab-bar-theme-tab-group-format-function
-  #'tab-bar-theme-tab-group-format-color
-  "Function formatting a tab group's own name.
-Shaped like `tab-bar-tab-group-format-function', which
-`tab-bar-theme-mode' sets to this variable's value, not to
-`tab-bar-theme-tab-group-format-color' directly — so a config that
-wants to draw more than that, a bar on top of it say, keeps its own
-function through every theme change instead of losing it back to the
-default:
+(defcustom tab-bar-theme-tab-group-format-functions
+  '(tab-bar-theme-tab-group-format-padding
+    tab-bar-theme-tab-group-format-face)
+  "Functions that build a tab group's label.
+Each is called with four arguments, NAME, TAB, I and CURRENT-P, and
+returns the new NAME, like `tab-bar-tab-name-format-functions' for a
+tab.  NAME starts as the hint and group name, without a face.
+`tab-bar-theme-mode' sets `tab-bar-tab-group-format-function' to
+`tab-bar-theme-tab-group-format', which runs these.
 
-    (defun +tab-bar-group-format (tab i &optional current-p)
-      (let ((face (tab-bar-theme-tab-group-face current-p)))
-        (concat (tab-bar-indicator-build
-                 (tab-bar-theme-tab-group-indicator-color current-p) nil face)
-                (tab-bar-theme-tab-group-format-color tab i current-p))))
-    (setq tab-bar-theme-tab-group-format-function
-          #\\='+tab-bar-group-format)"
-  :type 'function
+Other packages provide formatters too, e.g.
+`tab-bar-status-tab-group-format' and `tab-bar-indicator-tab-group-format'.
+Put `tab-bar-theme-tab-group-format-face' last, so its face goes under
+all parts."
+  :type 'hook
+  :options '(tab-bar-theme-tab-group-format-padding
+             tab-bar-theme-tab-group-format-fold
+             tab-bar-theme-tab-group-format-face)
   :group 'tab-bar-theme)
 
 (defcustom tab-bar-theme-indicator-blend 0.8
   "Color of the indicator bar on the current tab.
-A number is that fraction of the way from the tab's own background
-toward the color that names it; a string or a face is taken as it is;
-nil is that color undimmed.  Mixing out of the tab's own colors keeps
-the bar in key whatever the theme, where one fixed color is loud on a
-light theme and lost on a dark one.  See `tab-bar-theme--resolve-color'."
+A number is the fraction of the way from the tab background toward the
+tab color; a string or a face is used as is; nil is the tab color
+itself.  Mixing from the tab's own colors suits both light and dark
+themes, unlike a fixed color.  See `tab-bar-theme--resolve-color'."
   :type '(choice (const :tag "The color itself" nil)
                  (float :tag "Fraction of the way from the tab's background")
                  color face)
+  :set #'tab-bar-theme--set-and-apply
   :group 'tab-bar-theme)
 
+;;;###autoload
 (defun tab-bar-theme-separator ()
-  "Return `tab-bar-theme-separator' as a string, to name in `tab-bar-format'.
-Named there the way `tab-bar-separator' is, being a variable and a
-function of one name too."
+  "Return `tab-bar-theme-separator' as a string for `tab-bar-format'.
+Like the function `tab-bar-separator', it shares its name with a
+variable."
   (pcase tab-bar-theme-separator
     ((and (pred numberp) px)
-     ;; A terminal draws no part of a cell, and modern-tab reports that
-     ;; a width spec in the format can leave the whole row unpainted
-     ;; there (measured on Emacs 30.2 under tmux).
+     ;; A width spec in the format can leave the whole row unpainted on
+     ;; a terminal (reported by modern-tab, Emacs 30.2 under tmux).
      (if (display-graphic-p)
          (propertize " " 'display `(space :width (,px)))
        " "))
@@ -357,11 +332,11 @@ function of one name too."
 ;;;###autoload
 (defun tab-bar-theme-tab-name-format-padding (name &optional _tab _i)
   "Pad tab label NAME with `tab-bar-theme-tab-name-padding'.
-A no-op with `tab-bar-theme-mode' off, so callers may list this in
-`tab-bar-tab-name-format-functions' unconditionally: it belongs ahead
-of `tab-bar-tab-name-format-face', so the tab's own face covers the
-padding too, and ahead of `tab-bar-indicator-tab-name-format', so the
-bar ends up at the tab's left edge rather than inside it."
+A no-op when `tab-bar-theme-mode' is off, so it can stay in
+`tab-bar-tab-name-format-functions' unconditionally.  Put it before
+`tab-bar-tab-name-format-face', so the tab face covers the padding, and
+before `tab-bar-indicator-tab-name-format', so the bar is at the tab's
+left edge."
   (if tab-bar-theme-mode
       (concat tab-bar-theme-tab-name-padding
               name
@@ -369,127 +344,100 @@ bar ends up at the tab's left edge rather than inside it."
     name))
 
 (defun tab-bar-theme--at-slot (sequence i)
-  "Return the element of SEQUENCE standing for tab number I.
-The rotation wraps, so the ninth tab takes the first slot again."
+  "Return the element of SEQUENCE for 1-based tab number I, wrapping around."
   (let ((n (length sequence)))
     (when (> n 0)
       (elt sequence (mod (1- i) n)))))
 
 (defun tab-bar-theme--layer (over base)
-  "Return a face spec applying every face in OVER ahead of BASE.
-Each entry in OVER wins its own attributes; BASE supplies whatever
-they leave unset."
+  "Return a face list applying the faces in OVER ahead of BASE.
+Each face in OVER wins its own attributes; BASE supplies the rest."
   (append over (list base)))
 
-;;;###autoload
-(defun tab-bar-theme-tab-group-face (&optional current-p)
-  "Return the base face a group's label takes in CURRENT-P state.
-Named apart from `tab-bar-theme-tab-group-format-color' so a config
-drawing more than that label — a bar ahead of it, say — can put its own
-additions on the same background."
+(defun tab-bar-theme--tab-group-face (&optional current-p)
+  "Return the base face of a group label in CURRENT-P state.
+Used by `tab-bar-theme-tab-group-format-face'."
   (if current-p 'tab-bar-tab-group-current 'tab-bar-tab-group-inactive))
 
 ;;;###autoload
-(defun tab-bar-theme-tab-group-format-color (tab i &optional current-p)
-  "Format TAB group name for tab index I and CURRENT-P state.
-Built on `tab-bar-tab-group-format-default', so the hint number, the
-name and the face behind them follow whatever rule core follows — and
-keep following it: which groups show a hint at all is core's to say,
-and it has changed.
+(defun tab-bar-theme-tab-group-format (tab i &optional current-p)
+  "Return the label of TAB's group for tab index I and CURRENT-P state.
+Start from `tab-bar-tab-group-format-default' without its face, so core
+decides the hint, and run `tab-bar-theme-tab-group-format-functions'."
+  (let ((name (substring-no-properties
+               (tab-bar-tab-group-format-default tab i current-p))))
+    (run-hook-wrapped 'tab-bar-theme-tab-group-format-functions
+                      (lambda (fun)
+                        (setq name (funcall fun name tab i current-p))
+                        nil))
+    name))
 
-The group's own color covers the whole label, padding and hint along
-with the name, the way `tab-bar-tab-name-format-face' covers a tab's."
-  (let ((label (tab-bar-theme-tab-name-format-padding
-                (tab-bar-tab-group-format-default tab i current-p)))
-        ;; The label spec of the pair, as it comes: the same
-        ;; `(:foreground COLOR)' a colored tab's own label takes.
+(defun tab-bar-theme-tab-group-format-padding (name _tab _i &optional _current-p)
+  "Pad group label NAME with `tab-bar-theme-tab-name-padding'."
+  (tab-bar-theme-tab-name-format-padding name))
+
+(defun tab-bar-theme-tab-group-format-fold (name _tab _i &optional current-p)
+  "Prefix group label NAME with an open or folded marker.
+A group is open if CURRENT-P or `tab-bar-show-inactive-group-tabs'."
+  (concat (propertize (concat
+                       ;; Graphic frames only: there the preceding
+                       ;; indicator is a few pixels wide.
+                       (and (display-graphic-p) tab-bar-theme-tab-name-padding)
+                       (if (or current-p tab-bar-show-inactive-group-tabs) "⌵" "›"))
+                      'face 'shadow)
+          name))
+
+(defun tab-bar-theme-tab-group-format-face (name tab i &optional current-p)
+  "Add the color and face of TAB's group under group label NAME.
+Appended, so faces already in NAME, e.g. a mark's, take precedence."
+  (let ((name (copy-sequence name))
+        ;; (:foreground COLOR), or nil for an uncolored group.
         (spec (and (tab-bar-theme--tab-colors-p 'groups)
                    tab-bar-theme-color-faces
                    (cdr (tab-bar-theme--tab-pair tab current-p i 'groups)))))
-    ;; Onto what core's default put there rather than over it, the way
-    ;; `tab-bar-tab-name-format-face' adds a tab's own face: the color
-    ;; ahead of everything, the group face behind, which this reaches the
-    ;; padding with and the default never saw.
     (when spec
-      (add-face-text-property 0 (length label) spec nil label))
-    (add-face-text-property 0 (length label)
-                            (tab-bar-theme-tab-group-face current-p) t label)
-    label))
+      (add-face-text-property 0 (length name) spec t name))
+    (add-face-text-property 0 (length name)
+                            (tab-bar-theme--tab-group-face current-p) t name)
+    name))
 
-(defun tab-bar-theme-color-from-tab (tab)
-  "Return the face kept on TAB itself, or nil for none.
-Written by \\[tab-bar-theme-set-tab-color] as a tab parameter, so it
-lives exactly as long as the tab."
+(defun tab-bar-theme--color-from-tab (tab)
+  "Return the face set on TAB by \\[tab-bar-theme-set-tab-color], or nil.
+Stored as a tab parameter, so it lives as long as the tab."
   (alist-get 'tab-bar-theme-color tab))
 
-(defvar tab-bar-theme--family-cache (make-hash-table :test #'equal)
-  "The repository each project root was cut from, kept per root.
-It is read from a file, and this runs for every tab of every
-redisplay.")
-
-;;;###autoload
-(defun tab-bar-theme-worktrees-family (root)
-  "Return the directory of the repository ROOT was cut from, or ROOT itself.
-A git worktree keeps a `.git' file naming the repository it came from,
-so every worktree of one project answers with one directory.  Read from
-that file rather than asked of git: `magit-list-worktrees' answers the
-same and costs 120 ms, where this costs 0.2 ms once per root."
-  (with-memoization (gethash root tab-bar-theme--family-cache)
-    (let ((dotgit (expand-file-name ".git" root)))
-      ;; A directory name either way, so that ROOT reached with and
-      ;; without its trailing slash is one family and one color.
-      (file-name-as-directory
-       (or (and (file-regular-p dotgit)
-                (with-temp-buffer
-                  (ignore-errors (insert-file-contents dotgit))
-                  (goto-char (point-min))
-                  (when (re-search-forward
-                         "gitdir: \\(.+?\\)/\\(?:\\.git/\\)?worktrees/" nil t)
-                    (match-string 1))))
-           root)))))
-
 (defvar tab-bar-theme--key-face-cache (make-hash-table :test #'equal)
-  "The face each key answers with, kept per key and palette.
-Keyed on the length of `tab-bar-theme-color-faces' as well, which is
-all the answer depends on besides the key — nothing here comes from the
-theme, so this outlives a theme load.")
+  "Cache of `tab-bar-theme-color-from-key' results.
+Keyed on (KEY . LENGTH), LENGTH being that of
+`tab-bar-theme-color-faces'; nothing depends on the theme, so the cache
+survives theme loads.")
 
 (defun tab-bar-theme-color-from-key (key)
-  "Return the face KEY always answers with, or nil where there is no KEY.
-KEY is any string that names the thing being colored for as long as it
-lives: a project's directory, the name of a tab group.  A hash and not
-an assignment, so the same key keeps its color across sessions and
-however often it comes back — at the price of two keys sometimes
-landing on one slot while others stand free.  `secure-hash' rather than
-`sxhash-equal', whose value Emacs does not promise to keep across
-versions."
+  "Return the face for KEY, or nil if KEY is nil.
+KEY is a string naming the colored thing for its lifetime, e.g. a
+project directory or a tab group name.  The face is chosen by hash, so a
+key keeps its color across sessions, at the cost of occasional
+collisions while other slots are free.  `secure-hash' is used because
+`sxhash-equal' values are not stable across Emacs versions."
   (when (and key tab-bar-theme-color-faces)
     (with-memoization (gethash (cons key (length tab-bar-theme-color-faces))
                                tab-bar-theme--key-face-cache)
-      ;; `--at-slot' wraps, so the hash needs no `mod' of its own.
+      ;; `--at-slot' wraps, so no `mod' here.
       (tab-bar-theme--at-slot
        tab-bar-theme-color-faces
        (1+ (string-to-number (substring (secure-hash 'md5 key) 0 8) 16))))))
 
-(defun tab-bar-theme-color-from-worktrees-family (dir)
-  "Return the face the repository DIR was cut from always answers with."
-  (when dir
-    (tab-bar-theme-color-from-key
-     (tab-bar-theme-worktrees-family dir))))
-
 (defvar tab-bar-theme--last-color nil
-  "The last answer of `tab-bar-theme--tab-color-face', as (TAB I WHAT FACE).
-Every tab is asked twice over in a row — once for its label's face and
-once for its bar — so one entry answers the second for free.")
+  "Last result of `tab-bar-theme--tab-color-face', as (TAB I WHAT FACE).
+Each tab is queried twice in a row, for its label and for its bar.")
 
 (defun tab-bar-theme--tab-color-face (tab i what)
-  "Return the face TAB is colored with, or nil where none is.
-I is its place in the row and WHAT the axis of
-`tab-bar-theme-tab-colors' being drawn.  A face put on the tab by hand
-outranks `tab-bar-theme-tab-color-face-function', which outranks TAB's
-own group's color: a member tab neither one names still shows which
-group it belongs to.  A group is not a tab, and goes straight to its
-own name, by neither a hand-set color nor a function about tabs."
+  "Return the face TAB is colored with, or nil.
+I is its position in the row and WHAT the `tab-bar-theme-tab-colors'
+axis being drawn.  For tabs, the precedence is: the face set by hand,
+then `tab-bar-theme-tab-color-face-function', the key function or the
+position, then the color of TAB's group.  Groups use only their name's
+color."
   (let ((last tab-bar-theme--last-color))
     (if (and (eq tab (nth 0 last))
              (eql i (nth 1 last))
@@ -497,20 +445,19 @@ own name, by neither a hand-set color nor a function about tabs."
         (nth 3 last)
       (let ((face (and (tab-bar-theme--tab-colors-p what)
                        (or (and (eq what 'tabs)
-                                (or (tab-bar-theme-color-from-tab tab)
-                                    (if tab-bar-theme-tab-color-face-function
-                                        (funcall tab-bar-theme-tab-color-face-function tab)
-                                      (tab-bar-theme--at-slot
-                                       tab-bar-theme-color-faces (or i 1)))))
-                           ;; Both axes end at the group's own name: a
-                           ;; group is not a tab, so neither a color set
-                           ;; on one of its tabs nor a function about
-                           ;; tabs says anything about it — and a tab
-                           ;; nothing else names still shows which group
-                           ;; it belongs to.  The name and not I, which
-                           ;; is the number of the group's first tab: a
-                           ;; color off that would move when a tab is
-                           ;; opened to the left of it.
+                                (or (tab-bar-theme--color-from-tab tab)
+                                    (cond
+                                     (tab-bar-theme-tab-color-face-function
+                                      (funcall tab-bar-theme-tab-color-face-function tab))
+                                     (tab-bar-theme-tab-color-key-function
+                                      (tab-bar-theme-color-from-key
+                                       (funcall tab-bar-theme-tab-color-key-function tab)))
+                                     (t (tab-bar-theme--at-slot
+                                         tab-bar-theme-color-faces (or i 1))))))
+                           ;; Groups, and tabs nothing above names, take
+                           ;; the group's color.  By name, not I: I is the
+                           ;; index of the group's first tab and changes
+                           ;; when a tab is opened to its left.
                            (tab-bar-theme-color-from-key
                             (funcall tab-bar-tab-group-function tab))))))
         (setq tab-bar-theme--last-color (list tab i what face))
@@ -518,19 +465,16 @@ own name, by neither a hand-set color nor a function about tabs."
 
 (defun tab-bar-theme--tab-face (tab)
   "Return the face for TAB, layered over the stock tab face.
-Mirrors `tab-bar-theme-tab-group-format-color', but keys off the tab
-itself rather than its group, for a groupless one-tab-per-project
-workflow, and adds the extra face on top.
+Like `tab-bar-theme-tab-group-format-face', but keyed on the tab itself,
+plus the face from `tab-bar-theme-tab-extra-face-function'.
 
-Installed as `tab-bar-tab-face-function' rather than as another entry
-in `tab-bar-tab-name-format-functions': `tab-bar' appends the returned
-face, so our styling lands ahead of the base tab face yet behind any
-face something else already gave part of the label — an attention
-marker, say, whose own color has to survive.  Only the foreground is
-taken from the tab's color; the base face keeps supplying the
-active/inactive background.  That base comes from
-`tab-bar-tab-group-face-default', the one default correct in both of
-the slots this is installed in."
+Used as `tab-bar-tab-face-function' rather than in
+`tab-bar-tab-name-format-functions' because `tab-bar' appends this
+face: it goes ahead of the base tab face but behind faces already on
+the label, e.g. a mark's.  Only the foreground comes from
+the tab color; the base face supplies the background.  The base is
+`tab-bar-tab-group-face-default', which is correct both here and as
+`tab-bar-tab-group-face-function'."
   (let ((over ()))
     (when-let* ((tab-bar-theme-tab-extra-face-function)
                 (face (funcall tab-bar-theme-tab-extra-face-function tab)))
@@ -541,12 +485,11 @@ the slots this is installed in."
     (tab-bar-theme--layer over (tab-bar-tab-group-face-default tab))))
 
 (defun tab-bar-theme--tab-color-spec (tab)
-  "Return the label spec of TAB's own color, or nil where it has none.
-The slot in the row is asked of `tab-bar-theme--last-color' before
-`tab-bar--tab-index', which walks the frame's whole tab list to answer
-the same thing: the indicator formatter runs one step ahead of the face
-formatter in `tab-bar-tab-name-format-functions', so by here the slot
-holds this very tab."
+  "Return the label spec of TAB's own color, or nil.
+Take the slot from `tab-bar-theme--last-color' when it holds TAB, to
+avoid `tab-bar--tab-index', which walks the whole tab list.  It usually
+does: the indicator formatter runs just before the face formatter in
+`tab-bar-tab-name-format-functions'."
   (let* ((last tab-bar-theme--last-color)
          (current (eq (car tab) 'current-tab))
          (i (if (and (eq tab (nth 0 last)) (eq 'tabs (nth 2 last)))
@@ -558,50 +501,44 @@ holds this very tab."
 
 ;;;###autoload
 (defun tab-bar-theme-set-tab-color (face)
-  "Keep FACE on the current tab, for as long as the tab lives.
-It outranks `tab-bar-theme-tab-color-face-function'.  An empty answer takes the
-color off again."
+  "Color the current tab with FACE for the tab's lifetime.
+FACE takes precedence over `tab-bar-theme-tab-color-face-function'.
+Empty input removes the color."
   (interactive
    (list (let ((name (completing-read "Face for this tab (empty for none): "
-                                      tab-bar-theme-color-faces)))
+                                      tab-bar-theme-color-faces nil t)))
            (unless (string-empty-p name) (intern name)))))
-  ;; `tab-bar--current-tab-find' and not `tab-bar--current-tab': the
-  ;; latter makes a fresh structure, and a color written onto that one
-  ;; would be dropped on the floor.
-  (setf (alist-get 'tab-bar-theme-color (cdr (tab-bar--current-tab-find))
+  ;; The tab itself, not the copy `tab-bar--current-tab' returns.
+  (setf (alist-get 'tab-bar-theme-color
+                   (cdr (assq 'current-tab (funcall tab-bar-tabs-function)))
                    nil :remove)
         face)
   (setq tab-bar-theme--last-color nil)
   (force-mode-line-update t))
 
 (defvar tab-bar-theme--pair-cache (make-hash-table :test #'eq)
-  "A (COLOR . FACE) pair for each face seen on a tab so far.
-The color a bar would be drawn in and the spec its label takes, keyed
-on the face and holding (CURRENT-PAIR . OTHER-PAIR).  Nil is a key like
-any other: it is the pair of a tab left uncolored.")
+  "Cache of (CURRENT-PAIR . OTHER-PAIR) per face seen on a tab.
+Each pair is (COLOR . FACE): the indicator bar color and the label face
+spec.  The nil key holds the pair of an uncolored tab.")
 
 (defun tab-bar-theme--inactive-spec ()
-  "Return the blend an indicator that is not current is dimmed by.
-Twice dimmed: see `tab-bar-theme-tab-inactive-blend'."
+  "Return the blend for a non-current indicator bar.
+A numeric `tab-bar-theme-tab-inactive-blend' is applied twice."
   (if (numberp tab-bar-theme-tab-inactive-blend)
       (* tab-bar-theme-tab-inactive-blend
          tab-bar-theme-tab-inactive-blend)
     tab-bar-theme-tab-inactive-blend))
 
 (defvar tab-bar-theme--quiet-cache (make-hash-table :test #'eq)
-  "The quiet tone an indicator takes on each face asked for so far.
-Dropped along with the pairs, which is where those faces are set up
-again — see `tab-bar-theme--drop-pairs'.")
+  "Cache of `tab-bar-theme--quiet-color' per face.
+Cleared along with the pairs by `tab-bar-theme--drop-pairs'.")
 
 (defun tab-bar-theme--quiet-color (face)
-  "Return the one quiet tone an indicator takes on FACE.
-Not `tab-bar-theme--build-pair' with no color, which answers for a
-tab: with no blend to apply that one falls back to the tab\='s own
-color rather than to the label\='s foreground, and it reads the two
-faces a tab can take rather than whichever face is asked about.
-Mixed out of FACE itself: a tone mixed against one background and drawn
-on another comes out with however much contrast the two happen to
-share."
+  "Return the muted indicator color for FACE.
+Mixed from FACE's own background and foreground, so the contrast fits
+the surface it is drawn on.  Not `tab-bar-theme--build-pair' with no
+color: without a blend that falls back to the tab color rather than the
+label foreground, and it reads only the two tab faces."
   (with-memoization (gethash face tab-bar-theme--quiet-cache)
     (let ((bg (face-attribute face :background nil t))
           (fg (face-attribute face :foreground nil t))
@@ -610,27 +547,24 @@ share."
 
 (defun tab-bar-theme--build-pair (current raw)
   "Return the (COLOR . FACE) pair of a tab in state CURRENT with color RAW.
-COLOR is what an indicator bar for this tab would be drawn in — see
-`tab-bar-theme-tab-indicator-color' — and FACE is what its label takes."
+COLOR is the indicator bar color, see
+`tab-bar-theme-tab-indicator-color'; FACE is the label face spec."
   (let* ((face (if current 'tab-bar-tab 'tab-bar-tab-inactive))
          (spec (if current
                    tab-bar-theme-indicator-blend
                  (tab-bar-theme--inactive-spec)))
          (bg (face-attribute face :background nil t))
          (fg (face-attribute face :foreground nil t))
-         ;; A tab that is not current takes the same color dimmed, mixed
-         ;; out of the face its label takes.  Nil asks
-         ;; `--resolve-color' for no mix, so it dims nothing.
+         ;; A non-current tab takes RAW dimmed against its background.
+         ;; A nil blend makes `--resolve-color' return RAW unchanged.
          (rot (if current
                   raw
                 (and raw (tab-bar-theme--resolve-color
                           tab-bar-theme-tab-inactive-blend bg raw)))))
     (cons
-     ;; The current tab's bar is mixed toward its own color, the same one
-     ;; the label takes; a tab that is not current mixes toward the
-     ;; label's own foreground instead, every inactive one the same tone
-     ;; — telling tabs apart is the label's job, and the width already
-     ;; marks where one inactive tab ends and the next begins.
+     ;; The current tab's bar mixes toward the tab color.  Non-current
+     ;; bars all mix toward the label foreground, one shared tone: the
+     ;; label already tells tabs apart.
      (if spec
          (tab-bar-theme--resolve-color spec bg (if current (or rot fg) fg))
        (or rot fg))
@@ -639,7 +573,7 @@ COLOR is what an indicator bar for this tab would be drawn in — see
 (defun tab-bar-theme--face-color (face)
   "Return FACE's foreground, or nil where it names no color."
   (when-let* ((face)
-              (color (face-attribute face :foreground nil t))
+              (color (face-foreground face nil t))
               ((color-defined-p color)))
     color))
 
@@ -650,15 +584,12 @@ COLOR is what an indicator bar for this tab would be drawn in — see
   (setq tab-bar-theme--last-color nil))
 
 (defun tab-bar-theme--face-pair (face)
-  "Return the (CURRENT-PAIR . OTHER-PAIR) FACE colors a tab with.
-Nil for FACE gives the pair of a tab left uncolored.
+  "Return the (CURRENT-PAIR . OTHER-PAIR) for tabs colored with FACE.
+A nil FACE gives the pair of an uncolored tab.
 
-Built on first sight of a face rather than for every slot up front: a
-tab opened after the theme was set up carries a face nobody could have
-known about, and one built at that point is one built once.  Out of
-redisplay either way — derived per tab per command, this was some 44
-percent of what a row of tabs cost, and grew with the square of the
-number of tabs."
+Built on first use of each face and cached outside redisplay: faces of
+tabs opened later are unknown up front, and computing pairs per tab on
+each redisplay is costly."
   (with-memoization (gethash face tab-bar-theme--pair-cache)
     (let ((raw (tab-bar-theme--face-color face)))
       (cons (tab-bar-theme--build-pair t raw)
@@ -666,24 +597,21 @@ number of tabs."
 
 (defun tab-bar-theme--tab-pair (tab current i what)
   "Return the (COLOR . FACE) pair for TAB, in state CURRENT at slot I.
-WHAT is the axis of `tab-bar-theme-tab-colors' being drawn.  A tab that
-`tab-bar-theme--tab-color-face' answers nil for takes the pair of no
-color: the same quiet bar color, and its label left to the theme's own
-face."
+WHAT is the `tab-bar-theme-tab-colors' axis being drawn.  An uncolored
+TAB gets the muted bar color and no label face, leaving the label to the
+theme."
   (let ((pair (tab-bar-theme--face-pair
                (tab-bar-theme--tab-color-face tab i what))))
     (if current (car pair) (cdr pair))))
 
 ;;;###autoload
 (defun tab-bar-theme-tab-indicator-color (tab i)
-  "Return the color TAB's indicator bar is drawn in at slot I, or nil.
-Mixed the same way as the tab's own label, so the bar and the label
-agree.  A nil TAB means no tab in particular — `tab-bar-indicator-separator'
-asks that way — and answers with the same quiet tone an uncolored tab
-gets, rather than reading tab parameters or asking a tab policy
-function about a tab that does not exist.
+  "Return the indicator bar color for TAB at slot I, or nil.
+Mixed like the tab's label, so the two match.  A nil TAB, as passed by
+`tab-bar-indicator-separator', gets the muted tone of an uncolored tab
+without reading tab parameters or calling tab color functions.
 
-Meant to be set as `tab-bar-indicator-color-function':
+Meant for `tab-bar-indicator-color-function':
 
     (setq tab-bar-indicator-color-function #\\='tab-bar-theme-tab-indicator-color)"
   (if (not tab)
@@ -691,26 +619,18 @@ Meant to be set as `tab-bar-indicator-color-function':
     (car (tab-bar-theme--tab-pair tab (eq (car tab) 'current-tab) i 'tabs))))
 
 ;;;###autoload
-(defun tab-bar-theme-tab-group-indicator-color (&optional current-p)
-  "Return the color a group's indicator bar is drawn in in CURRENT-P state.
-The one quiet tone an indicator takes, mixed out of the face the
-group's own label takes — one as loud as the current tab's, drawn ahead
-of that tab, says nothing its label has not said already; and the group
-carries its own color on the label, where
-`tab-bar-theme-tab-group-format-color' puts it.  See
-`tab-bar-theme-tab-group-format-function' for where this is meant to be
-used."
-  (tab-bar-theme--quiet-color (tab-bar-theme-tab-group-face current-p)))
+(defun tab-bar-theme-tab-group-indicator-color (_tab _i &optional current-p)
+  "Return the color of a group's indicator in CURRENT-P state.
+A muted tone of the group face; the group's own color is on its label.
+For `tab-bar-indicator-group-color-function'."
+  (tab-bar-theme--quiet-color (tab-bar-theme--tab-group-face current-p)))
 
 (defun tab-bar-theme--shift-color (color fraction)
-  "Shift COLOR by FRACTION, toward content when positive, away when negative.
-\"Toward content\" means toward what an active element's background
-looks like on the current frame; \"away\" means further into chrome.
-Lightening is toward content on a light background but away from it
-on a dark one — and vice versa for darkening — so a fixed sign keeps
-its meaning across both, rather than one of them flooring an
-already-dark or already-light color into no contrast at all."
-  ;; No color to shift: see `tab-bar-theme--blend-color'.  Unshifted, then.
+  "Shift the lightness of COLOR by FRACTION, keeping its hue.
+Positive moves toward the default background, darker on a dark frame
+and lighter on a light one; negative moves away from it.  The sign thus
+means the same on light and dark themes."
+  ;; Not a color, see `tab-bar-theme--blend-color': return it unshifted.
   (if (not (color-name-to-rgb color))
       color
     (let ((dark (eq (frame-parameter nil 'background-mode) 'dark))
@@ -721,11 +641,11 @@ already-dark or already-light color into no contrast at all."
         (color-lighten-name color percent)))))
 
 (defun tab-bar-theme--blend-color (from to fraction)
-  "Return the color FRACTION of the way from FROM to TO, or nil for none.
-Mixing toward the foreground beats shifting the background's own
-lightness: `color-darken-name' and `color-lighten-name' hold the hue,
-so a warm background gives a muddy tint of itself."
-  ;; Nil where either end is no color this frame knows; see
+  "Return the color FRACTION of the way from FROM to TO, or nil.
+Unlike `tab-bar-theme--shift-color', it takes on TO's hue: for mixing a
+label or bar color toward a foreground, where a lightness shift of a
+warm background turns muddy."
+  ;; Nil if either end is not a color this frame knows; see
   ;; `color-defined-p'.
   (when-let* ((a (color-name-to-rgb from))
               (b (color-name-to-rgb to)))
@@ -733,27 +653,22 @@ so a warm background gives a muddy tint of itself."
            (append (color-blend b a fraction) '(2)))))
 
 (defun tab-bar-theme--face-fg-or-bg (face)
-  "Return FACE's foreground, or its background where that is FACE's color.
-A face like `highlight' or `match' means itself through its background
-and answers the same foreground `default' does — using that foreground
-would just be `default' in another name, so its background is the
-color FACE actually means."
+  "Return FACE's foreground, or its background if the foreground is default.
+Faces like `highlight' or `match' carry their color in the background."
   (let ((fg (face-foreground face nil 'default)))
     (if (equal fg (face-foreground 'default nil 'default))
         (face-background face nil 'default)
       fg)))
 
 (defun tab-bar-theme--resolve-color (spec bg full)
-  "Return the color SPEC names against the surface BG, or FULL for none.
-A number is that fraction of the way from BG toward FULL; a string is
-a color as it is; a face gives its foreground, or its background for a
-face that means itself through that instead — see
-`tab-bar-theme--face-fg-or-bg'.  FULL answers for anything else, and
-wherever the frame leaves nothing to mix."
-  ;; `stringp' comes before `facep' because `facep' accepts the *name*
-  ;; of a face as a string, and `face-attribute' then signals on it: a
-  ;; color of "shadow" or "default" would take down `load-theme', which
-  ;; is what runs `tab-bar-theme--apply'.
+  "Return the color SPEC denotes against the background BG, or FULL.
+A number is the fraction of the way from BG toward FULL; a string is a
+color used as is; a face gives its color per
+`tab-bar-theme--face-fg-or-bg'.  Return FULL for anything else, or when
+there is nothing to mix."
+  ;; `stringp' before `facep': `facep' accepts a face name as a string,
+  ;; and `face-attribute' then signals, e.g. for "shadow", which would
+  ;; break `load-theme' via `tab-bar-theme--apply'.
   (or (pcase spec
         ((pred numberp) (tab-bar-theme--blend-color bg full spec))
         ((pred stringp) spec)
@@ -761,28 +676,26 @@ wherever the frame leaves nothing to mix."
       full))
 
 (defvar tab-bar-theme--overridden-faces nil
-  "Faces this mode has given an override spec, to drop again.
-Recorded as they are set rather than listed by hand, so a face added to
-the setup cannot be forgotten in the teardown.")
+  "Faces this mode has given an override spec, for teardown.
+Recorded when set, so teardown cannot miss a face.")
 
 (defun tab-bar-theme--set-face (face spec)
-  "Give FACE the override SPEC, and record it for the teardown."
+  "Give FACE the override SPEC, and record it for teardown."
   (face-spec-set face spec)
   (push face tab-bar-theme--overridden-faces))
 
 (defun tab-bar-theme--drop-faces ()
-  "Drop every override spec this mode set, and forget them.
-Called before each apply as well as on teardown: a face dropped from an
-option between two theme loads would otherwise keep its override for
-the rest of the session."
+  "Drop every override spec this mode set.
+Also called before each apply, so a face removed from the setup between
+theme loads does not keep its override."
   (dolist (face tab-bar-theme--overridden-faces)
     (face-spec-set face nil 'face-override-spec))
   (setq tab-bar-theme--overridden-faces nil))
 
 (defun tab-bar-theme--shifted (color spec)
-  "Return COLOR shifted per SPEC, the shape both shift options take.
-A number is a fraction to shift COLOR's own lightness by, a string is a
-color to use as it is, and nil is COLOR itself."
+  "Return COLOR shifted per SPEC, as in the background shift options.
+A number shifts COLOR's lightness by that fraction, a string is a color
+used as is, and nil returns COLOR."
   (pcase spec
     ((and (pred numberp) shift) (tab-bar-theme--shift-color color shift))
     ((and (pred stringp) literal) literal)
@@ -794,34 +707,29 @@ color to use as it is, and nil is COLOR itself."
          (fg-inactive (face-attribute 'mode-line-inactive :foreground nil 'default))
          (bg-active   (face-attribute 'default :background))
          (fg-active   (face-attribute 'default :foreground))
-         ;; Computed, not taken from the theme's own
-         ;; `tab-bar-tab-inactive': that background is drawn against the
-         ;; theme's `tab-bar', where the strip here comes from
-         ;; `mode-line-inactive' — and half of a theme's design read
-         ;; against the other half of ours put the loudest block of the
-         ;; row on the tabs nobody is looking at.
+         ;; Computed, not the theme's `tab-bar-tab-inactive': that is
+         ;; designed against the theme's `tab-bar', while the strip here
+         ;; is `mode-line-inactive', and the mix made non-current tabs
+         ;; the loudest part of the row.
          (bg-tab-inactive
           (tab-bar-theme--shifted bg-inactive
                                   tab-bar-theme-tab-inactive-background-shift))
          (bg-group-current
           (tab-bar-theme--shifted bg-active
                                   tab-bar-theme-tab-group-background-shift))
-         ;; The room a box used to make above and below a label now
-         ;; comes from the height of the indicator bar, which a box
-         ;; would only stack on top of — so it is off on every face.
+         ;; No :box: the indicator bar height provides vertical padding.
          (common `( :inherit unspecified :box nil
                     ,@(when tab-bar-theme-height
                         (list :height tab-bar-theme-height))))
          (dim `(,@common :background ,bg-tab-inactive
                          :foreground ,fg-inactive)))
-    ;; Override specs rather than `custom-set-faces': these values are
-    ;; computed from the current theme, so they have no business in a
-    ;; custom file, and an override is what `tab-bar-theme--cleanup'
-    ;; can drop again.
+    ;; Override specs, not `custom-set-faces': the values derive from
+    ;; the current theme, do not belong in a custom file, and
+    ;; `tab-bar-theme--cleanup' can drop them.
     ;;
-    ;; Every value is named on every face, and no face here inherits
-    ;; another of them — see `tab-line-theme--setup-base-faces' for the
-    ;; inheritance cycle that rule avoids, and the theme that showed it.
+    ;; Every attribute is set on every face and none inherits another,
+    ;; so the theme's inheritance between these faces cannot form a
+    ;; cycle with the overrides.
     (dolist (face '(tab-bar-tab-inactive tab-bar-tab-ungrouped))
       (tab-bar-theme--set-face face `((t (,@dim)))))
     (pcase-dolist (`(,face ,spec)
@@ -841,16 +749,14 @@ color to use as it is, and nil is COLOR itself."
 (defun tab-bar-theme--apply (&optional _theme)
   "Apply `tab-bar-theme' settings."
   (setq tab-bar-tab-face-function #'tab-bar-theme--tab-face)
-  ;; `tab-bar-format-tabs-groups' renders every tab with
-  ;; `tab-bar-tab-group-face-function' shadowing the above, so both
-  ;; slots have to name the same function to style tabs either way —
-  ;; the usage `tab-bar-tab-group-face-function' documents itself.
+  ;; `tab-bar-format-tabs-groups' uses `tab-bar-tab-group-face-function'
+  ;; instead, so both must name the same function, as that variable's
+  ;; docstring suggests.
   (setq tab-bar-tab-group-face-function #'tab-bar-theme--tab-face)
-  (setq tab-bar-tab-group-format-function tab-bar-theme-tab-group-format-function)
+  (setq tab-bar-tab-group-format-function #'tab-bar-theme-tab-group-format)
   (tab-bar-theme--drop-faces)
   (tab-bar-theme--setup-base-faces)
-  ;; After the base faces: a pair's colors are mixed out of the face
-  ;; its tab sits on, which is set there.
+  ;; After the base faces, which the pairs are mixed from.
   (tab-bar-theme--drop-pairs))
 
 
@@ -858,27 +764,25 @@ color to use as it is, and nil is COLOR itself."
   '( tab-bar-tab-face-function
      tab-bar-tab-group-face-function
      tab-bar-tab-group-format-function)
-  "Variables `tab-bar-theme--apply' overwrites wholesale.
-`tab-bar-tab-name-format-functions' is not among them: it is not
-tab-bar-theme's to own at all, see `tab-bar-theme-tab-name-format-padding'.")
+  "Variables `tab-bar-theme--apply' overwrites.
+Not `tab-bar-tab-name-format-functions', which this package does not
+own; see `tab-bar-theme-tab-name-format-padding'.")
 
 (defvar tab-bar-theme--saved nil
   "Alist of what `tab-bar-theme--variables' held before the mode.")
 
 (defun tab-bar-theme--save-variables ()
-  "Record what `tab-bar-theme--variables' hold, to be put back later."
-  ;; `define-minor-mode' runs its body on every call and a nil argument
-  ;; means enable, so a mode enabled twice would otherwise record the
-  ;; values it set itself and never put the original ones back.
+  "Record the values of `tab-bar-theme--variables', to restore later."
+  ;; Only once: `define-minor-mode' runs its body on every enable call,
+  ;; so a second call would record the mode's own values.
   (unless tab-bar-theme--saved
     (setq tab-bar-theme--saved
           (mapcar (lambda (sym) (cons sym (symbol-value sym)))
                   tab-bar-theme--variables))))
 
 (defun tab-bar-theme--restore-variables ()
-  "Put back what `tab-bar-theme--save-variables' recorded.
-Non-nil where there was anything to put back: nothing recorded is a
-mode that was never on."
+  "Restore what `tab-bar-theme--save-variables' recorded.
+Return non-nil if anything was recorded, i.e. the mode was on."
   (when tab-bar-theme--saved
     (dolist (cell tab-bar-theme--saved)
       (set (car cell) (cdr cell)))
@@ -889,15 +793,18 @@ mode that was never on."
   "Undo `tab-bar-theme--apply'."
   (when (tab-bar-theme--restore-variables)
     (tab-bar-theme--drop-faces)
-    ;; The colors were mixed out of the faces just dropped, and another
-    ;; mode's formatter may still be asking for them.
+    ;; The cached colors derive from the dropped faces, and other
+    ;; modes' formatters may still ask for them.
     (tab-bar-theme--drop-pairs)))
 
 
 
 ;;;###autoload
 (define-minor-mode tab-bar-theme-mode
-  "Toggle `tab-bar-theme-mode'."
+  "Toggle tab bar faces and colors derived from the current theme.
+When enabled, set the tab bar faces on every theme change and take over
+`tab-bar-tab-face-function', `tab-bar-tab-group-face-function' and
+`tab-bar-tab-group-format-function'; restore them when disabled."
   :global t :group 'tab-bar-theme
   (cond
    (tab-bar-theme-mode
