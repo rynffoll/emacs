@@ -701,6 +701,7 @@ For mode hooks of buffers that do not show point."
     "oc"  'customize-group
     "ol"  'link-hint-open-link
     "ot"  'ghostel
+    "op"  'proced
     "or"  '+rebased
     "oa"  'org-agenda
     "ox"  'org-capture
@@ -1501,7 +1502,9 @@ The status of a program in a terminal flows through two packages:
                "\\`\\*wclock\\*\\'"
                "\\`\\*compilation\\*\\'"
                "\\`\\* docker")
-           (popbuf-side-display-buffer))))
+           (popbuf-side-display-buffer))
+          ((derived-mode . proced-mode)
+           (display-buffer-same-window))))
   :general
   (evil-window-map
    "m" 'maximize-window
@@ -3618,8 +3621,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
   :ensure nil
   :init
   (setq proced-enable-color-flag t)
-  (setq proced-auto-update-flag 'visible)
-  (setq proced-format 'medium))
+  (setq proced-auto-update-flag 'visible))
 #+end_src
 
 #+begin_src emacs-lisp

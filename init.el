@@ -248,6 +248,7 @@ For mode hooks of buffers that do not show point."
     "oc"  'customize-group
     "ol"  'link-hint-open-link
     "ot"  'ghostel
+    "op"  'proced
     "or"  '+rebased
     "oa"  'org-agenda
     "ox"  'org-capture
@@ -841,7 +842,9 @@ For mode hooks of buffers that do not show point."
                "\\`\\*wclock\\*\\'"
                "\\`\\*compilation\\*\\'"
                "\\`\\* docker")
-           (popbuf-side-display-buffer))))
+           (popbuf-side-display-buffer))
+          ((derived-mode . proced-mode)
+           (display-buffer-same-window))))
   :general
   (evil-window-map
    "m" 'maximize-window
@@ -2336,8 +2339,7 @@ Covers both working-tree faces and reference-revision faces."
   :ensure nil
   :init
   (setq proced-enable-color-flag t)
-  (setq proced-auto-update-flag 'visible)
-  (setq proced-format 'medium))
+  (setq proced-auto-update-flag 'visible))
 
 (use-package proced-narrow
   :general
