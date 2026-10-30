@@ -1265,8 +1265,8 @@ For mode hooks of buffers that do not show point."
    "l" #'project-x-open-layout)
   :init
   (setq project-x-layouts
-        '(("Dired + Magit"  . (dired-side-toggle magit-project-status))
-          ("Magit + Claude" . (magit-project-status claude-code-ide))))
+        '(("dired-side + magit-status"  . (dired-side-toggle magit-project-status))
+          ("magit-status + claude-code" . (magit-project-status claude-code-ide-resume))))
   :config
   (add-to-list 'project-switch-commands '(project-x-open-layout "Layout") t))
 
