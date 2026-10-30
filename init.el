@@ -693,11 +693,6 @@ For mode hooks of buffers that do not show point."
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
 
-(use-package project-tab-groups
-  :disabled ;; replaced by tab-bar-project
-  :hook
-  (after-init-hook . project-tab-groups-mode))
-
 (use-package tab-bar-project
   :ensure nil
   :init

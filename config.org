@@ -77,7 +77,6 @@
   - [[#fringe][fringe]]
 - [[#tabs][Tabs]]
   - [[#tab-bar][tab-bar]]
-  - [[#project-tab-groups][project-tab-groups]]
   - [[#tab-bar-project][tab-bar-project]]
   - [[#tab-bar-status][tab-bar-status]]
   - [[#tab-bar-theme][tab-bar-theme]]
@@ -1318,14 +1317,6 @@ The status of a program in a terminal flows through two packages:
   :hook
   (after-init-hook . tab-bar-mode)
   (after-init-hook . tab-bar-history-mode))
-#+end_src
-
-** project-tab-groups
-#+begin_src emacs-lisp
-(use-package project-tab-groups
-  :disabled ;; replaced by tab-bar-project
-  :hook
-  (after-init-hook . project-tab-groups-mode))
 #+end_src
 
 ** tab-bar-project
