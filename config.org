@@ -79,8 +79,9 @@
   - [[#tab-bar][tab-bar]]
   - [[#tab-bar-project][tab-bar-project]]
   - [[#tab-bar-status][tab-bar-status]]
+  - [[#tab-bar-status-system-taskbar][tab-bar-status-system-taskbar]]
   - [[#tab-bar-theme][tab-bar-theme]]
-  - [[#tab-bar-indicator][tab-bar-indicator]]
+  - [[#tab-bar-color-bar][tab-bar-color-bar]]
   - [[#tab-bar-tree][tab-bar-tree]]
   - [[#per-tab-group-theme][per-tab-group-theme]]
   - [[#tab-line][tab-line]]
@@ -1212,14 +1213,14 @@ window instead of the tab bar.
 
 #+begin_example
 ┌───────────────────────────────┐
-│ ≡ │ group:emacs           ⚑³  │ ← header      tab-bar-tree-header-format, ⚑³ tab-bar-status
+│ ≡ │ group:emacs     ●¹ ●¹ ⚑¹  │ ← header      tab-bar-tree-header-format, ●¹ ●¹ ⚑¹ tab-bar-status
 ├───────────────────────────────┤
 │▏1 *scratch*                   │ ← tab
 │▏⌵ emacs                       │ ← group       tab-bar-theme pipeline
 │   ▌2 emacs                    │ ← current tab
 │      working: Reading files   │ ← status      tab-bar-status, from tab-bar-ghostel
-│   ▏3 *Proced* ⚑               │ ← tab, marked
-│▏› 4 operfeed ⚑²               │ ← group, folded
+│   ▏3 *Proced* ⚑               │ ← tab, with an indicator
+│▏› 4 dotfiles ●¹ ●¹            │ ← group, folded
 └───────────────────────────────┘
 #+end_example
 
@@ -1227,34 +1228,35 @@ Labels close up:
 
 #+begin_example
 ▏3 *Proced* ⚑
-│└┬───────┘ └ tab-bar-status, a mark
+│└┬───────┘ └ tab-bar-status, an indicator
 │ └ hint and name, core; color tab-bar-theme
-└ tab-bar-indicator
+└ tab-bar-color-bar
 
-▏› 4 operfeed ⚑²
-││ └─┬──────┘ └ tab-bar-status, mark counts of a folded group
+▏› 4 dotfiles ●¹ ●¹
+││ └─┬──────┘ │  └ tab-bar-status, :success indicators in the group, face success
+││   │        └ tab-bar-status, :warning indicators in the group, face warning
 ││   └ hint of the first tab and name, core
 │└ tab-bar-theme, fold marker
-└ tab-bar-indicator
+└ tab-bar-color-bar
 #+end_example
 
-| Package           | Does                                     | Wired through                                    |
-|-------------------+------------------------------------------+--------------------------------------------------|
-| tab-bar-project   | a tab per project, grouped by repo       | =tab-bar-project-group-function=                 |
-| tab-bar-theme     | colors, padding, group label             | =tab-bar-theme-tab-group-format-functions=       |
-| tab-bar-indicator | bar at a tab's edge                      | =tab-bar-tab-name-format-functions=              |
-| tab-bar-tree      | tabs as a tree in a side window          | =tab-bar-tree-header-format=                     |
-| tab-bar-status    | tab status: status lines, marks, summary | format functions, =global-mode-string=, the tree |
-| tab-bar-ghostel   | terminal program status as tab status    | =tab-bar-status-set=                             |
+| Package           | Does                                          | Wired through                                    |
+|-------------------+-----------------------------------------------+--------------------------------------------------|
+| tab-bar-project   | a tab per project, grouped by repo            | =tab-bar-project-group-function=                 |
+| tab-bar-theme     | colors, padding, group label                  | =tab-bar-theme-tab-group-format-functions=       |
+| tab-bar-color-bar | bar at a tab's edge                           | =tab-bar-tab-name-format-functions=              |
+| tab-bar-tree      | tabs as a tree in a side window               | =tab-bar-tree-header-format=                     |
+| tab-bar-status    | tab status: status lines, indicators, summary | format functions, =global-mode-string=, the tree |
+| tab-bar-ghostel   | terminal program status as tab status         | =tab-bar-status-set=                             |
 
-Colors are keyed by =tab-bar-project-root=; the indicator takes its
+Colors are keyed by =tab-bar-project-root=; the color bar takes its
 color from =tab-bar-theme=.  The tree re-renders on
 =tab-bar-status-change-hook=.
 
 The status of a program in a terminal flows through two packages:
 
 #+begin_example
- ghostel terminal ── OSC 7501 ──► tab-bar-ghostel ──► tab-bar-status ─┬─► mark on the tab   ● until viewed
+ ghostel terminal ── OSC 7501 ──► tab-bar-ghostel ──► tab-bar-status ─┬─► indicator on the tab ● until viewed
                                   root record,        state, text,    │   (blocked, error, done)
                                   project tab         spinner         └─► tab-bar-tree       status lines
 #+end_example
@@ -1292,7 +1294,7 @@ The status of a program in a terminal flows through two packages:
                          ;; tab-bar-format-menu-bar
                          tab-bar-theme-separator
                          tab-bar-format-tabs-groups
-                         tab-bar-indicator-separator
+                         tab-bar-color-bar-separator
                          tab-bar-format-align-right
                          tab-bar-format-global))
   (setq tab-bar-close-button-show nil)
@@ -1304,14 +1306,14 @@ The status of a program in a terminal flows through two packages:
   (setq tab-bar-auto-width nil)
   (setq tab-bar-tab-name-format-functions
         '(tab-bar-tab-name-format-truncated
-          ;; After truncation: marks are never cut.
+          ;; After truncation: indicators are never cut.
           tab-bar-status-tab-name-format
           tab-bar-tab-name-format-hints
           tab-bar-tab-name-format-close-button
-          ;; Indicator after padding: at the tab's edge.  Both before
+          ;; Color bar after padding: at the tab's edge.  Both before
           ;; face: the tab face covers them.
           tab-bar-theme-tab-name-format-padding
-          tab-bar-indicator-tab-name-format
+          tab-bar-color-bar-tab-name-format
           tab-bar-tab-name-format-face
           tab-bar-tab-name-format-mouse-face))
   :hook
@@ -1335,16 +1337,24 @@ The status of a program in a terminal flows through two packages:
   :ensure nil
   :general
   (tab-prefix-map
-   "!" 'tab-bar-status-switch-to-marked-tab
-   "*" 'tab-bar-status-toggle-mark)
+   "!" 'tab-bar-status-switch-to-indicated-tab
+   "*" 'tab-bar-status-toggle-indicator)
   :init
   (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-lines)
   :config
   (add-to-list 'global-mode-string
-               '(:eval (tab-bar-status-summary (tab-bar-status-marked-tabs))))
+               '(:eval (tab-bar-status-summary (tab-bar-status-indicated-tabs))))
   :hook
   (after-init-hook . tab-bar-status-mode)
   (tab-bar-status-change-hook . tab-bar-tree-update))
+#+end_src
+
+** tab-bar-status-system-taskbar
+#+begin_src emacs-lisp
+(use-package tab-bar-status-system-taskbar
+  :ensure nil
+  :hook
+  (after-init-hook . tab-bar-status-system-taskbar-mode))
 #+end_src
 
 ** tab-bar-theme
@@ -1359,7 +1369,7 @@ The status of a program in a terminal flows through two packages:
         '(tab-bar-status-tab-group-format
           tab-bar-theme-tab-group-format-padding
           tab-bar-theme-tab-group-format-fold
-          tab-bar-indicator-tab-group-format
+          tab-bar-color-bar-tab-group-format
           ;; Last: its face goes under all parts.
           tab-bar-theme-tab-group-format-face))
   (setq tab-bar-theme-tab-color-key-function #'tab-bar-project-root)
@@ -1367,14 +1377,12 @@ The status of a program in a terminal flows through two packages:
   (after-init-hook . tab-bar-theme-mode))
 #+end_src
 
-** tab-bar-indicator
+** tab-bar-color-bar
 #+begin_src emacs-lisp
-(use-package tab-bar-indicator
+(use-package tab-bar-color-bar
   :ensure nil
   :init
-  (setq tab-bar-indicator-color-function #'tab-bar-theme-tab-indicator-color)
-  (setq tab-bar-indicator-group-color-function
-        #'tab-bar-theme-tab-group-indicator-color))
+  (setq tab-bar-color-bar-color-function #'tab-bar-theme-tab-color))
 #+end_src
 
 ** tab-bar-tree
@@ -1409,7 +1417,7 @@ The status of a program in a terminal flows through two packages:
   (with-eval-after-load 'winum
     (add-to-list 'winum-assign-functions #'+winum-assign-9-to-tab-bar-tree))
   (setq tab-bar-tree-button (+tab-bar-tree-icon))
-  (setq tab-bar-tree-header-format '(tab-bar-indicator-strut
+  (setq tab-bar-tree-header-format '(tab-bar-color-bar-strut
                                      tab-bar-tree-format-button
                                      tab-bar-theme-separator
                                      tab-bar-tree-header-format-group-truncated
@@ -2683,6 +2691,7 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
           ))
   (setq ghostel-notification-functions '(+ghostel-notify-taskbar
                                          +ghostel-notify-macos))
+  (setq ghostel-status-mode-line-labels 'words) ;; emoji make the mode line taller
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))

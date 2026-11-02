@@ -36,7 +36,7 @@ e.g. in a child frame.
 │    2 emacs                    │ ← tab label      indented by tab-bar-tree-indent
 │      working: Reading files   │ ← status line    tab-bar-tree-tab-status-function
 │    3 *Proced*                 │ ← tab label
-│ 4 operfeed                    │ ← group label, folded
+│ 4 dotfiles                    │ ← group label, folded
 └───────────────────────────────┘
 #+end_example
 

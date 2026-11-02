@@ -4,71 +4,84 @@
 The status of tab-bar tabs, in two forms:
 
 - the *current status*, reported by a source such as a program in a
-  terminal: a state, e.g. =working=, =blocked= or =done=, and a line of
-  text, shown as status lines under the tab while the source runs;
-- *marks*, colored symbols after the tab name that keep a status until
-  the tab is viewed: a source entering =blocked=, =error= or =done=
-  marks its tabs, and =⚑= is a flag set by hand.
+  terminal: a state, e.g. =working=, =blocked= or =done=, a line of
+  text and a progress, shown as status lines under the tab while the
+  source runs;
+- *indicators*, colored symbols after the tab name that keep a status
+  until the tab is viewed: a source entering =blocked=, =error= or
+  =done= sets indicators on its tabs, and =⚑= is a flag set by hand.
 
-States follow the terminal program status protocol, OSC 7501; any
-symbol works.
+States follow the [[https://www.superlogical.com/rex/docs/build/program-status][terminal program status protocol]], OSC 7501; more
+states can be added to =tab-bar-status-state-alist=.
+
+* Files
+
+| File                               | Contents                                            |
+|------------------------------------+-----------------------------------------------------|
+| =tab-bar-status.el=                | Core: statuses and indicators                       |
+| =tab-bar-status-system-taskbar.el= | Badge, progress and attention in the system taskbar |
 
 * Layout
 
 #+begin_example
  tab bar:
- 1 *scratch*  2 emacs ●  3 *Proced* ⚑  4 operfeed ●²        ●³ ⚑¹
-                      │             │             │         └─┬─┘
-                      │             │             │           └ summary
-                      │             │             └ counts of a folded group
+ 1 *scratch*  2 emacs ●  3 *Proced* ⚑  4 dotfiles ●¹ ●¹        ●² ●¹ ⚑¹
+                      │             │             │            └──┬───┘
+                      │             │             │               └ summary
+                      │             │             └ counts of a folded group, one per indicator type;
+                      │             │               the same ● differ by face: warning, success
                       │             └ flag, set by hand, permanent
-                      └ mark after the name
+                      └ indicator after the name
 
  status lines, e.g. in a tree of tabs:
  2 emacs ●
    blocked: permission       ← the current status
 #+end_example
 
-| Element      | Drawn by                                                   |
-|--------------+------------------------------------------------------------|
-| tab mark     | =tab-bar-status-tab-name-format=, a tab name formatter     |
-| group count  | =tab-bar-status-tab-group-format=, a group label formatter |
-| summary      | =tab-bar-status-summary=, e.g. in =global-mode-string=     |
-| status lines | =tab-bar-status-tab-lines=, e.g. in a tree of tabs         |
+| Element        | Drawn by                                                   |
+|----------------+------------------------------------------------------------|
+| tab indicator  | =tab-bar-status-tab-name-format=, a tab name formatter     |
+| group count    | =tab-bar-status-tab-group-format=, a group label formatter |
+| summary        | =tab-bar-status-summary=, e.g. in =global-mode-string=     |
+| status lines   | =tab-bar-status-tab-lines=, e.g. in a tree of tabs         |
+| system taskbar | =tab-bar-status-system-taskbar-mode=, see [[*System taskbar][System taskbar]]   |
 
 * States
 
 A program in a terminal reports its status with OSC 7501: a =state=, a
 =msg= and, for =blocked=, a =kind= such as =permission=.  A terminal
-source passes the state, and the message or else the kind as the text:
+source passes the state, the message or else the kind as the text, and
+the progress:
 
 #+begin_example
  source         current status    shown as
  ───────────    ──────────────    ───────────────────────────────────────
  a terminal ──► working, text ──► status line   working: Reading files
+            ──► working, 42   ──► status line   working: 42%
             ──► working       ──► status line   working: ․ ‥ … (spinner)
             ──► blocked, kind ──► status line   blocked: permission
-                                  mark          :warning, until viewed
+                                  indicator     :warning, until viewed
             ──► error, text   ──► status line   error: Exit 1
-                                  mark          :error, until viewed
-            ──► done          ──► mark          :success, until viewed
+                                  indicator     :error, until viewed
+            ──► done          ──► indicator     :success, until viewed
             ──► idle          ──► nothing
 #+end_example
 
 The current status lives as long as its source: a buffer's status goes
-with the buffer.  A mark lives on the tab until the tab is viewed, and
-is saved with it.  So a =blocked= agent keeps its status line after you
-view the tab, and a =done= agent leaves only its mark.
+with the buffer.  An indicator lives on the tab until the tab is viewed,
+and is saved with it.  So a =blocked= agent keeps its status line after
+you view the tab, and a =done= agent leaves only its indicator.
 
-A status line is =STATE: TEXT=.  A spinner replaces a missing text,
-running only while a line has none.  States in
-=tab-bar-status-hidden-states= get no line; states in
-=tab-bar-status-state-mark-alist= mark the tabs on entering them.
+A status line is =STATE: TEXT=.  If the text is missing, the line
+shows the progress instead, e.g. =42%=, or a spinner if there is no
+progress.  =tab-bar-status-state-alist= gives each state what it
+shows: =:indicator=, the type set on the tabs entering it, and =:line t=
+for a status line.
 
-* Marks
+* Indicators
 
-A tab can carry several marks, one per type in
-=tab-bar-status-mark-type-alist=:
+A tab can carry several indicators, one per type in
+=tab-bar-status-indicator-alist=:
 
 | Type       | Symbol | Face      | Permanent |
 |------------+--------+-----------+-----------|
@@ -77,27 +90,29 @@ A tab can carry several marks, one per type in
 | =:success= | ●      | =success= |           |
 | =:flag=    | ⚑      | =shadow=  | yes       |
 
-Marks are stored as a tab parameter and disappear with the tab.  A
-non-permanent mark is removed when its tab comes into view (the
+Indicators are stored as a tab parameter and disappear with the tab.  A
+non-permanent indicator is removed when its tab comes into view (the
 selected tab of a focused frame), and is not set on a tab in view.
 
 * API
 
 - =tab-bar-status-set= — set the current status of a source, e.g. a
-  terminal buffer, with a predicate on tabs
+  terminal buffer, with a predicate on tabs and an optional progress
 - =tab-bar-status-remove= — remove the current status of a source
 - =tab-bar-status-tab-lines= — the status lines of a tab, a value for
   =tab-bar-tree-tab-status-function=
-- =tab-bar-status-mark-if=, =tab-bar-status-unmark-if= — set or remove a
-  mark on the tabs matching a predicate
-- =tab-bar-status-mark-state= — mark the tabs of a predicate per a
-  state, for events that set no current status
-- =tab-bar-status-toggle-mark= — toggle a mark on the current tab
-- =tab-bar-status-switch-to-marked-tab= — switch to a marked tab
-- =tab-bar-status-marks=, =tab-bar-status-marked-tabs=,
-  =tab-bar-status-marked-group-tabs= — marks and marked tabs
-- =tab-bar-status-summary= — mark counts as a string
-- =tab-bar-status-change-hook= — run when marks or status lines change,
+- =tab-bar-status-set-indicator-if=,
+  =tab-bar-status-remove-indicator-if= — set or remove an indicator on
+  the tabs matching a predicate
+- =tab-bar-status-set-state-indicator= — set indicators on the tabs of a
+  predicate per a state, for events that set no current status
+- =tab-bar-status-toggle-indicator= — toggle an indicator on the
+  current tab
+- =tab-bar-status-switch-to-indicated-tab= — switch to a tab with an indicator
+- =tab-bar-status-indicators=, =tab-bar-status-indicated-tabs=,
+  =tab-bar-status-indicated-group-tabs= — indicators and indicated tabs
+- =tab-bar-status-summary= — indicator counts as a string
+- =tab-bar-status-change-hook= — run when indicators or statuses change,
   including spinner frames; add =tab-bar-tree-update= to it
 
 #+begin_src emacs-lisp
@@ -106,10 +121,24 @@ selected tab of a focused frame), and is not set on a tab in view.
                     'working "Reading files")
 #+end_src
 
+* System taskbar
+
+=tab-bar-status-system-taskbar-mode= shows the status of tabs in the
+system taskbar; it needs =system-taskbar-mode=:
+
+| Element   | Shows                                                                   |
+|-----------+-------------------------------------------------------------------------|
+| badge     | indicators of all tabs, per =tab-bar-status-system-taskbar-badge-alist= |
+| progress  | mean progress of all sources                                            |
+| attention | on a new indicator, per =tab-bar-status-system-taskbar-attention-alist= |
+
+The badge has no faces, so it shows a colored string per indicator
+type, 🟡 🔴 🟢 🚩 by default, or the type's =:symbol= if it has none.
+
 * Configuration
 
-=tab-bar-status-mode= sets marks on state changes and removes them on
-view; status lines do not depend on it.  To display marks, add
+=tab-bar-status-mode= sets indicators on state changes and removes them
+on view; status lines do not depend on it.  To display indicators, add
 =tab-bar-status-tab-name-format= to =tab-bar-tab-name-format-functions=
 after =tab-bar-tab-name-format-truncated=:
 
@@ -121,10 +150,10 @@ after =tab-bar-tab-name-format-truncated=:
   (after-init-hook . tab-bar-status-mode)
   (tab-bar-status-change-hook . tab-bar-tree-update)
   :config
-  ;; Mark counts, shown on the tab bar by `tab-bar-format-global'.
+  ;; Indicator counts, shown on the tab bar by `tab-bar-format-global'.
   (add-to-list 'global-mode-string
                '(:eval (tab-bar-status-summary
-                        (tab-bar-status-marked-tabs)))))
+                        (tab-bar-status-indicated-tabs)))))
 
 (setq tab-bar-tab-name-format-functions
       '(tab-bar-tab-name-format-truncated
@@ -132,13 +161,16 @@ after =tab-bar-tab-name-format-truncated=:
         tab-bar-tab-name-format-hints
         tab-bar-tab-name-format-close-button
         tab-bar-tab-name-format-face))
+
+(use-package tab-bar-status-system-taskbar
+  :hook
+  (after-init-hook . tab-bar-status-system-taskbar-mode))
 #+end_src
 
-| Option                            | Meaning                               |
-|-----------------------------------+---------------------------------------|
-| =tab-bar-status-mark-type-alist=  | mark types: symbol, face, permanence  |
-| =tab-bar-status-state-mark-alist= | states and the mark types they set    |
-| =tab-bar-status-hidden-states=    | states without a status line          |
-| =tab-bar-status-spinner-frames=   | frames for a status without text      |
-| =tab-bar-status-spinner-interval= | seconds between spinner frames        |
-| =tab-bar-status-change-hook=      | run when marks or status lines change |
+| Option                            | Meaning                                      |
+|-----------------------------------+----------------------------------------------|
+| =tab-bar-status-indicator-alist=  | indicator types: symbol, face, permanence    |
+| =tab-bar-status-state-alist=      | states: indicator type, status line          |
+| =tab-bar-status-spinner-frames=   | frames for a status without text or progress |
+| =tab-bar-status-spinner-interval= | seconds between spinner frames               |
+| =tab-bar-status-change-hook=      | run when indicators or statuses change       |

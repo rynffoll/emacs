@@ -28,11 +28,12 @@
 ;; `tab-bar-ghostel-tab-predicate' finds the tab: the terminal's project
 ;; tab by default.
 ;;
-;; `tab-bar-ghostel-mode' passes the root status record of a terminal to
-;; `tab-bar-status-set'.  Other records only mark the tab, see
-;; `tab-bar-status-mark-state'.  A desktop notification, OSC 9 or
-;; OSC 777, marks the tab of a terminal that reports no program status.
-;; Marks need `tab-bar-status-mode'.
+;; `tab-bar-ghostel-mode' passes the root status record of a terminal,
+;; with its progress, to `tab-bar-status-set'.  Other records only set
+;; an indicator on the tab, see `tab-bar-status-set-state-indicator'.  A
+;; desktop notification, OSC 9 or OSC 777, sets an indicator on the tab
+;; of a terminal that reports no program status.  Indicators need
+;; `tab-bar-status-mode'.
 
 ;;; Code:
 
@@ -40,6 +41,7 @@
 (require 'tab-bar-project)
 (require 'tab-bar-status)
 
+
 (defgroup tab-bar-ghostel nil
   "Terminal status on tab-bar tabs."
   :group 'tab-bar
@@ -51,6 +53,7 @@ Called with two arguments, TAB and the terminal's `default-directory'."
   :type 'function
   :group 'tab-bar-ghostel)
 
+
 (defun tab-bar-ghostel--predicate (buffer)
   "Return a predicate matching the tabs of terminal BUFFER.
 It reads BUFFER's `default-directory' on each call, so it follows `cd'."
@@ -62,24 +65,27 @@ It reads BUFFER's `default-directory' on each call, so it follows `cd'."
 (defun tab-bar-ghostel--status-change (id old new)
   "Show the change of status record ID from OLD to NEW.
 For `ghostel-program-status-functions'.  The root record, ID \"\", sets
-the terminal's status; other records only mark its tab."
+the terminal's status; other records only set an indicator on its tab."
   (let ((predicate (tab-bar-ghostel--predicate (current-buffer)))
         (state (plist-get new :state)))
     (cond ((not (string-empty-p id))
            (unless (eq state (plist-get old :state))
-             (tab-bar-status-mark-state predicate state)))
+             (tab-bar-status-set-state-indicator predicate state)))
           (state
            (tab-bar-status-set (current-buffer) predicate state
-                               (or (plist-get new :msg) (plist-get new :kind))))
+                               (or (plist-get new :msg) (plist-get new :kind))
+                               (plist-get new :progress)))
           (t (tab-bar-status-remove (current-buffer))))))
 
 (defun tab-bar-ghostel--notify (_title _body)
-  "Mark the current terminal's tab on a desktop notification.
+  "Set an indicator on the current terminal's tab on a desktop notification.
 For `ghostel-notification-functions'.  Skip a terminal that reports
-program status: its records mark the tab by state."
+program status: its records set indicators by state."
   (when (and tab-bar-status-mode (not ghostel-program-status))
-    (tab-bar-status-mark-if (tab-bar-ghostel--predicate (current-buffer)))))
+    (tab-bar-status-set-indicator-if
+     (tab-bar-ghostel--predicate (current-buffer)) :warning)))
 
+
 ;;;###autoload
 (define-minor-mode tab-bar-ghostel-mode
   "Toggle showing the status of ghostel terminal programs on tab-bar tabs."

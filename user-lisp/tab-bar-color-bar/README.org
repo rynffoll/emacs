@@ -1,0 +1,68 @@
+#+title: tab-bar-color-bar
+#+author: Ruslan Kamashev
+
+A colored bar at the left edge of tab-bar tabs.
+
+=tab-bar-color-bar-color-function= gives each tab's color; what it means
+is up to the caller.  The current tab's bar mixes that color into the
+tab background, per =tab-bar-color-bar-blend=.  Other tabs, groups and
+the closing bar share one muted tone, per
+=tab-bar-color-bar-inactive-blend=: the label tells tabs apart.  This
+package only draws and places the bar: an image on graphic frames, a
+block character on terminals.  Bars are drawn wherever the formatters
+below are listed.
+
+* Layout
+
+#+begin_example
+ ▌2 emacs  ▏3 *Proced*  ▏dotfiles  ▏
+ │         │            │          │
+ │         │            │          └ closing separator
+ │         │            └ group label
+ │         └ other tab: one pixel column; ▏ on a terminal
+ └ current tab: full width; ▌ on a terminal
+#+end_example
+
+All bars have the same width, so selecting a tab does not shift the
+row.  The bar is the tallest element of the row, so it sets
+the tab bar height; =tab-bar-color-bar-strut= gives other rows, e.g. a
+header line, the same height.
+
+* API
+
+- =tab-bar-color-bar-tab-name-format= — a tab name formatter for
+  =tab-bar-tab-name-format-functions=, after the padding and before
+  =tab-bar-tab-name-format-face=
+- =tab-bar-color-bar-tab-group-format= — a group label formatter, called
+  with the label, TAB, I and CURRENT-P; the bar takes the muted tone of
+  the group face
+- =tab-bar-color-bar-separator= — a =tab-bar-format= item after
+  =tab-bar-format-tabs-groups=, closing the tab list
+- =tab-bar-color-bar-strut= — an empty string as tall as the bar
+- =tab-bar-color-bar-build= — a bar in a given color
+
+* Configuration
+
+#+begin_src emacs-lisp
+(use-package tab-bar-color-bar
+  :init
+  (setq tab-bar-color-bar-color-function
+        (lambda (tab _i)
+          (and (equal (alist-get 'name tab) "emacs") "royal blue"))))
+
+(setq tab-bar-tab-name-format-functions
+      '(tab-bar-tab-name-format-truncated
+        tab-bar-tab-name-format-hints
+        tab-bar-color-bar-tab-name-format
+        tab-bar-tab-name-format-face))
+#+end_src
+
+| Option                              | Meaning                                          |
+|-------------------------------------+--------------------------------------------------|
+| =tab-bar-color-bar-color-function=  | a tab's color, or nil for none                   |
+| =tab-bar-color-bar-blend=           | current tab's bar: fraction toward the tab color |
+| =tab-bar-color-bar-inactive-blend=  | other bars: fraction toward the foreground       |
+| =tab-bar-color-bar-width=           | width: pixels, or a fraction of a character      |
+| =tab-bar-color-bar-height=          | height in pixels                                 |
+| =tab-bar-color-bar-symbol=          | current tab's bar on terminals                   |
+| =tab-bar-color-bar-inactive-symbol= | other tabs' bar on terminals                     |

@@ -10,7 +10,7 @@ names and builds group labels.
 * Layout
 
 #+begin_example
- ⌵ emacs   2 emacs   3 *Proced*   › 4 operfeed
+ ⌵ emacs   2 emacs   3 *Proced*   › 4 dotfiles
  │ └─┬─┘   └──┬──┘   └───┬────┘   │ └───┬────┘
  │   │        │          │        │     └ group label, folded
  │   │        │          │        └ fold marker, folded
@@ -56,9 +56,8 @@ far, TAB, I and CURRENT-P:
 - =tab-bar-theme-separator= — a =tab-bar-format= item, the space between
   elements
 - =tab-bar-theme-color-from-key= — the palette face of a key
-- =tab-bar-theme-tab-indicator-color=,
-  =tab-bar-theme-tab-group-indicator-color= — colors matching the tab and
-  group labels, e.g. for an indicator
+- =tab-bar-theme-tab-color= — a tab's color, e.g. for
+  =tab-bar-color-bar-color-function=
 
 * Configuration
 
@@ -87,4 +86,3 @@ far, TAB, I and CURRENT-P:
 | =tab-bar-theme-separator=                     | space between =tab-bar-format= elements |
 | =tab-bar-theme-tab-extra-face-function=       | an extra face for a tab                 |
 | =tab-bar-theme-tab-group-format-functions=    | group label formatters                  |
-| =tab-bar-theme-indicator-blend=               | current tab's indicator color           |

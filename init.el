@@ -667,7 +667,7 @@ For mode hooks of buffers that do not show point."
                          ;; tab-bar-format-menu-bar
                          tab-bar-theme-separator
                          tab-bar-format-tabs-groups
-                         tab-bar-indicator-separator
+                         tab-bar-color-bar-separator
                          tab-bar-format-align-right
                          tab-bar-format-global))
   (setq tab-bar-close-button-show nil)
@@ -679,14 +679,14 @@ For mode hooks of buffers that do not show point."
   (setq tab-bar-auto-width nil)
   (setq tab-bar-tab-name-format-functions
         '(tab-bar-tab-name-format-truncated
-          ;; After truncation: marks are never cut.
+          ;; After truncation: indicators are never cut.
           tab-bar-status-tab-name-format
           tab-bar-tab-name-format-hints
           tab-bar-tab-name-format-close-button
-          ;; Indicator after padding: at the tab's edge.  Both before
+          ;; Color bar after padding: at the tab's edge.  Both before
           ;; face: the tab face covers them.
           tab-bar-theme-tab-name-format-padding
-          tab-bar-indicator-tab-name-format
+          tab-bar-color-bar-tab-name-format
           tab-bar-tab-name-format-face
           tab-bar-tab-name-format-mouse-face))
   :hook
@@ -704,16 +704,21 @@ For mode hooks of buffers that do not show point."
   :ensure nil
   :general
   (tab-prefix-map
-   "!" 'tab-bar-status-switch-to-marked-tab
-   "*" 'tab-bar-status-toggle-mark)
+   "!" 'tab-bar-status-switch-to-indicated-tab
+   "*" 'tab-bar-status-toggle-indicator)
   :init
   (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-lines)
   :config
   (add-to-list 'global-mode-string
-               '(:eval (tab-bar-status-summary (tab-bar-status-marked-tabs))))
+               '(:eval (tab-bar-status-summary (tab-bar-status-indicated-tabs))))
   :hook
   (after-init-hook . tab-bar-status-mode)
   (tab-bar-status-change-hook . tab-bar-tree-update))
+
+(use-package tab-bar-status-system-taskbar
+  :ensure nil
+  :hook
+  (after-init-hook . tab-bar-status-system-taskbar-mode))
 
 (use-package tab-bar-theme
   :ensure nil
@@ -725,19 +730,17 @@ For mode hooks of buffers that do not show point."
         '(tab-bar-status-tab-group-format
           tab-bar-theme-tab-group-format-padding
           tab-bar-theme-tab-group-format-fold
-          tab-bar-indicator-tab-group-format
+          tab-bar-color-bar-tab-group-format
           ;; Last: its face goes under all parts.
           tab-bar-theme-tab-group-format-face))
   (setq tab-bar-theme-tab-color-key-function #'tab-bar-project-root)
   :hook
   (after-init-hook . tab-bar-theme-mode))
 
-(use-package tab-bar-indicator
+(use-package tab-bar-color-bar
   :ensure nil
   :init
-  (setq tab-bar-indicator-color-function #'tab-bar-theme-tab-indicator-color)
-  (setq tab-bar-indicator-group-color-function
-        #'tab-bar-theme-tab-group-indicator-color))
+  (setq tab-bar-color-bar-color-function #'tab-bar-theme-tab-color))
 
 (use-package tab-bar-tree
   :ensure nil
@@ -769,7 +772,7 @@ For mode hooks of buffers that do not show point."
   (with-eval-after-load 'winum
     (add-to-list 'winum-assign-functions #'+winum-assign-9-to-tab-bar-tree))
   (setq tab-bar-tree-button (+tab-bar-tree-icon))
-  (setq tab-bar-tree-header-format '(tab-bar-indicator-strut
+  (setq tab-bar-tree-header-format '(tab-bar-color-bar-strut
                                      tab-bar-tree-format-button
                                      tab-bar-theme-separator
                                      tab-bar-tree-header-format-group-truncated
@@ -1651,6 +1654,7 @@ For mode hooks of buffers that do not show point."
           ))
   (setq ghostel-notification-functions '(+ghostel-notify-taskbar
                                          +ghostel-notify-macos))
+  (setq ghostel-status-mode-line-labels 'words) ;; emoji make the mode line taller
   :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
   (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
