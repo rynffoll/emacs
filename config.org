@@ -1500,6 +1500,7 @@ The status of a program in a terminal flows through two packages:
                "\\`\\*Man "
                "\\`\\*wclock\\*\\'"
                "\\`\\*compilation\\*\\'"
+               "\\`\\*vc-git "
                "\\`\\* docker")
            (popbuf-side-display-buffer))
           ((derived-mode . proced-mode)

@@ -839,6 +839,7 @@ For mode hooks of buffers that do not show point."
                "\\`\\*Man "
                "\\`\\*wclock\\*\\'"
                "\\`\\*compilation\\*\\'"
+               "\\`\\*vc-git "
                "\\`\\* docker")
            (popbuf-side-display-buffer))
           ((derived-mode . proced-mode)
