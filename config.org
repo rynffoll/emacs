@@ -1226,8 +1226,8 @@ window instead of the tab bar.
 │▏1 *scratch*                   │ ← tab
 │▏⌵ emacs                       │ ← group       tab-bar-theme pipeline
 │   ▌2 emacs                    │ ← current tab
-│      working: Reading files   │ ← status      tab-bar-status, from tab-bar-ghostel
-│   ▏3 *Proced* ⚑               │ ← tab, with an indicator
+│      Reading files            │ ← message     tab-bar-status, from tab-bar-ghostel
+│   ▏3 *Proced* ⚑               │ ← tab, flagged by hand
 │▏› 4 dotfiles ●¹ ●¹            │ ← group, folded
 └───────────────────────────────┘
 #+end_example
@@ -1236,37 +1236,41 @@ Labels close up:
 
 #+begin_example
 ▏3 *Proced* ⚑
-│└┬───────┘ └ tab-bar-status, an indicator
+│└┬───────┘ └ tab-bar-status, a mark: a status set by hand
 │ └ hint and name, core; color tab-bar-theme
 └ tab-bar-color-bar
 
 ▏› 4 dotfiles ●¹ ●¹
-││ └─┬──────┘ │  └ tab-bar-status, :success indicators in the group, face success
-││   │        └ tab-bar-status, :warning indicators in the group, face warning
+││ └─┬──────┘ │  └ tab-bar-status, tabs in the group with status done, face success
+││   │        └ tab-bar-status, tabs in the group with status blocked, face warning
 ││   └ hint of the first tab and name, core
 │└ tab-bar-theme, fold marker
 └ tab-bar-color-bar
 #+end_example
 
-| Package           | Does                                          | Wired through                                    |
-|-------------------+-----------------------------------------------+--------------------------------------------------|
-| tab-bar-project   | a tab per project, grouped by repo            | =tab-bar-project-group-function=                 |
-| tab-bar-theme     | colors, padding, group label                  | =tab-bar-theme-tab-group-format-functions=       |
-| tab-bar-color-bar | bar at a tab's edge                           | =tab-bar-tab-name-format-functions=              |
-| tab-bar-tree      | tabs as a tree in a side window               | =tab-bar-tree-header-format=                     |
-| tab-bar-status    | tab status: status lines, indicators, summary | format functions, =global-mode-string=, the tree |
-| tab-bar-ghostel   | terminal program status as tab status         | =tab-bar-status-set=                             |
+| Package           | Does                                                 | Wired through                                    |
+|-------------------+------------------------------------------------------+--------------------------------------------------|
+| tab-bar-project   | a tab per project, grouped by repo                   | =tab-bar-project-group-function=                 |
+| tab-bar-theme     | colors, padding, group label                         | =tab-bar-theme-tab-group-format-functions=       |
+| tab-bar-color-bar | bar at a tab's edge                                  | =tab-bar-tab-name-format-functions=              |
+| tab-bar-tree      | tabs as a tree in a side window                      | =tab-bar-tree-header-format=                     |
+| tab-bar-status    | buffer status on tabs: indicators, messages, summary | format functions, =global-mode-string=, the tree |
+| tab-bar-ghostel   | terminal program status, a backend                   | =tab-bar-status-functions=                       |
 
 Colors are keyed by =tab-bar-project-root=; the color bar takes its
 color from =tab-bar-theme=.  The tree re-renders on
 =tab-bar-status-change-hook=.
 
-The status of a program in a terminal flows through two packages:
+=tab-bar-status= keeps no status of its own: it asks its backends for
+the status of every buffer and shows it on the buffer's project tab.  A
+backend calls =tab-bar-status-update= on a change, and the next display
+asks again, once for all tabs.  Only marks, statuses set by hand such
+as the flag ⚑, are kept, in a tab parameter.
 
 #+begin_example
- ghostel terminal ── OSC 7501 ──► tab-bar-ghostel ──► tab-bar-status ─┬─► indicator on the tab ● until viewed
-                                  root record,        state, text,    │   (blocked, error, done)
-                                  project tab         spinner         └─► tab-bar-tree       status lines
+ ghostel terminal ── OSC 7501 ──► ghostel-program-status ◄── tab-bar-ghostel ◄── tab-bar-status ─┬─► indicators on the tab ●
+                                  records, dropped                most urgent      asks after each ├─► summary, group counts
+                                  by ghostel                      record           update          └─► tab-bar-tree messages
 #+end_example
 
 ** tab-bar
@@ -1345,16 +1349,20 @@ The status of a program in a terminal flows through two packages:
   :ensure nil
   :general
   (tab-prefix-map
-   "!" 'tab-bar-status-switch-to-indicated-tab
-   "*" 'tab-bar-status-toggle-indicator)
+   "!" 'tab-bar-status-switch-to-tab
+   "*" 'tab-bar-status-toggle)
   :init
-  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-lines)
+  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-messages)
   :config
   (add-to-list 'global-mode-string
-               '(:eval (tab-bar-status-summary (tab-bar-status-indicated-tabs))))
+               '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function))))
+  (defun +tab-bar-status-blink-tree ()
+    "Blink the indicators in tab-bar-tree buffers without redrawing them."
+    (mapc #'tab-bar-status-blink-buffer
+          (match-buffers '(derived-mode . tab-bar-tree-buffer-mode))))
   :hook
-  (after-init-hook . tab-bar-status-mode)
-  (tab-bar-status-change-hook . tab-bar-tree-update))
+  (tab-bar-status-change-hook . tab-bar-tree-update)
+  (tab-bar-status-blink-hook . +tab-bar-status-blink-tree))
 #+end_src
 
 ** tab-bar-status-system-taskbar
@@ -1725,6 +1733,11 @@ The status of a program in a terminal flows through two packages:
 #+begin_src emacs-lisp
 (use-package nerd-icons-completion
   :if +with-icons
+  :config
+  ;; `tab-bar-status-switch-to-tab': the tab's most urgent indicator.
+  (cl-defmethod nerd-icons-completion-get-icon
+    (cand (_cat (eql tab-bar-status-tab)))
+    (concat (car (tab-bar-status-tab-indicators cand)) " "))
   :hook
   (vertico-mode-hook    . nerd-icons-completion-mode)
   (marginalia-mode-hook . nerd-icons-completion-marginalia-setup))
@@ -1783,6 +1796,11 @@ The status of a program in a terminal flows through two packages:
   :general
   (minibuffer-local-map
    "M-A" 'marginalia-cycle)
+  :config
+  ;; Tabs with a status: annotate as tabs; nerd-icons-completion puts the
+  ;; indicator in front.
+  (add-to-list 'marginalia-annotators
+               '(tab-bar-status-tab marginalia-annotate-tab builtin none))
   :hook
   (after-init-hook . marginalia-mode))
 #+end_src

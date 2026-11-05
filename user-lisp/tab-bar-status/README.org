@@ -1,25 +1,31 @@
 #+title: tab-bar-status
 #+author: Ruslan Kamashev
 
-The status of tab-bar tabs, in two forms:
+The status of buffers on their tab-bar tabs, e.g. an agent in a terminal
+that is working, blocked on a prompt or done.
 
-- the *current status*, reported by a source such as a program in a
-  terminal: a state, e.g. =working=, =blocked= or =done=, a line of
-  text and a progress, shown as status lines under the tab while the
-  source runs;
-- *indicators*, colored symbols after the tab name that keep a status
-  until the tab is viewed: a source entering =blocked=, =error= or
-  =done= sets indicators on its tabs, and =⚑= is a flag set by hand.
+The package keeps no status.  Backends in =tab-bar-status-functions=
+report the status of a buffer; after each =tab-bar-status-update= the
+next display asks them anew, once for all tabs, and shows the status on
+the tabs =tab-bar-status-tab-predicate= matches, the buffer's project
+tab by default.  The only statuses kept here are marks, set on a tab by
+hand, e.g. the flag =⚑=.
 
-States follow the [[https://www.superlogical.com/rex/docs/build/program-status][terminal program status protocol]], OSC 7501; more
-states can be added to =tab-bar-status-state-alist=.
+| Term      | Meaning                                       |
+|-----------+-----------------------------------------------|
+| status    | =blocked=, =error=, =done=, =working=, =flag= |
+| indicator | a status's symbol with a face, =●= or =⚑=     |
+| message   | text from the backend, =permission: Bash?=    |
+| mark      | a status set on a tab by hand                 |
 
 * Files
 
-| File                               | Contents                                            |
-|------------------------------------+-----------------------------------------------------|
-| =tab-bar-status.el=                | Core: statuses and indicators                       |
-| =tab-bar-status-system-taskbar.el= | Badge, progress and attention in the system taskbar |
+| File                               | Contents                                 |
+|------------------------------------+------------------------------------------|
+| =tab-bar-status.el=                | Display of statuses, marks               |
+| =tab-bar-status-system-taskbar.el= | Badge and progress in the system taskbar |
+
+The ghostel backend is =tab-bar-ghostel=.
 
 * Layout
 
@@ -27,133 +33,107 @@ states can be added to =tab-bar-status-state-alist=.
  tab bar:
  1 *scratch*  2 emacs ●  3 *Proced* ⚑  4 dotfiles ●¹ ●¹        ●² ●¹ ⚑¹
                       │             │             │            └──┬───┘
-                      │             │             │               └ summary
-                      │             │             └ counts of a folded group, one per indicator type;
+                      │             │             │               └ summary: tabs per status
+                      │             │             └ counts of a folded group, one per status;
                       │             │               the same ● differ by face: warning, success
-                      │             └ flag, set by hand, permanent
+                      │             └ flag, a mark
                       └ indicator after the name
 
- status lines, e.g. in a tree of tabs:
+ messages, e.g. in a tree of tabs:
  2 emacs ●
-   blocked: permission       ← the current status
+   permission: Bash?         ← the message
 #+end_example
 
 | Element        | Drawn by                                                   |
 |----------------+------------------------------------------------------------|
-| tab indicator  | =tab-bar-status-tab-name-format=, a tab name formatter     |
+| indicator      | =tab-bar-status-tab-name-format=, a tab name formatter     |
 | group count    | =tab-bar-status-tab-group-format=, a group label formatter |
 | summary        | =tab-bar-status-summary=, e.g. in =global-mode-string=     |
-| status lines   | =tab-bar-status-tab-lines=, e.g. in a tree of tabs         |
-| system taskbar | =tab-bar-status-system-taskbar-mode=, see [[*System taskbar][System taskbar]]   |
+| message        | =tab-bar-status-tab-messages=, e.g. in a tree of tabs      |
+| system taskbar | =tab-bar-status-system-taskbar-mode=                       |
 
-* States
+* Statuses
 
-A program in a terminal reports its status with OSC 7501: a =state=, a
-=msg= and, for =blocked=, a =kind= such as =permission=.  A terminal
-source passes the state, the message or else the kind as the text, and
-the progress:
+=tab-bar-status-alist=, =(STATUS STRING FACE)=, most urgent first:
 
-#+begin_example
- source         current status    shown as
- ───────────    ──────────────    ───────────────────────────────────────
- a terminal ──► working, text ──► status line   working: Reading files
-            ──► working, 42   ──► status line   working: 42%
-            ──► working       ──► status line   working: ․ ‥ … (spinner)
-            ──► blocked, kind ──► status line   blocked: permission
-                                  indicator     :warning, until viewed
-            ──► error, text   ──► status line   error: Exit 1
-                                  indicator     :error, until viewed
-            ──► done          ──► indicator     :success, until viewed
-            ──► idle          ──► nothing
-#+end_example
+| Status    | Indicator | Face      | Color |
+|-----------+-----------+-----------+-------|
+| =blocked= | ●         | =warning= | 🟡    |
+| =error=   | ●         | =error=   | 🔴    |
+| =done=    | ●         | =success= | 🟢    |
+| =working= | ●         | =shadow=  | ⚪    |
+| =flag=    | ⚑         | =shadow=  | 🚩    |
 
-The current status lives as long as its source: a buffer's status goes
-with the buffer.  An indicator lives on the tab until the tab is viewed,
-and is saved with it.  So a =blocked= agent keeps its status line after
-you view the tab, and a =done= agent leaves only its indicator.
+/Color/ shows the face as an emoji, for viewers without faces such as
+GitHub; the same emoji are the default taskbar badge strings, see
+[[*System taskbar][System taskbar]].
 
-A status line is =STATE: TEXT=.  If the text is missing, the line
-shows the progress instead, e.g. =42%=, or a spinner if there is no
-progress.  =tab-bar-status-state-alist= gives each state what it
-shows: =:indicator=, the type set on the tabs entering it, and =:line t=
-for a status line.
+The =working= indicator after a tab name blinks, see
+=tab-bar-status-blink-statuses=.
 
-* Indicators
+A status lives as long as its backend reports it: a terminal's =done=
+goes when ghostel drops the record.  A mark lives on its tab until
+toggled off.
 
-A tab can carry several indicators, one per type in
-=tab-bar-status-indicator-alist=:
+* Backends
 
-| Type       | Symbol | Face      | Permanent |
-|------------+--------+-----------+-----------|
-| =:warning= | ●      | =warning= |           |
-| =:error=   | ●      | =error=   |           |
-| =:success= | ●      | =success= |           |
-| =:flag=    | ⚑      | =shadow=  | yes       |
+A backend is a function of a buffer that returns nil or a plist:
 
-Indicators are stored as a tab parameter and disappear with the tab.  A
-non-permanent indicator is removed when its tab comes into view (the
-selected tab of a focused frame), and is not set on a tab in view.
+#+begin_src emacs-lisp
+(defun my-status (buffer)
+  (when (buffer-local-value 'my-failed buffer)
+    '(:status error :message "build failed")))
+
+(add-hook 'tab-bar-status-functions #'my-status)
+;; and on each change:
+(tab-bar-status-update)
+#+end_src
+
+Backends run for every buffer after each =tab-bar-status-update=, so
+they return early for buffers they do not handle.
 
 * API
 
-- =tab-bar-status-set= — set the current status of a source, e.g. a
-  terminal buffer, with a predicate on tabs and an optional progress
-- =tab-bar-status-remove= — remove the current status of a source
-- =tab-bar-status-tab-lines= — the status lines of a tab, a value for
+- =tab-bar-status-update= — redisplay and run =tab-bar-status-change-hook=
+- =tab-bar-status-tab-messages= — the messages of a tab, a value for
   =tab-bar-tree-tab-status-function=
-- =tab-bar-status-set-indicator-if=,
-  =tab-bar-status-remove-indicator-if= — set or remove an indicator on
-  the tabs matching a predicate
-- =tab-bar-status-set-state-indicator= — set indicators on the tabs of a
-  predicate per a state, for events that set no current status
-- =tab-bar-status-toggle-indicator= — toggle an indicator on the
-  current tab
-- =tab-bar-status-switch-to-indicated-tab= — switch to a tab with an indicator
-- =tab-bar-status-indicators=, =tab-bar-status-indicated-tabs=,
-  =tab-bar-status-indicated-group-tabs= — indicators and indicated tabs
-- =tab-bar-status-summary= — indicator counts as a string
-- =tab-bar-status-change-hook= — run when indicators or statuses change,
-  including spinner frames; add =tab-bar-tree-update= to it
-
-#+begin_src emacs-lisp
-(tab-bar-status-set (current-buffer)
-                    (lambda (tab) (equal (alist-get 'name tab) "emacs"))
-                    'working "Reading files")
-#+end_src
+- =tab-bar-status-summary= — counts of tabs per status, as a string
+- =tab-bar-status-progresses= — the progress of every buffer reporting one
+- =tab-bar-status-switch-to-tab= — go to a tab with a status, the most
+  urgent by default, and show its buffer
+- =tab-bar-status-toggle= — toggle a mark on the current tab
+- =tab-bar-status-tab-indicators= — indicators of a tab, e.g. for
+  completion icons
 
 * System taskbar
 
-=tab-bar-status-system-taskbar-mode= shows the status of tabs in the
-system taskbar; it needs =system-taskbar-mode=:
+=tab-bar-status-system-taskbar-mode= needs =system-taskbar-mode=:
 
-| Element   | Shows                                                                   |
-|-----------+-------------------------------------------------------------------------|
-| badge     | indicators of all tabs, per =tab-bar-status-system-taskbar-badge-alist= |
-| progress  | mean progress of all sources                                            |
-| attention | on a new indicator, per =tab-bar-status-system-taskbar-attention-alist= |
+| Element  | Shows                                                                |
+|----------+----------------------------------------------------------------------|
+| badge    | summary of all tabs, per =tab-bar-status-system-taskbar-badge-alist= |
+| progress | mean progress of all buffers                                         |
 
-The badge has no faces, so it shows a colored string per indicator
-type, 🟡 🔴 🟢 🚩 by default, or the type's =:symbol= if it has none.
+The badge has no faces, so it shows a colored string per status, 🟡 🔴
+🟢 ⚪ 🚩 by default, or the indicator string.
 
 * Configuration
-
-=tab-bar-status-mode= sets indicators on state changes and removes them
-on view; status lines do not depend on it.  To display indicators, add
-=tab-bar-status-tab-name-format= to =tab-bar-tab-name-format-functions=
-after =tab-bar-tab-name-format-truncated=:
 
 #+begin_src emacs-lisp
 (use-package tab-bar-status
   :init
-  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-lines)
+  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-messages)
   :hook
-  (after-init-hook . tab-bar-status-mode)
   (tab-bar-status-change-hook . tab-bar-tree-update)
+  (tab-bar-status-blink-hook . my-blink-tree)
   :config
-  ;; Indicator counts, shown on the tab bar by `tab-bar-format-global'.
+  ;; Shown on the tab bar by `tab-bar-format-global'.
   (add-to-list 'global-mode-string
-               '(:eval (tab-bar-status-summary
-                        (tab-bar-status-indicated-tabs)))))
+               '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function))))
+  ;; Blink in tree buffers without redrawing them.
+  (defun my-blink-tree ()
+    (mapc #'tab-bar-status-blink-buffer
+          (match-buffers '(derived-mode . tab-bar-tree-buffer-mode)))))
 
 (setq tab-bar-tab-name-format-functions
       '(tab-bar-tab-name-format-truncated
@@ -167,10 +147,12 @@ after =tab-bar-tab-name-format-truncated=:
   (after-init-hook . tab-bar-status-system-taskbar-mode))
 #+end_src
 
-| Option                            | Meaning                                      |
-|-----------------------------------+----------------------------------------------|
-| =tab-bar-status-indicator-alist=  | indicator types: symbol, face, permanence    |
-| =tab-bar-status-state-alist=      | states: indicator type, status line          |
-| =tab-bar-status-spinner-frames=   | frames for a status without text or progress |
-| =tab-bar-status-spinner-interval= | seconds between spinner frames               |
-| =tab-bar-status-change-hook=      | run when indicators or statuses change       |
+| Option                          | Meaning                                                                            |
+|---------------------------------+------------------------------------------------------------------------------------|
+| =tab-bar-status-functions=      | backends: buffer → status report                                                   |
+| =tab-bar-status-tab-predicate=  | tab and buffer directory → status shows on tab                                     |
+| =tab-bar-status-alist=          | statuses: indicator string and face, urgency                                       |
+| =tab-bar-status-change-hook=    | run by =tab-bar-status-update=                                                     |
+| =tab-bar-status-blink-statuses= | statuses whose indicator blinks on a tab                                           |
+| =tab-bar-status-blink-interval= | seconds between blinks                                                             |
+| =tab-bar-status-blink-hook=     | run on each blink; call =tab-bar-status-blink-buffer= on buffers showing tab names |

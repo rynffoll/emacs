@@ -28,53 +28,43 @@
 ;;   (system-taskbar-mode 1)
 ;;   (tab-bar-status-system-taskbar-mode 1)
 ;;
-;; The taskbar badge shows the indicators of all tabs, with the strings
-;; of `tab-bar-status-system-taskbar-badge-alist', since the badge has
-;; no faces; the progress indicator shows the mean progress of all
-;; sources; setting an indicator requests attention with the urgency of
-;; `tab-bar-status-system-taskbar-attention-alist'.
+;; The taskbar badge shows the summary of all tabs, with the strings of
+;; `tab-bar-status-system-taskbar-badge-alist', since the badge has no
+;; faces; the progress indicator shows the mean progress of all buffers.
 
 ;;; Code:
 
 (require 'system-taskbar)
 (require 'tab-bar-status)
 
-
+
 (defcustom tab-bar-status-system-taskbar-badge-alist
-  '((:warning . "🟡")
-    (:error   . "🔴")
-    (:success . "🟢")
-    (:flag    . "🚩"))
-  "Alist of indicator types and their strings in the taskbar badge.
-The badge has no faces, so a colored string tells the types apart.  A
-type not listed here shows its `:symbol' from
-`tab-bar-status-indicator-alist'."
-  :type '(alist :key-type (symbol :tag "Indicator type") :value-type string)
+  '((blocked . "🟡")
+    (error   . "🔴")
+    (done    . "🟢")
+    (working . "⚪")
+    (flag    . "🚩"))
+  "Alist of statuses and their strings in the taskbar badge.
+The badge has no faces, so a colored string tells the statuses apart.
+A status not listed here shows its indicator string from
+`tab-bar-status-alist'."
+  :type '(alist :key-type (symbol :tag "Status") :value-type string)
   :group 'tab-bar-status)
 
-(defcustom tab-bar-status-system-taskbar-attention-alist
-  '((:warning . critical)
-    (:error   . critical)
-    (:success . informational))
-  "Alist of indicator types and the urgency of their attention requests.
-Setting an indicator of a listed type calls `system-taskbar-attention'
-with its urgency, `critical' or `informational'."
-  :type '(alist :key-type (symbol :tag "Indicator type")
-                :value-type (choice (const critical) (const informational)))
-  :group 'tab-bar-status)
 
-
 (defun tab-bar-status-system-taskbar--badge ()
-  "Display the indicators of all tabs in the taskbar badge."
-  (system-taskbar-badge
-   (substring-no-properties
-    (tab-bar-status-summary
-     (mapcan #'tab-bar-status-indicated-tabs (frame-list)) nil
-     tab-bar-status-system-taskbar-badge-alist))))
+  "Display the summary of all tabs in the taskbar badge."
+  (let ((badge (substring-no-properties
+                (tab-bar-status-summary
+                 (apply #'append (mapcar (lambda (frame)
+                                           (funcall tab-bar-tabs-function frame))
+                                         (get-mru-frames t t)))
+                 nil tab-bar-status-system-taskbar-badge-alist))))
+    (system-taskbar-badge (and (not (string-empty-p badge)) badge))))
 
 (defun tab-bar-status-system-taskbar--progress ()
-  "Display the mean progress of all sources in the taskbar.
-Remove the progress indicator if no source reports progress."
+  "Display the mean progress of all buffers in the taskbar.
+Remove the progress indicator if no buffer reports progress."
   (let ((ps (tab-bar-status-progresses)))
     (system-taskbar-progress
      (and ps (/ (apply #'+ ps) 100.0 (length ps))))))
@@ -85,23 +75,13 @@ This is for use in `tab-bar-status-change-hook'."
   (tab-bar-status-system-taskbar--badge)
   (tab-bar-status-system-taskbar--progress))
 
-(defun tab-bar-status-system-taskbar--attention (type)
-  "Request attention in the taskbar for an indicator of TYPE.
-The urgency comes from `tab-bar-status-system-taskbar-attention-alist'.
-This is for use in `tab-bar-status-indicator-set-functions'."
-  (when-let* ((urgency
-               (alist-get type tab-bar-status-system-taskbar-attention-alist)))
-    (system-taskbar-attention urgency)))
 
-
 ;;;###autoload
 (define-minor-mode tab-bar-status-system-taskbar-mode
-  "Toggle display of tab indicators and progress in the system taskbar.
-Indicators are displayed in the taskbar badge, with the strings of
-`tab-bar-status-system-taskbar-badge-alist'.  The mean progress of all
-sources is displayed in the taskbar progress indicator.  Setting an
-indicator requests attention with the urgency of
-`tab-bar-status-system-taskbar-attention-alist'.
+  "Toggle display of tab statuses and progress in the system taskbar.
+The summary of all tabs is displayed in the taskbar badge, with the
+strings of `tab-bar-status-system-taskbar-badge-alist'.  The mean
+progress of all buffers is displayed in the taskbar progress indicator.
 
 This mode has no effect unless `system-taskbar-mode' is enabled."
   :global t
@@ -110,13 +90,9 @@ This mode has no effect unless `system-taskbar-mode' is enabled."
       (progn
         (add-hook 'tab-bar-status-change-hook
                   #'tab-bar-status-system-taskbar--update)
-        (add-hook 'tab-bar-status-indicator-set-functions
-                  #'tab-bar-status-system-taskbar--attention)
         (tab-bar-status-system-taskbar--update))
     (remove-hook 'tab-bar-status-change-hook
                  #'tab-bar-status-system-taskbar--update)
-    (remove-hook 'tab-bar-status-indicator-set-functions
-                 #'tab-bar-status-system-taskbar--attention)
     (system-taskbar-badge nil)
     (system-taskbar-progress nil)))
 

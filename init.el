@@ -708,16 +708,20 @@ For mode hooks of buffers that do not show point."
   :ensure nil
   :general
   (tab-prefix-map
-   "!" 'tab-bar-status-switch-to-indicated-tab
-   "*" 'tab-bar-status-toggle-indicator)
+   "!" 'tab-bar-status-switch-to-tab
+   "*" 'tab-bar-status-toggle)
   :init
-  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-lines)
+  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-messages)
   :config
   (add-to-list 'global-mode-string
-               '(:eval (tab-bar-status-summary (tab-bar-status-indicated-tabs))))
+               '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function))))
+  (defun +tab-bar-status-blink-tree ()
+    "Blink the indicators in tab-bar-tree buffers without redrawing them."
+    (mapc #'tab-bar-status-blink-buffer
+          (match-buffers '(derived-mode . tab-bar-tree-buffer-mode))))
   :hook
-  (after-init-hook . tab-bar-status-mode)
-  (tab-bar-status-change-hook . tab-bar-tree-update))
+  (tab-bar-status-change-hook . tab-bar-tree-update)
+  (tab-bar-status-blink-hook . +tab-bar-status-blink-tree))
 
 (use-package tab-bar-status-system-taskbar
   :ensure nil
@@ -997,6 +1001,11 @@ For mode hooks of buffers that do not show point."
 
 (use-package nerd-icons-completion
   :if +with-icons
+  :config
+  ;; `tab-bar-status-switch-to-tab': the tab's most urgent indicator.
+  (cl-defmethod nerd-icons-completion-get-icon
+    (cand (_cat (eql tab-bar-status-tab)))
+    (concat (car (tab-bar-status-tab-indicators cand)) " "))
   :hook
   (vertico-mode-hook    . nerd-icons-completion-mode)
   (marginalia-mode-hook . nerd-icons-completion-marginalia-setup))
@@ -1041,6 +1050,11 @@ For mode hooks of buffers that do not show point."
   :general
   (minibuffer-local-map
    "M-A" 'marginalia-cycle)
+  :config
+  ;; Tabs with a status: annotate as tabs; nerd-icons-completion puts the
+  ;; indicator in front.
+  (add-to-list 'marginalia-annotators
+               '(tab-bar-status-tab marginalia-annotate-tab builtin none))
   :hook
   (after-init-hook . marginalia-mode))
 

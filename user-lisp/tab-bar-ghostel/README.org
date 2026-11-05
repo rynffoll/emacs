@@ -1,35 +1,30 @@
 #+title: tab-bar-ghostel
 #+author: Ruslan Kamashev
 
-Terminal status on tab-bar tabs.
+Terminal status on tab-bar tabs: a =tab-bar-status= backend for ghostel.
 
-A program in a ghostel terminal can report its state, e.g. an agent
-working, blocked on a prompt or done.  =tab-bar-ghostel-mode= passes it
-to =tab-bar-status=, which shows it on the terminal's tab, found by
-=tab-bar-ghostel-tab-predicate=: by default the terminal's
-=tab-bar-project= tab.
+A program in a ghostel terminal can report its state with OSC 7501, e.g.
+an agent working, blocked on a prompt or done.  Ghostel keeps the
+records in =ghostel-program-status=; =tab-bar-ghostel-status= returns
+the terminal's most urgent record as its status, and
+=tab-bar-status= shows it on the terminal's tab.
 
 * Layout
 
 #+begin_example
- program status record (OSC 7501)        tab-bar-status
- root record, ID ""          ──────►     tab-bar-status-set: state,
-   state, msg, else kind, progress       text, progress, the terminal's tab
- root record cleared         ──────►     tab-bar-status-remove
- other records               ──────►     tab-bar-status-set-state-indicator: an indicator
-                                         on a state change only
- terminal killed             ──────►     status removed with the buffer
-
- desktop notification (OSC 9, OSC 777)   tab-bar-status-set-indicator-if: an indicator,
-                                         if the terminal reports no
-                                         program status
+ OSC 7501 ──► ghostel-program-status ◄── tab-bar-ghostel-status ◄── tab-bar-status, after each update
+              records                     most urgent record:
+                  │                       status, message, progress
+                  └─ change ──► tab-bar-ghostel--status-change ──► tab-bar-status-update
 #+end_example
 
-The text of a status is the record's =msg=, else its =kind=, e.g.
-=permission= for a =blocked= record; without either, =tab-bar-status=
-shows a spinner.  The tab follows the terminal's directory, so a status
-moves with a =cd=.  Indicators are set only with =tab-bar-status-mode=
-on.
+The message is the record's =msg=, else its =title=, after the =kind= of a =blocked= record or the progress of a =working=
+one, e.g. =permission: Bash?= or =42% Build=; a =done= record
+has none.
+
+Ghostel drops records by itself: =done= and =error= per
+=ghostel-status-auto-acknowledge=, =working= and =blocked= at the next
+prompt or process exit, all of them with the buffer.
 
 * Configuration
 
@@ -39,8 +34,8 @@ on.
   (after-init-hook . tab-bar-ghostel-mode))
 #+end_src
 
-| Option                          | Meaning                       |
-|---------------------------------+-------------------------------|
-| =tab-bar-ghostel-tab-predicate= | whether a tab is a terminal's |
+| Option                     | Meaning                                  |
+|----------------------------+------------------------------------------|
+| =tab-bar-ghostel-statuses= | record statuses shown, most urgent first |
 
-Indicators, status lines and the spinner are set up in =tab-bar-status=.
+The tab of a terminal is set by =tab-bar-status-tab-predicate=.
