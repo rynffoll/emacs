@@ -4,7 +4,7 @@
 
 ;; Author: Ruslan Kamashev
 ;; Version: 0.1
-;; Package-Requires: ((emacs "31.1") (ghostel "0.59") (tab-bar-status "0.2"))
+;; Package-Requires: ((emacs "31.1") (ghostel "0.60") (tab-bar-status "0.2"))
 ;; Keywords: convenience, processes
 ;; URL: https://github.com/rynffoll/emacs
 
