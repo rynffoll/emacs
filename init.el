@@ -385,7 +385,9 @@ For mode hooks of buffers that do not show point."
   :hook
   (after-init-hook . prettify-special-glyphs-mode))
 
+;; TODO: Drop after Emacs 32: built in, `tty-use-kitty-kbd-proto'.
 (use-package kkp
+  :if (< emacs-major-version 32)
   :unless (display-graphic-p)
   :hook
   (tty-setup-hook . global-kkp-mode))
