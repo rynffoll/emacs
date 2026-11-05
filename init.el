@@ -1448,7 +1448,8 @@ For mode hooks of buffers that do not show point."
   :hook
   (shell-mode-hook   . with-editor-export-editor)
   (term-exec-hook    . with-editor-export-editor)
-  (eshell-mode-hook  . with-editor-export-editor))
+  (eshell-mode-hook  . with-editor-export-editor)
+  (ghostel-pre-spawn-hook . with-editor-export-editor))
 
 (use-package list-environment)
 
