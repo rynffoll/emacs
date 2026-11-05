@@ -395,6 +395,10 @@ For mode hooks of buffers that do not show point."
   :hook
   (after-init-hook . system-taskbar-mode))
 
+(use-package macos-notifications
+  :vc (:url "https://github.com/dakra/macos-notifications" :rev :newest)
+  :if (featurep 'ns))
+
 (use-package emacs
   :ensure nil
   :init
@@ -1633,13 +1637,28 @@ For mode hooks of buffers that do not show point."
 
 (use-package ghostel
   :preface
+  (defun +ghostel-switch-to-buffer (buffer)
+    "Switch to terminal BUFFER in its project's tab."
+    (when (buffer-live-p buffer)
+      (condition-case nil
+          (tab-bar-project-select (buffer-local-value 'default-directory buffer))
+        (user-error nil))             ; not in a project: stay in this tab
+      (if-let* ((win (get-buffer-window buffer)))
+          (select-window win)
+        (pop-to-buffer buffer))))
   (defun +ghostel-notify-macos (title body)
-    (when (fboundp 'do-applescript)
+    ;; Needs a GUI Emacs.app frame; a click shows the terminal.
+    (when (and (fboundp 'macos-notifications-notify)
+               (seq-some (lambda (f) (eq (window-system f) 'ns)) (frame-list)))
       (let* ((title (if (seq-empty-p title) (buffer-name) title))
              (p (project-current))
              (summary (if p (concat (project-name p) ": " title) title)))
-        (do-applescript
-         (format "display notification %S with title %S" body summary)))))
+        (macos-notifications-notify
+         :title summary :body body
+         :on-action (let ((buffer (current-buffer)))
+                      (lambda (_id _key)
+                        (+ghostel-switch-to-buffer buffer)
+                        (select-frame-set-input-focus (selected-frame))))))))
   (defun +ghostel-notify-taskbar (_title _body)
     (when (fboundp 'system-taskbar-attention)
       (system-taskbar-attention 'critical)))
