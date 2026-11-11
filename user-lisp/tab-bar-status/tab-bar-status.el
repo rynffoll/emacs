@@ -4,7 +4,7 @@
 
 ;; Author: Ruslan Kamashev
 ;; Version: 0.2
-;; Package-Requires: ((emacs "31.1") (tab-bar-project "0.1"))
+;; Package-Requires: ((emacs "31.1") (tab-bar-project "0.1") (blinker "0.1"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/rynffoll/emacs
 
@@ -30,8 +30,8 @@
 ;; the backends anew, once for all tabs.  A buffer's status shows on the
 ;; tabs that `tab-bar-status-tab-predicate' matches.
 ;;
-;; Statuses come from `tab-bar-status-alist', most urgent first, each
-;; with an indicator, a symbol with a face:
+;; Statuses and their order come from `tab-bar-status-alist', each with
+;; an indicator, a symbol with a face:
 ;;
 ;; - `tab-bar-status-tab-name-format' appends indicators to a tab name,
 ;;   for `tab-bar-tab-name-format-functions';
@@ -51,9 +51,10 @@
 
 (require 'tab-bar)
 (require 'seq)
+(require 'blinker)
 (require 'tab-bar-project)
 
-
+
 (defgroup tab-bar-status nil
   "Status of tab-bar tabs."
   :group 'tab-bar
@@ -77,36 +78,32 @@ Called with the tab and the buffer's `default-directory'."
   :group 'tab-bar-status)
 
 (defcustom tab-bar-status-alist
-  '((blocked "●" warning)
-    (error   "●" error)
+  '((working "●" shadow)
+    (blocked "●" warning)
     (done    "●" success)
-    (working "●" shadow)
+    (error   "●" error)
     (flag    "⚑" shadow))
-  "Alist of statuses (STATUS STRING FACE), most urgent first.
-STRING and FACE make the indicator of STATUS; a status without STRING
-has none.  A status not listed here shows nothing.  Call
-`tab-bar-status-update' after a change."
+  "Alist of statuses (STATUS STRING FACE).
+Statuses, and the tabs and messages that have them, are listed in the
+order of this alist.  STRING and FACE make the indicator of STATUS; a
+status without STRING has none.  A status not listed here shows
+nothing.  Call `tab-bar-status-update' after a change."
   :type '(repeat (list (symbol :tag "Status")
                        (choice (const :tag "No indicator" nil) string)
                        (choice (const :tag "No face" nil) face)))
   :group 'tab-bar-status)
 
 (defcustom tab-bar-status-blink-statuses '(working)
-  "Statuses whose indicator blinks after a tab name.
-Blinking runs only while a buffer has such a status."
+  "Statuses whose indicator blinks after a tab name and in the summary.
+Blinking runs only while a buffer has such a status; see `blinker-blend'
+and `blinker-interval'."
   :type '(repeat (symbol :tag "Status"))
   :group 'tab-bar-status)
 
-(defcustom tab-bar-status-blink-interval 0.5
-  "Seconds between blinks.
-Applied when blinking starts."
-  :type 'number
-  :group 'tab-bar-status)
-
 (defcustom tab-bar-status-blink-hook nil
-  "Hook run when blinking indicators are hidden or shown.
+  "Hook run when blinking indicators are dimmed or restored.
 For buffers that show tab names, e.g. a tree of tabs: call
-`tab-bar-status-blink-buffer' on them."
+`blinker-update-buffer' on them."
   :type 'hook
   :group 'tab-bar-status)
 
@@ -115,7 +112,7 @@ For buffers that show tab names, e.g. a tree of tabs: call
   :type 'hook
   :group 'tab-bar-status)
 
-
+
 (defun tab-bar-status--of (entry)
   "Return the status of ENTRY, a (BUFFER . REPORT)."
   (plist-get (cdr entry) :status))
@@ -130,9 +127,10 @@ For buffers that show tab names, e.g. a tree of tabs: call
 Reset by `tab-bar-status-update'.")
 
 (defun tab-bar-status--collect ()
-  "Return (BUFFER . REPORT) for every buffer with a status, most urgent first.
-REPORT is what `tab-bar-status-functions' returned.  Equal statuses keep
-`buffer-list' order.  Drop statuses not in `tab-bar-status-alist'."
+  "Return (BUFFER . REPORT) for every buffer with a status.
+REPORT is what `tab-bar-status-functions' returned.  Sort them in the
+order of `tab-bar-status-alist'; equal statuses keep `buffer-list'
+order.  Drop statuses not in the alist."
   (let (entries)
     (when tab-bar-status-functions
       (dolist (buffer (buffer-list))
@@ -169,8 +167,9 @@ Collect them once per `tab-bar-status-update'."
   (alist-get 'tab-bar-status-marks tab))
 
 (defun tab-bar-status--tab-statuses (tab tab-entries)
-  "Return the statuses of TAB with an indicator, most urgent first.
-TAB-ENTRIES are TAB's elements of `tab-bar-status--entries'."
+  "Return the statuses of TAB with an indicator.
+They are in the order of `tab-bar-status-alist'.  TAB-ENTRIES are
+TAB's elements of `tab-bar-status--entries'."
   (let ((statuses (append (tab-bar-status--marks tab)
                           (mapcar #'tab-bar-status--of tab-entries))))
     (seq-keep (pcase-lambda (`(,status ,string))
@@ -195,11 +194,19 @@ in `tab-bar-status-alist'."
            (and count
                 (list 'help-echo (format "%s: %d" status count))))))
 
-(defvar tab-bar-status--blink-timer nil
-  "Blink timer, or nil.")
-
-(defvar tab-bar-status--blink-off nil
-  "Non-nil while blinking indicators are hidden.")
+(defun tab-bar-status--blinking-indicator (status &optional count strings)
+  "Return the indicator of STATUS, blinking if the status blinks.
+COUNT and STRINGS are as in `tab-bar-status--indicator'.  The status
+blinks if it is one of `tab-bar-status-blink-statuses'; COUNT does not."
+  (let ((indicator (tab-bar-status--indicator status count strings)))
+    (if (memq status tab-bar-status-blink-statuses)
+        (let ((end (- (length indicator)
+                      (if count
+                          (length (tab-bar-status--superscript count))
+                        0))))
+          (concat (blinker-string (substring indicator 0 end))
+                  (substring indicator end)))
+      indicator)))
 
 (defun tab-bar-status--blink-p ()
   "Return non-nil if a buffer has a status that blinks."
@@ -209,46 +216,17 @@ in `tab-bar-status-alist'."
                          tab-bar-status-blink-statuses))
                  (tab-bar-status--entries))))
 
-(defun tab-bar-status--blink-display (indicator)
-  "Return the `display' property hiding INDICATOR, or nil if shown."
-  ;; A blank of the same width, so the tab does not jump.
-  (and tab-bar-status--blink-off
-       (make-string (string-width indicator) ?\s)))
-
-(defun tab-bar-status--blink-redisplay ()
-  "Redisplay blinking indicators."
-  ;; PERF: Update all mode lines only for a tab bar shown somewhere.
-  (when (seq-some (lambda (frame)
-                    (> (or (frame-parameter frame 'tab-bar-lines) 0) 0))
-                  (frame-list))
-    (force-mode-line-update t))
-  (run-hooks 'tab-bar-status-blink-hook))
-
-(defun tab-bar-status--blink-stop ()
-  "Cancel the blink timer and show blinking indicators."
-  (when tab-bar-status--blink-timer
-    (cancel-timer tab-bar-status--blink-timer)
-    (setq tab-bar-status--blink-timer nil))
-  (when tab-bar-status--blink-off
-    (setq tab-bar-status--blink-off nil)
-    (tab-bar-status--blink-redisplay)))
-
 (defun tab-bar-status--blink ()
-  "Hide or show blinking indicators; stop if no status blinks."
-  (if (not (tab-bar-status--blink-p))
-      (tab-bar-status--blink-stop)
-    (setq tab-bar-status--blink-off (not tab-bar-status--blink-off))
-    (tab-bar-status--blink-redisplay)))
-
-(defun tab-bar-status--blink-update ()
-  "Start blinking if a status blinks, else stop."
-  (cond ((not (tab-bar-status--blink-p))
-         (tab-bar-status--blink-stop))
-        ((not tab-bar-status--blink-timer)
-         (setq tab-bar-status--blink-timer
-               (run-with-timer tab-bar-status-blink-interval
-                               tab-bar-status-blink-interval
-                               #'tab-bar-status--blink)))))
+  "Redisplay blinking indicators; return non-nil if a status blinks.
+For `blinker-start'."
+  (when (tab-bar-status--blink-p)
+    ;; PERF: Update all mode lines only for a tab bar shown somewhere.
+    (when (seq-some (lambda (frame)
+                      (> (or (frame-parameter frame 'tab-bar-lines) 0) 0))
+                    (frame-list))
+      (force-mode-line-update t))
+    (run-hooks 'tab-bar-status-blink-hook)
+    t))
 
 (defun tab-bar-status--affixate (candidates)
   "Return status CANDIDATES with their indicator as prefix.
@@ -277,10 +255,10 @@ The suffix is \"on\" for a mark of the current tab."
                 (funcall tab-bar-tabs-function))))
 
 (defun tab-bar-status--tab-candidates ()
-  "Return (TAB . BUFFER) for other tabs with a status, most urgent first.
-Among equal statuses, the most recently selected tab comes first.
-BUFFER has the tab's most urgent status, or is nil if that status is a
-mark."
+  "Return (TAB . BUFFER) for other tabs with a status.
+Sort them by their first status, in the order of `tab-bar-status-alist';
+among equal statuses, the most recently selected tab comes first.
+BUFFER has the tab's first status, or is nil if that status is a mark."
   (let ((entries (tab-bar-status--entries))
         candidates)
     (dolist (tab (tab-bar--tabs-recent))
@@ -301,33 +279,17 @@ mark."
       (select-window window)
     (pop-to-buffer buffer)))
 
-
+
 ;;;###autoload
 (defun tab-bar-status-update ()
   "Redisplay the statuses and run `tab-bar-status-change-hook'.
 Backends call this when a status changes, or when
 `tab-bar-status-functions' or `tab-bar-status-alist' changes."
   (setq tab-bar-status--entries 'unset)
-  (tab-bar-status--blink-update)
+  (when (tab-bar-status--blink-p)
+    (blinker-start #'tab-bar-status--blink))
   (force-mode-line-update t)
   (run-hooks 'tab-bar-status-change-hook))
-
-;;;###autoload
-(defun tab-bar-status-blink-buffer (buffer)
-  "Hide or show the blinking indicators in BUFFER without redrawing it.
-For `tab-bar-status-blink-hook', with a buffer that shows tab names."
-  (with-current-buffer buffer
-    (with-silent-modifications
-      (let ((pos (point-min)) end)
-        (while (setq pos (text-property-any pos (point-max)
-                                            'tab-bar-status-blink t))
-          (setq end (or (next-single-property-change
-                         pos 'tab-bar-status-blink)
-                        (point-max)))
-          (put-text-property pos end 'display
-                             (tab-bar-status--blink-display
-                              (buffer-substring-no-properties pos end)))
-          (setq pos end))))))
 
 ;;;###autoload
 (defun tab-bar-status-progresses ()
@@ -340,20 +302,22 @@ For `tab-bar-status-blink-hook', with a buffer that shows tab names."
   "Return the statuses of TABS with counts of tabs, like Flymake's counters.
 If FACE is non-nil, append it to the faces of the whole string.  STRINGS
 is an alist of statuses and strings to show instead of their indicator
-strings."
+strings.  Indicators of `tab-bar-status-blink-statuses' blink, their
+counts do not."
   (let ((entries (tab-bar-status--entries))
         counts)
     (dolist (tab tabs)
       (dolist (status (tab-bar-status--tab-statuses
                        tab (tab-bar-status--tab-entries tab entries)))
         (setf (alist-get status counts) (1+ (alist-get status counts 0)))))
-    (let ((summary (mapconcat
-                    (lambda (entry)
-                      (tab-bar-status--indicator
-                       (car entry) (alist-get (car entry) counts) strings))
-                    (seq-filter (lambda (entry) (assq (car entry) counts))
-                                tab-bar-status-alist)
-                    " ")))
+    (let ((summary
+           (mapconcat
+            (lambda (entry)
+              (tab-bar-status--blinking-indicator
+               (car entry) (alist-get (car entry) counts) strings))
+            (seq-filter (lambda (entry) (assq (car entry) counts))
+                        tab-bar-status-alist)
+            " ")))
       (when face
         (add-face-text-property 0 (length summary) face t summary))
       summary)))
@@ -371,17 +335,7 @@ and the tab face covers the indicators.  Indicators of
                             tab (tab-bar-status--entries)))))
       (concat name " "
               (mapconcat
-               (lambda (status)
-                 (let ((indicator (tab-bar-status--indicator status)))
-                   (when (memq status tab-bar-status-blink-statuses)
-                     ;; Marked, so `tab-bar-status-blink-buffer' finds it.
-                     (add-text-properties
-                      0 (length indicator)
-                      `(tab-bar-status-blink
-                        t display ,(tab-bar-status--blink-display indicator))
-                      indicator))
-                   indicator))
-               statuses " "))
+               #'tab-bar-status--blinking-indicator statuses " "))
     name))
 
 ;;;###autoload
@@ -399,8 +353,9 @@ formatters, e.g. `tab-bar-theme-tab-group-format-functions'."
 
 ;;;###autoload
 (defun tab-bar-status-tab-messages (tab _i)
-  "Return the messages of TAB's buffers, most urgent first.
-For `tab-bar-tree-tab-status-function'."
+  "Return the messages of TAB's buffers.
+They are in the order of `tab-bar-status-alist'.  For
+`tab-bar-tree-tab-status-function'."
   (seq-keep (lambda (entry) (plist-get (cdr entry) :message))
             (tab-bar-status--tab-entries tab (tab-bar-status--entries))))
 
@@ -436,7 +391,8 @@ indicator; marks of the tab are marked \"on\"."
 
 ;;;###autoload
 (defun tab-bar-status-tab-indicators (name)
-  "Return the indicators of tab NAME in the selected frame, most urgent first."
+  "Return the indicators of tab NAME in the selected frame.
+They are in the order of `tab-bar-status-alist'."
   (when-let* ((tab (seq-find (lambda (tab) (equal (alist-get 'name tab) name))
                              (funcall tab-bar-tabs-function))))
     (mapcar #'tab-bar-status--indicator
@@ -452,10 +408,10 @@ indicator; marks of the tab are marked \"on\"."
 ;;;###autoload
 (defun tab-bar-status-switch-to-tab (name)
   "Switch to the other tab NAME with a status and show its buffer.
-The buffer is the one with the tab's most urgent status; a tab whose
-most urgent status is a mark is only selected.  Interactively, offer
-the tabs with a status, most urgent first, then most recently selected;
-the first is the default."
+The buffer is the one with the tab's first status, in the order of
+`tab-bar-status-alist'; a tab whose first status is a mark is only
+selected.  Interactively, offer the tabs with a status, sorted by their
+first status, then most recently selected; the first is the default."
   (interactive
    (let ((names (mapcar (lambda (candidate) (alist-get 'name (car candidate)))
                         (tab-bar-status--tab-candidates))))

@@ -708,6 +708,13 @@ For mode hooks of buffers that do not show point."
 
 (use-package tab-bar-status
   :ensure nil
+  :preface
+  (defun +tab-bar-status-blink-tree ()
+    "Blink the indicators in tab-bar-tree buffers without redrawing them.
+Rebuild the header line: its summary blinks too."
+    (mapc #'blinker-update-buffer
+          (match-buffers '(derived-mode . tab-bar-tree-buffer-mode)))
+    (tab-bar-tree-update-header-line))
   :general
   (tab-prefix-map
    "!" 'tab-bar-status-switch-to-tab
@@ -717,10 +724,6 @@ For mode hooks of buffers that do not show point."
   :config
   (add-to-list 'global-mode-string
                '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function))))
-  (defun +tab-bar-status-blink-tree ()
-    "Blink the indicators in tab-bar-tree buffers without redrawing them."
-    (mapc #'tab-bar-status-blink-buffer
-          (match-buffers '(derived-mode . tab-bar-tree-buffer-mode))))
   :hook
   (tab-bar-status-change-hook . tab-bar-tree-update)
   (tab-bar-status-blink-hook . +tab-bar-status-blink-tree))

@@ -54,22 +54,25 @@ The ghostel backend is =tab-bar-ghostel=.
 
 * Statuses
 
-=tab-bar-status-alist=, =(STATUS STRING FACE)=, most urgent first:
+=tab-bar-status-alist=, =(STATUS STRING FACE)=; statuses, and the tabs
+and messages that have them, are listed in its order:
 
 | Status    | Indicator | Face      | Color |
 |-----------+-----------+-----------+-------|
-| =blocked= | ●         | =warning= | 🟡    |
-| =error=   | ●         | =error=   | 🔴    |
-| =done=    | ●         | =success= | 🟢    |
 | =working= | ●         | =shadow=  | ⚪    |
+| =blocked= | ●         | =warning= | 🟡    |
+| =done=    | ●         | =success= | 🟢    |
+| =error=   | ●         | =error=   | 🔴    |
 | =flag=    | ⚑         | =shadow=  | 🚩    |
 
 /Color/ shows the face as an emoji, for viewers without faces such as
 GitHub; the same emoji are the default taskbar badge strings, see
 [[*System taskbar][System taskbar]].
 
-The =working= indicator after a tab name blinks, see
-=tab-bar-status-blink-statuses=.
+The =working= indicator blinks after a tab name and in the summary, see
+=tab-bar-status-blink-statuses=: =blinker= dims it to the color of
+=blinker-blend= every =blinker-interval= seconds; its count does not
+blink.
 
 A status lives as long as its backend reports it: a terminal's =done=
 goes when ghostel drops the record.  A mark lives on its tab until
@@ -99,8 +102,8 @@ they return early for buffers they do not handle.
   =tab-bar-tree-tab-status-function=
 - =tab-bar-status-summary= — counts of tabs per status, as a string
 - =tab-bar-status-progresses= — the progress of every buffer reporting one
-- =tab-bar-status-switch-to-tab= — go to a tab with a status, the most
-  urgent by default, and show its buffer
+- =tab-bar-status-switch-to-tab= — go to a tab with a status, by default
+  the one whose status comes first, and show its buffer
 - =tab-bar-status-toggle= — toggle a mark on the current tab
 - =tab-bar-status-tab-indicators= — indicators of a tab, e.g. for
   completion icons
@@ -114,8 +117,10 @@ they return early for buffers they do not handle.
 | badge    | summary of all tabs, per =tab-bar-status-system-taskbar-badge-alist= |
 | progress | mean progress of all buffers                                         |
 
-The badge has no faces, so it shows a colored string per status, 🟡 🔴
-🟢 ⚪ 🚩 by default, or the indicator string.
+The badge has no faces, so it shows a colored string per status, ⚪ 🟡
+🟢 🔴 🚩 by default, or the indicator string.  A blinking status
+alternates with its string in
+=tab-bar-status-system-taskbar-blink-alist=, ⚫ for =working=.
 
 * Configuration
 
@@ -130,10 +135,12 @@ The badge has no faces, so it shows a colored string per status, 🟡 🔴
   ;; Shown on the tab bar by `tab-bar-format-global'.
   (add-to-list 'global-mode-string
                '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function))))
-  ;; Blink in tree buffers without redrawing them.
+  ;; Blink in tree buffers without redrawing them; the summary in the
+  ;; header line blinks too.
   (defun my-blink-tree ()
-    (mapc #'tab-bar-status-blink-buffer
-          (match-buffers '(derived-mode . tab-bar-tree-buffer-mode)))))
+    (mapc #'blinker-update-buffer
+          (match-buffers '(derived-mode . tab-bar-tree-buffer-mode)))
+    (tab-bar-tree-update-header-line)))
 
 (setq tab-bar-tab-name-format-functions
       '(tab-bar-tab-name-format-truncated
@@ -151,8 +158,7 @@ The badge has no faces, so it shows a colored string per status, 🟡 🔴
 |---------------------------------+------------------------------------------------------------------------------------|
 | =tab-bar-status-functions=      | backends: buffer → status report                                                   |
 | =tab-bar-status-tab-predicate=  | tab and buffer directory → status shows on tab                                     |
-| =tab-bar-status-alist=          | statuses: indicator string and face, urgency                                       |
+| =tab-bar-status-alist=          | statuses: indicator string and face, order                                         |
 | =tab-bar-status-change-hook=    | run by =tab-bar-status-update=                                                     |
-| =tab-bar-status-blink-statuses= | statuses whose indicator blinks on a tab                                           |
-| =tab-bar-status-blink-interval= | seconds between blinks                                                             |
-| =tab-bar-status-blink-hook=     | run on each blink; call =tab-bar-status-blink-buffer= on buffers showing tab names |
+| =tab-bar-status-blink-statuses= | statuses whose indicator blinks on a tab and in the summary                        |
+| =tab-bar-status-blink-hook=     | run on each blink; call =blinker-update-buffer= on buffers showing tab names       |
