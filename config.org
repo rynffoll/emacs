@@ -1738,11 +1738,6 @@ Rebuild the header line: its summary blinks too."
 #+begin_src emacs-lisp
 (use-package nerd-icons-completion
   :if +with-icons
-  :config
-  ;; `tab-bar-status-switch-to-tab': the tab's most urgent indicator.
-  (cl-defmethod nerd-icons-completion-get-icon
-    (cand (_cat (eql tab-bar-status-tab)))
-    (concat (car (tab-bar-status-tab-indicators cand)) " "))
   :hook
   (vertico-mode-hook    . nerd-icons-completion-mode)
   (marginalia-mode-hook . nerd-icons-completion-marginalia-setup))

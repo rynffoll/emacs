@@ -389,21 +389,27 @@ indicator; marks of the tab are marked \"on\"."
             (append marks (list status))))
     (tab-bar-status-update)))
 
-;;;###autoload
-(defun tab-bar-status-tab-indicators (name)
-  "Return the indicators of tab NAME in the selected frame.
+(defun tab-bar-status--named-tab-statuses (name)
+  "Return the statuses of tab NAME in the selected frame.
 They are in the order of `tab-bar-status-alist'."
   (when-let* ((tab (seq-find (lambda (tab) (equal (alist-get 'name tab) name))
                              (funcall tab-bar-tabs-function))))
-    (mapcar #'tab-bar-status--indicator
-            (tab-bar-status--tab-statuses
-             tab (tab-bar-status--tab-entries tab (tab-bar-status--entries))))))
+    (tab-bar-status--tab-statuses
+     tab (tab-bar-status--tab-entries tab (tab-bar-status--entries)))))
 
 (defun tab-bar-status--tab-annotation (name)
   "Return the indicators of tab NAME as an annotation."
-  (if-let* ((indicators (tab-bar-status-tab-indicators name)))
-      (concat " " (string-join indicators " "))
+  (if-let* ((statuses (tab-bar-status--named-tab-statuses name)))
+      (concat " " (mapconcat #'tab-bar-status--indicator statuses " "))
     ""))
+
+(defun tab-bar-status--tab-group (name transform)
+  "Return the group of tab NAME: its first status with its indicator.
+If TRANSFORM is non-nil, return NAME.  For `group-function'."
+  (if transform
+      name
+    (when-let* ((status (car (tab-bar-status--named-tab-statuses name))))
+      (concat (tab-bar-status--indicator status) " " (symbol-name status)))))
 
 ;;;###autoload
 (defun tab-bar-status-switch-to-tab (name)
@@ -421,6 +427,7 @@ first status, then most recently selected; the first is the default."
             (completion-table-with-metadata
              names '((category . tab-bar-status-tab)
                      (annotation-function . tab-bar-status--tab-annotation)
+                     (group-function . tab-bar-status--tab-group)
                      (display-sort-function . identity)))
             nil t nil nil names))))
   (pcase-let ((`(,tab . ,buffer)

@@ -105,8 +105,6 @@ they return early for buffers they do not handle.
 - =tab-bar-status-switch-to-tab= — go to a tab with a status, by default
   the one whose status comes first, and show its buffer
 - =tab-bar-status-toggle= — toggle a mark on the current tab
-- =tab-bar-status-tab-indicators= — indicators of a tab, e.g. for
-  completion icons
 
 * System taskbar
 
