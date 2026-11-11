@@ -532,6 +532,11 @@ For mode hooks of buffers that do not show point."
   :init
   (setq olivetti-body-width 0.6))
 
+(use-package blinker
+  :ensure nil
+  :init
+  (setq blinker-blend 0.2))
+
 (defun +custom-faces (&rest _)
   "Reapply custom face attributes after theme load."
   (custom-set-faces

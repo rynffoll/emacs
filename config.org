@@ -66,6 +66,7 @@
   - [[#breadcrumb][breadcrumb]]
   - [[#spacious-padding][spacious-padding]]
   - [[#olivetti][olivetti]]
+  - [[#blinker][blinker]]
   - [[#custom-faces][custom-faces]]
   - [[#modus-themes][modus-themes]]
   - [[#modus-catppuccin][modus-catppuccin]]
@@ -1075,6 +1076,14 @@ For mode hooks of buffers that do not show point."
 (use-package olivetti
   :init
   (setq olivetti-body-width 0.6))
+#+end_src
+
+** blinker
+#+begin_src emacs-lisp
+(use-package blinker
+  :ensure nil
+  :init
+  (setq blinker-blend 0.2))
 #+end_src
 
 ** custom-faces

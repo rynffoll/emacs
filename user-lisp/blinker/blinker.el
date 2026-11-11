@@ -25,8 +25,8 @@
 
 ;; Blink text, e.g. an indicator in a mode line or after a tab name,
 ;; for packages that show something in progress.  One timer serves all
-;; of them, so everything blinks in step.  Blinking text is dimmed to
-;; the color of `blinker-blend' and restored in turn.
+;; of them, so everything blinks in step.  Blinking text is hidden, or
+;; dimmed to the color of `blinker-blend', and restored in turn.
 ;;
 ;; A package puts its text through `blinker-string' wherever it builds
 ;; it, and calls `blinker-start' with a function that redisplays the
@@ -72,10 +72,10 @@ Applied when blinking starts."
   :type 'number
   :group 'blinker)
 
-(defcustom blinker-blend 0.15
-  "Color of blinking text while dimmed.
+(defcustom blinker-blend nil
+  "Color of blinking text while dimmed, or nil to hide it.
 A number is the fraction of the way from the background toward the
-foreground; a string is a color used as is; nil hides the text."
+foreground; a string is a color used as is."
   :type '(choice (const :tag "Hide" nil)
                  (float :tag "Fraction of the way from the background")
                  color)
