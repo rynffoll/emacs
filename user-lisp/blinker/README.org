@@ -1,0 +1,59 @@
+#+title: blinker
+#+author: Ruslan Kamashev
+
+Blink text on one timer.
+
+For packages that show something in progress: an indicator in a mode
+line, after a tab name, in a buffer.  All of them share one timer, so
+everything blinks in step.  Blinking text is dimmed to the color of
+=blinker-blend= and restored in turn; the text keeps its width.  The
+timer runs only while a package has text to blink and a frame has focus.
+
+* Layout
+
+#+begin_example
+ blinker-start ──► timer ──► each blink ──► function of each package ──► redisplay
+                    │        dim / restore   non-nil: keep blinking
+                    │                        nil: dropped
+                    └─ stops when no function is left or no frame has focus
+
+ blinker-string ──► text built on each redisplay: dimmed or not, per the phase
+               └──► text inserted in a buffer ──► blinker-update-buffer, in place
+#+end_example
+
+* API
+
+- =blinker-string= — a copy of a string that blinks: dimmed while
+  =blinker-dimmed-p=
+- =blinker-start= — blink the text that a function redisplays; the
+  function is called on each blink and returns non-nil while it has
+  such text
+- =blinker-update-buffer= — dim or restore the text of =blinker-string=
+  in a buffer, without redrawing it
+- =blinker-dimmed-p= — non-nil while blinking text is dimmed, for text
+  that blinks another way, e.g. changes its string
+
+* Configuration
+
+#+begin_src emacs-lisp
+(defvar my-process nil
+  "Process shown as a blinking indicator while it runs.")
+
+;; In `mode-line-format': (:eval (my-indicator)).
+(defun my-indicator ()
+  (and (process-live-p my-process)
+       (blinker-string "●")))
+
+(defun my-blink ()
+  (when (process-live-p my-process)
+    (force-mode-line-update)
+    t))
+
+;; After starting the process:
+(blinker-start #'my-blink)
+#+end_src
+
+| Option             | Meaning                                                                  |
+|--------------------+--------------------------------------------------------------------------|
+| =blinker-interval= | seconds between blinks                                                   |
+| =blinker-blend=    | color of dimmed text: a fraction toward the foreground, a color, or nil  |
