@@ -3,8 +3,6 @@
 ;; Copyright (C) 2026  Ruslan Kamashev
 
 ;; Author: Ruslan Kamashev
-;; Version: 0.1
-;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/rynffoll/emacs
 

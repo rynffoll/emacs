@@ -48,7 +48,7 @@ The ghostel backend is =tab-bar-ghostel=.
 |----------------+------------------------------------------------------------|
 | indicator      | =tab-bar-status-tab-name-format=, a tab name formatter     |
 | group count    | =tab-bar-status-tab-group-format=, a group label formatter |
-| summary        | =tab-bar-status-summary=, e.g. in =global-mode-string=     |
+| summary        | =tab-bar-status-mode-line=, e.g. in =global-mode-string=   |
 | message        | =tab-bar-status-tab-messages=, e.g. in a tree of tabs      |
 | system taskbar | =tab-bar-status-system-taskbar-mode=                       |
 
@@ -72,7 +72,7 @@ GitHub; the same emoji are the default taskbar badge strings, see
 The =working= indicator blinks after a tab name and in the summary, see
 =tab-bar-status-blink-statuses=: =blinker= hides it, or dims it to the
 color of =blinker-blend=, every =blinker-interval= seconds; its count
-does not blink.
+does not blink, nor does a mark: only a status that a buffer reports.
 
 A status lives as long as its backend reports it: a terminal's =done=
 goes when ghostel drops the record.  A mark lives on its tab until
@@ -99,8 +99,10 @@ they return early for buffers they do not handle.
 
 - =tab-bar-status-update= — redisplay and run =tab-bar-status-change-hook=
 - =tab-bar-status-tab-messages= — the messages of a tab, a value for
-  =tab-bar-tree-tab-status-function=
+  =tab-bar-tree-tab-messages-function=
 - =tab-bar-status-summary= — counts of tabs per status, as a string
+- =tab-bar-status-mode-line= — the summary of the selected frame's tabs, a
+  mode line construct
 - =tab-bar-status-progresses= — the progress of every buffer reporting one
 - =tab-bar-status-switch-to-tab= — go to a tab with a status, by default
   the one whose status comes first, and show its buffer
@@ -125,14 +127,13 @@ alternates with its string in
 #+begin_src emacs-lisp
 (use-package tab-bar-status
   :init
-  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-messages)
+  (setq tab-bar-tree-tab-messages-function #'tab-bar-status-tab-messages)
   :hook
   (tab-bar-status-change-hook . tab-bar-tree-update)
   (tab-bar-status-blink-hook . my-blink-tree)
   :config
   ;; Shown on the tab bar by `tab-bar-format-global'.
-  (add-to-list 'global-mode-string
-               '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function))))
+  (add-to-list 'global-mode-string 'tab-bar-status-mode-line t)
   ;; Blink in tree buffers without redrawing them; the summary in the
   ;; header line blinks too.
   (defun my-blink-tree ()

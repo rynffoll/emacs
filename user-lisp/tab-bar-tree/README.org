@@ -34,7 +34,7 @@ e.g. in a child frame.
 │ 1 *scratch*                   │ ← tab label      tab-bar-tab-name-format-function
 │ emacs                         │ ← group label    tab-bar-tab-group-format-function
 │    2 emacs                    │ ← tab label      indented by tab-bar-tree-indent
-│      working: Reading files   │ ← status line    tab-bar-tree-tab-status-function
+│      working: Reading files   │ ← message        tab-bar-tree-tab-messages-function
 │    3 *Proced*                 │ ← tab label
 │ 4 dotfiles                    │ ← group label, folded
 └───────────────────────────────┘
@@ -46,7 +46,7 @@ tab; core prefixes its label with the hint of its first tab.
 
 The tree is re-rendered on tab-bar hooks, after =tab-bar-tabs-set= and
 =tab-bar-tree-refresh-commands=, and on =tab-bar-tree-update=: call it
-when labels or status lines change, e.g. from a change hook.  When the
+when labels or messages change, e.g. from a change hook.  When the
 selected window or its buffer changes, the tree is re-rendered only if
 the current tab's automatic name changed; tabs with an explicit name
 are skipped.
@@ -57,7 +57,8 @@ The tree's header line stands in for the hidden tab bar.  It is built
 from =tab-bar-tree-header-format=, a list of items as in =tab-bar-format=:
 functions returning a string or tab-bar menu items.  Menu items that
 bind a command are buttons.  Items after
-=tab-bar-tree-header-format-align-right= are aligned to the right.
+=tab-bar-tree-header-format-align-right= are aligned to the right; the
+items before them are cut short with an ellipsis to make room.
 Items provided: =tab-bar-tree-format-button=,
 =tab-bar-tree-header-format-group= (the current tab's group),
 =tab-bar-tree-header-format-group-truncated= (the same, truncated as a
@@ -86,12 +87,13 @@ call =tab-bar-tree-update-header-line= from a hook or advice:
   (add-to-list 'tab-bar-format #'tab-bar-tree-format-button))
 #+end_src
 
-| Option                             | Meaning                                  |
-|------------------------------------+------------------------------------------|
-| =tab-bar-tree-display-alist=       | side window parameters, width in columns |
-| =tab-bar-tree-indent=              | indentation of a grouped tab             |
-| =tab-bar-tree-tab-background=      | keep the label faces' background         |
-| =tab-bar-tree-button=              | label of the toggle button               |
-| =tab-bar-tree-header-format=       | header line items                        |
-| =tab-bar-tree-tab-status-function= | status lines under a tab                 |
-| =tab-bar-tree-refresh-commands=    | commands that change a tab in place      |
+| Option                               | Meaning                                  |
+|--------------------------------------+------------------------------------------|
+| =tab-bar-tree-display-alist=         | side window parameters, width in columns |
+| =tab-bar-tree-indent=                | indentation of a grouped tab             |
+| =tab-bar-tree-tab-background=        | keep the label faces' background         |
+| =tab-bar-tree-button=                | label of the toggle button               |
+| =tab-bar-tree-header-format=         | header line items                        |
+| =tab-bar-tree-tab-messages-function= | messages under a tab                     |
+| =tab-bar-tree-tab-message=           | face of the messages                     |
+| =tab-bar-tree-refresh-commands=      | commands that change a tab in place      |

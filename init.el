@@ -680,7 +680,8 @@ For mode hooks of buffers that do not show point."
                          tab-bar-format-tabs-groups
                          tab-bar-color-bar-separator
                          tab-bar-format-align-right
-                         tab-bar-format-global))
+                         tab-bar-format-global
+                         tab-bar-theme-separator))
   (setq tab-bar-close-button-show nil)
   (setq tab-bar-new-tab-choice "*scratch*")
   (setq tab-bar-tab-hints t)
@@ -725,10 +726,9 @@ Rebuild the header line: its summary blinks too."
    "!" 'tab-bar-status-switch-to-tab
    "*" 'tab-bar-status-toggle)
   :init
-  (setq tab-bar-tree-tab-status-function #'tab-bar-status-tab-messages)
+  (setq tab-bar-tree-tab-messages-function #'tab-bar-status-tab-messages)
   :config
-  (add-to-list 'global-mode-string
-               '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function))))
+  (add-to-list 'global-mode-string 'tab-bar-status-mode-line t)
   :hook
   (tab-bar-status-change-hook . tab-bar-tree-update)
   (tab-bar-status-blink-hook . +tab-bar-status-blink-tree))

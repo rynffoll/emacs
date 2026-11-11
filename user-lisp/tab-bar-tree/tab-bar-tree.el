@@ -65,11 +65,16 @@ e.g. \\[tab-bar-tree-refresh]."
   :type 'boolean
   :group 'tab-bar-tree)
 
-(defcustom tab-bar-tree-tab-status-function nil
-  "Function returning the status lines shown under a tab.
+(defcustom tab-bar-tree-tab-messages-function nil
+  "Function returning the messages shown under a tab.
 Called with TAB and I, as `tab-bar-tab-name-format-function'; returns a
 list of strings.  Call `tab-bar-tree-update' when they change."
   :type '(choice (const :tag "None" nil) function)
+  :group 'tab-bar-tree)
+
+(defface tab-bar-tree-tab-message '((t :inherit shadow :height 0.8))
+  "Face of the messages under a tab.
+See `tab-bar-tree-tab-messages-function'."
   :group 'tab-bar-tree)
 
 (defcustom tab-bar-tree-header-format '(tab-bar-tree-format-button
@@ -161,7 +166,9 @@ A frame's tree buffer name ends in its `frame-id'.")
 
 (defun tab-bar-tree--buffers ()
   "Return the tree buffers of all frames."
-  (match-buffers '(major-mode . tab-bar-tree-buffer-mode)))
+  ;; PERF: By name, not a scan of all buffers: it runs on each blink.
+  (seq-keep (lambda (frame) (get-buffer (tab-bar-tree--buffer-name frame)))
+            (frame-list)))
 
 (defvar-keymap tab-bar-tree-buffer-mode-map
   :doc "Keymap for `tab-bar-tree-buffer-mode'."
@@ -276,22 +283,24 @@ Usable for display outside the side window too, e.g. in a child frame."
                         "\n")))
             ;; A folded group still shows the current tab.
             (unless (and collapsed (not current-p))
-              (let ((indent (make-string (if group tab-bar-tree-indent 0) ?\s)))
-                ;; `tab-bar-tree' covers the indentation and status
-                ;; lines, so RET works there; `mouse-face' covers the
-                ;; label only.
+              (let* ((indent (make-string (if group tab-bar-tree-indent 0) ?\s))
+                     (messages
+                      (mapconcat
+                       (lambda (message)
+                         (concat "\n" indent "  "
+                                 (propertize message
+                                             'face 'tab-bar-tree-tab-message)))
+                       (and tab-bar-tree-tab-messages-function
+                            (funcall tab-bar-tree-tab-messages-function
+                                     tab i)))))
+                ;; `tab-bar-tree' covers the indentation and messages, so
+                ;; RET works there; `mouse-face' covers the label only.
                 (insert (propertize
                          (concat indent
                                  (propertize
                                   (funcall tab-bar-tab-name-format-function tab i)
                                   'mouse-face 'highlight)
-                                 (mapconcat
-                                  (lambda (status)
-                                    (concat "\n" indent "  "
-                                            (propertize status 'face 'shadow)))
-                                  (and tab-bar-tree-tab-status-function
-                                       (funcall tab-bar-tree-tab-status-function
-                                                tab i))))
+                                 messages)
                          'tab-bar-tree (cons 'tab i))
                         "\n")))))
         (pcase-dolist (`(,window ,start ,point) windows)
@@ -307,20 +316,12 @@ Usable for display outside the side window too, e.g. in a child frame."
 (defun tab-bar-tree--header-format-list (format-list)
   "Return items of FORMAT-LIST concatenated, as `tab-bar-format-list'.
 FORMAT-LIST is `tab-bar-tree-header-format' or part of it."
-  (if-let* ((align (memq 'tab-bar-tree-header-format-align-right
-                         format-list)))
-      ;; The rest is formatted once, as `tab-bar-format-list' does.
-      (let ((rest (tab-bar-tree--header-format-list (cdr align))))
-        (concat (tab-bar-tree--header-format-list
-                 (butlast format-list (length align)))
-                (tab-bar-tree-header-format-align-right rest)
-                rest))
-    (mapconcat (lambda (item)
-                 (let ((value (funcall item)))
-                   (if (stringp value)
-                       value
-                     (mapconcat #'tab-bar-tree--menu-item value))))
-               format-list)))
+  (mapconcat (lambda (item)
+               (let ((value (funcall item)))
+                 (if (stringp value)
+                     value
+                   (mapconcat #'tab-bar-tree--menu-item value))))
+             format-list))
 
 (defun tab-bar-tree--menu-item (item)
   "Return the label of tab bar menu ITEM.
@@ -337,43 +338,87 @@ Make the label a button if ITEM binds a command."
       label)))
 
 (defvar-local tab-bar-tree--header-line nil
-  "The tree's header line, from `tab-bar-tree-header-format'.")
+  "The tree's header line, from `tab-bar-tree-header-format'.
+A list (LEFT LEFT-WIDTH REST REST-WIDTH), widths in pixels: REST is
+what follows `tab-bar-tree-header-format-align-right', or nil.")
 
 (defconst tab-bar-tree--header-line-format
-  '(:eval (string-replace "%" "%%" tab-bar-tree--header-line)))
+  '(:eval (string-replace "%" "%%" (tab-bar-tree--header-fit))))
 (put 'tab-bar-tree--header-line-format 'risky-local-variable t)
+
+(defun tab-bar-tree--header-fit ()
+  "Return the header line fitted to the selected window.
+Truncate its left part so that the right-aligned rest fits after it."
+  ;; A header line is evaluated with its window selected.
+  (pcase-let ((`(,left ,left-width ,rest ,rest-width)
+               tab-bar-tree--header-line))
+    (if rest
+        (let* ((width (window-body-width nil t))
+               ;; Half a column for the gap between them.
+               (room (- width (/ (frame-char-width) 2) rest-width)))
+          (concat
+           ;; PERF: Truncation measures again and again; most headers fit.
+           (if (<= left-width room)
+               left
+             (tab-bar-tree--truncate left room))
+           (tab-bar-tree--align-right rest-width width)
+           rest))
+      left)))
+
+(defun tab-bar-tree--truncate (string pixels)
+  "Return STRING cut to fit PIXELS, with an ellipsis."
+  ;; Not `truncate-string-pixelwise': it shows its work buffer in the
+  ;; selected window, the one being redisplayed here.
+  (let ((pixels (- pixels (string-pixel-width "…" (current-buffer))))
+        (low 0)
+        (high (length string)))
+    ;; The longest prefix that fits.
+    (while (< low high)
+      (let ((mid (/ (+ low high 1) 2)))
+        (if (<= (string-pixel-width (substring string 0 mid) (current-buffer))
+                pixels)
+            (setq low mid)
+          (setq high (1- mid)))))
+    (concat (substring string 0 low) "…")))
 
 (defun tab-bar-tree--set-header-line ()
   "Set the tree buffer's header line from `tab-bar-tree-header-format'.
 Call the items in the buffer of the frame's selected window or, if that
 is a minibuffer window, of the window the minibuffer was entered from."
-  (let ((window (frame-selected-window)))
+  (let ((window (frame-selected-window))
+        (align (memq 'tab-bar-tree-header-format-align-right
+                     tab-bar-tree-header-format))
+        left rest)
     (when (window-minibuffer-p window)
       (setq window (or (minibuffer-selected-window) window)))
+    (with-current-buffer (window-buffer window)
+      (setq left (tab-bar-tree--header-format-list
+                  (butlast tab-bar-tree-header-format (length align)))
+            rest (and align (tab-bar-tree--header-format-list (cdr align)))))
+    (tab-bar-tree--header-face left)
+    (when rest
+      (tab-bar-tree--header-face rest))
     (setq tab-bar-tree--header-line
-          (tab-bar-tree--header-face
-           (with-current-buffer (window-buffer window)
-             (tab-bar-tree--header-format-list tab-bar-tree-header-format))))))
+          (list left (string-pixel-width left (current-buffer))
+                rest (and rest (string-pixel-width rest (current-buffer)))))))
 
-(defun tab-bar-tree-header-format-align-right (&optional rest)
-  "Align the rest of the header line items to the right.
-REST is the formatted rest.  An item for `tab-bar-tree-header-format',
-as `tab-bar-format-align-right' for `tab-bar-format'."
+(defun tab-bar-tree--align-right (rest-width width)
+  "Return a space aligning REST-WIDTH pixels to the right of WIDTH."
   ;; Not `mode-line-format-right-align': it only measures what follows
   ;; it in `mode-line-format'.
-  (let* ((rest (or rest (tab-bar-tree--header-format-list
-                         (cdr (memq 'tab-bar-tree-header-format-align-right
-                                    tab-bar-tree-header-format)))))
-         (width (string-pixel-width (tab-bar-tree--header-face rest)
-                                    (tab-bar-tree--buffer))))
-    (propertize " " 'display
-                ;; `right' fits any window width but is broken on a
-                ;; terminal next to another window (bug#59620): there,
-                ;; the pinned width minus a one-column border.
-                (if (window-system)
-                    `(space :align-to (- right (,width)))
-                  `(space :align-to
-                          (,(- (tab-bar-tree--pixel-width) 1 width)))))))
+  (propertize " " 'display
+              ;; `right' is broken on a terminal next to another window
+              ;; (bug#59620).
+              (if (window-system)
+                  `(space :align-to (- right (,rest-width)))
+                `(space :align-to (,(- width rest-width))))))
+
+(defun tab-bar-tree-header-format-align-right ()
+  "Align the rest of the header line items to the right.
+An item for `tab-bar-tree-header-format', as `tab-bar-format-align-right'
+for `tab-bar-format'."
+  ;; A marker: the header line is split at it.
+  nil)
 
 (defun tab-bar-tree-header-format-group ()
   "Return the current tab's group as \"group:NAME\", or \"group:none\".
@@ -394,10 +439,8 @@ See `tab-bar-tab-name-format-truncated'.  An item for
    (tab-bar-tree-header-format-group) nil nil))
 
 (defun tab-bar-tree--header-face (string)
-  "Return a copy of STRING with the `header-line' face added."
-  (let ((string (copy-sequence string)))
-    (add-face-text-property 0 (length string) 'header-line t string)
-    string))
+  "Add the `header-line' face to STRING."
+  (add-face-text-property 0 (length string) 'header-line t string))
 
 (defun tab-bar-tree--width ()
   "Return the tree window's width in columns."
@@ -555,7 +598,7 @@ The window may be in another frame, e.g. a child frame."
 ;;;###autoload
 (defun tab-bar-tree-update (&rest _)
   "Re-render the trees shown in all frames.
-For use as a hook function or advice when tab labels or status lines change.
+For use as a hook function or advice when tab labels or messages change.
 Arguments are ignored."
   (dolist (buffer (tab-bar-tree--buffers))
     (let ((frame (buffer-local-value 'tab-bar-tree--frame buffer)))
@@ -615,13 +658,17 @@ deferred to a timer."
 
 ;;;###autoload
 (defun tab-bar-tree-update-header-line (&rest _)
-  "Rebuild the selected frame's tree header line.
+  "Rebuild the tree header lines of all frames.
 For use as a hook function or advice when `tab-bar-tree-header-format'
 items change.  Arguments are ignored."
-  (when-let* ((buffer (get-buffer (tab-bar-tree--buffer-name))))
-    (with-current-buffer buffer
-      (tab-bar-tree--set-header-line)
-      (force-mode-line-update))))
+  (dolist (buffer (tab-bar-tree--buffers))
+    (let ((frame (buffer-local-value 'tab-bar-tree--frame buffer)))
+      ;; PERF: A hidden tree gets its header on the next render.
+      (when (and (frame-live-p frame) (get-buffer-window buffer t))
+        (with-selected-frame frame
+          (with-current-buffer buffer
+            (tab-bar-tree--set-header-line)
+            (force-mode-line-update)))))))
 
 ;;;###autoload
 (defun tab-bar-tree-refresh ()

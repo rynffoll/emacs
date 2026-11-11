@@ -36,9 +36,10 @@
 ;; - `tab-bar-status-tab-name-format' appends indicators to a tab name,
 ;;   for `tab-bar-tab-name-format-functions';
 ;; - `tab-bar-status-tab-group-format' appends counts to a folded group;
-;; - `tab-bar-status-summary' counts tabs per status;
+;; - `tab-bar-status-summary' counts tabs per status, and
+;;   `tab-bar-status-mode-line' shows it for a mode line;
 ;; - `tab-bar-status-tab-messages' returns the messages of a tab's
-;;   buffers, for `tab-bar-tree-tab-status-function';
+;;   buffers, for `tab-bar-tree-tab-messages-function';
 ;; - `tab-bar-status-switch-to-tab' goes to a tab with a status.
 ;;
 ;; The only statuses kept here are marks, set on a tab by hand with
@@ -194,12 +195,14 @@ in `tab-bar-status-alist'."
            (and count
                 (list 'help-echo (format "%s: %d" status count))))))
 
-(defun tab-bar-status--blinking-indicator (status &optional count strings)
-  "Return the indicator of STATUS, blinking if the status blinks.
-COUNT and STRINGS are as in `tab-bar-status--indicator'.  The status
-blinks if it is one of `tab-bar-status-blink-statuses'; COUNT does not."
+(defun tab-bar-status--blinking-indicator (status reported
+                                                  &optional count strings)
+  "Return the indicator of STATUS, blinking if it is reported and blinks.
+REPORTED non-nil means a buffer reports STATUS, not only a mark; it
+blinks if it is in `tab-bar-status-blink-statuses' too.  COUNT and
+STRINGS are as in `tab-bar-status--indicator'; COUNT does not blink."
   (let ((indicator (tab-bar-status--indicator status count strings)))
-    (if (memq status tab-bar-status-blink-statuses)
+    (if (and reported (memq status tab-bar-status-blink-statuses))
         (let ((end (- (length indicator)
                       (if count
                           (length (tab-bar-status--superscript count))
@@ -302,25 +305,33 @@ Backends call this when a status changes, or when
   "Return the statuses of TABS with counts of tabs, like Flymake's counters.
 If FACE is non-nil, append it to the faces of the whole string.  STRINGS
 is an alist of statuses and strings to show instead of their indicator
-strings.  Indicators of `tab-bar-status-blink-statuses' blink, their
-counts do not."
+strings.  Indicators of `tab-bar-status-blink-statuses' that a buffer
+of TABS reports blink, their counts do not."
   (let ((entries (tab-bar-status--entries))
-        counts)
+        counts reported)
     (dolist (tab tabs)
-      (dolist (status (tab-bar-status--tab-statuses
-                       tab (tab-bar-status--tab-entries tab entries)))
-        (setf (alist-get status counts) (1+ (alist-get status counts 0)))))
+      (let ((tab-entries (tab-bar-status--tab-entries tab entries)))
+        (dolist (status (tab-bar-status--tab-statuses tab tab-entries))
+          (setf (alist-get status counts) (1+ (alist-get status counts 0))))
+        (setq reported (nconc (mapcar #'tab-bar-status--of tab-entries)
+                              reported))))
     (let ((summary
            (mapconcat
             (lambda (entry)
               (tab-bar-status--blinking-indicator
-               (car entry) (alist-get (car entry) counts) strings))
+               (car entry) (memq (car entry) reported)
+               (alist-get (car entry) counts) strings))
             (seq-filter (lambda (entry) (assq (car entry) counts))
                         tab-bar-status-alist)
             " ")))
       (when face
         (add-face-text-property 0 (length summary) face t summary))
       summary)))
+
+(defvar tab-bar-status-mode-line
+  '(:eval (tab-bar-status-summary (funcall tab-bar-tabs-function)))
+  "Mode line construct for the status summary of the selected frame's tabs.")
+(put 'tab-bar-status-mode-line 'risky-local-variable t)
 
 ;;;###autoload
 (defun tab-bar-status-tab-name-format (name tab _i)
@@ -329,14 +340,18 @@ In `tab-bar-tab-name-format-functions', put this after
 `tab-bar-tab-name-format-truncated', so truncation keeps the indicators,
 and before the hint and face formatters, so the hint precedes the name
 and the tab face covers the indicators.  Indicators of
-`tab-bar-status-blink-statuses' blink."
-  (if-let* ((statuses (tab-bar-status--tab-statuses
-                       tab (tab-bar-status--tab-entries
-                            tab (tab-bar-status--entries)))))
-      (concat name " "
-              (mapconcat
-               #'tab-bar-status--blinking-indicator statuses " "))
-    name))
+`tab-bar-status-blink-statuses' that a buffer of TAB reports blink; a
+mark does not."
+  (let ((tab-entries (tab-bar-status--tab-entries
+                      tab (tab-bar-status--entries))))
+    (if-let* ((statuses (tab-bar-status--tab-statuses tab tab-entries)))
+        (let ((reported (mapcar #'tab-bar-status--of tab-entries)))
+          (concat name " "
+                  (mapconcat (lambda (status)
+                               (tab-bar-status--blinking-indicator
+                                status (memq status reported)))
+                             statuses " ")))
+      name)))
 
 ;;;###autoload
 (defun tab-bar-status-tab-group-format (name tab _i &optional current-p)
@@ -355,7 +370,7 @@ formatters, e.g. `tab-bar-theme-tab-group-format-functions'."
 (defun tab-bar-status-tab-messages (tab _i)
   "Return the messages of TAB's buffers.
 They are in the order of `tab-bar-status-alist'.  For
-`tab-bar-tree-tab-status-function'."
+`tab-bar-tree-tab-messages-function'."
   (seq-keep (lambda (entry) (plist-get (cdr entry) :message))
             (tab-bar-status--tab-entries tab (tab-bar-status--entries))))
 
