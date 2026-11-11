@@ -63,16 +63,16 @@ and messages that have them, are listed in its order:
 | =blocked= | ●         | =warning= | 🟡    |
 | =done=    | ●         | =success= | 🟢    |
 | =error=   | ●         | =error=   | 🔴    |
-| =flag=    | ⚑         | =shadow=  | 🚩    |
+| =flag=    | ⚑         | =error=   | 🚩    |
 
 /Color/ shows the face as an emoji, for viewers without faces such as
 GitHub; the same emoji are the default taskbar badge strings, see
 [[*System taskbar][System taskbar]].
 
 The =working= indicator blinks after a tab name and in the summary, see
-=tab-bar-status-blink-statuses=: =blinker= dims it to the color of
-=blinker-blend= every =blinker-interval= seconds; its count does not
-blink.
+=tab-bar-status-blink-statuses=: =blinker= hides it, or dims it to the
+color of =blinker-blend=, every =blinker-interval= seconds; its count
+does not blink.
 
 A status lives as long as its backend reports it: a terminal's =done=
 goes when ghostel drops the record.  A mark lives on its tab until

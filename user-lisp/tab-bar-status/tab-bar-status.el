@@ -82,7 +82,7 @@ Called with the tab and the buffer's `default-directory'."
     (blocked "●" warning)
     (done    "●" success)
     (error   "●" error)
-    (flag    "⚑" shadow))
+    (flag    "⚑" error))
   "Alist of statuses (STATUS STRING FACE).
 Statuses, and the tabs and messages that have them, are listed in the
 order of this alist.  STRING and FACE make the indicator of STATUS; a
