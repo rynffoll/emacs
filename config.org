@@ -190,9 +190,15 @@
   - [[#link-hint][link-hint]]
 - [[#terminal][Terminal]]
   - [[#ghostel][ghostel]]
+  - [[#ghostel-project][ghostel-project]]
+  - [[#ghostel-compile][ghostel-compile]]
+  - [[#ghostel-shell-command][ghostel-shell-command]]
+  - [[#ghostel-comint][ghostel-comint]]
+  - [[#ghostel-eshell][ghostel-eshell]]
+  - [[#ghostel-org][ghostel-org]]
   - [[#evil-ghostel][evil-ghostel]]
-  - [[#tab-bar-ghostel][tab-bar-ghostel]]
   - [[#consult-ghostel][consult-ghostel]]
+  - [[#tab-bar-ghostel][tab-bar-ghostel]]
 - [[#git][Git]]
   - [[#vc][vc]]
   - [[#ediff][ediff]]
@@ -2731,9 +2737,6 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
   (defun +ghostel-notify-taskbar (_title _body)
     (when (fboundp 'system-taskbar-attention)
       (system-taskbar-attention 'critical)))
-  :general
-  (project-prefix-map
-   "t" 'ghostel-project)
   :init
   (setq ghostel-shell "/opt/homebrew/bin/fish")
   (setq ghostel-macos-login-shell nil)
@@ -2745,14 +2748,60 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
                                          +ghostel-notify-macos))
   (setq ghostel-status-mode-line-labels 'words) ;; emoji make the mode line taller
   :config
+  (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer)))
+#+end_src
+
+** ghostel-project
+#+begin_src emacs-lisp
+(use-package ghostel-project
+  :ensure nil
+  :after project
+  :demand t
+  :general
+  (project-prefix-map
+   "t" 'ghostel-project)
+  :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
-  (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
-  (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer))
+  (add-to-list 'project-kill-buffer-conditions '(derived-mode . ghostel-mode)))
+#+end_src
+
+** ghostel-compile
+#+begin_src emacs-lisp
+(use-package ghostel-compile
+  :ensure nil
   :hook
-  (after-init-hook . ghostel-compile-global-mode)
-  (after-init-hook . ghostel-comint-global-mode)
-  (after-init-hook . ghostel-shell-command-global-mode)
+  (after-init-hook . ghostel-compile-global-mode))
+#+end_src
+
+** ghostel-shell-command
+#+begin_src emacs-lisp
+(use-package ghostel-shell-command
+  :ensure nil
+  :hook
+  (after-init-hook . ghostel-shell-command-global-mode))
+#+end_src
+
+** ghostel-comint
+#+begin_src emacs-lisp
+(use-package ghostel-comint
+  :ensure nil
+  :hook
+  (after-init-hook . ghostel-comint-global-mode))
+#+end_src
+
+** ghostel-eshell
+#+begin_src emacs-lisp
+(use-package ghostel-eshell
+  :ensure nil
+  :hook
   (eshell-load-hook . ghostel-eshell-visual-command-mode))
+#+end_src
+
+** ghostel-org
+#+begin_src emacs-lisp
+(use-package ghostel-org
+  :ensure nil
+  :after org)
 #+end_src
 
 ** evil-ghostel
@@ -2762,26 +2811,24 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
   (ghostel-mode-hook . evil-ghostel-mode))
 #+end_src
 
+** consult-ghostel
+#+begin_src emacs-lisp
+(use-package consult-ghostel
+  :general
+  (project-prefix-map
+   "T" 'consult-ghostel-project)
+  (ghostel-semi-char-mode-map
+   "C-c h" 'consult-ghostel-history)
+  :hook
+  (after-init-hook . consult-ghostel-mode))
+#+end_src
+
 ** tab-bar-ghostel
 #+begin_src emacs-lisp
 (use-package tab-bar-ghostel
   :ensure nil
   :hook
   (after-init-hook . tab-bar-ghostel-mode))
-#+end_src
-
-** consult-ghostel
-#+begin_src emacs-lisp
-(use-package consult-ghostel
-  :after ghostel consult
-  :demand t
-  :general
-  (project-prefix-map
-   "T" 'consult-ghostel-project)
-  (ghostel-semi-char-mode-map
-   "C-c h" 'consult-ghostel-history)
-  :config
-  (consult-ghostel-mode))
 #+end_src
 
 * Git

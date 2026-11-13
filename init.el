@@ -1682,9 +1682,6 @@ Rebuild the header line: its summary blinks too."
   (defun +ghostel-notify-taskbar (_title _body)
     (when (fboundp 'system-taskbar-attention)
       (system-taskbar-attention 'critical)))
-  :general
-  (project-prefix-map
-   "t" 'ghostel-project)
   :init
   (setq ghostel-shell "/opt/homebrew/bin/fish")
   (setq ghostel-macos-login-shell nil)
@@ -1696,34 +1693,60 @@ Rebuild the header line: its summary blinks too."
                                          +ghostel-notify-macos))
   (setq ghostel-status-mode-line-labels 'words) ;; emoji make the mode line taller
   :config
+  (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer)))
+
+(use-package ghostel-project
+  :ensure nil
+  :after project
+  :demand t
+  :general
+  (project-prefix-map
+   "t" 'ghostel-project)
+  :config
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
-  (add-to-list 'project-kill-buffer-conditions '(major-mode . ghostel-mode))
-  (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer))
+  (add-to-list 'project-kill-buffer-conditions '(derived-mode . ghostel-mode)))
+
+(use-package ghostel-compile
+  :ensure nil
   :hook
-  (after-init-hook . ghostel-compile-global-mode)
-  (after-init-hook . ghostel-comint-global-mode)
-  (after-init-hook . ghostel-shell-command-global-mode)
+  (after-init-hook . ghostel-compile-global-mode))
+
+(use-package ghostel-shell-command
+  :ensure nil
+  :hook
+  (after-init-hook . ghostel-shell-command-global-mode))
+
+(use-package ghostel-comint
+  :ensure nil
+  :hook
+  (after-init-hook . ghostel-comint-global-mode))
+
+(use-package ghostel-eshell
+  :ensure nil
+  :hook
   (eshell-load-hook . ghostel-eshell-visual-command-mode))
+
+(use-package ghostel-org
+  :ensure nil
+  :after org)
 
 (use-package evil-ghostel
   :hook
   (ghostel-mode-hook . evil-ghostel-mode))
 
-(use-package tab-bar-ghostel
-  :ensure nil
-  :hook
-  (after-init-hook . tab-bar-ghostel-mode))
-
 (use-package consult-ghostel
-  :after ghostel consult
-  :demand t
   :general
   (project-prefix-map
    "T" 'consult-ghostel-project)
   (ghostel-semi-char-mode-map
    "C-c h" 'consult-ghostel-history)
-  :config
-  (consult-ghostel-mode))
+  :hook
+  (after-init-hook . consult-ghostel-mode))
+
+(use-package tab-bar-ghostel
+  :ensure nil
+  :hook
+  (after-init-hook . tab-bar-ghostel-mode))
 
 (use-package vc
   :ensure nil
