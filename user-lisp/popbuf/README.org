@@ -34,13 +34,13 @@ Calling a display for the buffer it already shows hides it.
 
 * Tabs
 
-Buffers shown under one key are tabs of the display's tab line, when
-there are two or more.  The key comes from =popbuf-key-function=; by
-default there is one key for all.  On the tab line, =next-buffer= and
-=previous-buffer= switch tabs.
+Buffers shown under one key are tabs of the display's tab line.  The
+key comes from =popbuf-key-function=; by default there is one key for
+all.  On the tab line, =next-buffer= and =previous-buffer= switch tabs.
 
 - =popbuf-frame-pin=, =popbuf-side-pin= — toggle the current buffer as a tab
-- the tab of =popbuf-frame-default-buffer= is always present and first
+- the tab of =popbuf-frame-default-buffer= or =popbuf-side-default-buffer=
+  is always present and first
 
 Pinned buffers are marked on the mode line: add
 =popbuf-frame-mode-line-format= and =popbuf-side-mode-line-format= to

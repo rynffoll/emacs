@@ -1109,6 +1109,7 @@ For mode hooks of buffers that do not show point."
    '(evil-ex-substitute-matches     ((t (:inherit diff-removed :foreground unspecified :background unspecified :strike-through t))))
    '(evil-ex-substitute-replacement ((t (:inherit diff-added   :foreground unspecified :background unspecified :underline nil))))
    '(diredfl-dir-name               ((t (:bold t))))
+   '(tab-line-tab-special           ((t (:slant normal))))
    '(vundo-highlight                ((t (:inherit success :foreground unspecified))))
    '(vundo-last-saved               ((t (:inherit error   :foreground unspecified))))
    '(vundo-saved                    ((t (:inherit warning :foreground unspecified))))
@@ -1432,7 +1433,9 @@ Rebuild the header line: its summary blinks too."
   (defun +tab-bar-tree-popbuf ()
     "Toggle the tab tree in a `popbuf-frame'."
     (interactive)
-    (popbuf-frame #'tab-bar-tree-render '((width . 48))))
+    (popbuf-frame #'tab-bar-tree-render '((width . 48)
+                                          (window-parameters (mode-line-format)
+                                                             (tab-line-format)))))
   (defun +tab-bar-tree-icon ()
     "Return the tree toggle icon."
     (require 'nerd-icons)
@@ -1447,7 +1450,7 @@ Rebuild the header line: its summary blinks too."
    "SPC" '+tab-bar-tree-popbuf)
   ( :keymaps 'tab-bar-tree-buffer-mode-map :states 'normal
     "RET" 'tab-bar-tree-select
-    "TAB" 'tab-bar-tree-select
+    "TAB" 'tab-bar-tree-toggle-group
     "gr" 'tab-bar-tree-refresh)
   :config
   (with-eval-after-load 'winum
@@ -1576,7 +1579,10 @@ Rebuild the header line: its summary blinks too."
   ("C-`" 'popbuf-frame
    "C-~" 'popbuf-frame-pin)
   :init
-  (setq popbuf-frame-default-buffer #'+popbuf-ghostel))
+  (setq popbuf-frame-default-buffer #'+popbuf-ghostel)
+  :config
+  (add-to-list 'popbuf-frame-parameters
+               '(window-parameters (mode-line-format . none))))
 #+end_src
 
 ** popbuf-frame-magit
@@ -1584,7 +1590,10 @@ Rebuild the header line: its summary blinks too."
 (use-package popbuf-frame-magit
   :ensure nil
   :hook
-  (magit-mode-hook . popbuf-frame-magit-setup))
+  (magit-mode-hook . popbuf-frame-magit-setup)
+  :config
+  (add-to-list 'popbuf-frame-magit-frame-parameters
+               '(window-parameters (mode-line-format) (tab-line-format))))
 #+end_src
 
 ** popbuf-side
@@ -1595,7 +1604,10 @@ Rebuild the header line: its summary blinks too."
   ("M-`" 'popbuf-side
    "M-~" 'popbuf-side-pin)
   :init
-  (setq popbuf-side-default-buffer #'+popbuf-ghostel))
+  (setq popbuf-side-default-buffer #'+popbuf-ghostel)
+  :config
+  (add-to-list 'popbuf-side-display-alist
+               '(window-parameters (mode-line-format . none))))
 #+end_src
 
 ** winum

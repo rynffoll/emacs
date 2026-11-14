@@ -174,7 +174,7 @@ A frame's tree buffer name ends in its `frame-id'.")
   :doc "Keymap for `tab-bar-tree-buffer-mode'."
   :parent special-mode-map
   "RET"     #'tab-bar-tree-select
-  "TAB"     #'tab-bar-tree-select
+  "TAB"     #'tab-bar-tree-toggle-group
   ;; Keep `mouse-drag-region' from selecting the tree window on press.
   "<down-mouse-1>" #'ignore
   "<mouse-1>" #'tab-bar-tree-select
@@ -221,12 +221,25 @@ If EVENT is a mouse event, act on the clicked line instead."
         (`(group . ,group)
          ;; After a click, another buffer is current.
          (with-current-buffer (window-buffer window)
-           (setq tab-bar-tree--collapsed
-                 (if (member group tab-bar-tree--collapsed)
-                     (delete group tab-bar-tree--collapsed)
-                   (cons group tab-bar-tree--collapsed))))
-         ;; Updates every window showing the buffer.
-         (tab-bar-tree-render))))))
+           (tab-bar-tree--toggle group)))))))
+
+(defun tab-bar-tree--toggle (group)
+  "Fold GROUP in the current tree buffer, or unfold it if folded."
+  (setq tab-bar-tree--collapsed
+        (if (member group tab-bar-tree--collapsed)
+            (delete group tab-bar-tree--collapsed)
+          (cons group tab-bar-tree--collapsed)))
+  (let ((buffer (current-buffer)))
+    ;; Selecting the frame makes its window's buffer current.
+    (with-selected-frame tab-bar-tree--frame
+      (with-current-buffer buffer
+        (tab-bar-tree-render)))))
+
+(defun tab-bar-tree-toggle-group ()
+  "Fold the group on the current line, or unfold it if folded."
+  (interactive)
+  (pcase (get-text-property (line-beginning-position) 'tab-bar-tree)
+    (`(group . ,group) (tab-bar-tree--toggle group))))
 
 (defun tab-bar-tree--group-string (tab i current-p open-p)
   "Return the group label of TAB at index I.
@@ -262,27 +275,25 @@ Usable for display outside the side window too, e.g. in a child frame."
                               (get-buffer-window-list buf nil t)))
              (previous-group nil)
              (i 0))
-        ;; The current group is never folded, as on the tab bar.
-        (setq tab-bar-tree--collapsed
-              (delete current-group tab-bar-tree--collapsed)
-              tab-bar-tree--tab-name (alist-get 'name tab))
+        (setq tab-bar-tree--tab-name (alist-get 'name tab))
         (erase-buffer)
         (dolist (tab tabs)
           (setq i (1+ i))
           (let* ((group (funcall tab-bar-tab-group-function tab))
-                 (current-p (eq (car tab) 'current-tab))
-                 (collapsed (and group (member group tab-bar-tree--collapsed))))
+                 (open-p (not (and group
+                                   (member group tab-bar-tree--collapsed)))))
             (unless (equal group previous-group)
               (setq previous-group group)
               (when group
                 (insert (propertize (tab-bar-tree--group-string
-                                     tab i (equal group current-group)
-                                     (not collapsed))
+                                     ;; Folded, the current group is
+                                     ;; labeled as an inactive one.
+                                     tab i (and open-p (equal group current-group))
+                                     open-p)
                                     'tab-bar-tree (cons 'group group)
                                     'mouse-face 'highlight)
                         "\n")))
-            ;; A folded group still shows the current tab.
-            (unless (and collapsed (not current-p))
+            (when open-p
               (let* ((indent (make-string (if group tab-bar-tree-indent 0) ?\s))
                      (messages
                       (mapconcat

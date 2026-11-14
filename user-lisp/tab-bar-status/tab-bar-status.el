@@ -237,7 +237,7 @@ The suffix is \"on\" for a mark of the current tab."
   (let ((marks (tab-bar-status--marks
                 (assq 'current-tab (funcall tab-bar-tabs-function))))
         ;; Align the suffix past the longest name.
-        (width (+ 2 (seq-max (mapcar #'string-width candidates)))))
+        (width (+ 2 (apply #'max 0 (mapcar #'string-width candidates)))))
     (mapcar (lambda (candidate)
               (let ((status (intern candidate)))
                 (list candidate

@@ -82,11 +82,14 @@ called inside `save-window-excursion'."
     (undecorated . nil)
     (undecorated-round . t)
     (alpha . 95)
-    (desktop-dont-save . t))
+    (desktop-dont-save . t)
+    (window-parameters (tab-line-format . popbuf-tab-line-format)))
   "Frame parameters of the child frame, applied on every showing.
 Floats in `width' and `height' are fractions of the parent frame.  The
 frame is centered.  `parent-frame', `minibuffer', `visibility' and
-`auto-hide-function' are reserved."
+`auto-hide-function' are reserved.  `window-parameters' entries are
+parameters of the frame's window, as in `display-buffer'; they merge,
+an earlier entry's parameter winning."
   :type '(alist :key-type symbol :value-type sexp))
 
 (defcustom popbuf-frame-mode-line-pin "■"
@@ -155,11 +158,6 @@ first if missing, e.g. after it was killed."
     ;; Main, not root: a side window, e.g. a transient's, splits the root.
     (window-main-window child-frame)))
 
-(defun popbuf-frame--display-tabs ()
-  "Show the popbuf-frame's tabs in a tab line if there are two or more."
-  (when-let* ((window (popbuf-frame--window)))
-    (popbuf--update-tab-line window)))
-
 (defun popbuf-frame--kill-buffer-update ()
   "Unpin the buffer being killed and display the tabs anew.
 A shown tab is replaced by its neighbor first, so the child frame is not
@@ -175,7 +173,7 @@ frame, and `popbuf-frame' shows a new one.  On `kill-buffer-hook'."
         (popbuf--switch-to-tab (popbuf-frame--window)
                                (nth (min pos (1- (length rest))) rest))))
     (kill-local-variable 'popbuf-frame--pin)
-    (popbuf-frame--display-tabs)))
+    (tab-line-force-update t)))
 
 (defun popbuf-frame--live-child-frame ()
   "Return `popbuf-frame--child-frame' if it is live, or nil."
@@ -322,14 +320,14 @@ are dropped with their buffer."
         (progn
           (kill-local-variable 'popbuf-frame--pin)
           (kill-local-variable 'popbuf-frame--pinned)
-          (popbuf-frame--display-tabs)
+          (tab-line-force-update t)
           ;; Before the message: it goes to the parent frame's echo area.
           (when (popbuf-frame--showing-p (current-buffer))
             (popbuf-frame--hide))
           (message "popbuf-frame: unpinned buffer `%s'" name))
       (setq popbuf-frame--pin (popbuf--key)
             popbuf-frame--pinned t)
-      (popbuf-frame--display-tabs)
+      (tab-line-force-update t)
       (message "popbuf-frame: pinned buffer `%s'" name))))
 
 ;;;###autoload
@@ -347,13 +345,16 @@ are dropped with their buffer."
 SPEC is a buffer, a buffer name, or a function returning one; a function
 is called inside `save-window-excursion'.  Without SPEC, show the last
 shown of the buffers pinned under the current key, else the one from
-`popbuf-frame-default-buffer'; they are tabs when there are two or more.
+`popbuf-frame-default-buffer'; they are tabs.
 Return the buffer if shown, nil if hidden.
 
 PARAMETERS override `popbuf-frame-parameters' for this call."
   (interactive)
   (let* ((key (unless spec (popbuf--key)))
          (parameters (append parameters popbuf-frame-parameters))
+         (window-parameters (popbuf--window-parameters parameters))
+         (parameters (assq-delete-all 'window-parameters
+                                      (copy-sequence parameters)))
          (parent-frame (or (popbuf-frame--live-parent-frame) (selected-frame)))
          ;; Parent selected: a provider's window side effects must land
          ;; there, not on the child frame.
@@ -372,9 +373,15 @@ PARAMETERS override `popbuf-frame-parameters' for this call."
           (popbuf-frame--reveal child-frame buffer parameters)
         (popbuf-frame--create buffer parameters))
       (let ((window (popbuf-frame--window)))
+        ;; The window is reused: drop the last showing's parameters.
+        (dolist (name (window-parameter window 'popbuf-frame-window-parameters))
+          (set-window-parameter window name nil))
+        (pcase-dolist (`(,name . ,value) window-parameters)
+          (set-window-parameter window name value))
+        (set-window-parameter window 'popbuf-frame-window-parameters
+                              (mapcar #'car window-parameters))
         (set-window-parameter window 'popbuf-frame-tabs key)
         (set-window-parameter window 'popbuf-tabs #'popbuf-frame-tabs))
-      (popbuf-frame--display-tabs)
       buffer))))
 
 ;;;###autoload

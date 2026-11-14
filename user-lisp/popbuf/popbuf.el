@@ -27,8 +27,9 @@
 ;; child frame, and `popbuf-side', a side window panel.  It resolves
 ;; buffer specs and the key that groups a display's tabs, and switches
 ;; tabs.  A display's window has a `popbuf-tabs' parameter: a function
-;; returning its tabs.  With two tabs or more, the window shows them in
-;; a tab line; there, `next-buffer' and `previous-buffer' switch tabs.
+;; returning its tabs.  `popbuf-tab-line-format' shows them in its
+;; `tab-line-format' parameter; there, `next-buffer' and
+;; `previous-buffer' switch tabs.
 
 ;;; Code:
 
@@ -76,6 +77,15 @@ is called inside `save-window-excursion'."
                         spec)))
     (get-buffer buffer)))
 
+(defun popbuf--window-parameters (alist)
+  "Return the `window-parameters' entries of ALIST merged into one.
+An earlier entry's parameter wins."
+  (seq-uniq (mapcan (lambda (entry)
+                      (and (eq (car entry) 'window-parameters)
+                           (copy-sequence (cdr entry))))
+                    alist)
+            (lambda (a b) (eq (car a) (car b)))))
+
 (defun popbuf--tabs (&optional window)
   "Return the tabs of WINDOW, a popbuf window, or nil.
 WINDOW defaults to the selected one.  For `tab-line-tabs-function'."
@@ -111,20 +121,13 @@ For `tab-line-tab-name-format-function'."
   (propertize (tab-line-tab-name-format-default tab tabs)
               'keymap popbuf-tab-line-tab-map))
 
-(defconst popbuf--tab-line-format
+(defvar popbuf-tab-line-format
   '(:eval (let ((tab-line-tabs-function #'popbuf--tabs)
                 (tab-line-tab-name-format-function #'popbuf--tab-name-format))
             (tab-line-format)))
-  "A popbuf window's `tab-line-format' parameter.")
-
-(defun popbuf--update-tab-line (window)
-  "Show the tabs of WINDOW, a popbuf window, in a tab line if two or more."
-  ;; A window parameter: the tab line is only the popbuf window's.
-  (set-window-parameter window 'tab-line-format
-                        (if (length> (popbuf--tabs window) 1)
-                            popbuf--tab-line-format
-                          ;; Not nil: that falls back to the buffer's.
-                          'none)))
+  "Tab line construct of a popbuf window's tabs.
+For its `tab-line-format' window parameter.")
+(put 'popbuf-tab-line-format 'risky-local-variable t)
 
 
 ;;;###autoload

@@ -24,8 +24,8 @@
 ;;; Commentary:
 
 ;; A panel in a side window, the side window counterpart of `popbuf-frame'.
-;; `popbuf-side' toggles it: hidden, it shows the buffer it showed last, else
-;; `popbuf-side-default-buffer'.  With a buffer spec (a buffer, a buffer name,
+;; `popbuf-side' toggles it: hidden, it shows `popbuf-side-default-buffer'
+;; if not among its tabs, else the buffer it showed last.  With a buffer spec (a buffer, a buffer name,
 ;; or a function returning one), it toggles that buffer:
 ;;
 ;;   (setq popbuf-side-default-buffer #'ghostel-project)
@@ -39,9 +39,9 @@
 ;;                '((derived-mode . help-mode) (popbuf-side-display-buffer)))
 ;;
 ;; The buffers shown in the panel under one key, e.g. one project (see
-;; `popbuf-key-function'), are tabs of its tab line, when there are two
-;; or more; `popbuf-side-pin' toggles the current buffer as one.  Hiding
-;; deletes the window; its buffers live on.
+;; `popbuf-key-function'), are tabs of its tab line; `popbuf-side-pin'
+;; toggles the current buffer as one.  Hiding deletes the window; its
+;; buffers live on.
 
 ;;; Code:
 
@@ -60,9 +60,11 @@ called inside `save-window-excursion'."
 (defcustom popbuf-side-display-alist
   '((side . bottom)
     (slot . -1)
-    (window-height . 0.4))
+    (window-height . 0.4)
+    (window-parameters (tab-line-format . popbuf-tab-line-format)))
   "Action alist for `display-buffer-in-side-window', applied on every showing.
-The default slot is -1, not 0: transient menus use the bottom slot 0."
+The default slot is -1, not 0: transient menus use the bottom slot 0.
+`window-parameters' entries merge, an earlier entry's parameter winning."
   :type '(alist :key-type symbol :value-type sexp))
 
 (defcustom popbuf-side-mode-line-pin "⬓"
@@ -85,6 +87,10 @@ See `popbuf-side-mode-line-format'."
   "Non-nil in a buffer pinned by `popbuf-side-pin'.")
 (put 'popbuf-side--pinned 'permanent-local t)
 
+(defvar-local popbuf-side--default nil
+  "Non-nil in a buffer from `popbuf-side-default-buffer'.")
+(put 'popbuf-side--default 'permanent-local t)
+
 (defun popbuf-side--frame ()
   "Return the frame of the panel: the selected one, or its parent frame."
   (or (frame-parent) (selected-frame)))
@@ -96,28 +102,27 @@ Its `popbuf-side' window parameter is the key of its tabs."
             (window-list (popbuf-side--frame) 'nomini)))
 
 (defun popbuf-side--key-buffers (key)
-  "Return the live buffers the panel has shown under KEY, in that order."
+  "Return the live buffers the panel has shown under KEY, in that order.
+The one from `popbuf-side-default-buffer' goes first."
   (setq popbuf-side--buffers (seq-filter #'buffer-live-p popbuf-side--buffers))
-  (seq-filter (lambda (buffer)
-                (equal key (buffer-local-value 'popbuf-side--key buffer)))
-              popbuf-side--buffers))
+  (sort (seq-filter (lambda (buffer)
+                      (equal key (buffer-local-value 'popbuf-side--key buffer)))
+                    popbuf-side--buffers)
+        :key (lambda (buffer)
+               (if (buffer-local-value 'popbuf-side--default buffer) 0 1))
+        :in-place t))
 
 (defun popbuf-side--tabs ()
   "Return the panel's tabs.  For `tab-line-tabs-function'."
   (when-let* ((window (popbuf-side--window)))
     (popbuf-side--key-buffers (window-parameter window 'popbuf-side))))
 
-(defun popbuf-side--update-tab-line ()
-  "Show the panel's tab line if it has two tabs or more."
-  (when-let* ((window (popbuf-side--window)))
-    (popbuf--update-tab-line window)))
-
 (defun popbuf-side--kill-buffer-update ()
   "Drop the buffer being killed from the panel's tabs.
 On `kill-buffer-hook'."
   (when popbuf-side--key
     (setq popbuf-side--key nil)
-    (popbuf-side--update-tab-line)))
+    (tab-line-force-update t)))
 
 (defun popbuf-side--show (buffer &optional parameters)
   "Show BUFFER in the panel, under the current buffer's key.
@@ -129,15 +134,15 @@ Return the panel's window.  PARAMETERS override `popbuf-side-display-alist'."
       (setq popbuf-side--buffers (append popbuf-side--buffers (list buffer))))
     (popbuf--install)
     (add-hook 'kill-buffer-hook #'popbuf-side--kill-buffer-update)
-    (prog1 (with-selected-frame (popbuf-side--frame)
-             (display-buffer-in-side-window
-              buffer
-              `(,@parameters
-                ,@popbuf-side-display-alist
-                (window-parameters (popbuf-side . ,key)
-                                   (popbuf-tabs . popbuf-side--tabs)
-                                   (no-delete-other-windows . t)))))
-      (popbuf-side--update-tab-line))))
+    (let ((alist (append parameters popbuf-side-display-alist)))
+      (with-selected-frame (popbuf-side--frame)
+        (display-buffer-in-side-window
+         buffer
+         `((window-parameters ,@(popbuf--window-parameters alist)
+                              (popbuf-side . ,key)
+                              (popbuf-tabs . popbuf-side--tabs)
+                              (no-delete-other-windows . t))
+           ,@(assq-delete-all 'window-parameters (copy-sequence alist))))))))
 
 
 ;;;###autoload
@@ -151,8 +156,9 @@ A `display-buffer' action function."
   "Toggle the panel, or with SPEC, the panel showing SPEC.
 SPEC is a buffer, a buffer name, or a function returning one; a function
 is called inside `save-window-excursion'.  Without SPEC, hide the panel,
-or show the last shown of its tabs under the current key, else
-`popbuf-side-default-buffer'.  Return the buffer if shown, nil if hidden.
+or show `popbuf-side-default-buffer' if not among its tabs under the
+current key, else the last shown of them.  Return the buffer if shown,
+nil if hidden.
 
 PARAMETERS override `popbuf-side-display-alist' for this call."
   (interactive)
@@ -164,14 +170,22 @@ PARAMETERS override `popbuf-side-display-alist' for this call."
       nil)
      (t
       (unless spec
-        (setq buffer
-              ;; All shown, so all have a display time.
-              (or (car (sort (popbuf-side--key-buffers (popbuf--key))
-                             :key (lambda (buffer)
-                                    (float-time (buffer-local-value
-                                                 'buffer-display-time buffer)))
-                             :reverse t))
-                  (popbuf--resolve popbuf-side-default-buffer))))
+        (let ((tabs (popbuf-side--key-buffers (popbuf--key))))
+          (setq buffer
+                (or (unless (seq-some (lambda (tab)
+                                        (buffer-local-value 'popbuf-side--default tab))
+                                      tabs)
+                      (when-let* ((default (popbuf--resolve
+                                            popbuf-side-default-buffer)))
+                        (with-current-buffer default
+                          (setq popbuf-side--default t))
+                        default))
+                    ;; All shown, so all have a display time.
+                    (car (sort tabs
+                               :key (lambda (tab)
+                                      (float-time (buffer-local-value
+                                                   'buffer-display-time tab)))
+                               :reverse t))))))
       (unless (buffer-live-p buffer)
         (user-error "popbuf-side: spec yielded no buffer"))
       (select-window (popbuf-side--show buffer parameters))
@@ -196,13 +210,13 @@ panel shows it, show a neighbor tab, or hide the panel without one."
                 (set-window-buffer window
                                    (nth (min pos (1- (length rest))) rest))
               (popbuf-side-hide)))
-          (popbuf-side--update-tab-line)
+          (tab-line-force-update t)
           (message "popbuf-side: unpinned buffer `%s'" (buffer-name buffer)))
       (setq popbuf-side--pinned t
             popbuf-side--key (popbuf--key))
       (unless (memq buffer popbuf-side--buffers)
         (setq popbuf-side--buffers (append popbuf-side--buffers (list buffer))))
-      (popbuf-side--update-tab-line)
+      (tab-line-force-update t)
       (message "popbuf-side: pinned buffer `%s'" (buffer-name buffer)))))
 
 ;;;###autoload

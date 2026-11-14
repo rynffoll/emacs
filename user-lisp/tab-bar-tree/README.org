@@ -18,7 +18,8 @@ tree do not select it.  The tree buffer is in =tab-bar-tree-buffer-mode=.
 
 | Key         | Command                                           |
 |-------------+---------------------------------------------------|
-| =RET= =TAB= | =tab-bar-tree-select=: select a tab, fold a group |
+| =RET=       | =tab-bar-tree-select=: select a tab, fold a group |
+| =TAB=       | =tab-bar-tree-toggle-group=: fold a group         |
 | =n= =p=     | next, previous line                               |
 | =g=         | =tab-bar-tree-refresh=                            |
 
@@ -41,8 +42,8 @@ e.g. in a child frame.
 #+end_example
 
 Labels come from the tab bar's format functions, so whatever styles the
-tab bar styles the tree too.  A folded group shows only the current
-tab; core prefixes its label with the hint of its first tab.
+tab bar styles the tree too.  A folded group, the current one too, hides
+its tabs; core prefixes its label with the hint of its first tab.
 
 The tree is re-rendered on tab-bar hooks, after =tab-bar-tabs-set= and
 =tab-bar-tree-refresh-commands=, and on =tab-bar-tree-update=: call it
