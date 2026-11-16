@@ -51,7 +51,6 @@
 - [[#tty][TTY]]
   - [[#xt-mouse][xt-mouse]]
   - [[#disp-table][disp-table]]
-  - [[#kkp][kkp]]
 - [[#ui-1][UI]]
   - [[#taskbar][taskbar]]
   - [[#macos-notifications][macos-notifications]]
@@ -182,8 +181,6 @@
 - [[#checkers][Checkers]]
   - [[#jinx][jinx]]
   - [[#flymake][flymake]]
-  - [[#sideline][sideline]]
-  - [[#sideline-flymake][sideline-flymake]]
 - [[#goto][Goto]]
   - [[#xref][xref]]
   - [[#avy][avy]]
@@ -884,16 +881,6 @@ For mode hooks of buffers that do not show point."
         ?\f (make-vector (default-value 'fill-column) (make-glyph-code ?─ 'shadow)))
   :hook
   (after-init-hook . prettify-special-glyphs-mode))
-#+end_src
-
-** kkp
-#+begin_src emacs-lisp
-;; TODO: Drop after Emacs 32: built in, `tty-use-kitty-kbd-proto'.
-(use-package kkp
-  :if (< emacs-major-version 32)
-  :unless (display-graphic-p)
-  :hook
-  (tty-setup-hook . global-kkp-mode))
 #+end_src
 
 * UI
@@ -2675,25 +2662,6 @@ See [[info:flymake#Backend functions][(flymake)Backend functions]] and [[info:em
   (text-mode-hook . flymake-mode)
   (conf-mode-hook . flymake-mode)
   (prog-mode-hook . flymake-mode))
-#+end_src
-
-** sideline
-#+begin_src emacs-lisp
-(use-package sideline
-  :if (< emacs-major-version 32)
-  :init
-  (setq sideline-backends-right '(sideline-flymake))
-  (setq sideline-display-backend-name t))
-#+end_src
-
-** sideline-flymake
-#+begin_src emacs-lisp
-(use-package sideline-flymake
-  :if (< emacs-major-version 32)
-  :init
-  (setq sideline-flymake-display-mode 'point)
-  :hook
-  (flymake-mode-hook . sideline-mode))
 #+end_src
 
 * Goto

@@ -385,13 +385,6 @@ For mode hooks of buffers that do not show point."
   :hook
   (after-init-hook . prettify-special-glyphs-mode))
 
-;; TODO: Drop after Emacs 32: built in, `tty-use-kitty-kbd-proto'.
-(use-package kkp
-  :if (< emacs-major-version 32)
-  :unless (display-graphic-p)
-  :hook
-  (tty-setup-hook . global-kkp-mode))
-
 (use-package system-taskbar
   :ensure nil
   :hook
@@ -1640,19 +1633,6 @@ Rebuild the header line: its summary blinks too."
   (text-mode-hook . flymake-mode)
   (conf-mode-hook . flymake-mode)
   (prog-mode-hook . flymake-mode))
-
-(use-package sideline
-  :if (< emacs-major-version 32)
-  :init
-  (setq sideline-backends-right '(sideline-flymake))
-  (setq sideline-display-backend-name t))
-
-(use-package sideline-flymake
-  :if (< emacs-major-version 32)
-  :init
-  (setq sideline-flymake-display-mode 'point)
-  :hook
-  (flymake-mode-hook . sideline-mode))
 
 (use-package xref
   :ensure nil
