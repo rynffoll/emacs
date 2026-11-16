@@ -298,7 +298,7 @@ Usable for display outside the side window too, e.g. in a child frame."
                      (messages
                       (mapconcat
                        (lambda (message)
-                         (concat "\n" indent "  "
+                         (concat "\n" indent " "
                                  (propertize message
                                              'face 'tab-bar-tree-tab-message)))
                        (and tab-bar-tree-tab-messages-function

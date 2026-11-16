@@ -35,7 +35,7 @@ e.g. in a child frame.
 │ 1 *scratch*                   │ ← tab label      tab-bar-tab-name-format-function
 │ emacs                         │ ← group label    tab-bar-tab-group-format-function
 │    2 emacs                    │ ← tab label      indented by tab-bar-tree-indent
-│      working: Reading files   │ ← message        tab-bar-tree-tab-messages-function
+│     working: Reading files    │ ← message        tab-bar-tree-tab-messages-function
 │    3 *Proced*                 │ ← tab label
 │ 4 dotfiles                    │ ← group label, folded
 └───────────────────────────────┘
