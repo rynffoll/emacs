@@ -316,6 +316,7 @@ Usable for display outside the side window too, e.g. in a child frame."
                         "\n")))))
         (pcase-dolist (`(,window ,start ,point) windows)
           (set-window-start window (tab-bar-tree--goto-line start) t)
+          (set-window-vscroll window 0)
           (set-window-point window (tab-bar-tree--goto-line point)))
         (tab-bar-tree--goto-line line))
       ;; Remap first: the header line measures its items with the
