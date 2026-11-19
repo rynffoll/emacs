@@ -23,8 +23,9 @@
 
 ;;; Commentary:
 
-;; Toggle a centered, focused child frame, built directly on Emacs's core
-;; child-frame support (`make-frame' with a `parent-frame' parameter).
+;; Toggle a centered, focused child frame, shown by
+;; `display-buffer-in-child-frame' and shared by its `share-child-frame'
+;; parameter.
 ;;
 ;; The child frame is created lazily on the first `popbuf-frame' call from a
 ;; buffer spec (a buffer, a buffer name, or a function returning one; a
@@ -86,8 +87,9 @@ called inside `save-window-excursion'."
     (window-parameters (tab-line-format . popbuf-tab-line-format)))
   "Frame parameters of the child frame, applied on every showing.
 Floats in `width' and `height' are fractions of the parent frame.  The
-frame is centered.  `parent-frame', `minibuffer', `visibility' and
-`auto-hide-function' are reserved.  `window-parameters' entries are
+frame is centered.  `parent-frame', `minibuffer', `visibility',
+`auto-hide-function', `share-child-frame' and `popbuf-frame-fullscreen'
+are reserved.  `window-parameters' entries are
 parameters of the frame's window, as in `display-buffer'; they merge,
 an earlier entry's parameter winning."
   :type '(alist :key-type symbol :value-type sexp))
@@ -101,12 +103,6 @@ See `popbuf-frame-mode-line-format'."
   "Face of `popbuf-frame-mode-line-pin' on the mode line.")
 
 
-(defvar popbuf-frame--child-frame nil
-  "The child frame created by `popbuf-frame', or nil when none.")
-
-(defvar popbuf-frame--child-frame-created-fullscreen nil
-  "The parent frame's `fullscreen' state when the child frame was created.")
-
 (defvar-local popbuf-frame--pin nil
   "Pin key this buffer is pinned to, or nil; see `popbuf--key'.")
 
@@ -176,18 +172,20 @@ frame, and `popbuf-frame' shows a new one.  On `kill-buffer-hook'."
     (tab-line-force-update t)))
 
 (defun popbuf-frame--live-child-frame ()
-  "Return `popbuf-frame--child-frame' if it is live, or nil."
-  (and (frame-live-p popbuf-frame--child-frame) popbuf-frame--child-frame))
+  "Return the live popbuf-frame child frame, or nil."
+  (seq-find (lambda (frame)
+              (eq (frame-parameter frame 'share-child-frame) 'popbuf-frame))
+            (frame-list)))
 
 (defun popbuf-frame--live-parent-frame ()
-  "Return the parent frame of `popbuf-frame--child-frame' if it is live, or nil."
+  "Return the parent frame of the popbuf-frame child frame, or nil."
   (when-let* ((child-frame (popbuf-frame--live-child-frame)))
     (frame-parent child-frame)))
 
 (defun popbuf-frame--showing-p (buffer)
   "Return non-nil if the child frame is visible and shows BUFFER."
   (and (eq buffer (popbuf-frame--shown-buffer))
-       (frame-visible-p popbuf-frame--child-frame)))
+       (frame-visible-p (popbuf-frame--live-child-frame))))
 
 (defun popbuf-frame--focus-parent-frame ()
   "Give input focus to the child frame's live parent frame, if any."
@@ -198,7 +196,7 @@ frame, and `popbuf-frame' shows a new one.  On `kill-buffer-hook'."
   "Make the child frame invisible and bury its buffer.
 Return focus to its parent frame unless KEEP-FOCUS is non-nil."
   (bury-buffer (popbuf-frame--shown-buffer))
-  (make-frame-invisible popbuf-frame--child-frame)
+  (make-frame-invisible (popbuf-frame--live-child-frame))
   (unless keep-focus
     (popbuf-frame--focus-parent-frame)))
 
@@ -214,9 +212,9 @@ the parent frame's, does not count."
       (popbuf-frame--hide t))))
 
 (defun popbuf-frame--restore-parent-focus (deleted-frame)
-  "Focus the parent frame when DELETED-FRAME is `popbuf-frame--child-frame'.
+  "Focus the parent frame when DELETED-FRAME is the popbuf-frame child frame.
 On `delete-frame-functions'."
-  (when (eq deleted-frame popbuf-frame--child-frame)
+  (when (eq deleted-frame (popbuf-frame--live-child-frame))
     (popbuf-frame--focus-parent-frame)))
 
 (defun popbuf-frame--fit (child-frame parameters)
@@ -227,7 +225,8 @@ Runs on every showing: the parent may have been resized meanwhile."
    (seq-remove (lambda (parameter)
                  (or (memq (car parameter)
                            '(parent-frame minibuffer visibility
-                             auto-hide-function))
+                             auto-hide-function share-child-frame
+                             popbuf-frame-fullscreen))
                      (equal (frame-parameter child-frame (car parameter))
                             (cdr parameter))))
                (seq-uniq parameters (lambda (a b) (eq (car a) (car b))))))
@@ -248,56 +247,51 @@ Runs on every showing: the parent may have been resized meanwhile."
 Set as the `split-window' window parameter."
   (user-error "Cannot split a popbuf-frame window"))
 
-(defun popbuf-frame--set-buffer (window buffer)
-  "Show BUFFER in the child frame's WINDOW and dedicate WINDOW to it."
-  (set-window-dedicated-p window nil)
-  (set-window-buffer window buffer)
-  (set-window-dedicated-p window t))
-
-(defun popbuf-frame--reveal (child-frame buffer parameters)
-  "Show BUFFER in CHILD-FRAME, fit it with PARAMETERS, and focus it."
-  (popbuf-frame--set-buffer (window-main-window child-frame) buffer)
-  (popbuf-frame--fit child-frame parameters)
-  ;; Raising, it also makes CHILD-FRAME visible.
-  (select-frame-set-input-focus child-frame))
-
-(defun popbuf-frame--create (buffer parameters)
-  "Create a child frame with PARAMETERS, show BUFFER in it and focus it."
-  (let* ((parent-frame (selected-frame))
-         ;; First match wins: reserved parameters go first.
-         (child-frame
-          (make-frame
-           `((parent-frame . ,parent-frame)
+(defun popbuf-frame--display (parent-frame buffer parameters window-parameters)
+  "Show BUFFER in PARENT-FRAME's child frame, fit it and focus it.
+Create the child frame with PARAMETERS if there is none.  Give its
+window WINDOW-PARAMETERS."
+  (let* ((display-buffer-overriding-action
+          `(display-buffer-in-child-frame
+            (child-frame-parameters
+             ;; First match wins: reserved parameters go first.
+             (share-child-frame . popbuf-frame)
+             (popbuf-frame-fullscreen
+              . ,(frame-parameter parent-frame 'fullscreen))
              (minibuffer . ,(minibuffer-window parent-frame))
              (visibility . nil)
              ;; Else `frame-auto-hide-function' (`iconify-frame'), a
              ;; no-op on a child frame.
              (auto-hide-function . popbuf-frame-hide)
-             ,@parameters))))
-    (setq popbuf-frame--child-frame child-frame
-          popbuf-frame--child-frame-created-fullscreen
-          (frame-parameter parent-frame 'fullscreen))
-    ;; `unsplittable' only stops `display-buffer'; this stops `split-window'.
-    (set-window-parameter (frame-root-window child-frame)
-                          'split-window #'popbuf-frame--refuse-split)
+             ,@parameters)
+            ;; `unsplittable' only stops `display-buffer'; this stops
+            ;; `split-window'.
+            (window-parameters ,@window-parameters
+                               (split-window . popbuf-frame--refuse-split))
+            (inhibit-switch-frame . t)))
+         (window (with-selected-frame parent-frame
+                   (display-buffer buffer)))
+         (child-frame (window-frame window)))
+    ;; `display-buffer' dedicates only a window it made.
+    (set-window-dedicated-p window t)
     ;; `auto-hide-function' is skipped when Emacs deletes the frame
     ;; itself, e.g. as its last buffer is killed.
     (add-hook 'delete-frame-functions #'popbuf-frame--restore-parent-focus)
     (add-hook 'window-selection-change-functions #'popbuf-frame--hide-on-leave)
     (add-hook 'kill-buffer-hook #'popbuf-frame--kill-buffer-update)
     (popbuf--install)
-    (popbuf-frame--reveal child-frame buffer parameters)))
+    (popbuf-frame--fit child-frame parameters)
+    ;; Raising, it also makes CHILD-FRAME visible.
+    (select-frame-set-input-focus child-frame)))
 
-(defun popbuf-frame--reusable-child-frame (parent-frame)
-  "Return the live child frame, or nil after deleting a stale one.
-Stale: PARENT-FRAME's `fullscreen' changed since its creation."
-  (when-let* ((child-frame (popbuf-frame--live-child-frame)))
-    ;; A child frame is bound to the macOS Space it was created on.
-    (if (equal (frame-parameter parent-frame 'fullscreen)
-               popbuf-frame--child-frame-created-fullscreen)
-        child-frame
-      (popbuf-frame-delete)
-      nil)))
+(defun popbuf-frame--delete-stale (parent-frame)
+  "Delete the child frame if PARENT-FRAME's `fullscreen' changed since."
+  (when-let* ((child-frame (popbuf-frame--live-child-frame))
+              ;; A child frame is bound to the macOS Space it was created on.
+              ((not (equal (frame-parameter parent-frame 'fullscreen)
+                           (frame-parameter child-frame
+                                            'popbuf-frame-fullscreen)))))
+    (delete-frame child-frame)))
 
 
 (defun popbuf-frame-tabs ()
@@ -336,8 +330,7 @@ are dropped with their buffer."
 `popbuf-frame' recreates it on its next call."
   (interactive)
   (when-let* ((child-frame (popbuf-frame--live-child-frame)))
-    (delete-frame child-frame))
-  (setq popbuf-frame--child-frame nil))
+    (delete-frame child-frame)))
 
 ;;;###autoload
 (defun popbuf-frame (&optional spec parameters)
@@ -369,19 +362,17 @@ PARAMETERS override `popbuf-frame-parameters' for this call."
       (popbuf-frame--hide)
       nil)
      (t
-      (if-let* ((child-frame (popbuf-frame--reusable-child-frame parent-frame)))
-          (popbuf-frame--reveal child-frame buffer parameters)
-        (popbuf-frame--create buffer parameters))
-      (let ((window (popbuf-frame--window)))
-        ;; The window is reused: drop the last showing's parameters.
+      (popbuf-frame--delete-stale parent-frame)
+      ;; The window is reused: drop the last showing's parameters.
+      (when-let* ((window (popbuf-frame--window)))
         (dolist (name (window-parameter window 'popbuf-frame-window-parameters))
-          (set-window-parameter window name nil))
-        (pcase-dolist (`(,name . ,value) window-parameters)
-          (set-window-parameter window name value))
-        (set-window-parameter window 'popbuf-frame-window-parameters
-                              (mapcar #'car window-parameters))
-        (set-window-parameter window 'popbuf-frame-tabs key)
-        (set-window-parameter window 'popbuf-tabs #'popbuf-frame-tabs))
+          (set-window-parameter window name nil)))
+      (popbuf-frame--display
+       parent-frame buffer parameters
+       `(,@window-parameters
+         (popbuf-frame-window-parameters . ,(mapcar #'car window-parameters))
+         (popbuf-frame-tabs . ,key)
+         (popbuf-tabs . popbuf-frame-tabs)))
       buffer))))
 
 ;;;###autoload
