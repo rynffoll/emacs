@@ -169,10 +169,15 @@ string is used as is; nil, or colors that do not resolve, give TARGET."
   (tab-bar-color-bar--mix tab-bar-color-bar-inactive-blend face))
 
 (defvar tab-bar-color-bar--cache (make-hash-table :test #'equal)
-  "Bar strings keyed by (COLOR WIDTH HEIGHT CURRENT-P FACE SYMBOL).
+  "Bar strings keyed by (COLOR WIDTH HEIGHT CURRENT-P FACE WINDOW-SYSTEM).
 COLOR is a literal color, so theme changes need no flush; WIDTH and
-HEIGHT are resolved pixels, which differ between frames.  SYMBOL is the
-terminal bar string, nil for an image bar.")
+HEIGHT are resolved pixels, which differ between frames.  Flushed when
+the terminal bar strings change.")
+
+(defvar tab-bar-color-bar--cache-symbols nil
+  "The terminal bar strings the bar cache was built for.
+A cons of `tab-bar-color-bar-symbol' and
+`tab-bar-color-bar-inactive-symbol'.")
 
 ;; Workaround: `tab-bar-auto-width' pads a tab with copies of its first
 ;; character's properties.  Copies of a bar's `display' are `eq', draw
@@ -182,14 +187,27 @@ terminal bar string, nil for an image bar.")
 (defconst tab-bar-color-bar--lead (string #x200b)
   "Zero-width space leading a graphic bar.")
 
-(defun tab-bar-color-bar--append-face (bar face)
-  "Append FACE to BAR's faces and return BAR.
-Return BAR unchanged if FACE is nil."
-  ;; Append, do not set: on a terminal the bar's color lives in its
-  ;; `face' property, which a set face would override.
-  (when face
-    (add-face-text-property 0 (length bar) face t bar))
-  bar)
+(defun tab-bar-color-bar--build-1 (color width height current-p)
+  "Return a new bar string in COLOR, WIDTH by HEIGHT pixels.
+CURRENT-P draws the current tab's bar.  A nil COLOR gives a blank."
+  (if (tab-bar-color-bar--image-p)
+      ;; The painted part is an image exactly that wide.  The rest is a
+      ;; transparent `space'; PBM 0 bits would be opaque white.
+      (let ((painted (cond ((not color) 0) (current-p width) (t 1))))
+        (concat
+         tab-bar-color-bar--lead
+         (and color
+              (propertize " " 'display
+                          (create-image
+                           (format "P1\n%d %d\n%s\n" painted height
+                                   (make-string (* painted height) ?1))
+                           'pbm t :foreground color :ascent 'center)))
+         (and (< painted width)
+              (propertize " " 'display `(space :width (,(- width painted)))))))
+    (if color
+        (propertize (tab-bar-color-bar--symbol current-p)
+                    'face (list :foreground color))
+      (copy-sequence " "))))
 
 
 ;;;###autoload
@@ -226,43 +244,29 @@ The returned string may be shared; copy it before adding properties."
   ;; `tab-bar-tab-name-format-face', makes it unnecessary.
   (if (not (tab-bar-color-bar--drawn-p))
       ""
-    (let ((width (tab-bar-color-bar--width))
-          (height (tab-bar-color-bar--height))
-          (image-p (tab-bar-color-bar--image-p)))
-      (if (not (color-defined-p color))
-          ;; Not cached: COLOR may be defined later, e.g. by a theme.
-          (tab-bar-color-bar--append-face
-           (if image-p
-               (concat tab-bar-color-bar--lead
-                       (propertize " " 'display `(space :width (,width))))
-             (copy-sequence " "))
-           face)
-        (with-memoization (gethash (list color width height current-p face
-                                         (unless image-p
-                                           (if current-p
-                                               tab-bar-color-bar-symbol
-                                             tab-bar-color-bar-inactive-symbol)))
-                                   tab-bar-color-bar--cache)
-          (if image-p
-              ;; The painted part is an image exactly that wide.  The rest
-              ;; is a transparent `space'; PBM 0 bits would be opaque white.
-              (let ((painted (if current-p width 1)))
-                (tab-bar-color-bar--append-face
-                 (concat
-                  tab-bar-color-bar--lead
-                  (propertize " " 'display
-                              (create-image
-                               (format "P1\n%d %d\n%s\n" painted height
-                                       (make-string (* painted height) ?1))
-                               'pbm t :foreground color :ascent 'center))
-                  (and (< painted width)
-                       (propertize " " 'display
-                                   `(space :width (,(- width painted))))))
-                 face))
-            (tab-bar-color-bar--append-face
-             (propertize (tab-bar-color-bar--symbol current-p)
-                         'face (list :foreground color))
-             face)))))))
+    (unless (and (eq (car tab-bar-color-bar--cache-symbols)
+                     tab-bar-color-bar-symbol)
+                 (eq (cdr tab-bar-color-bar--cache-symbols)
+                     tab-bar-color-bar-inactive-symbol))
+      (clrhash tab-bar-color-bar--cache)
+      (setq tab-bar-color-bar--cache-symbols
+            (cons tab-bar-color-bar-symbol
+                  tab-bar-color-bar-inactive-symbol)))
+    (let* ((width (tab-bar-color-bar--width))
+           (height (tab-bar-color-bar--height))
+           (key (list color width height current-p face (window-system))))
+      ;; PERF: The cache first: only defined colors are cached.
+      (or (gethash key tab-bar-color-bar--cache)
+          (let* ((defined (color-defined-p color))
+                 (bar (tab-bar-color-bar--build-1 (and defined color)
+                                                  width height current-p)))
+            ;; Append, do not set: on a terminal the bar's color lives in
+            ;; its `face' property, which a set face would override.
+            (when face
+              (add-face-text-property 0 (length bar) face t bar))
+            ;; Not cached if undefined: COLOR may be defined later, e.g.
+            ;; by a theme.
+            (if defined (puthash key bar tab-bar-color-bar--cache) bar))))))
 
 ;;;###autoload
 (defun tab-bar-color-bar-tab-name-format (name tab i)
