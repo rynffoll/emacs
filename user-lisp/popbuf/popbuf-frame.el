@@ -88,10 +88,9 @@ called inside `save-window-excursion'."
   "Frame parameters of the child frame, applied on every showing.
 Floats in `width' and `height' are fractions of the parent frame.  The
 frame is centered.  `parent-frame', `minibuffer', `visibility',
-`auto-hide-function', `share-child-frame' and `popbuf-frame-fullscreen'
-are reserved.  `window-parameters' entries are
-parameters of the frame's window, as in `display-buffer'; they merge,
-an earlier entry's parameter winning."
+`auto-hide-function' and `share-child-frame' are reserved.
+`window-parameters' entries are parameters of the frame's window, as in
+`display-buffer'; they merge, an earlier entry's parameter winning."
   :type '(alist :key-type symbol :value-type sexp))
 
 (defcustom popbuf-frame-mode-line-pin "■"
@@ -225,8 +224,7 @@ Runs on every showing: the parent may have been resized meanwhile."
    (seq-remove (lambda (parameter)
                  (or (memq (car parameter)
                            '(parent-frame minibuffer visibility
-                             auto-hide-function share-child-frame
-                             popbuf-frame-fullscreen))
+                             auto-hide-function share-child-frame))
                      (equal (frame-parameter child-frame (car parameter))
                             (cdr parameter))))
                (seq-uniq parameters (lambda (a b) (eq (car a) (car b))))))
@@ -256,8 +254,6 @@ window WINDOW-PARAMETERS."
             (child-frame-parameters
              ;; First match wins: reserved parameters go first.
              (share-child-frame . popbuf-frame)
-             (popbuf-frame-fullscreen
-              . ,(frame-parameter parent-frame 'fullscreen))
              (minibuffer . ,(minibuffer-window parent-frame))
              (visibility . nil)
              ;; Else `frame-auto-hide-function' (`iconify-frame'), a
@@ -283,15 +279,6 @@ window WINDOW-PARAMETERS."
     (popbuf-frame--fit child-frame parameters)
     ;; Raising, it also makes CHILD-FRAME visible.
     (select-frame-set-input-focus child-frame)))
-
-(defun popbuf-frame--delete-stale (parent-frame)
-  "Delete the child frame if PARENT-FRAME's `fullscreen' changed since."
-  (when-let* ((child-frame (popbuf-frame--live-child-frame))
-              ;; A child frame is bound to the macOS Space it was created on.
-              ((not (equal (frame-parameter parent-frame 'fullscreen)
-                           (frame-parameter child-frame
-                                            'popbuf-frame-fullscreen)))))
-    (delete-frame child-frame)))
 
 
 (defun popbuf-frame-tabs ()
@@ -362,7 +349,6 @@ PARAMETERS override `popbuf-frame-parameters' for this call."
       (popbuf-frame--hide)
       nil)
      (t
-      (popbuf-frame--delete-stale parent-frame)
       ;; The window is reused: drop the last showing's parameters.
       (when-let* ((window (popbuf-frame--window)))
         (dolist (name (window-parameter window 'popbuf-frame-window-parameters))

@@ -623,12 +623,32 @@ For mode hooks of buffers that do not show point."
      (seq-filter (lambda (param)
                    (memq (car param) '(left top width height)))
                  default-frame-alist)))
+  (defun +reset-child-frames (frame)
+    "Delete the child frames of FRAME when its `fullscreen' changes.
+This is a workaround for packages with child frames, such as corfu and
+popbuf-frame.  On macOS, a child frame stays on the Space where it was
+made.  After the deletion, the packages make new child frames on the
+current Space.
+
+The `+last-fullscreen' parameter of FRAME holds the last known value
+of `fullscreen'.  Use this function on `window-size-change-functions'.
+
+Related issues:
+- URL `https://github.com/minad/corfu/issues/583'
+- URL `https://github.com/minad/corfu/discussions/584'"
+    (let ((fullscreen (frame-parameter frame 'fullscreen)))
+      (unless (equal fullscreen (frame-parameter frame '+last-fullscreen))
+        (set-frame-parameter frame '+last-fullscreen fullscreen)
+        (dolist (child (frame-list))
+          (when (eq (frame-parent child) frame)
+            (delete-frame child))))))
   :init
   (setq window-divider-default-right-width 1)
   :config
   (blink-cursor-mode -1)
   :hook
-  (after-init-hook . window-divider-mode))
+  (after-init-hook . window-divider-mode)
+  (window-size-change-functions . +reset-child-frames))
 
 (use-package fringe
   :if (display-graphic-p)
