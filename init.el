@@ -584,8 +584,6 @@ For mode hooks of buffers that do not show point."
 (use-package doric-themes)
 
 (use-package doom-themes
-  :init
-  (setq doom-themes-enable-italic t)
   :config
   (doom-themes-org-config))
 
@@ -1174,7 +1172,6 @@ Rebuild the header line: its summary blinks too."
   (setq kind-icon-default-face 'corfu-default)
   (setq kind-icon-blend-background t)
   (setq kind-icon-use-icons nil)
-  (setq kind-icon-extra-space nil)
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
   (advice-add #'disable-theme :before #'+kind-icon-reset-cache))
