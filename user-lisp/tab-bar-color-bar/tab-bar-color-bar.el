@@ -169,9 +169,10 @@ string is used as is; nil, or colors that do not resolve, give TARGET."
   (tab-bar-color-bar--mix tab-bar-color-bar-inactive-blend face))
 
 (defvar tab-bar-color-bar--cache (make-hash-table :test #'equal)
-  "Bar strings keyed by (COLOR WIDTH HEIGHT CURRENT-P FACE).
+  "Bar strings keyed by (COLOR WIDTH HEIGHT CURRENT-P FACE SYMBOL).
 COLOR is a literal color, so theme changes need no flush; WIDTH and
-HEIGHT are resolved pixels, which differ between frames.")
+HEIGHT are resolved pixels, which differ between frames.  SYMBOL is the
+terminal bar string, nil for an image bar.")
 
 ;; Workaround: `tab-bar-auto-width' pads a tab with copies of its first
 ;; character's properties.  Copies of a bar's `display' are `eq', draw
@@ -226,18 +227,23 @@ The returned string may be shared; copy it before adding properties."
   (if (not (tab-bar-color-bar--drawn-p))
       ""
     (let ((width (tab-bar-color-bar--width))
-          (height (tab-bar-color-bar--height)))
+          (height (tab-bar-color-bar--height))
+          (image-p (tab-bar-color-bar--image-p)))
       (if (not (color-defined-p color))
           ;; Not cached: COLOR may be defined later, e.g. by a theme.
           (tab-bar-color-bar--append-face
-           (if (tab-bar-color-bar--image-p)
+           (if image-p
                (concat tab-bar-color-bar--lead
                        (propertize " " 'display `(space :width (,width))))
              (copy-sequence " "))
            face)
-        (with-memoization (gethash (list color width height current-p face)
+        (with-memoization (gethash (list color width height current-p face
+                                         (unless image-p
+                                           (if current-p
+                                               tab-bar-color-bar-symbol
+                                             tab-bar-color-bar-inactive-symbol)))
                                    tab-bar-color-bar--cache)
-          (if (tab-bar-color-bar--image-p)
+          (if image-p
               ;; The painted part is an image exactly that wide.  The rest
               ;; is a transparent `space'; PBM 0 bits would be opaque white.
               (let ((painted (if current-p width 1)))
