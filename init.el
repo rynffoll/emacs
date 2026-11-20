@@ -2333,8 +2333,9 @@ Covers both working-tree faces and reference-revision faces."
 (use-package yaml-ts-mode
   :ensure nil
   :preface
+  ;; TODO: move to evil-collection
   (defun +yaml-ts-mode-set-evil-shift-width ()
-    (setq-local evil-shift-width 2))
+    (setq-local evil-shift-width yaml-ts-indent-offset))
   :init
   (setq yaml-ts-mode-yamllint-options
         '("-d" "{extends: relaxed, rules: {line-length: {max: 120}}}"))
