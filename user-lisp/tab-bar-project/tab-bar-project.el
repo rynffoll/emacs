@@ -93,7 +93,8 @@ ROOT itself, unless ROOT is a linked working tree."
                   (goto-char (point-min))
                   (when (re-search-forward
                          "gitdir: \\(.+?\\)/\\(?:\\.git/\\)?worktrees/" nil t)
-                    (match-string 1))))
+                    ;; Handle "git worktree add --relative-paths".
+                    (expand-file-name (match-string 1) root))))
            root)))))
 
 ;;;###autoload
