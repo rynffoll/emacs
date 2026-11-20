@@ -2454,9 +2454,9 @@ Covers both working-tree faces and reference-revision faces."
   (add-hook 'flymake-diagnostic-functions #'review-flymake)
   ;; review.org wires its own save/revert hooks via a -*- cookie; whitelist them
   (add-to-list 'safe-local-variable-values
-               '(after-save-hook . review--after-review-change))
+               '(after-save-hook . review-after-review-change))
   (add-to-list 'safe-local-variable-values
-               '(after-revert-hook . review--after-review-change))
+               '(after-revert-hook . review-after-review-change))
   :hook
   (eglot-managed-mode-hook . +review-flymake-in-eglot))
 

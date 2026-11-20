@@ -329,7 +329,7 @@ Replaces this backend's diagnostics (the :region covers the whole buffer)."
   "Flymake backend: stash REPORT-FN and report current review notes.
 Add to `flymake-diagnostic-functions'.  Notes come from review.org, not the
 buffer text, so updates are pushed via `review--report' when review.org
-changes (`review--after-finalize', `review--after-review-change'),
+changes (`review--after-finalize', `review-after-review-change'),
 not on buffer edits."
   (setq review--report-fn report-fn)
   (review--report (current-buffer)))
@@ -350,7 +350,7 @@ not on buffer edits."
   (when-let* ((buf (org-capture-get :original-buffer)))
     (review--report buf)))
 
-(defun review--after-review-change ()
+(defun review-after-review-change ()
   "On save/revert of a review.org, push notes to that project's buffers.
 For `after-save-hook' and `after-revert-hook'."
   (when (review--review-file-p buffer-file-name)
