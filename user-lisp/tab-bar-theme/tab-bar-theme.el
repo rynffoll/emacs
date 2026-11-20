@@ -391,9 +391,12 @@ Stored as a tab parameter, so it lives as long as the tab."
   (alist-get 'tab-bar-theme-color tab))
 
 (defvar tab-bar-theme--key-face-cache (make-hash-table :test #'equal)
-  "Cache of `tab-bar-theme-color-from-key' results.
-Keyed on (KEY . FACES), FACES being `tab-bar-theme-color-faces';
-nothing depends on the theme, so the cache survives theme loads.")
+  "Cache of `tab-bar-theme-color-from-key' results, keyed on KEY.
+Flushed when `tab-bar-theme-color-faces' changes; nothing depends on the
+theme, so the cache survives theme loads.")
+
+(defvar tab-bar-theme--key-face-cache-palette nil
+  "The `tab-bar-theme-color-faces' the key-face cache was built for.")
 
 (defun tab-bar-theme-color-from-key (key)
   "Return the face for KEY, or nil if KEY is nil.
@@ -403,8 +406,10 @@ key keeps its color across sessions, at the cost of occasional
 collisions while other slots are free.  `secure-hash' is used because
 `sxhash-equal' values are not stable across Emacs versions."
   (when (and key tab-bar-theme-color-faces)
-    (with-memoization (gethash (cons key tab-bar-theme-color-faces)
-                               tab-bar-theme--key-face-cache)
+    (unless (eq tab-bar-theme--key-face-cache-palette tab-bar-theme-color-faces)
+      (clrhash tab-bar-theme--key-face-cache)
+      (setq tab-bar-theme--key-face-cache-palette tab-bar-theme-color-faces))
+    (with-memoization (gethash key tab-bar-theme--key-face-cache)
       ;; `--at-slot' wraps, so no `mod' here.
       (tab-bar-theme--at-slot
        tab-bar-theme-color-faces
