@@ -767,7 +767,7 @@ The tab bar is hidden while the mode is on."
                     #'tab-bar-tree--restore-windows)
         ;; `setopt': the :set of `tab-bar-show' applies it to every frame.
         (setopt tab-bar-show nil)
-        (tab-bar-tree--show))
+        (mapc #'tab-bar-tree--show-frame (frame-list)))
     (dolist (parameter tab-bar-tree--persistent-parameters)
       (setq window-persistent-parameters
             (assq-delete-all parameter window-persistent-parameters)))
